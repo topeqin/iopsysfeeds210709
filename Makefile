@@ -29,8 +29,11 @@ define Build/Prepare
 endef
 
 define Package/btle_alarm/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/btle_alarm $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/btle_alarm $(1)/sbin/
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN)  ./files/etc/init.d/* $(1)/etc/init.d/
+
 endef
 
 $(eval $(call BuildPackage,btle_alarm))
