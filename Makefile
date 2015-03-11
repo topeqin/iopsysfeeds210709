@@ -32,6 +32,7 @@ define Package/btle_alarm/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/btle_alarm $(1)/sbin/
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DATA) ./files/btle_alarm.conf $(1)/etc/config/btle_alarm
 	$(INSTALL_BIN)  ./files/etc/init.d/* $(1)/etc/init.d/
 
 endef

@@ -9,8 +9,13 @@ start() {
         for i in down reset up;do
             hciconfig hci0 $i
         done
-        hcitool lewladd D0:39:72:B6:43:8A
-        hcitool lewladd D0:39:72:B6:18:AA
+        mac=`uci get btle_alarm.mac`
+        if [ $? -eq 0 ];then
+            hcitool lewladd $mac
+        else
+            hcitool lewladd D0:39:72:B6:43:8A
+            hcitool lewladd D0:39:72:B6:18:AA
+        fi
        sleep 1
         /sbin/btle_alarm
 }
