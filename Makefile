@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/btle_alarm
   SECTION:=base
-  CATEGORY:=Utillities
+  CATEGORY:=Utilities
   TITLE:=Ethernet bridging configuration utility
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://btle_alarm.sourceforge.net/
