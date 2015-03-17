@@ -45,6 +45,7 @@ struct hci_state open_default_hci_device()
 	if((current_hci_state.device_handle = hci_open_dev(current_hci_state.device_id)) < 0) 
 	{
 		current_hci_state.has_error = TRUE;
+		snprintf(current_hci_state.error_message, sizeof(current_hci_state.error_message), "Could not open device: %s", strerror(errno));
 		return current_hci_state;
 	}
 
@@ -53,6 +54,7 @@ struct hci_state open_default_hci_device()
 	if(ioctl(current_hci_state.device_handle, FIONBIO, (char *)&on) < 0)
 	{
 		current_hci_state.has_error = TRUE;
+		snprintf(current_hci_state.error_message, sizeof(current_hci_state.error_message), "Could set device to non-blocking: %s", strerror(errno));
 		return current_hci_state;
 	}
 
@@ -66,12 +68,14 @@ void start_hci_scan(struct hci_state current_hci_state)
 	if(hci_le_set_scan_parameters(current_hci_state.device_handle, 0x00, htobs(0x0010), htobs(0x0010), 0x00, 0x01, 1000) < 0) 
 	{
 		current_hci_state.has_error = TRUE;
+		snprintf(current_hci_state.error_message, sizeof(current_hci_state.error_message), "Failed to set scan parameters: %s", strerror(errno));
 		return;
 	}
 
 	if(hci_le_set_scan_enable(current_hci_state.device_handle, 0x01, 1, 1000) < 0) 
 	{
 		current_hci_state.has_error = TRUE;
+		snprintf(current_hci_state.error_message, sizeof(current_hci_state.error_message), "Failed to enable scan: %s", strerror(errno));
 		return;
 	}
 
@@ -82,6 +86,7 @@ void start_hci_scan(struct hci_state current_hci_state)
 	if(getsockopt(current_hci_state.device_handle, SOL_HCI, HCI_FILTER, &current_hci_state.original_filter, &olen) < 0) 
 	{
 		current_hci_state.has_error = TRUE;
+		snprintf(current_hci_state.error_message, sizeof(current_hci_state.error_message), "Could not get socket options: %s", strerror(errno));
 		return;
 	}
 
@@ -140,6 +145,7 @@ void error_check_and_exit(struct hci_state current_hci_state)
 void process_data(uint8_t *data, size_t data_len, le_advertising_info *info)
 {
 	int cec=0;
+	printf("Test: %p and %d\n", data, data_len);
 	if(data[0] == EIR_NAME_SHORT || data[0] == EIR_NAME_COMPLETE)
 
 	{
@@ -151,28 +157,36 @@ void process_data(uint8_t *data, size_t data_len, le_advertising_info *info)
 		char addr[18];
 		ba2str(&info->bdaddr, addr);
 
+		printf("addr=%s name=%s\n", addr, name);
 
 		free(name);
 	}
 	else if(data[0] == EIR_FLAGS)
 	{
+		printf("Flag type: len=%d\n", data_len);
 		int i;
 		for(i=1; i<data_len; i++)
 		{
+			printf("\tFlag data: 0x%0X\n", data[i]);
 		}
 	}
 	else if(data[0] == EIR_MANUFACTURE_SPECIFIC)
 	{
+		printf("Manufacture specific type: len=%d\n", data_len);
 
 		// TODO int company_id = data[current_index + 2] 
 
 		int i;
+		printf("data : ");
 		for(i=1; i<data_len; i++)
 		{
+			printf("0x%0X ", data[i]);
 		}
+		printf("\n\n");
 	}
 	else
 	{
+		printf("Unknown type: type=%X\n", data[0]);
 	}
 	unsigned char d=data[3];
 
@@ -184,11 +198,12 @@ void process_data(uint8_t *data, size_t data_len, le_advertising_info *info)
 		activePersAlarm.fall=1;
 	if(0x10 & data[3])
 		activePersAlarm.clear=1;	  
+	printf("Test: 0x%0X \n Fall: %d\n Alarm: %d\n Battery: %d\n Clear: %d\n",data[3],activePersAlarm.fall,activePersAlarm.panic,activePersAlarm.battery,activePersAlarm.clear);
 	if((activePersAlarm.panic || activePersAlarm.fall) && !(activePersAlarm.clear))
 			{
 		for(cec=0;cec<6;cec++)
 			write_call_file(cec);
-		(void)system("mv /tmp/btle_alarm_*.call /var/spool/asterisk/outgoing/.");
+		(void)system("mv /tmp/btle_* /var/spool/asterisk/outgoing/.");
 			}
 }
 
@@ -197,6 +212,8 @@ static void write_call_file(int id)
 	char str[94];
 	char fname[22];
 	FILE *fp;
+	sprintf(str,"Channel: BRCM/%d\nMaxRetries: 2\nRetryTime: 60\nWaitTime: 30\nContext: call-file-test\nExtension: %d\0",id,10);
+	sprintf(fname,"/tmp/btle_alarm_%d.call",id);
 	fp=fopen(fname,"w");
 	fwrite(str , 1 , sizeof(str) , fp );
 	fclose(fp);
@@ -254,6 +271,7 @@ void main(void)
 
 	error_check_and_exit(current_hci_state);
 
+	printf("Scanning...\n");
 
 	int done = FALSE;
 	int error = FALSE;
@@ -297,6 +315,8 @@ void main(void)
 
 			le_advertising_info *info = (le_advertising_info *) (meta->data + 1);
 
+			printf("Event: %d\n", info->evt_type);
+			printf("Length: %d\n", info->length);
 
 			if(info->length == 0)
 			{
