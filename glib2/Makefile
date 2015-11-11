@@ -30,7 +30,7 @@ include $(INCLUDE_DIR)/nls.mk
 define Package/glib2
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=$(ICONV_DEPENDS) $(INTL_DEPENDS) +zlib +libpthread +libffi
+  DEPENDS:=$(ICONV_DEPENDS) +libiconv $(INTL_DEPENDS) +zlib +libpthread +libffi
   TITLE:=glib 2.0
   URL:=http://www.gtk.org/
 endef

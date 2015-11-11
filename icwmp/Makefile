@@ -16,7 +16,7 @@ else
 PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/freecwmp.git
 endif
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=019763820601eca898c08a05778168be882f76c3
+PKG_SOURCE_VERSION:=8d34c241548a21b6462df5d16906824685fe916c
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -38,7 +38,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +libjson +jshn +libubus +libblobmsg-json +ubusd +shflags +getopt
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt
 endef
 
 define Package/icwmp/description
