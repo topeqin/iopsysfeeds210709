@@ -22,7 +22,7 @@ endef
 
 # Include SDK version specific makefile based on config selection
 ifeq ($(CONFIG_ARCH),)
-include $(TOPDIR)/.config
+-include $(TOPDIR)/.config
 endif
 
 ifeq ($(CONFIG_BCM_OPEN),y)
