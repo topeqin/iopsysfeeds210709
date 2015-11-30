@@ -5,15 +5,15 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=juci-config-inteno
+PKG_NAME:=juci-full-inteno
 PKG_VERSION:=2.0.3
 PKG_RELEASE:=3
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/juci-config-inteno
-  CATEGORY:=Utilities
+define Package/juci-full-inteno
+  CATEGORY:=JUCI
   DEPENDS:= \
 	  +juci-broadcom-dsl \
 	  +juci-broadcom-ethernet \
@@ -49,7 +49,7 @@ define Package/juci-config-inteno
   TITLE:=JUCI Inteno Configuration Meta Package
 endef
 
-define Package/juci-config-inteno/description
+define Package/juci-full-inteno/description
 	Select this package to select default juci packages and configure menus based on needs of inteno. 
 endef
 
@@ -58,8 +58,8 @@ define Build/Prepare
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
 
-define Package/juci-config-inteno/install
+define Package/juci-full-inteno/install
 	$(CP) ./files/* $(1)/
 endef
 
-$(eval $(call BuildPackage,juci-config-inteno))
+$(eval $(call BuildPackage,juci-full-inteno))
