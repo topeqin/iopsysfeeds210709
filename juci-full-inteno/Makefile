@@ -29,6 +29,7 @@ define Package/juci-full-inteno
 	  +juci-firewall-fw3 \
 	  +juci-inteno-multiwan \
 	  +juci-inteno-router \
+	  +juci-inteno-qos \
 	  +juci-macdb \
 	  +juci-minidlna \
 	  +juci-mod-status \
