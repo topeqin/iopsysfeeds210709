@@ -2152,7 +2152,12 @@ int main(int argc, char **argv)
 {
 	int pt;
 
-	if (quest_ubus_init(NULL) < 0) {
+	const char *path = NULL; 
+	if(argc > 1 && argv[1] && strlen(argv[1]) > 0){
+		path = argv[1]; 
+	}
+
+	if (quest_ubus_init(path) < 0) {
 		fprintf(stderr, "Failed to connect to ubus\n");
 		return 1;
 	}
