@@ -17,6 +17,7 @@ define Package/juci-full-inteno
   DEPENDS:= \
 	  +juci-broadcom-dsl \
 	  +juci-broadcom-ethernet \
+	  +juci-broadcom-iptv \
 	  +juci-broadcom-vlan \
 	  +juci-broadcom-wl \
 	  +juci-ddns \
