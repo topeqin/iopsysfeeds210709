@@ -179,6 +179,11 @@ config menu
 	option page "internet-services-ddns"
 	option acls "juci-ddns"
 
+config menu
+	option path "internet/services/mcpd"
+	option page "broadcom-iptv"
+	option acls "juci-broadcom-iptv"
+
 config menu 
 	option path "internet/services/dhcp"
 	option page "dhcp-settings"
