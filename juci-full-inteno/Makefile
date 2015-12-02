@@ -27,6 +27,7 @@ define Package/juci-full-inteno
 	  +juci-ethernet \
 	  +juci-event \
 	  +juci-firewall-fw3 \
+	  +juci-iconnect \
 	  +juci-inteno-multiwan \
 	  +juci-inteno-router \
 	  +juci-inteno-qos \
