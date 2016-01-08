@@ -31,6 +31,7 @@ define Package/juci-full-inteno
 	  +juci-inteno-multiwan \
 	  +juci-inteno-router \
 	  +juci-inteno-qos \
+	  +juci-inteno-voice-client \
 	  +juci-macdb \
 	  +juci-minidlna \
 	  +juci-mod-status \

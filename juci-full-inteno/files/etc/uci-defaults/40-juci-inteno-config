@@ -18,7 +18,7 @@ config menu
 config menu
 	option path "voice"
 	option page "voice"
-	option redirect "phone-call-log"
+	option redirect "voice-call-log"
 	option acls "juci-inteno-voice-client"
 
 config menu
@@ -61,6 +61,7 @@ config menu
 config menu
 	option path "voice/advanced"
 	option page "voice-advanced-settings"
+	option redirect "voice-advanced-settings-dialplan"
 	option acls "juci-inteno-voice-client"
 
 config menu
