@@ -11,19 +11,6 @@ config juci_event 'juci_event'
 	list filter system.ntp
 	list filter iptv.mcpd
 
-config juci juci
-	option homepage overview
-
-config 'login' 'login'
-	option 'showusername' '1'
-	option 'defaultuser' 'admin'
-
-config 'localization' 'localization'
-	option default_language 'se'
-	list languages 'en'
-	list languages 'fi'
-	list languages 'se'
-
 config menu
 	option path 'overview'
 	option page 'overview'
@@ -108,18 +95,6 @@ config menu
 	list acls 'user-support'
 
 config menu
-	option path 'internet-user'
-	option page 'network'
-	option redirect 'internet-ports'
-	list acls 'user-user'
-
-config menu
-	option path 'internet-ports'
-	option page 'page-broadcom-ethernet-phy'
-	list acls 'juci-broadcom-ethernet'
-	list acls 'user-user'
-
-config menu
 	option path 'internet/ethernet'
 	option page 'internet-ethernet'
 	list acls 'juci-network-netifd'
@@ -170,7 +145,7 @@ config menu
 	option path 'internet/firewall/zones'
 	option page 'internet-firewall-zones'
 	list acls 'juci-firewall-fw3'
-	list acls 'user-support
+	list acls 'user-support'
 
 config menu
 	option path 'internet/firewall/rules'
@@ -184,7 +159,7 @@ config menu
 	list acls 'juci-firewall-fw3'
 	list acls 'user-support'
 
-onfig menu
+config menu
 	option path 'internet/firewall/port_mapping'
 	option page 'internet-firewall-port-mapping'
 	list acls 'juci-firewall-fw3'
@@ -205,7 +180,7 @@ config menu
 	option path 'internet/multiwan'
 	option page 'internet-multiwan'
 	list acls 'juci-inteno-multiwan'
-	lsit acls 'user-support'
+	list acls 'user-support'
 
 config menu 
 	option path 'internet/qos'
@@ -484,7 +459,11 @@ config menu
 EOF
 
 # install the default menus if they are not already in the config
-touch /etc/config/rpcd && cat > /etc/config/rpcd << EOF
+uci delete rpcd.@login[0]; 
+
+uci -q get rpcd.@login[1] || {
+uci delete rpcd.@login[0]; 
+uci commit && cat >> /etc/config/rpcd << EOF
 config login
 	option username 'admin'
 	option password '\$p\$admin'
@@ -568,6 +547,7 @@ config login
 	list write 'juci-upnp'
 	list write 'juci-usb'
 	list write 'core'
+	list write 'unauthenticated'
 
 config login
 	option username 'user'
@@ -609,6 +589,8 @@ config login
 	list write 'juci-upnp'
 	list write 'juci-usb'
 	list write 'core'
+	list write 'unauthenticated'
 EOF
-
 /etc/init.d/rpcd restart
+}
+
