@@ -484,7 +484,7 @@ config menu
 EOF
 
 # install the default menus if they are not already in the config
-uci -q get rpcd.@login[0] || cat >> /etc/config/rpcd << EOF
+touch /etc/config/rpcd && cat > /etc/config/rpcd << EOF
 config login
 	option username 'admin'
 	option password '\$p\$admin'
@@ -610,3 +610,5 @@ config login
 	list write 'juci-usb'
 	list write 'core'
 EOF
+
+/etc/init.d/rpcd restart
