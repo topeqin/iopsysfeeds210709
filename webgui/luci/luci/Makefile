@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_BRANCH:=svn-0.11
 PKG_NAME:=luci
-PKG_VERSION:=inteno-1.1.23
-PKG_SOURCE_VERSION:=b6a3e17fdc46efaa8f769ce70e9d529be6f38da4
+PKG_VERSION:=inteno-1.1.31
+PKG_SOURCE_VERSION:=a1ecfd5a5b59f4ed3377c2f7885dd9c5431bb74a
 
 PKG_SOURCE_PROTO:=git
 ifeq ($(CONFIG_BCM_OPEN),y)
@@ -474,7 +474,7 @@ $(eval $(call application,port-management,LuCI Support for Port Management,\
 	+PACKAGE_luci-app-port-management:port-management))
 
 $(eval $(call application,power-mgmt,LuCI Support for Power Management,\
-	+PACKAGE_luci-app-power-mgmt))
+	+PACKAGE_luci-app-power-mgmt:power-management))
 
 $(eval $(call application,parental-control,LuCI Support for Parental Control,\
 	+PACKAGE_luci-app-parental-control))

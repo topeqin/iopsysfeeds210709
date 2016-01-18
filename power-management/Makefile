@@ -1,19 +1,18 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=port-management
-PKG_VERSION:=1.0.0
+PKG_NAME:=power-management
 PKG_RELEASE:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/port-management
+define Package/power-management
   CATEGORY:=Utilities
-  TITLE:=Port management tool
+  TITLE:=Power management tool
 endef
 
-define Package/port-management/description
-	Port configuration utility
+define Package/power-management/description
+	Control Broadcom power options
 endef
 
 define Build/Prepare
@@ -24,8 +23,8 @@ endef
 define Build/Compile
 endef
 
-define Package/port-management/install
+define Package/power-management/install
 	$(CP) ./files/* $(1)/
 endef
 
-$(eval $(call BuildPackage,port-management))
+$(eval $(call BuildPackage,power-management))

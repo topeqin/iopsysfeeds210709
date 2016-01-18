@@ -1,19 +1,18 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=port-management
-PKG_VERSION:=1.0.0
+PKG_NAME:=catv
 PKG_RELEASE:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/port-management
+define Package/catv
   CATEGORY:=Utilities
-  TITLE:=Port management tool
+  TITLE:=CATV
 endef
 
-define Package/port-management/description
-	Port configuration utility
+define Package/catv/description
+	CATV configuration utility
 endef
 
 define Build/Prepare
@@ -24,8 +23,8 @@ endef
 define Build/Compile
 endef
 
-define Package/port-management/install
+define Package/catv/install
 	$(CP) ./files/* $(1)/
 endef
 
-$(eval $(call BuildPackage,port-management))
+$(eval $(call BuildPackage,catv))

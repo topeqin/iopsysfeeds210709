@@ -16,7 +16,7 @@ PKG_RELEASE:=1
 PKG_SOURCE_URL:=git@iopsys.inteno.se:bcmkernel
 PKG_SOURCE_PROTO:=git
 
-PKG_SOURCE_VERSION:=35a8fed1103e8afe104cfe35e4461b010575521e
+PKG_SOURCE_VERSION:=5bcd89500860fe7253cf5ca5a856dea626dc33a4
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_SDK_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 endif
 
@@ -180,6 +180,8 @@ define Package/bcmkernel/install
 	rm -f $(1)/usr/sbin/racoon
 	rm -f $(1)/usr/sbin/ripd
 	rm -f $(1)/usr/sbin/send_cms_msg
+	rm -f $(1)/usr/sbin/smbd
+	rm -f $(1)/usr/sbin/smbpasswd
 	rm -f $(1)/usr/sbin/sshd
 	rm -f $(1)/usr/sbin/ssk
 	rm -f $(1)/usr/sbin/sqlite3
