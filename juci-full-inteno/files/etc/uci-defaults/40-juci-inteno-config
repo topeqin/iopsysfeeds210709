@@ -2,7 +2,6 @@
 
 # install the default menus if they are not already in the config
 uci -q get juci.@menu[0] || {
-
 	cat >> /etc/config/juci << EOF
 config juci_event 'juci_event'
 	list filter firewall.ssh
@@ -466,6 +465,7 @@ config menu
 	option path 'status/restart'
 	option page 'status-restart'
 EOF
+}
 
 # install the default menus if they are not already in the config
 uci delete rpcd.@login[0]; 
@@ -604,4 +604,4 @@ EOF
 /etc/init.d/rpcd restart
 }
 
-
+exit 0
