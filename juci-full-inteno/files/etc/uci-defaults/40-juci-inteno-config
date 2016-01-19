@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# install the default menus if they are not already in the config
-uci -q get juci.@menu[0] || {
+install_event_config(){
 	cat >> /etc/config/juci << EOF
 config juci_event 'juci_event'
 	list filter firewall.ssh
@@ -15,7 +14,10 @@ config menu
 	option path 'overview'
 	option page 'overview'
 EOF
-	db -q get hw.board.hasVoice && cat >> /etc/config/juci << EOF
+}
+
+install_voice_pages(){
+	cat >> /etc/config/juci << EOF
 config menu
 	option path 'voice'
 	option page 'voice'
@@ -84,12 +86,18 @@ config menu
 	list acls 'juci-inteno-voice-client'
 	option modes 'expert'
 EOF
-	db -q get hw.board.hasDect && cat >> /etc/config/juci << EOF
+}
+
+install_dect_pages(){
+	cat >> /etc/config/juci << EOF
 config menu
 	option path 'voice/dect'
 	option page 'voice-dect'
 	list acls 'juci-natalie-dect'
 EOF
+}
+
+install_ethernet_pages(){
 	cat >> /etc/config/juci << EOF
 config menu
 	option path 'internet'
@@ -108,21 +116,40 @@ config menu
 	option page 'page-broadcom-ethernet-phy'
 	list acls 'juci-broadcom-ethernet'
 	list acls 'user-support'
-EOF 
-	db -q get hw.board.hasAdsl && cat >> /etc/config/juci << EOF
+EOF
+}
+
+install_adsl_pages(){
+	cat >> /etc/config/juci << EOF
 config menu
 	option path 'internet/ethernet/adsl'
 	option page 'page-broadcom-adsl'
 	list acls 'juci-broadcom-dsl'
 	list acls 'user-support'
 EOF
-	db -q get hw.board.hasVdsl && cat >> /etc/config/juci << EOF
+}
+
+install_vdsl_pages(){
+	cat >> /etc/config/juci << EOF
 config menu
 	option path 'internet/ethernet/vdsl'
 	option page 'page-broadcom-vdsl'
 	list acls 'juci-broadcom-dsl'
 	list acls 'user-support'
 EOF
+}
+
+# install the default menus if they are not already in the config
+uci -q get juci.@menu[0] || {
+	install_event_config
+	install_voice_pages
+	db -q get hw.board.hasVoice && install_voice_pages
+	db -q get hw.board.hasDect && install_dect_pages
+	install_ethernet_pages
+	
+	db -q get hw.board.hasAdsl && install_adsl_pages
+	db -q get hw.board.hasVdsl && install_vdsl_pages
+
 	cat >> /etc/config/juci << EOF
 config menu
 	option path 'internet/ethernet/vlan'
@@ -449,12 +476,14 @@ config menu
 	option page 'status-diagnostics'
 	list acls 'juci-diagnostics'
 EOF
-	db -q get hw.board.hasVoice && cat >> /etc/config/juci << EOF
+	db -q get hw.board.hasVoice && {
+		cat >> /etc/config/juci << EOF
 config menu
 	option path 'status/phone'
 	option page 'status-phone'
 	list acls 'juci-inteno-voice-client'
 EOF
+}
 	cat >> /etc/config/juci << EOF
 config menu
 	option path 'status/events'
@@ -468,11 +497,10 @@ EOF
 }
 
 # install the default menus if they are not already in the config
-uci delete rpcd.@login[0]; 
+ubus call uci delete '{"config":"rpcd","type":"login"}'
+ubus call uci commit 
 
-uci -q get rpcd.@login[1] || {
-uci delete rpcd.@login[0]; 
-uci commit && cat >> /etc/config/rpcd << EOF
+cat >> /etc/config/rpcd << EOF
 config login
 	option username 'admin'
 	option password '\$p\$admin'
@@ -602,6 +630,5 @@ config login
 	list write 'unauthenticated'
 EOF
 /etc/init.d/rpcd restart
-}
 
 exit 0
