@@ -208,11 +208,11 @@ define Package/bcmkernel/install
 	sed -i '/bcm_usb\.ko/d' $(1)/lib/bcm-base-drivers.sh
 	sed -i 's|/kernel/.*/|/|' $(1)/lib/bcm-base-drivers.sh
 
-    ifneq ($(findstring _$(IBOARDID)_,_DG200AL_DG301AL_DG400_VG50_),)
+    ifneq ($(findstring _$(IBOARDID)_,_DG150ALV2_DG200AL_DG301AL_DG400_VG50_),)
 	# Don't load any DECT drivers (have external voice or no voice at all)
 	sed -i '/dect\.ko/d' $(1)/lib/bcm-base-drivers.sh
 	sed -i '/dectshim\.ko/d' $(1)/lib/bcm-base-drivers.sh
-    else ifneq ($(findstring _$(IBOARDID)_,_D150_DG200_VOX25_),)
+    else ifneq ($(findstring _$(IBOARDID)_,_D150_DG150V2_DG200_VOX25_),)
 	# Load dectshim driver only (have voice but no dect)
 	sed -i '/dect\.ko/d' $(1)/lib/bcm-base-drivers.sh
     else ifneq ($(findstring _$(IBOARDID)_,_CG300_CG301_D301_EG300_),)
