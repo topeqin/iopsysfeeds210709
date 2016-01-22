@@ -23,7 +23,7 @@ service_triggers()
 	procd_add_reload_trigger network wireless
 }
 
-reload() {
+reload_service() {
 	ubus call router reload
 }
 
