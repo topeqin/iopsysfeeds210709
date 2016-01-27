@@ -378,12 +378,6 @@ config menu
 	list acls 'user-support'
 
 config menu
-	option path 'settings/management/dropbear-keys'
-	option page 'dropbear-authorized-keys'
-	list acls 'juci-dropbear'
-	list acls 'user-support'
-
-config menu
 	option path 'settings/management/uhttpd'
 	option page 'page-uhttpd-settings'
 	list acls 'juci-uhttpd'
