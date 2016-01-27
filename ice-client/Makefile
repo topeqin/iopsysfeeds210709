@@ -15,15 +15,15 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
-BASE_PKG_VERSION:=3.4.0
-PKG_RELEASE:=RC6
+BASE_PKG_VERSION:=3.4.1
+PKG_RELEASE:=RC1
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
 PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
-PKG_SOURCE_VERSION:=e860a7697ac8d6029cd1f75e1df9885e1d4131f5
+PKG_SOURCE_VERSION:=262f8da23a2b4dda5cd155d525ac11ecbc5e112d
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
 
@@ -99,8 +99,12 @@ endef
 define Package/ice-client/preinst
 #!/bin/sh
 echo "backup current config"
-cp /etc/iopsys/server.ini /tmp/iopsysserver.ini
-cp /etc/config/ice /tmp/ice.back
+if [ -f "/etc/iopsys/server.ini" ]; then
+	cp /etc/iopsys/server.ini /tmp/iopsysserver.ini
+fi
+if [ -f "/etc/config/ice" ]; then
+	cp /etc/config/ice /tmp/ice.back
+fi
 exit 0
 endef
 
