@@ -215,11 +215,6 @@ config menu
 	list acls 'juci-inteno-multiwan'
 	list acls 'user-support'
 
-config menu 
-	option path 'internet/qos'
-	option page 'juci-inteno-qos'
-	list acls 'juci-inteno-qos'
-
 config menu
 	option path 'internet/services'
 	option page 'internet-services'
