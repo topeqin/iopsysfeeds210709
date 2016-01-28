@@ -44,6 +44,7 @@ ptm_inf_conf() {
 	if [ "$ret" -eq 0 ]; then
 		xtmctl operate conn --add $dslat.$ptmprio 0 1
 		xtmctl operate conn --addq $dslat.$ptmprio 0 wrr 1 -1 -1 3000
+		xtmctl operate conn --addq $dslat.$ptmprio 7 wrr 1 -1 -1 3000 # fixes pppoe disconnect issue
 		xtmctl operate conn --createnetdev $dslat.$ptmprio ${ifname%%.*}
 		xtmctl operate intf --state 1 enable
 		xtmctl start
