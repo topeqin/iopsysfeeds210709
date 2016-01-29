@@ -21,6 +21,7 @@ nat=yes
 directmedia=no
 sipdebug=no
 session-timers=refuse
+videosupport=yes
 
 realm=|REALM|
 defaultexpiry=|DEFAULTEXPIRY|
