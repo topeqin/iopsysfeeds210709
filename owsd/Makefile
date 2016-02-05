@@ -12,8 +12,8 @@ PKG_VERSION:=0.2
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
-PKG_SOURCE_URL:=http://public.inteno.se/owsd.git
-PKG_SOURCE_VERSION:=05eadc177ba8acf91a18caae2ea1a9a4247a9369
+PKG_SOURCE_URL:=git@public.inteno.se:owsd.git
+PKG_SOURCE_VERSION:=982bd1cb10c4acb78e36d45b0ef847afe714ec13
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
@@ -32,7 +32,8 @@ endef
 define Package/owsd
 	$(call Package/$(PKG_NAME)/default)
 	TITLE += (default)
-	DEPENDS += +libwebsockets-nossl
+	DEPENDS += +libwebsockets-openssl
+#	DEPENDS += +libwebsockets-nossl
 	VARIANT:=owsd
 endef
 
@@ -61,7 +62,13 @@ endef
 
 define Package/owsd/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/owsd $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/owsd $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/owsd.init $(1)/etc/init.d/owsd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_BIN) ./files/owsd $(1)/etc/config/owsd
+	$(INSTALL_DIR) $(1)//usr/share/rpcd/acl.d
+	$(INSTALL_BIN) ./files/superuser.json $(1)/usr/share/rpcd/acl.d/superuser.json
 endef
 
 $(eval $(call BuildPackage,owsd))

@@ -1,0 +1,7 @@
+config owsd 'setup'
+	option sock '/var/run/ubus.sock'
+        option port '8843'
+	list origin 'http://localhost/'
+	list origin 'http://localhost:80/'
+	list origin 'http://localhost:8080/'
+
