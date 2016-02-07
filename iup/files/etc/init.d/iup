@@ -53,7 +53,7 @@ init_iup() {
 			*) newreqopts="$newreqopts $ropt" ;;
 		esac
 	done
-	if [ $proto == "dhcp" ]; then
+	if [ "$proto" == "dhcp" ]; then
 		newreqopts="$(echo $newreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
 		uci -q set network.wan.reqopts="$newreqopts"
 		uci commit network
