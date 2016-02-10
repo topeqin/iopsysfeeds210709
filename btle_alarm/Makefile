@@ -4,8 +4,13 @@ PKG_NAME:=btle_alarm
 PKG_VERSION:=1.0.6
 PKG_RELEASE:=1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/btle_alarm-utils-$(PKG_VERSION)
-PKG_SOURCE:=btle_alarm-utils-$(PKG_VERSION).tar.gz
+PKG_SOURCE_VERSION:=b505d7ae1524a213ca3de7f8ee15a7d51c6bbbd5
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=git@iopsys.inteno.se:btle_alarm
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -23,12 +28,11 @@ define Package/btle_alarm/description
  Manage ethernet bridging; a way to connect networks together to
  form a larger network.
 endef
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	$(CP) ./src/* $(PKG_BUILD_DIR)/
-endef
 
 define Package/btle_alarm/install
+
+	$(CP) ./files/* $(1)/
+
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/btle_alarm $(1)/sbin/
 
