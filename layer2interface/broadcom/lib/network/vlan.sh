@@ -78,8 +78,33 @@ addbrcmvlan ()
 		if [ "$ret" -eq 0 ]; then
 			ifconfig $baseifname up
 			echo "vlanctl --if-create $ifname" > /dev/console
-			if [ "$bridge" -eq 1 ]; then
+
+			local unmanaged=0
+			local nets net typ proto
+			nets=$(get_network_of "$ifname")
+			for net in $nets; do
+				typ=$(uci -q get network."$net".type)
+				proto=$(uci -q get network."$net".proto)
+				proto="${proto:-none}"
+				if [ "$typ" == "bridge" -a "$proto" == "none" ]; then
+					unmanaged=1
+					break
+				fi
+			done
+
+			echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
+			ifconfig $baseifname up
+			if [ "x$bridge" = "x" ]; then
+				bridge=0
+			fi
+
+			if [ "$bridge" -eq 1 -a "$unmanaged" == "1" ]; then
 				vlanctl --if-create $baseifname $vlan8021q
+			else
+				vlanctl --routed --if-create $baseifname $vlan8021q
+			fi
+
+			if [ "$bridge" -eq 1 ]; then
 				vlanctl --if $baseifname --set-if-mode-rg
 				vlanctl --if $baseifname --tx --tags 0 --default-miss-drop
 				vlanctl --if $baseifname --tx --tags 1 --default-miss-drop
@@ -95,7 +120,6 @@ addbrcmvlan ()
 				# tags 2 rx
 				vlanctl --if $baseifname --rx --tags 2 --filter-vid $vlan8021q 0 --pop-tag --set-rxif $ifname --rule-insert-before -1
 			else
-				vlanctl --routed --if-create $baseifname $vlan8021q
 				vlanctl --if $baseifname --set-if-mode-rg
 				vlanctl --if $baseifname --tx --tags 0 --default-miss-drop
 				vlanctl --if $baseifname --tx --tags 1 --default-miss-drop
@@ -125,19 +149,34 @@ brcm_virtual_interface_rules ()
 	local baseifname=$1
 	local ifname=$2
 	local bridge=$3
-	
+
+	local unmanaged=0
+	local nets net typ proto
+	nets=$(get_network_of "$ifname")
+	for net in $nets; do
+		typ=$(uci -q get network."$net".type)
+		proto=$(uci -q get network."$net".proto)
+		proto="${proto:-none}"
+		if [ "$typ" == "bridge" -a "$proto" == "none" ]; then
+			unmanaged=1
+			break
+		fi
+	done
+
 	echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
 	ifconfig $baseifname up
 	if [ "x$bridge" = "x" ]; then                                                                                                                         
-	  bridge=0                                                                                                                                              
-        fi
-      
-	if [ "$bridge" -eq 1 ]; then
-	  vlanctl --if-create-name $baseifname $ifname
-	  create_ebtables_bridge_rules  
-	else
-	  vlanctl --routed --if-create-name  $baseifname $ifname
+		bridge=0
 	fi
+      
+	if [ "$bridge" -eq 1 -a "$unmanaged" == "1" ]; then
+		vlanctl --if-create-name $baseifname $ifname
+	else
+		vlanctl --routed --if-create-name  $baseifname $ifname
+	fi
+
+	[ "$bridge" -eq 1 ] && create_ebtables_bridge_rules
+
 	#set default RG mode
 	vlanctl --if $baseifname --set-if-mode-rg
 	#Set Default Droprules
@@ -145,9 +184,8 @@ brcm_virtual_interface_rules ()
 	vlanctl --if $baseifname --tx --tags 1 --default-miss-drop
 	vlanctl --if $baseifname --tx --tags 2 --default-miss-drop
 	vlanctl --if $baseifname --tx --tags 0 --filter-txif $ifname --rule-insert-before -1
-	
+
 	if [ "$bridge" -eq 1 ]; then
-		
 		# tags 1 tx
 		vlanctl --if $baseifname --tx --tags 1 --filter-txif $ifname --rule-insert-before -1
 		# tags 2 tx
@@ -159,7 +197,6 @@ brcm_virtual_interface_rules ()
 		# tags 2 rx
 		vlanctl --if $baseifname --rx --tags 2 --set-rxif $ifname --rule-insert-last 
 	else
-				
 		# tags 1 rx
 		vlanctl --if $baseifname --rx --tags 1 --set-rxif $ifname --filter-vlan-dev-mac-addr 0 --drop-frame --rule-insert-before -1
 		# tags 2 rx
@@ -167,9 +204,8 @@ brcm_virtual_interface_rules ()
 		# tags 0 rx 
 		vlanctl --if $baseifname --rx --tags 0 --set-rxif $ifname --filter-vlan-dev-mac-addr 1 --rule-insert-before -1
 	fi
-	
+
 	ifconfig $ifname up
 	ifconfig $ifname multicast	 
 }
-
 
