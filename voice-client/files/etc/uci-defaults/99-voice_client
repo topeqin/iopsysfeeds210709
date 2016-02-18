@@ -1,6 +1,20 @@
 #!/bin/sh
 
-uci -q get voice_client.RINGING_STATUS >/dev/null && exit 0
+uci -q get voice_client.call_filter0 >/dev/null || {
+
+uci -q batch <<-EOT
+	add voice_client call_filter
+	rename voice_client.@call_filter[-1]=call_filter0
+	set voice_client.call_filter0.block_foreign=0
+	set voice_client.call_filter0.block_special_rate=0
+	set voice_client.call_filter0.block_outgoing=0
+	set voice_client.call_filter0.block_incoming=0
+	commit voice_client
+EOT
+
+}
+
+uci -q get voice_client.RINGING_STATUS >/dev/null || {
 
 uci -q batch <<-EOT
 	add voice_client ringing_status
@@ -10,6 +24,8 @@ uci -q batch <<-EOT
 	set voice_client.RINGING_STATUS.shouldring=1
 	commit voice_client
 EOT
+
+}
 
 exit 0
 
