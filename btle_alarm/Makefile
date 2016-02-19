@@ -6,7 +6,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=b505d7ae1524a213ca3de7f8ee15a7d51c6bbbd5
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git@iopsys.inteno.se:btle_alarm
+PKG_SOURCE_URL:=http://public.inteno.se:/btle_alarm
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

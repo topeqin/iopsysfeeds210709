@@ -9,11 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=1.0.24
-ifeq ($(CONFIG_BCM_OPEN),y)
-PKG_SOURCE_URL:=http://ihgsp.inteno.se/git/dectmngr.git
-else
-PKG_SOURCE_URL:=git@iopsys.inteno.se:dectmngr.git
-endif
+PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=6ba403663bc9cfdb8f89fb34de367f0796d68552
 PKG_NAME:=dectmngr

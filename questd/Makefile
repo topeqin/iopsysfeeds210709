@@ -10,12 +10,7 @@ PKG_VERSION:=2.0.3
 PKG_RELEASE:=3
 
 PKG_SOURCE_VERSION:=b1946c0c6bd45a9ea271afdebda86bfd4d264abb
-PKG_SOURCE_PROTO:=git
-ifeq ($(CONFIG_BCM_OPEN),y)
-PKG_SOURCE_URL:=http://public.inteno.se/questd
-else
-PKG_SOURCE_URL:=git@public.inteno.se:questd
-endif
+PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

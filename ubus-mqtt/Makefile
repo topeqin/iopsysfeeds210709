@@ -11,7 +11,7 @@ PKG_NAME:=ubus-mqtt
 PKG_VERSION:=14.20.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=git@iopsys.inteno.se:$(PKG_NAME).git
+PKG_SOURCE_URL:=http://public.inteno.se:/ubus-mqtt
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz

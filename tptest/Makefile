@@ -6,11 +6,7 @@ PKG_RELEASE:=0
 
 PKG_SOURCE_VERSION:=4dfab45a92328226c8182347df50e86a5d72ca5f
 PKG_SOURCE_PROTO:=git
-ifeq ($(CONFIG_BCM_OPEN),y)
-PKG_SOURCE_URL:=http://public.inteno.se/tptest
-else
-PKG_SOURCE_URL:=git@public.inteno.se:tptest
-endif
+PKG_SOURCE_URL:=http://public.inteno.se:/tptest
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

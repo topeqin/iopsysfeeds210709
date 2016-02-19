@@ -12,11 +12,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2f575b43703c801f4f7bfac65e8845ce967c3d9e
 PKG_SOURCE_PROTO:=git
-ifeq ($(CONFIG_BCM_OPEN),y)
-PKG_SOURCE_URL:=http://public.inteno.se/qrencode
-else
-PKG_SOURCE_URL:=git@public.inteno.se:qrencode
-endif
+PKG_SOURCE_URL:=http://public.inteno.se:/qrencode
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

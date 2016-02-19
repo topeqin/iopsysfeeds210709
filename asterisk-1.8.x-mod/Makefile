@@ -12,11 +12,7 @@ PKG_VERSION:=1.8.10.1
 
 PKG_SOURCE_VERSION:=ffa46ba1d5abf22fa83d0bd06ea56fe8e638dd43
 PKG_SOURCE_PROTO:=git
-ifeq ($(CONFIG_BCM_OPEN),y)
-PKG_SOURCE_URL:=http://ihgsp.inteno.se/git/asterisk-aa
-else
-PKG_SOURCE_URL:=git@ihgsp.inteno.se:asterisk-aa
-endif
+PKG_SOURCE_URL:=http://public.inteno.se:/asterisk-1.8.x
 
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION)-$(PKG_RELEASE).tar.gz

@@ -14,11 +14,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=6a89f70edec94286a790cbb7c76debec6bb1c873
 PKG_SOURCE_PROTO:=git
-ifeq ($(CONFIG_BCM_OPEN),y)
 PKG_SOURCE_URL:=http://public.inteno.se/peripheral_manager
-else
-PKG_SOURCE_URL:=git@public.inteno.se:peripheral_manager
-endif
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

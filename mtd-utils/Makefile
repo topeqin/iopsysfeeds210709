@@ -13,12 +13,7 @@ PKG_RELEASE:=3
 PKG_INSTALL:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=fb18f98c0eb82568b94808b7ab662937624b393d
-
-ifeq ($(CONFIG_BCM_OPEN),y)
-PKG_SOURCE_URL:=http://ihgsp.inteno.se/git/mtd-utils
-else
-PKG_SOURCE_URL:=git@ihgsp.inteno.se:mtd-utils
-endif
+PKG_SOURCE_URL:=http://public.inteno.se:/mtd-utils
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
