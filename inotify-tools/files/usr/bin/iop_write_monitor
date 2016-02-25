@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# is the real root mounted ?
+if [ ! -f /tmp/inotify_real_root/etc/preinit ]
+then
+	ubivol=$( cat /proc/cmdline  | sed -e "s/.*root=\(ubi:rootfs_.\).*/\1/" )
+	mkdir /tmp/inotify_real_root
+	mount -t ubifs $ubivol /tmp/inotify_real_root
+fi
+
+inotifywait -r -m -e modify -e create -e attrib -e delete -e move /tmp/inotify_real_root
+
+
