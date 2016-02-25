@@ -32,6 +32,7 @@ define Package/dectmngr2
   CATEGORY:=Utilities
   TITLE:=Dectmngr2
   URL:=
+  DEPENDS:= +natalie-dect-h bcmkernel +libubox +ubus
 endef
 
 define Package/dectmngr2/description
