@@ -77,6 +77,7 @@ init_iup() {
 			sed -i "/iup/d" $CRONPATH
 		fi
 		echo "$number $starttime * * $interval     /sbin/iup > /dev/null 2>&1" >> $CRONPATH
+		fsync $CRONPATH
 		/etc/init.d/cron restart
 	fi
 }
