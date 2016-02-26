@@ -16,14 +16,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
 BASE_PKG_VERSION:=3.4.1
-PKG_RELEASE:=RC1
+PKG_RELEASE:=RC6
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
 PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
-PKG_SOURCE_VERSION:=262f8da23a2b4dda5cd155d525ac11ecbc5e112d
+PKG_SOURCE_VERSION:=e4c00bb3d8d7bf1de17cf7132c7088817c1dcfc7
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
 
@@ -114,6 +114,7 @@ define Package/ice-client/install
 	$(CP) $(PKG_BUILD_DIR)/modules/system/ubusevent/obj/iopsys/ubusevent $(1)/bin
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/core/lib/{systemService.so.1.0.1,libconfStore.so.1,networkService.so.1.0.1,packageService.so.1.0.1,monitorService.so.1.0.1,iperfService.so.1.0.1,logService.so.1.0.1} $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/lib/wsice/obj/iopsys/libwsice.so $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/execute
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/progress
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/result
@@ -858,6 +859,24 @@ fi
 exit 0
 endef
 
+# bmspeedtest
+define Package/ice-client-bcmspeedmgr
+  $(call Package/ice-client/Default)
+  TITLE:=bcmspeedmgr
+  DEPENDS+= 
+endef
+
+define Package/ice-client-bcmspeedmgr/description
+bcmspeedmgr module for ice-client
+endef
+
+define Package/ice-client-bcmspeedmgr/install
+	$(INSTALL_DIR) $(1)/bin
+	$(CP) $(PKG_BUILD_DIR)/daemons/bcmspeedmgr/obj/iopsys/bcmspeedmgr $(1)/bin
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(CP) $(PKG_BUILD_DIR)/platforms/iopsys/bcmspeedtestservice $(1)/etc/init.d/bcmspeedtestservice
+endef
+
 # This line executes the necessary commands to compile our program.
 # The above define directives specify all the information needed, but this
 # line calls BuildPackage which in turn actually uses this information to
@@ -877,3 +896,4 @@ $(eval $(call BuildPackage,ice-client-rework))
 $(eval $(call BuildPackage,ice-client-sip))
 $(eval $(call BuildPackage,ice-client-monitor))
 $(eval $(call BuildPackage,ice-client-gigaset))
+$(eval $(call BuildPackage,ice-client-bcmspeedmgr))
