@@ -30,6 +30,7 @@ start_service() {
 		dd of=/etc/dect/nvs if=/tmp/fixed_emc conv=notrunc bs=1 seek=10
 		dd of=/etc/dect/nvs if=/tmp/bcm_def_freq conv=notrunc bs=1 seek=6
 		dd of=/etc/dect/nvs if=/tmp/dect_antenna_diversity conv=notrunc bs=1 seek=32
+		fsync /etc/dect/nvs
 	fi
 	
 	# init dectproxy
