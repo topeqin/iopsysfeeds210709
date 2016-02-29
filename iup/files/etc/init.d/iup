@@ -36,12 +36,12 @@ init_iup() {
 	local baseopts=
 	local reqopts="$(uci -q get network.wan.reqopts)"
 	local proto="$(uci -q get network.wan.proto)"
-	local iupopts="66 67 128"
+	local iupopts="66 67 128 224"
 	local ropt iopt
 	config_get enabled iup enabled "off"
 	for ropt in $reqopts; do
 		case $ropt in
-			66|67|128) ;;
+			66|67|128|224) ;;
 			*) baseopts="$baseopts $ropt" ;;
 		esac
 	done
@@ -49,7 +49,7 @@ init_iup() {
 	reqopts="$baseopts $iupopts"
 	for ropt in $reqopts; do
 		case $ropt in
-			66|67|128) [ $enabled == "on" ] && newreqopts="$newreqopts $ropt" ;;
+			66|67|128|224) [ $enabled == "on" ] && newreqopts="$newreqopts $ropt" ;;
 			*) newreqopts="$newreqopts $ropt" ;;
 		esac
 	done
