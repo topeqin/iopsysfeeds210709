@@ -18,7 +18,7 @@ start_service() {
 
 	local cpur4kwait
 	config_get cpur4kwait power_mgmt cpur4kwait
-	pwrctl config --cpur4kwait $(parsebool $cpur4kwait)
+	pwrctl config --wait $(parsebool $cpur4kwait)
 
 	local sr
 	config_get sr power_mgmt sr
