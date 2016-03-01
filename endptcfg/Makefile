@@ -9,12 +9,20 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=endptcfg
 PKG_VERSION:=0.2
-PKG_RELEASE:=1
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git@iopsys.inteno.se:endptcfg
+
 PKG_SOURCE_VERSION:=1194b05278bd0945ca5c76436e56617b86871a65
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+ifeq ($(CONFIG_BCM_OPEN),y)
+BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
+PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_NAME:=endptcfg-open
+else
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=git@iopsys.inteno.se:endptcfg
+PKG_SOURCE_PROTO:=git
+endif
+
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 LDFLAGS+= \
         -Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
@@ -50,6 +58,7 @@ define Package/endptcfg/description
 	Broadcom endpoint driver configuration application
 endef
 
+ifneq ($(CONFIG_BCM_OPEN),y)
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		$(TARGET_CONFIGURE_OPTS) LINUX_DIR=$(LINUX_DIR) LDFLAGS="$(TARGET_LDFLAGS)" CFLAGS="$(TARGET_CFLAGS) \
@@ -68,6 +77,10 @@ define Build/Compile
 			-I$(STAGING_DIR)/usr/include/bcm963xx/userspace/private/apps/vodsl/voip/inc \
 			-I$(STAGING_DIR)/usr/include/bcm963xx/xChange/dslx_common/xchg_common/bos/LinuxUser"
 endef
+else
+define Build/Compile
+endef
+endif
 
 define Package/endptcfg/install
 	$(INSTALL_DIR) $(1)/usr/bin
