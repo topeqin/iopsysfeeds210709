@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gigaset-elements
 
-PKG_VERSION:=2.1.1
+PKG_VERSION:=2.1.2
 # PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_GIGASET_ELEMENTS_SRC_URL ?= git@iopsys.inteno.se:gigaset-elements.git
