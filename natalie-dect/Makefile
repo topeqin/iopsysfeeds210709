@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=natalie-dect
-PKG_VERSION:=11.19
+PKG_VERSION:=12.26
 
-PKG_SOURCE_VERSION:=2015e8106c7d541dd038381c2845bd8462d74a30
+PKG_SOURCE_VERSION:=35fed3a10124bd660b74704011256039ba9cf54d
 ifeq ($(CONFIG_NATALIE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
@@ -18,7 +18,7 @@ PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_NAME:=natalie-dect-open
 else
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=git@private.inteno.se:natalie-dect-11.19
+PKG_SOURCE_URL:=git@private.inteno.se:natalie-dect-12.26
 PKG_SOURCE_PROTO:=git
 endif
 
@@ -44,10 +44,6 @@ endef
 
 define Package/natalie-dect/description
 	Kernel dect driver
-endef
-
-define Package/natalie-dect/config
-	source "$(SOURCE)/Config.in"
 endef
 
 ifeq ($(CONFIG_NATALIE_OPEN),y)
