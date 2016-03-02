@@ -9,7 +9,6 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=natalie-dect-h
 PKG_VERSION:=11.19
-PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=http://public.inteno.se:/natalie-dect-h
@@ -20,8 +19,6 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/image.mk
 include $(INCLUDE_DIR)/kernel.mk
-
-
 
 define Package/natalie-dect-h
   SECTION:=net
@@ -39,8 +36,5 @@ define Package/natalie-dect-h/install
 	$(INSTALL_DIR) $(STAGING_DIR)/usr/include/natalie-dect
 	$(CP) -r $(PKG_BUILD_DIR)/SrcHeaders/* $(STAGING_DIR)/usr/include/natalie-dect/
 endef
-
-
-
 
 $(eval $(call BuildPackage,natalie-dect-h))
