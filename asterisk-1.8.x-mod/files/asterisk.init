@@ -9,6 +9,12 @@ PROG=/usr/sbin/asterisk
 DEFAULT=/etc/default/asterisk
 
 init_asterisk() {
+	# do not start asterisk until the
+	# router receives a default route
+	while ! ip r | grep -q default; do
+		sleep 1
+	done
+
 	[ -f $DEFAULT ] && . $DEFAULT
 	[ -d /var/run/asterisk ] || mkdir -p /var/run/asterisk
 	[ -d /var/log/asterisk ] || mkdir -p /var/log/asterisk
