@@ -98,8 +98,12 @@ addbrcmvlan ()
 				bridge=0
 			fi
 
-			if [ "$bridge" -eq 1 -a "$unmanaged" == "1" ]; then
-				vlanctl --if-create $baseifname $vlan8021q
+			if [ "$bridge" -eq 1 ]; then
+				if [ "$unmanaged" == "1" ]; then
+					vlanctl --if-create $baseifname $vlan8021q
+				else
+					vlanctl --dhcp-bridged --if-create $baseifname $vlan8021q
+				fi
 			else
 				vlanctl --routed --if-create $baseifname $vlan8021q
 			fi
@@ -169,8 +173,12 @@ brcm_virtual_interface_rules ()
 		bridge=0
 	fi
       
-	if [ "$bridge" -eq 1 -a "$unmanaged" == "1" ]; then
-		vlanctl --if-create-name $baseifname $ifname
+	if [ "$bridge" -eq 1 ]; then
+		if [ "$unmanaged" == "1" ]; then
+			vlanctl --if-create $baseifname $vlan8021q
+		else
+			vlanctl --dhcp-bridged --if-create $baseifname $vlan8021q
+		fi
 	else
 		vlanctl --routed --if-create-name  $baseifname $ifname
 	fi
