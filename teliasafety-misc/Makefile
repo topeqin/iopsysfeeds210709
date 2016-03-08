@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_RELEASE:=1
 PKG_VERSION:=1.0.1
 ifeq ($(CONFIG_PACKAGE_bcmkernel),y)
-PKG_SOURCE_URL:=git@iopsys.inteno.se:teliasafety-misc.git
+PKG_SOURCE_URL:=git@private.inteno.se:teliasafety-misc.git
 else
 PKG_SOURCE_URL:=http://ihgsp.inteno.se/git/teliasafety-misc.git
 endif

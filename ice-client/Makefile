@@ -21,6 +21,8 @@ PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
+
+PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
 PKG_SOURCE_VERSION:=ecad8b60183b43ecf86543c0c29db46cda8aae29
 ifeq ($(CONFIG_BCM_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
@@ -32,6 +34,7 @@ else
 PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
+
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
 endif
 
