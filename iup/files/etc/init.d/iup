@@ -76,7 +76,7 @@ init_iup() {
 		if grep -q "iup" "$CRONPATH" ; then
 			sed -i "/iup/d" $CRONPATH
 		fi
-		echo "$number $starttime * * $interval     /sbin/iup > /dev/null 2>&1" >> $CRONPATH
+		echo "$number $starttime * * $interval     /sbin/iup -v > /dev/null 2>&1" >> $CRONPATH
 		fsync $CRONPATH
 		/etc/init.d/cron restart
 	fi
@@ -91,7 +91,7 @@ start_service() {
 
 	test_default_route
 	if [ "$?" -eq 0 ]; then
-		/sbin/iup &
+		/sbin/iup -v &
 	fi
 }
 

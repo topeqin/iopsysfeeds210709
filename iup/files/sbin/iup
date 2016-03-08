@@ -24,7 +24,7 @@ MAC=${MAC// /}
 MAC=$(echo $MAC | tr '[a-z]' '[A-Z]')
 
 v() {
-	[ "$VERBOSE" -ge 1 ] && echo "$@"
+	[ "$VERBOSE" -ge 1 ] && logger -t iup "$@"
 }
 
 if [ -f $IUPMD5 ]; then
@@ -259,7 +259,7 @@ if [ $configurl ]; then
 elif [ $iupurl ]; then
 	handle_provisioning iup
 else
-	echo "No Provisioning Server Found"
+	v "No Provisioning Server Found"
 	exit
 fi
 config_load provisioning
