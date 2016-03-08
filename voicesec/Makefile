@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=voicesec
 PKG_VERSION:=1.0
 
-PKG_SOURCE_URL:=git@ihgsp.inteno.se:voicesec
+PKG_SOURCE_URL:=git@private.inteno.se:voicesec
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=661c0091e579e284712aeed892e921cc84a6f0bb
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

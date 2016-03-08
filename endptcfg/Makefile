@@ -25,7 +25,7 @@ endif
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 LDFLAGS+= \
-        -Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
+		-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
 		-Wl,-rpath-link=$(STAGING_DIR)/lib
 
 BCMKERNEL_DIR:=$(BUILD_DIR)/bcmkernel/bcm963xx

@@ -12,7 +12,7 @@ PKG_VERSION:=1.0.1
 ifeq ($(CONFIG_PACKAGE_bcmkernel),y)
 PKG_SOURCE_URL:=git@private.inteno.se:teliasafety-misc.git
 else
-PKG_SOURCE_URL:=http://ihgsp.inteno.se/git/teliasafety-misc.git
+PKG_SOURCE_URL:=http://iopsys.inteno.se/git/teliasafety-misc.git
 endif
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=8feb071dc9c05b5580043718aaafe424ce557afe

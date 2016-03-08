@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=benjamin
-PKG_SOURCE_URL:=ssh://inteno@ihgsp.inteno.se/home/inteno/private/git/$(PKG_VERSION)/endptctl.git
+PKG_SOURCE_URL:=ssh://inteno@iopsys.inteno.se/home/inteno/private/git/$(PKG_VERSION)/endptctl.git
 
 PKG_NAME:=endptctl
 PKG_VERSION:=0.1
 
 LDFLAGS+= \
-        -Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
+		-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
 		-Wl,-rpath-link=$(STAGING_DIR)/lib
 
 RSTRIP:=true
