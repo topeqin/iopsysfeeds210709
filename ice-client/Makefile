@@ -31,7 +31,7 @@ PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 #PKG_NAME:=ice-client-open
 else
-PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
+PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
 
