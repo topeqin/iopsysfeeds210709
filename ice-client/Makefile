@@ -62,7 +62,7 @@ endef
 # Uncomment stuff  Build/Prepare
 #
 # Plus make sure to comment and provide the following lines above
-# #PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
+# #PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
 # #PKG_SOURCE_VERSION:=a11bf64e6b1054803b52750aabd71bf440ff6e16
 # #PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 # #PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
