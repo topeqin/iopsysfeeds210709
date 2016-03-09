@@ -21,13 +21,19 @@ PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
-
-PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
 PKG_SOURCE_VERSION:=ecad8b60183b43ecf86543c0c29db46cda8aae29
+ifeq ($(CONFIG_BCM_OPEN),y)
+BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
+PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+#PKG_NAME:=ice-client-open
+else
+PKG_SOURCE_URL:=ssh://git@iopsys.inteno.se/ice-client.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
-
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
+endif
 
 
 ###########################--RELEASE--################################
@@ -85,6 +91,10 @@ endef
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
 
+ifeq ($(CONFIG_BCM_OPEN),y)
+define Build/Compile
+endef
+else
 define Build/Configure
 	echo $(BASE_PKG_VERSION)-$(PKG_RELEASE) > $(PKG_BUILD_DIR)/core/version.txt
 	echo $(DATE) > $(PKG_BUILD_DIR)/core/date.txt
@@ -95,6 +105,7 @@ endef
 define Build/Clean
 	$(MAKE) -C $(PKG_BUILD_DIR) clean
 endef
+endif
 
 define Package/ice-client/preinst
 #!/bin/sh
@@ -108,6 +119,16 @@ fi
 exit 0
 endef
 
+ifeq ($(CONFIG_BCM_OPEN),y)
+define Package/ice-client/install
+	$(INSTALL_DIR) $(1)/bin
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_DIR) $(1)/usr
+	$(CP) $(PKG_BUILD_DIR)/bin/* $(1)/bin/
+	$(CP) $(PKG_BUILD_DIR)/etc/* $(1)/etc/
+	$(CP) $(PKG_BUILD_DIR)/usr/* $(1)/usr/
+endef
+else
 define Package/ice-client/install
 	$(INSTALL_DIR) $(1)/bin
 	$(CP) $(PKG_BUILD_DIR)/core/ice $(1)/bin
@@ -130,6 +151,7 @@ define Package/ice-client/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) $(PKG_BUILD_DIR)/scripts/ice-client $(1)/etc/init.d/ice-client
 endef
+endif
 
 define Package/ice-client/postinst
 #!/bin/sh
@@ -145,7 +167,7 @@ exit 0
 endef
 
 # Additional modules
-
+ifneq ($(CONFIG_BCM_OPEN),y)
 # Camerawatch
 define Package/ice-client-camerawatch
 $(call Package/ice-client/Default)
@@ -876,12 +898,13 @@ define Package/ice-client-bcmspeedmgr/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) $(PKG_BUILD_DIR)/platforms/iopsys/bcmspeedtestservice $(1)/etc/init.d/bcmspeedtestservice
 endef
-
+endif
 # This line executes the necessary commands to compile our program.
 # The above define directives specify all the information needed, but this
 # line calls BuildPackage which in turn actually uses this information to
 # build a package.
 $(eval $(call BuildPackage,ice-client))
+ifneq ($(CONFIG_BCM_OPEN),y)
 $(eval $(call BuildPackage,ice-client-guest))
 $(eval $(call BuildPackage,ice-client-camerawatch))
 $(eval $(call BuildPackage,ice-client-openvpn))
@@ -897,3 +920,4 @@ $(eval $(call BuildPackage,ice-client-sip))
 $(eval $(call BuildPackage,ice-client-monitor))
 $(eval $(call BuildPackage,ice-client-gigaset))
 $(eval $(call BuildPackage,ice-client-bcmspeedmgr))
+endif
