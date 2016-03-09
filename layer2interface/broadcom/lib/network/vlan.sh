@@ -175,9 +175,9 @@ brcm_virtual_interface_rules ()
       
 	if [ "$bridge" -eq 1 ]; then
 		if [ "$unmanaged" == "1" ]; then
-			vlanctl --if-create $baseifname $vlan8021q
+			vlanctl --if-create-name $baseifname $ifname
 		else
-			vlanctl --dhcp-bridged --if-create $baseifname $vlan8021q
+			vlanctl --dhcp-bridged --if-create-name $baseifname $ifname
 		fi
 	else
 		vlanctl --routed --if-create-name  $baseifname $ifname
