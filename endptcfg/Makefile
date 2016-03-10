@@ -14,7 +14,7 @@ PKG_SOURCE_VERSION:=1194b05278bd0945ca5c76436e56617b86871a65
 ifeq ($(CONFIG_BCM_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://public.inteno.se/precompiled/
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_NAME:=endptcfg-open
 else
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz

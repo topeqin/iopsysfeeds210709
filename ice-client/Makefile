@@ -27,7 +27,7 @@ PKG_SOURCE_VERSION:=ecad8b60183b43ecf86543c0c29db46cda8aae29
 ifeq ($(CONFIG_BCM_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://public.inteno.se/precompiled/
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 #PKG_NAME:=ice-client-open
 else

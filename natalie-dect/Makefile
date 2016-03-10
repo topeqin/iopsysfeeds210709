@@ -14,7 +14,7 @@ PKG_SOURCE_VERSION:=2015e8106c7d541dd038381c2845bd8462d74a30
 ifeq ($(CONFIG_BCM_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://public.inteno.se/precompiled/
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_NAME:=natalie-dect-open
 else
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
