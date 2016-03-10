@@ -23,11 +23,7 @@ LDFLAGS+= \
 	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
 	-Wl,-rpath-link=$(STAGING_DIR)/lib
 
-ifeq ($(CONFIG_PACKAGE_bcmkernel),y)
 BCMKERNEL_DIR:=$(BUILD_DIR)/bcmkernel/bcm963xx
-else
-BCMKERNEL_DIR:=$(BUILD_DIR)/bcmopen-consumer/bcm963xx
-endif
 export BCMKERNEL_DIR
 
 define Package/questd
