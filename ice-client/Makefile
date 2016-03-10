@@ -54,7 +54,6 @@ $(call Package/ice-client/Default)
 	TITLE:=ice-client
 	MENU:=1
 	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox
-	DEFAULT:=y
 endef
 
 ###########################--DEVELOPMENT--################################
