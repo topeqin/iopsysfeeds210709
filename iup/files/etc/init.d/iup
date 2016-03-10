@@ -38,7 +38,7 @@ init_iup() {
 	local proto="$(uci -q get network.wan.proto)"
 	local iupopts="66 67 128 224"
 	local ropt iopt
-	config_get enabled iup enabled "off"
+	config_get enabled iup enabled "on"
 	for ropt in $reqopts; do
 		case $ropt in
 			66|67|128|224) ;;
