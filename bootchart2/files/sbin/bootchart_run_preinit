@@ -1,0 +1,59 @@
+ #! /bin/sh
+# this is intended to be started in preinit.
+# 11_bootchart, starts it
+# 72_bootchart, fixup mount point after pivot 
+#
+# program can be killed early with
+# bootchart_run_preinit stop
+
+trap "stop; exit 0;" SIGINT SIGTERM 
+
+STOP_AFTER=250
+HZ=50
+
+if [ -z "$1" ]
+then
+	echo "you need to specify start or stop"
+	exit 1
+fi
+
+start()
+{
+	/sbin/bootchart-collector $HZ &
+}
+
+stop()
+{
+	echo "bootchart DUMP"
+	
+	mkdir /tmp/bootchart
+	/sbin/bootchart-collector --dump /tmp/bootchart
+	cd /tmp/bootchart
+	tar -zcf /tmp/bootchart.tgz header *.log
+	cd /
+	rm -rf /tmp/bootchart
+}
+
+case $1 in
+    boot) # secret option for preinit
+	start
+	sleep $STOP_AFTER
+	# test to see if someone has manually killed us
+	if [ -f /tmp/bootchart.tgz ]
+	then
+	    exit 0
+	fi
+	stop
+	;;
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    *)
+	echo "you need to specify start or stop, not $1"
+	exit 1
+	;;
+esac
+
