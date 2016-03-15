@@ -91,6 +91,7 @@ reload ()
 
 handle_provisioning() {
 	local config="$1"
+	local default="$2"
 	local enabled
 	local url
 	local tftpfile
@@ -108,7 +109,7 @@ handle_provisioning() {
 		mkdir $IUPTEMP
 	fi
 	touch $IUPCONFFILES
-	config_get_bool enabled "$config" enabled
+	config_get_bool enabled "$config" enabled "$default"
 	config_get_bool defaultreset "$config" defaultreset
 	config_get deckey "$config" deckey
 	if [ "$enabled" -eq 1	]; then
@@ -255,15 +256,15 @@ config_get configurl configserver	url
 config_get reboot configserver reboot
 config_get iupurl iup	urliup
 if [ $configurl ]; then
-	handle_provisioning configserver
+	handle_provisioning configserver "0"
 elif [ $iupurl ]; then
-	handle_provisioning iup
+	handle_provisioning iup "1"
 else
 	v "No Provisioning Server Found"
 	exit
 fi
 config_load provisioning
-config_foreach handle_provisioning subconfig
+config_foreach handle_provisioning subconfig "0"
 config_get software uppgradeserver url
 sofwareminuspath=${software##*/}
 v "Software version to download $sofwareminuspath"
@@ -280,7 +281,7 @@ if [ $software ]; then
         fi     
 	if [ "$sofwareminuspath" == "${sofwareminuspath/$firmware/}" ] ; then
 		echo $software
-		handle_provisioning uppgradeserver
+		handle_provisioning uppgradeserver "0"
 	else
 		v "Will not update software, already up to date"
 	fi
