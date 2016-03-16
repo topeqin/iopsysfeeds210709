@@ -4,6 +4,6 @@ config owsd 'setup'
 	list origin 'http://localhost/'
 	list origin 'http://localhost:80/'
 	list origin 'http://localhost:8080/'
-	#option cert '/usr/share/owsd/cert.pem'
-	#option key '/usr/share/owsd/ke.pem'
+	#option cert '/usr/share/owsD/cert.pem'
+	#option key '/usr/share/owsD/key.pem'
 
