@@ -39,35 +39,40 @@ start_service() {
 	config_get AnnexM capabilities AnnexM
 
 	config_get a8a capabilities 8a
-
 	config_get b8b capabilities 8b
 	config_get c8c capabilities 8c
 	config_get d8d capabilities 8d
 	config_get a12a capabilities 12a
 	config_get b12b capabilities 12b
 	config_get a17a capabilities 17a
+
 	config_get US0 capabilities US0
 	config_get bitswap capabilities bitswap
 	config_get sra capabilities sra
-	GDmt=${GDmt/Enabled/d}
-	Glite=${Glite/Enabled/l}
-	T1413=${T1413/Enabled/t}
-	ADSL2=${ADSL2/Enabled/2}
-	AnnexL=${AnnexL/Enabled/e}
-	ADSL2plus=${ADSL2plus/Enabled/p}
-	AnnexM=${AnnexM/Enabled/m}
-	VDSL2=${VDSL2/Enabled/v}
 
-	a8a=${a8a/Enabled/8a}
-	b8b=${b8b/Enabled/8b}
-	c8c=${c8c/Enabled/8c}
-	c8c=${c8c/Enabled/8c}
+	GDmt=$(echo $GDmt | sed 's/Enabled\|1/d/g')
+	Glite=$(echo $Glite | sed 's/Enabled\|1/l/g')
+	T1413=$(echo $T1413 | sed 's/Enabled\|1/t/g')
+	ADSL2=$(echo $ADSL2 | sed 's/Enabled\|1/2/g')
+	AnnexL=$(echo $AnnexL | sed 's/Enabled\|1/e/g')
+	ADSL2plus=$(echo $ADSL2plus | sed 's/Enabled\|1/p/g')
+	AnnexM=$(echo $AnnexM | sed 's/Enabled\|1/m/g')
+	VDSL2=$(echo $VDSL2 | sed 's/Enabled\|1/v/g')
 
-	d8d=${d8d/Enabled/8d}
+	a8a=$(echo $a8a | sed 's/Enabled\|1/8a/g')
+	b8b=$(echo $b8b | sed 's/Enabled\|1/8b/g')
+	c8c=$(echo $c8c | sed 's/Enabled\|1/8c/g')
+	d8d=$(echo $d8d | sed 's/Enabled\|1/8d/g')
+	a12a=$(echo $a12a | sed 's/Enabled\|1/12a/g')
+	b12b=$(echo $b12b | sed 's/Enabled\|1/12b/g')
+	a17a=$(echo $a17a | sed 's/Enabled\|1/17a/g')
 
-	a12a=${a12a/Enabled/12a}
-	b12b=${b12b/Enabled/12b}
-	a17a=${a17a/Enabled/17a}
+	US0=$(echo $US0 | sed 's/1/on/g')
+	US0=$(echo $US0 | sed 's/0/off/g')
+	bitswap=$(echo $bitswap | sed 's/1/on/g')
+	bitswap=$(echo $bitswap | sed 's/0/off/g')
+	sra=$(echo $sra | sed 's/1/on/g')
+	sra=$(echo $sra | sed 's/0/off/g')
 
 	echo "Starting DSL"
 	
