@@ -24,7 +24,7 @@ export PKG_VERSION
 
 PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
 PKG_SOURCE_VERSION:=ecad8b60183b43ecf86543c0c29db46cda8aae29
-ifeq ($(CONFIG_BCM_OPEN),y)
+ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
@@ -93,7 +93,7 @@ endef
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
 
-ifeq ($(CONFIG_BCM_OPEN),y)
+ifeq ($(CONFIG_ICE_OPEN),y)
 define Build/Compile
 endef
 else
@@ -121,7 +121,7 @@ fi
 exit 0
 endef
 
-ifeq ($(CONFIG_BCM_OPEN),y)
+ifeq ($(CONFIG_ICE_OPEN),y)
 define Package/ice-client/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_DIR) $(1)/etc
@@ -169,7 +169,7 @@ exit 0
 endef
 
 # Additional modules
-ifneq ($(CONFIG_BCM_OPEN),y)
+ifneq ($(CONFIG_ICE_OPEN),y)
 # Camerawatch
 define Package/ice-client-camerawatch
 $(call Package/ice-client/Default)
@@ -906,7 +906,7 @@ endif
 # line calls BuildPackage which in turn actually uses this information to
 # build a package.
 $(eval $(call BuildPackage,ice-client))
-ifneq ($(CONFIG_BCM_OPEN),y)
+ifneq ($(CONFIG_ICE_OPEN),y)
 $(eval $(call BuildPackage,ice-client-guest))
 $(eval $(call BuildPackage,ice-client-camerawatch))
 $(eval $(call BuildPackage,ice-client-openvpn))

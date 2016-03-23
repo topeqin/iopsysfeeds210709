@@ -11,7 +11,7 @@ PKG_NAME:=endptcfg
 PKG_VERSION:=0.2
 
 PKG_SOURCE_VERSION:=1194b05278bd0945ca5c76436e56617b86871a65
-ifeq ($(CONFIG_BCM_OPEN),y)
+ifeq ($(CONFIG_ENDPT_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
@@ -58,7 +58,7 @@ define Package/endptcfg/description
 	Broadcom endpoint driver configuration application
 endef
 
-ifneq ($(CONFIG_BCM_OPEN),y)
+ifneq ($(CONFIG_ENDPT_OPEN),y)
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		$(TARGET_CONFIGURE_OPTS) LINUX_DIR=$(LINUX_DIR) LDFLAGS="$(TARGET_LDFLAGS)" CFLAGS="$(TARGET_CFLAGS) \
