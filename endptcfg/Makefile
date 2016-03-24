@@ -37,9 +37,7 @@ TARGET_LDFLAGS += $(BCMKERNEL_DIR)/userspace/private/apps/vodsl/telephonyProfile
 			$(BCMKERNEL_DIR)/userspace/private/apps/vodsl/bos/bos.o \
 			-lpthread
 
-ifeq ($(CONFIG_BRCM_SDK_VER_416040),y)
 TARGET_CFLAGS += -DFAKE_SSP
-endif
 
 RSTRIP:=true
 export BUILD_DIR
