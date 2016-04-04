@@ -11,7 +11,7 @@ PKG_RELEASE:=1
 PKG_VERSION:=1.1.0
 PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr2
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=69ab89d15df72270f40a51bb5afbde82fa43701e
+PKG_SOURCE_VERSION:=666c3e93ad56e20493bae8a439e9655ce947f2f7
 PKG_NAME:=dectmngr2
 
 
@@ -47,6 +47,7 @@ define Package/dectmngr2/install
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/dectmngr2 $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/target.bin $(1)/etc/dect/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/nvs_default $(1)/etc/dect/
 	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/dect $(1)/etc/init.d/
 endef
 
