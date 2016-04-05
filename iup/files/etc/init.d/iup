@@ -13,6 +13,23 @@ include /lib/network
 CRONPATH="/etc/crontabs/root"
 RANGE=60
 
+management_interfaces() {
+	local DHCP_IFACES=""
+
+	is_notbridged_dhcp() {
+		local config="$1"
+		local proto="$(uci -q get network.$config.proto)"
+		local typ="$(uci -q get network.$config.type)"
+		if [ "$proto" == "dhcp" -a "$typ" != "bridge" ]; then
+			DHCP_IFACES="$DHCP_IFACES $config"
+		fi
+	}
+
+	config_load network
+	config_foreach is_notbridged_dhcp interface
+	echo $DHCP_IFACES
+}
+
 init_iup() {
 	local interval
 	local starttime
@@ -35,9 +52,9 @@ init_iup() {
 	local newreqopts=
 	local baseopts=
 	local reqopts="$(uci -q get network.wan.reqopts)"
-	local proto="$(uci -q get network.wan.proto)"
 	local iupopts="66 67 128 224"
 	local ropt iopt
+	local net
 	config_get enabled iup enabled "on"
 	for ropt in $reqopts; do
 		case $ropt in
@@ -53,12 +70,13 @@ init_iup() {
 			*) newreqopts="$newreqopts $ropt" ;;
 		esac
 	done
-	if [ "$proto" == "dhcp" ]; then
-		newreqopts="$(echo $newreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
-		uci -q set network.wan.reqopts="$newreqopts"
-		uci commit network
-		ubus call network reload
-	fi
+
+	newreqopts="$(echo $newreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
+	for net in $(management_interfaces); do
+		uci -q set network.$net.reqopts="$newreqopts"
+	done
+	uci commit network
+	ubus call network reload
 	#################################################################
 
 	if [ $interval == "weekly" ]; then
