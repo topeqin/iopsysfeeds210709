@@ -24,7 +24,7 @@ LDFLAGS+= \
 
 define Package/wifimngr
 	CATEGORY:=Network
-	DEPENDS:=+libpthread +libstdcpp +librt +libjson alljoyn +ubus +libuci
+	DEPENDS:=+libpthread +libstdcpp +librt +libjson +alljoyn +alljoyn-about +ubus +libuci
 	TITLE:=WiFi Manager
 endef
 

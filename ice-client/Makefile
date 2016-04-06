@@ -482,7 +482,7 @@ endef
 define Package/ice-client-fileme
   $(call Package/ice-client/Default)
   TITLE:=FileMe
-  DEPENDS+= +lighttpd +samba2-client
+  DEPENDS+= +lighttpd +lighttpd-mod-webdav +lighttpd-mod-setenv +lighttpd-mod-userdir +samba2-client +samba2-common +libpcre +libltdl +libxml2
 endef
 
 define Package/ice-client-fileme/description
