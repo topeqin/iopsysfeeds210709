@@ -1,0 +1,100 @@
+#!/bin/sh
+
+local hasEthWan="1"
+local hasAdsl="$(db -q get hw.board.hasAdsl)"
+local hasVdsl="$(db -q get hw.board.hasVdsl)"
+
+# populate layer2_interface_ethernet #
+if [ "$hasEthWan" == "1" ]; then
+	local wanEthernetPort="$(db -q get hw.board.ethernetWanPort)"
+	wanEthernetPort="${wanEthernetPort:-eth0}"
+	if [ ! -f /etc/config/layer2_interface_ethernet -o -z "$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)" ]; then
+		cat > /etc/config/layer2_interface_ethernet <<EOF
+config ethernet_interface 'Wan'
+	option name 'WAN'
+	option baseifname '${wanEthernetPort}'
+	option ifname '${wanEthernetPort}.1'
+EOF
+	fi
+elif [ "$hasEthWan" == "0" ]; then
+	echo "" > /etc/config/layer2_interface_ethernet
+fi
+
+# populate layer2_interface #
+if [ "$hasAdsl" == "1" ]; then
+	if [ ! -f /etc/config/layer2_interface -o -z "$(uci -q get layer2_interface.capabilities)" ]; then
+		cat > /etc/config/layer2_interface <<EOF
+config dsltype 'vdsl'
+	option 'enabled' 'on'
+
+config dsltype 'adsl'
+	option 'enabled' 'on'
+
+config dslsettings 'capabilities'
+	option 'GDmt' 'Enabled'
+	option 'Glite' 'Enabled'
+	option 'T1413' 'Enabled'
+	option 'ADSL2' 'Enabled'
+	option 'AnnexL' 'Enabled'
+	option 'ADSL2plus' 'Enabled'
+	option 'VDSL2' 'Enabled'
+	option '8a' 'Enabled'
+	option '8b' 'Enabled'
+	option '8c' 'Enabled'
+	option '8d' 'Enabled'
+	option '12a' 'Enabled'
+	option '12b' 'Enabled'
+	option '17a' 'Enabled'
+	option '30a' 'Enabled'
+	option 'US0' 'on'
+	option 'bitswap' 'on'
+	option 'sra' 'on'
+EOF
+	fi
+elif [ "$hasAdsl" == "0" -a "$hasVdsl" == "0" ]; then
+	echo "" > /etc/config/layer2_interface
+fi
+
+# populate layer2_interface_adsl #
+if [ "$hasAdsl" == "1" ]; then
+	local wanAdslPort=$(db -q get hw.board.adslWanPort)
+	wanAdslPort="${wanAdslPort:-atm0}"
+	if [ ! -f /etc/config/layer2_interface_adsl -o -z "$(uci -q get layer2_interface_adsl.@atm_bridge[0].ifname)" ]; then
+		cat > /etc/config/layer2_interface_adsl <<EOF
+config atm_bridge
+	option 'link_type' 'EoA'
+	option 'encapseoa' 'llcsnap_eth'
+	option 'unit' '0'
+	option 'ifname' '${wanAdslPort}.1'
+	option 'baseifname' '${wanAdslPort}'
+	option 'vpi' '8'
+	option 'vci' '35'
+	option 'name' 'DSL8_35'
+	option 'atmtype' 'ubr'
+EOF
+	fi
+elif [ "$hasAdsl" == "0" ]; then
+	echo "" > /etc/config/layer2_interface_adsl
+fi
+
+# populate layer2_interface_vdsl #
+if [ "$hasVdsl" == "1" ]; then
+	local wanVdslPort=$(db -q get hw.board.vdslWanPort)
+	wanVdslPort="${wanVdslPort:-ptm0}"
+	if [ ! -f /etc/config/layer2_interface_vdsl -o -z "$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)" ]; then
+		cat > /etc/config/layer2_interface_vdsl <<EOF
+config vdsl_interface
+	option 'unit' '0'
+	option 'ifname' '${wanVdslPort}.1'
+	option 'baseifname' '${wanVdslPort}'
+	option 'name' 'VDSL2'
+	option 'dslat' '1'
+	option 'ptmprio' '1'
+	option 'ipqos' '1'
+EOF
+	fi
+elif [ "$hasVdsl" == "0" ]; then
+	echo "" > /etc/config/layer2_interface_vdsl
+fi
+
+sync
