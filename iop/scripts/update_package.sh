@@ -1,47 +1,5 @@
 #!/bin/bash
 
-Color_Off='\033[0m'       # Text Reset
-
-# Regular Colors
-Black='\033[0;30m'        # Black
-Red='\033[0;31m'          # Red
-Green='\033[0;32m'        # Green
-Yellow='\033[0;33m'       # Yellow
-Blue='\033[0;34m'         # Blue
-Purple='\033[0;35m'       # Purple
-Cyan='\033[0;36m'         # Cyan
-White='\033[0;37m'        # White
-
-while getopts "v:h" opt; do
-    case $opt in
-	v)
-	    verbose=$OPTARG
-	    ;;
-	h)
-	    echo "some help! No options yet"
-	    exit 1
-	    ;;
-	\?)
-	    echo "Invalid option: -$OPTARG" >&2
-	    exit 1
-	    ;;
-    esac
-done
-
-if [ -z "$EDITOR" ]
-then
-    if [ -f /usr/bin/vi ]; then
-	EDITOR=vi
-    else
-	echo "env variable EDITOR needs to be set"
-	exit 1
-    fi
-fi
-
-
-# allow subshells to abort the whole program by exiting with "exit 99"
-set -E
-trap '[ "$?" -ne 99 ] || exit 99' ERR
 
 print_git_update()
 {
@@ -589,6 +547,56 @@ feeds_at_top()
     exit 0
 }
 
-feeds_at_top
-check_packages
-check_feeds
+
+# Exported interface
+function update_package {
+
+    Color_Off='\033[0m'       # Text Reset
+
+    # Regular Colors
+    Black='\033[0;30m'        # Black
+    Red='\033[0;31m'          # Red
+    Green='\033[0;32m'        # Green
+    Yellow='\033[0;33m'       # Yellow
+    Blue='\033[0;34m'         # Blue
+    Purple='\033[0;35m'       # Purple
+    Cyan='\033[0;36m'         # Cyan
+    White='\033[0;37m'        # White
+
+    while getopts "v:h" opt; do
+	case $opt in
+	    v)
+		verbose=$OPTARG
+		;;
+	    h)
+		echo "some help! No options yet"
+		exit 1
+		;;
+	    \?)
+		echo "Invalid option: -$OPTARG" >&2
+		exit 1
+		;;
+	esac
+    done
+
+    if [ -z "$EDITOR" ]
+    then
+	if [ -f /usr/bin/vi ]; then
+	    EDITOR=vi
+	else
+	    echo "env variable EDITOR needs to be set"
+	    exit 1
+	fi
+    fi
+
+
+    # allow subshells to abort the whole program by exiting with "exit 99"
+    set -E
+    trap '[ "$?" -ne 99 ] || exit 99' ERR
+
+    feeds_at_top
+    check_packages
+    check_feeds
+}
+
+register_command "update_package" "Publish changes to packages and feeds"
