@@ -4,6 +4,9 @@ local hasEthWan="1"
 local hasAdsl="$(db -q get hw.board.hasAdsl)"
 local hasVdsl="$(db -q get hw.board.hasVdsl)"
 
+local LANPORTS="$(db -q get hw.board.ethernetLanPorts)"
+local WANPORTS=""
+
 # populate layer2_interface_ethernet #
 if [ "$hasEthWan" == "1" ]; then
 	local wanEthernetPort="$(db -q get hw.board.ethernetWanPort)"
@@ -16,6 +19,8 @@ config ethernet_interface 'Wan'
 	option ifname '${wanEthernetPort}.1'
 EOF
 	fi
+	local ifname="$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)"
+	[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
 elif [ "$hasEthWan" == "0" ]; then
 	echo "" > /etc/config/layer2_interface_ethernet
 fi
@@ -73,6 +78,8 @@ config atm_bridge
 	option 'atmtype' 'ubr'
 EOF
 	fi
+	local ifname="$(uci -q get layer2_interface_adsl.@atm_bridge[0].ifname)"
+	[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
 elif [ "$hasAdsl" == "0" ]; then
 	echo "" > /etc/config/layer2_interface_adsl
 fi
@@ -93,8 +100,15 @@ config vdsl_interface
 	option 'ipqos' '1'
 EOF
 	fi
+	local ifname="$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)"
+	[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
 elif [ "$hasVdsl" == "0" ]; then
 	echo "" > /etc/config/layer2_interface_vdsl
 fi
+
+# populate network config ifnames #
+uci -q get network.lan.ifname >/dev/null || uci -q set network.lan.ifname="$LANPORTS"
+uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$WANPORTS"
+uci commit network
 
 sync
