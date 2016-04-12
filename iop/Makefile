@@ -13,13 +13,13 @@ PKG_RELEASE:=0
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/iup
+define Package/iop
   SECTION:=net
   CATEGORY:=Network
   TITLE:=iop utilities
 endef
 
-define Package/iup/description
+define Package/iop/description
 	This package contains Intenos Iop utilities
 endef
 
@@ -27,7 +27,7 @@ define Build/Compile
 	true
 endef
 
-define Package/iup/install
+define Package/iop/install
 	true
 endef
 
