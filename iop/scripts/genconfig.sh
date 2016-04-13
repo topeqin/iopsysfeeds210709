@@ -257,4 +257,4 @@ function genconfig {
 }
 
 
-register_command "genconfig" "Genereate configuration for board and customer"
+register_command "genconfig" "Generate configuration for board and customer"
