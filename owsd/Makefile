@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owsd
 PKG_VERSION:=0.9
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=git@public.inteno.se:owsd.git
@@ -22,45 +22,18 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-define Package/owsd/default
+define Package/owsd
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+ubus +ubox +libjson-c +libblobmsg-json +rpcd
+  DEPENDS:=+ubus +ubox +libjson-c +libblobmsg-json +rpcd +libwebsockets
   TITLE:=owsd daemon
 endef
 
-define Package/owsd
-	$(call Package/$(PKG_NAME)/default)
-	TITLE += (default)
-	DEPENDS += +libwebsockets-openssl
-#	DEPENDS += +libwebsockets-nossl
-	VARIANT:=owsd
-endef
-
-#ifeq ($(BUILD_VARIANT),owsd)
-#	CMAKE_OPTIONS += -OWSD_OPENSSL_SUPPORT=OFF
-#	CMAKE_OPTIONS += -OWSD_WITH_SSL=OFF
-#endif
-
-define Package/owsd-openssl
-	$(call Package/$(PKG_NAME)/default)
-	TITLE += (With SSL support)
-	DEPENDS += +libwebsockets-openssl
-	VARIANT:=openssl
-endef
-
 define Package/owsd-testdata
-	$(call Package/$(PKG_NAME)/default)
+	$(call Package/owsd)
 	TITLE += (Test certs and rpcd ACLs for running automated tests)
 	DEPENDS := owsd
 endef
-
-#ifeq ($(BUILD_VARIANT),openssl)
-#	CMAKE_OPTIONS += -OWSD_OPENSSL_CLIENT_CERTS=/etc/ssl/certs
-#	CMAKE_OPTIONS += -OWSD_OPENSSL_SUPPORT=ON
-#	CMAKE_OPTIONS += -OWSD_WITH_SSL=ON
-#endif
-
 
 define Package/owsd/description
  Web socket ubus daemon
@@ -71,7 +44,7 @@ define Package/owsd-testdata/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/owsd-test.json $(1)/usr/share/rpcd/acl.d/owsd-test.json
 	$(INSTALL_DIR) $(1)/usr/share/owsd/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/cert.pem $(1)/usr/share/owsd/cert.pem
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/res/key.pem $(1)/usr/share/owsd/key.pem
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/key.pem $(1)/usr/share/owsd/key.pem
 endef
 
 define Package/owsd-testdata/postinst
@@ -103,5 +76,4 @@ define Package/owsd/install
 endef
 
 $(eval $(call BuildPackage,owsd))
-$(eval $(call BuildPackage,owsd-openssl))
 $(eval $(call BuildPackage,owsd-testdata))
