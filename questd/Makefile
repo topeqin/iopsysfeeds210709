@@ -43,10 +43,7 @@ endef
 define Package/questd/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_DIR) $(1)/tmp
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ueventd $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uscriptd $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,questd))
