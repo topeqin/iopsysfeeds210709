@@ -11,12 +11,17 @@ validate_owsd() {
 	uci_validate_section owsd config setup \
 		'sock:string' \
 		'port:integer' \
-		'origin:string' \
+		'origin:list(string)' \
 		'cert:string' \
 		'key:string'
 }
 
+append_origin() {
+	procd_append_param command -o "$1"
+}
+
 start_service() {
+	config_load owsd
 	procd_open_instance
 	procd_set_param command $PROG
 
@@ -27,7 +32,7 @@ start_service() {
 
 	[ -n "${sock}" ] && procd_append_param command -s "${sock}"
 	[ -n "${port}" ] && procd_append_param command -p "${port}"
-	[ -n "${origin}" ] && origin=${origin//\ / \-o\ } && procd_append_param command -o ${origin}
+	config_list_foreach "setup" "origin" append_origin
 	[ -n "${cert}" ] && procd_append_param command -C "${cert}"
 	[ -n "${key}" ] && procd_append_param command -K "${key}"
 
