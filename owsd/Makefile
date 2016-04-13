@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owsd
-PKG_VERSION:=0.9
+PKG_VERSION:=0.92
 PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=git@public.inteno.se:owsd.git
-PKG_SOURCE_VERSION:=376d0f4e956e6274b0015cec1e67b7f616cbb3a1
+PKG_SOURCE_VERSION:=4d270e448cea27f430ebf2cd1084e9d1a53ab05e
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
@@ -45,6 +45,11 @@ define Package/owsd-testdata/install
 	$(INSTALL_DIR) $(1)/usr/share/owsd/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/cert.pem $(1)/usr/share/owsd/cert.pem
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/key.pem $(1)/usr/share/owsd/key.pem
+
+	$(INSTALL_DIR) $(1)/www/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/webdemo/index.html $(1)/www/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/webdemo/script.js $(1)/www/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/res/webdemo/style.css $(1)/www/
 endef
 
 define Package/owsd-testdata/postinst
