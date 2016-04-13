@@ -55,7 +55,7 @@ function feeds_update {
     exit 0
 }
 
-register_command "feeds_update" "Point feeds to commit hashes in feeds.conf"
+register_command "feeds_update" "Update feeds to point to commit hashes from feeds.conf"
 
 
 
