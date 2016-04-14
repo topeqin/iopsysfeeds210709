@@ -16,14 +16,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
 BASE_PKG_VERSION:=3.4.1
-PKG_RELEASE:=RC9
+PKG_RELEASE:=RC8
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
 PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
-PKG_SOURCE_VERSION:=d3065ee24d72d3fffd5ff75b617bf54fb5377561
+PKG_SOURCE_VERSION:=ecad8b60183b43ecf86543c0c29db46cda8aae29
 ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
@@ -897,20 +897,10 @@ endef
 define Package/ice-client-bcmspeedmgr/install
 	$(INSTALL_DIR) $(1)/bin
 	$(CP) $(PKG_BUILD_DIR)/daemons/bcmspeedmgr/obj/iopsys/bcmspeedmgr $(1)/bin
-	$(CP) $(PKG_BUILD_DIR)/daemons/bcmspeedmgr/obj/iopsys/speedsvc $(1)/bin
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) $(PKG_BUILD_DIR)/platforms/iopsys/bcmspeedtestservice $(1)/etc/init.d/bcmspeedtestservice
 endef
-
-define Package/ice-client-bcmspeedmgr/postinst
-#!/bin/sh
-/etc/init.d/bcmspeedtestservice stop
-/etc/init.d/bcmspeedtestservice start
-exit 0
-endef
-
 endif
-
 # This line executes the necessary commands to compile our program.
 # The above define directives specify all the information needed, but this
 # line calls BuildPackage which in turn actually uses this information to
