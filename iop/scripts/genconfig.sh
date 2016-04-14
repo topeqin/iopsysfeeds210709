@@ -143,8 +143,8 @@ function genconfig {
 	# Base config on master
 	v  "Config $BOARDTYPE selected"
 	v "cp  $CONFIGPATH/MASTER/config  .config"
-	cp  $CONFIGPATH/MASTER/config  .config
-
+#	cp  $CONFIGPATH/MASTER/config  .config
+	rm -f .config
 
 	# Apply profile diff to master config if selected
 	if [ -n "$PROFILE" ]; then 
@@ -163,6 +163,9 @@ function genconfig {
 	# Set target and profile
 	echo "CONFIG_TARGET_${target}=y" >> .config
 	echo "CONFIG_TARGET_${target}_${BOARDTYPE}=y" >> .config
+
+	# Select customer profile
+	echo "CONFIG_PACKAGE_iopsys-config=y" >> .config
 
 	# Add customerconfig diff if a customer is selected
 	if [ -n "$CUSTOMER" ]; then
@@ -218,7 +221,7 @@ function genconfig {
     ####### main #####
     if [ ! -e tmp/.iop_bootstrap ]; then
 	echo "You have not installed feeds. Running genconfig in this state would create a non functional configuration."
-	echo "Run: ./scripts/iop_feeds_update.sh"
+	echo "Run: iop feeds_update"
 	exit 0
     fi
 
