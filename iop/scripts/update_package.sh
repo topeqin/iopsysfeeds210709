@@ -541,7 +541,7 @@ feeds_at_top()
     echo ""
     echo "please run:"
     echo "  git pull"
-    echo "  scripts/iop_feeds_update.sh"
+    echo "  ./iop feeds_update"
     echo ""
     echo "do not forget the bootstrap. but do not run make it can delete your package in build"
     exit 0
