@@ -207,9 +207,6 @@ function genconfig {
 	if [ "$PROFILE" == "luci" ]; then
 	    sed -i '/CONFIG_DEFAULT_juci/d' .config
 	    sed -i '/CONFIG_PACKAGE_juci/d' .config
-	else
-	    sed -i 's/CONFIG_PACKAGE_luci-lib-core_source=y/# CONFIG_PACKAGE_luci-lib-core_source is not set/g' .config
-            sed -i 's/CONFIG_PACKAGE_luci-lib-nixio_notls=y/# CONFIG_PACKAGE_luci-lib-nixio_notls is not set/g' .config
 	fi
 
 	echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
