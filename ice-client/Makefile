@@ -56,6 +56,10 @@ $(call Package/ice-client/Default)
 	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox
 endef
 
+define Package/ice-client/config
+	source "$(SOURCE)/Config.in"
+endef
+
 ###########################--DEVELOPMENT--################################
 # Development settings
 # Uncomment stuff  Build/Prepare
