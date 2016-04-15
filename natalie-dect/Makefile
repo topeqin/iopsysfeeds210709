@@ -46,7 +46,7 @@ define Package/natalie-dect/description
 	Kernel dect driver
 endef
 
-define Package/endptcfg/config
+define Package/natalie-dect/config
 	source "$(SOURCE)/Config.in"
 endef
 
