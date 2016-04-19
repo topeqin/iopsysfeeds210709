@@ -12,14 +12,14 @@ check_for_config(){
 	if [ -s "/etc/config/ports" ]
 	then 
 		debug_print "file exists and has content" 
-		if uci -q show ports >/dev/null #are there any valid content then continue
+		if uci -q get ports.@ethport[0] >/dev/null #are there any valid content then continue
 		then 
 			return 0
 		else
 			rm -f /etc/config/ports
 		fi
 	fi
-	debug_print "file doesent exsists or is empty"
+	debug_print "ports config file doesn't exsist or is empty"
 	touch /etc/config/ports
 	local portnames="$(db get hw.board.ethernetPortNames)"
 	local portorder="$(db get hw.board.ethernetPortOrder)"
