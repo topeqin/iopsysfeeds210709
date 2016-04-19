@@ -10,7 +10,7 @@ PKG_VERSION:=3.0.2
 
 PKG_SOURCE_VERSION:=f8f700aafa65aac82f9aec6b224c7bafc404dd93
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://public.inteno.se:/questd
+PKG_SOURCE_URL:=git@private.inteno.se:questd
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
