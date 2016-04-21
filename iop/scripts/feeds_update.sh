@@ -30,6 +30,7 @@ function feeds_update {
     fi
 
 
+    ./scripts/feeds install -f -p feed_inteno_openwrt -a
     ./scripts/feeds install -f -p feed_inteno_juci -a
     ./scripts/feeds install -f -p feed_inteno_packages -a
     ./scripts/feeds install -f -p feed_inteno_broadcom -a
