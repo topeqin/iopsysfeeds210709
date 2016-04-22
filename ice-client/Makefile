@@ -1,5 +1,3 @@
-# CONFIG_ICE_OPEN:=n
-
 include $(TOPDIR)/rules.mk
 
 # We use the foldername as main package name
@@ -24,11 +22,18 @@ export PKG_VERSION
 
 ###########################--RELEASE--################################
 
+ifeq ($(CONFIG_ICE_OPEN),y)
+BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+else
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@private.inteno.se:ice-client
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
+endif
 
 ###########################--RELEASE--################################
 
