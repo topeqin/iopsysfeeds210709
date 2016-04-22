@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=questd
 PKG_VERSION:=3.1.0
 
-PKG_SOURCE_VERSION:=f7e856ec68627842c1e79eadb5b856ec629bb637
+PKG_SOURCE_VERSION:=d7e9195cfda57cfe361548a3cff35273c65626f3
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
@@ -17,6 +17,24 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
+
+ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
+else
+ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
+EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
+else
+ifeq ($(CONFIG_TARGET_iopsys_marvell_arm),y)
+EXTRA_CPPFLAGS += -DIOPSYS_MARVELL
+else
+ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
+EXTRA_CPPFLAGS += -DIOPSYS_LANTIQ
+else
+$(info NO RECOGNIZED CONFIG_TARGET DEFINED)
+endif
+endif
+endif
+endif
 
 LDFLAGS+= \
 	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
@@ -43,7 +61,6 @@ endef
 define Package/questd/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_DIR) $(1)/tmp
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ueventd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uscriptd $(1)/sbin/
