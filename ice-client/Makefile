@@ -1,4 +1,4 @@
-CONFIG_ICE_OPEN:=n
+# CONFIG_ICE_OPEN:=n
 
 include $(TOPDIR)/rules.mk
 
@@ -47,9 +47,9 @@ $(call Package/ice-client/Default)
 	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox +libpthread
 endef
 
-#define Package/ice-client/config
-#	source "$(SOURCE)/Config.in"
-#endef
+define Package/ice-client/config
+	source "$(SOURCE)/Config.in"
+endef
 
 ###########################--DEVELOPMENT--################################
 # Development settings
