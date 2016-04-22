@@ -18,6 +18,24 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
+ifeq ($(CONFIG_TARGET_CONFIG_TARGET_iopsys_brcm63xx_mips),y)
+EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
+else
+ifeq ($(CONFIG_TARGET_CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
+else
+ifeq ($(CONFIG_TARGET_CONFIG_TARGET_iopsys_linksys),y)
+EXTRA_CPPFLAGS += -DIOPSYS_MARVELL
+else
+ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
+EXTRA_CPPFLAGS += -DIOPSYS_LANTIQ
+else
+$(info (UNEXPECTED CONFIG TARGET))
+endif
+endif
+endif
+endif
+
 LDFLAGS+= \
 	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
 	-Wl,-rpath-link=$(STAGING_DIR)/lib
