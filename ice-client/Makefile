@@ -16,14 +16,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
 BASE_PKG_VERSION:=3.4.1
-PKG_RELEASE:=RC9
+PKG_RELEASE:=RC11
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
 PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
-PKG_SOURCE_VERSION:=d3065ee24d72d3fffd5ff75b617bf54fb5377561
+PKG_SOURCE_VERSION:=184d29446fe6103f567c968bf35569625326a82c
 ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
@@ -136,7 +136,7 @@ define Package/ice-client/install
 	$(CP) $(PKG_BUILD_DIR)/core/ice $(1)/bin
 	$(CP) $(PKG_BUILD_DIR)/modules/system/ubusevent/obj/iopsys/ubusevent $(1)/bin
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/core/lib/{systemService.so.1.0.1,libconfStore.so.1,networkService.so.1.0.1,packageService.so.1.0.1,monitorService.so.1.0.1,iperfService.so.1.0.1,logService.so.1.0.1} $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/core/lib/{systemService.so.1.0.1,libconfStore.so.1,networkService.so.1.0.1,packageService.so.1.0.1,monitorService.so.1.0.1,iperfService.so.1.0.1,logService.so.1.0.1,texecService.so.1.0.1} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/wsice/obj/iopsys/libwsice.so $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/execute
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/progress
@@ -162,8 +162,8 @@ cp /tmp/iopsysserver.ini /etc/iopsys/server.ini
 rm -f /tmp/iopsysserver.ini 
 cp /tmp/ice.back /etc/config/ice 
 rm -f /tmp/ice.back
-if [ -f "/etc/rc.d/S99ice-client" ]; then
-	/etc/init.d/ice-client start
+if [ -f "/etc/rc.d/S98ice-client" ]; then
+	/etc/init.d/ice-client restart
 fi
 exit 0
 endef
@@ -883,6 +883,55 @@ fi
 exit 0
 endef
 
+# texec
+define Package/ice-client-texec
+  $(call Package/ice-client/Default)
+  TITLE:=texec
+  DEPENDS+= 
+endef
+
+define Package/ice-client-texec/description
+remote script execution module for ice-client
+endef
+
+define Package/ice-client-texec/prerm
+#!/bin/sh
+if [ ! -f "/tmp/ice.pid" ] ; then exit 0 ; fi
+PROC_ID=$$(cat /tmp/ice.pid)
+PROC_EXISTS=$$(/usr/bin/pgrep -P $${PROC_ID})
+if [ -n "$$PROC_EXISTS" ]; then
+  read -t 1 <>/tmp/cfout
+  echo "system moduleRemove topic=texec" > /tmp/cfin
+fi
+exit 0
+endef
+
+define Package/ice-client-texec/preinst
+#!/bin/sh
+if [ ! -f "/tmp/ice.pid" ] ; then exit 0 ; fi
+PROC_ID=$$(cat /tmp/ice.pid)
+PROC_EXISTS=$$(/usr/bin/pgrep -P $${PROC_ID})
+if [ -n "$$PROC_EXISTS" ]; then
+  read -t 1 <>/tmp/cfout
+  echo "system moduleRemove topic=tExecMgr" > /tmp/cfin
+fi
+exit 0
+endef
+
+define Package/ice-client-texec/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/core/lib/texecService.so.1.0.1 $(1)/usr/lib
+endef
+
+define Package/ice-client-texec/postinst
+#!/bin/sh
+read -t 1 <>/tmp/cfout
+if [ -f /tmp/ice.pid  ]; then
+	echo "system moduleAdd file=texecService.so.1.0.1" package="ice-client-texec" > /tmp/cfin
+fi
+exit 0
+endef
+
 # bmspeedtest
 define Package/ice-client-bcmspeedmgr
   $(call Package/ice-client/Default)
@@ -931,5 +980,6 @@ $(eval $(call BuildPackage,ice-client-rework))
 $(eval $(call BuildPackage,ice-client-sip))
 $(eval $(call BuildPackage,ice-client-monitor))
 $(eval $(call BuildPackage,ice-client-gigaset))
+$(eval $(call BuildPackage,ice-client-texec))
 $(eval $(call BuildPackage,ice-client-bcmspeedmgr))
 endif
