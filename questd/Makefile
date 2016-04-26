@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=3.1.0
+PKG_VERSION:=3.1.1
 
-PKG_SOURCE_VERSION:=d7e9195cfda57cfe361548a3cff35273c65626f3
+PKG_SOURCE_VERSION:=50d67b641fe35ebd3a9da67f59eba5ad2c30b3a7
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
@@ -18,13 +18,13 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-ifeq ($(CONFIG_TARGET_CONFIG_TARGET_iopsys_brcm63xx_mips),y)
+ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
 EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
 else
-ifeq ($(CONFIG_TARGET_CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
 EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
 else
-ifeq ($(CONFIG_TARGET_CONFIG_TARGET_iopsys_linksys),y)
+ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
 EXTRA_CPPFLAGS += -DIOPSYS_MARVELL
 else
 ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
