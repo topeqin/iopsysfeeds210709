@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=3.1.1
+PKG_VERSION:=3.1.2
 
-PKG_SOURCE_VERSION:=50d67b641fe35ebd3a9da67f59eba5ad2c30b3a7
+PKG_SOURCE_VERSION:=77539b5eab011305bc8a7aa4fc5a6c489fd7e1eb
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
@@ -19,33 +19,20 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
-EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
-else
-ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
-EXTRA_CPPFLAGS += -DIOPSYS_BROADCOM
-else
-ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
-EXTRA_CPPFLAGS += -DIOPSYS_MARVELL
-else
-ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
-EXTRA_CPPFLAGS += -DIOPSYS_LANTIQ
+QUESTD_CLFAGS:=-DIOPSYS_BROADCOM
+KERNEL_DIR:=$(BUILD_DIR)/bcmkernel/bcm963xx
+else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+QUESTD_CLFAGS:=-DIOPSYS_BROADCOM
+else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
+QUESTD_CLFAGS:=-DIOPSYS_MARVELL
+else ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
+QUESTD_CLFAGS:=-DIOPSYS_LANTIQ
 else
 $(info (UNEXPECTED CONFIG TARGET))
 endif
-endif
-endif
-endif
 
-LDFLAGS+= \
-	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-	-Wl,-rpath-link=$(STAGING_DIR)/lib
-
-ifeq ($(CONFIG_PACKAGE_bcmkernel),y)
-BCMKERNEL_DIR:=$(BUILD_DIR)/bcmkernel/bcm963xx
-else
-BCMKERNEL_DIR:=$(BUILD_DIR)/bcmopen-consumer/bcm963xx
-endif
-export BCMKERNEL_DIR
+export KERNEL_DIR
+export QUESTD_CLFAGS
 
 define Package/questd
 	CATEGORY:=Utilities
