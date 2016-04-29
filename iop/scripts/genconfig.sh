@@ -186,22 +186,23 @@ function genconfig {
             echo CONFIG_SRC_TREE_OVERRIDE=y >> .config
 
 
-	# Set default values based on selected parameters
-	make defconfig
-
 	# developer mode selected ?
 	if [ $DEVELOPER -eq 1 ]; then
 	    # rewrite url to clone with ssh instead of http
 	    echo "CONFIG_GITMIRROR_REWRITE=y" >>.config
-	    [ $bcmAllowed -eq 1 ] && sed -i 's/CONFIG_BCM_OPEN=y/# CONFIG_BCM_OPEN is not set/g' .config
-	    [ $iceAllowed -eq 1 ] && echo "# CONFIG_ICE_OPEN is not set" >> .config || echo "CONFIG_ICE_OPEN=y" >> .config
-	    [ $endptAllowed -eq 1 ] && echo "# CONFIG_ENDPT_OPEN is not set" >> .config || echo "CONFIG_ENDPT_OPEN=y" >> .config
-	    [ $natalieAllowed -eq 1 ] && echo "# CONFIG_NATALIE_OPEN is not set" >> .config || echo "CONFIG_NATALIE_OPEN=y" >> .config
+	    [ $bcmAllowed -eq 0 ] && echo "CONFIG_BCM_OPEN=y" >> .config
+	    [ $iceAllowed -eq 0 ] && echo "CONFIG_ICE_OPEN=y" >> .config
+	    [ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
+	    [ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 	else
+	    echo "CONFIG_BCM_OPEN=y" >> .config
 	    echo "CONFIG_ICE_OPEN=y" >> .config
 	    echo "CONFIG_ENDPT_OPEN=y" >> .config
 	    echo "CONFIG_NATALIE_OPEN=y" >> .config
 	fi
+
+	# Set default values based on selected parameters
+	make defconfig
 
 	# Temporary fixup for juci/luci profile
 	if [ "$PROFILE" == "luci" ]; then
