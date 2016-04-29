@@ -1,9 +1,9 @@
 config owsd 'setup'
 	#option sock '/var/run/ubus.sock'
 	#option port '8843'
-	list origin 'http://localhost/'
-	list origin 'http://localhost:80/'
-	list origin 'http://localhost:8080/'
+	list origin 'http://192.168.1.1:8843'
+	list origin 'https://192.168.1.1:8843'
 	#option cert '/usr/share/owsD/cert.pem'
 	#option key '/usr/share/owsD/key.pem'
+	#option www '/www'
 

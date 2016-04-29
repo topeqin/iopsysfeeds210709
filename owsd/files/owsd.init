@@ -13,7 +13,9 @@ validate_owsd() {
 		'port:integer' \
 		'origin:list(string)' \
 		'cert:string' \
-		'key:string'
+		'key:string' \
+		'www:string' \
+
 }
 
 append_origin() {
@@ -33,8 +35,9 @@ start_service() {
 	[ -n "${sock}" ] && procd_append_param command -s "${sock}"
 	[ -n "${port}" ] && procd_append_param command -p "${port}"
 	config_list_foreach "setup" "origin" append_origin
-	[ -n "${cert}" ] && procd_append_param command -C "${cert}"
-	[ -n "${key}" ] && procd_append_param command -K "${key}"
+	[ -n "${cert}" ] && procd_append_param command -c "${cert}"
+	[ -n "${key}" ] && procd_append_param command -k "${key}"
+	[ -n "${www}" ] && procd_append_param command -w "${www}"
 
 #	procd_set_param stderr 1
 	procd_set_param respawn

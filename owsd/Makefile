@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owsd
-PKG_VERSION:=0.93
+PKG_VERSION:=0.94
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=git@public.inteno.se:owsd.git
-PKG_SOURCE_VERSION:=d9c78ec39c2f8d65f0f64cfa9bcf45efe9cc38cb
+PKG_SOURCE_VERSION:=18825d54a38d137fb26f418d1d2f7bb2991eaf89
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
@@ -32,7 +32,7 @@ endef
 define Package/owsd-testdata
 	$(call Package/owsd)
 	TITLE += (Test certs and rpcd ACLs for running automated tests)
-	DEPENDS := owsd
+	DEPENDS := owsd +rpcd-mod-file
 endef
 
 define Package/owsd/description
