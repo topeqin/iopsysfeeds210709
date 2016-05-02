@@ -15,6 +15,17 @@ config CWMP_ACS_HDM
 	bool "HDM"
 endchoice
 
+choice
+	prompt "Select Data Model"
+	default tr098
+
+config DATAMODEL_TR098
+	bool "TR-098"
+
+config DATAMODEL_TR181
+	bool "TR-181"
+endchoice
+
 config CWMP_DEBUG
 	bool "Compile with debug options"
 	default y

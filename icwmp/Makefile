@@ -34,7 +34,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib
 endef
 
 define Package/icwmp/description
@@ -85,6 +85,8 @@ CONFIGURE_ARGS += \
 	--with-uci-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubox-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubus-include-path=$(STAGING_DIR)/usr/include
+
+CONFIGURE_ARGS += $(if $(CONFIG_DATAMODEL_TR181),--enable-datamodel=tr181,--enable-datamodel=tr098)
 
 ifeq ($(BUILD_VARIANT),zstream)
 CONFIGURE_ARGS += \
