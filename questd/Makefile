@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=3.1.3
+PKG_VERSION:=3.1.4
 
-PKG_SOURCE_VERSION:=9467625ceb2636ca1487e400ef119f374946beb0
+PKG_SOURCE_VERSION:=027cbe5e5860b921b8d9dd95548499d18533d976
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
@@ -51,6 +51,7 @@ define Package/questd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ueventd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uscriptd $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,questd))
