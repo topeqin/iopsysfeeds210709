@@ -188,17 +188,6 @@ $(call Package/asterisk18-mod/Default/description)
  support to Asterisk.
 endef
 
-define Package/asterisk18-mod-chan-mobile
-$(call Package/asterisk18-mod/Default)
-  TITLE:=Mobile channel support
-  DEPENDS:= asterisk18-mod +bluez-libs
-endef
-
-define Package/asterisk18-mod-chan-mobile/description
-$(call Package/asterisk18-mod/Default/description)
- This package provides the channel chan_mobile support to Asterisk.
-endef
-
 define Package/asterisk18-mod-res-timing-timerfd
 $(call Package/asterisk18-mod/Default)
   TITLE:= Timerfd Timing Interface
@@ -339,14 +328,6 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-mod-res-fax-spandsp),)
 else
   CONFIGURE_ARGS+= \
     --without-spandsp
-endif
-
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-mod-chan-mobile),)
-  CONFIGURE_ARGS+= \
-	--with-bluetooth="$(STAGING_DIR)/usr"
-else
-  CONFIGURE_ARGS+= \
-	--without-bluetooth
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-mod-res-srtp),)
@@ -571,17 +552,6 @@ define Package/asterisk18-mod-chan-gtalk/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/res_jabber.so $(1)/usr/lib/asterisk/modules/
 endef
 
-define Package/asterisk18-mod-chan-mobile/conffiles
-/etc/asterisk/chan_mobile.conf
-endef
-
-define Package/asterisk18-mod-chan-mobile/install
-	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/chan_mobile.conf $(1)/etc/asterisk/
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_mobile.so $(1)/usr/lib/asterisk/modules/
-endef
-
 define Package/asterisk18-mod-res-timing-timerfd/install
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/res_timing_timerfd.so $(1)/usr/lib/asterisk/modules/
@@ -733,7 +703,6 @@ $(eval $(call BuildPackage,asterisk18-mod-cdr))
 $(eval $(call BuildPackage,asterisk18-mod-res-musiconhold))
 $(eval $(call BuildPackage,asterisk18-mod-res-voice))
 $(eval $(call BuildPackage,asterisk18-mod-chan-gtalk))
-$(eval $(call BuildPackage,asterisk18-mod-chan-mobile))
 $(eval $(call BuildPackage,asterisk18-mod-res-fax))
 $(eval $(call BuildPackage,asterisk18-mod-res-fax-spandsp))
 $(eval $(call BuildPackage,asterisk18-mod-res-timing-timerfd))
