@@ -34,7 +34,7 @@ function cfe_upgrade_latest {
 		exit 1
 	fi
 	{ cd `dirname $0`
-		IMAGE=`ls -Art bin/*/*.y | tail -n1`
+		IMAGE=`ls -Art bin/*/*.w | tail -n1`
 		[ "$IMAGE" ] && [ -e "$IMAGE" ] && ./iop cfe_upgrade $1 $IMAGE
 	}
 }
