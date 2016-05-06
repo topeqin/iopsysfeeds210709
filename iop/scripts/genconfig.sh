@@ -5,7 +5,7 @@ function genconfig {
     export IMPORT=0
     export SRCTREEOVERR=0
     export FILEDIR="files/"
-    export CONFIGPATH="configs"  
+    export CONFIGPATH="package/feeds/feed_inteno_packages/iop/configs"  
     export CUSTCONF="customerconfigs"
     export VERBOSE=0
     export DEVELOPER=0
