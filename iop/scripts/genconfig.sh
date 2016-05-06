@@ -142,13 +142,13 @@ function genconfig {
 
 	# Base config on master
 	v  "Config $BOARDTYPE selected"
-	v "cp  $CONFIGPATH/MASTER/config  .config"
-	cp  $CONFIGPATH/MASTER/config  .config
+	v "cp  $CONFIGPATH/config  .config"
+	cp  $CONFIGPATH/config  .config
 
 	# Apply profile diff to master config if selected
 	if [ -n "$PROFILE" ]; then 
-	    if [ -e "$CONFIGPATH/MASTER/$PROFILE.diff" ]; then
-		generate_config configs/MASTER/$PROFILE.diff .config
+	    if [ -e "$CONFIGPATH/$PROFILE.diff" ]; then
+		generate_config configs/$PROFILE.diff .config
 	    elif [ "$PROFILE" == "juci" ]; then
 		v "Default profile (juci) is selected."
 	    else
