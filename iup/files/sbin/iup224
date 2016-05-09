@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /usr/share/libubox/jshn.sh
+. /lib/network/config.sh
 
 if [ -z $1 ] ; then
 	echo "No argument"
@@ -67,6 +68,7 @@ if [ $url ] && [ $active -eq 1 ]; then
         fi
 	if [ "$softwareminuspath" == "${softwareminuspath/$firmware1/}" -o "$softwareminuspath" == "${softwareminuspath/$firmware2/}" ] ; then
 		echo "Image found $url will start flashing"
+		wait_for_dns $url
 		/sbin/sysupgrade -v $url &
 		exit 1
 	else
