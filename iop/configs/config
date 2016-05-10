@@ -6,6 +6,7 @@ CONFIG_DEVEL=y
 CONFIG_LOCALMIRROR="http://mirror.inteno.se/mirror"
 CONFIG_PACKAGE_4g-support=y
 CONFIG_PACKAGE_alsa-lib=y
+CONFIG_PACKAGE_bind-host=y
 CONFIG_PACKAGE_chat=y
 CONFIG_PACKAGE_comgt=y
 CONFIG_PACKAGE_crashlog=y
