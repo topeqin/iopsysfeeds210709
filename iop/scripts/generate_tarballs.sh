@@ -60,7 +60,7 @@ build_ice_consumer() {
 	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
 	iceversion=$icebasever$icerelease
 	ssh inteno@iopsys.inteno.se "ls public/www/iopsys/consumer/ice-client-$profile-$iceversion-$icecommith.tar.gz" && return
-	cd ./build_dir/target-*_uClibc-0.9.33.*/ice-client-$icebasever/ipkg-brcm*
+	cd ./build_dir/target-*_uClibc-0.9.33.*/ice-client-$icebasever/ipkg-*
 	tar -czv  ice-client -f ice-client-$profile-$iceversion-$icecommith.tar.gz
 	scp ice-client-$profile-$iceversion-$icecommith.tar.gz inteno@iopsys.inteno.se:/home/inteno/public/www/iopsys/consumer/
 	cp ice-client-$profile-$iceversion-$icecommith.tar.gz $curdir/
