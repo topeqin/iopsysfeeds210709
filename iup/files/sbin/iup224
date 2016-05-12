@@ -58,15 +58,8 @@ if [ $url ] && [ $active -eq 1 ]; then
 	local sysinfo=$(ubus call router quest "{ \"info\": \"system\" }")
 	json_load "$sysinfo"
 	json_get_var firmware firmware
-	json_get_var filesystem filesystem                                  
-        if [ "$filesystem" == "JFFS2" ] ; then
-		firmware1=$firmware.w
-		firmware2=$firmware.w
-        else
-		firmware1=$firmware.y
-		firmware2=$firmware.y2
-        fi
-	if [ "$softwareminuspath" == "${softwareminuspath/$firmware1/}" -o "$softwareminuspath" == "${softwareminuspath/$firmware2/}" ] ; then
+	local firmware_new=${softwareminuspath%.*}	# remove extension (.w, .y or .y2) from filename
+	if [ "$firmware_new" != "$firmware" ] ; then
 		echo "Image found $url will start flashing"
 		wait_for_dns $url
 		/sbin/sysupgrade -v $url &
