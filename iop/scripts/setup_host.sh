@@ -8,6 +8,7 @@ function setup_host {
     fi
 
     packages_all="bison flex g++ g++-multilib zlib1g-dev gettext gawk svn-buildpackage libncurses5-dev ncurses-term git automake gtk-doc-tools liblzo2-dev uuid-dev execstack"
+    packages_perl="libconvert-binary-c-perl libdigest-crc-perl"
     packages_x64="libc6-dev-i386 lib32z1"
     packages_npm="npm nodejs yui-compressor"
 
@@ -32,10 +33,11 @@ function setup_host {
     fi
 
     echo "The packages below must be installed"
-    echo $packages_all
+    echo $packages_all $packages_perl
     read -p "Do you approve insallation of these packages (y/n): " ans
     if [ "$ans" == "y" ]; then
 	apt-get install $packages_all
+	apt-get install $packages_perl
     else
 	cd $curdir
 	exit 1
