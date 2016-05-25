@@ -30,6 +30,16 @@ config CWMP_DEBUG
 	bool "Compile with debug options"
 	default y
 
+choice
+	prompt "enable xmpp feature"
+	default disable
+
+config XMPP_DISABLE
+	bool "disable"
+
+config XMPP_ENABLE
+	bool "enable"
+endchoice
 config CWMP_DEVEL_DEBUG
 	bool "Compile with development debug options"
 	default n

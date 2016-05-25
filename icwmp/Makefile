@@ -87,6 +87,7 @@ CONFIGURE_ARGS += \
 	--with-libubus-include-path=$(STAGING_DIR)/usr/include
 
 CONFIGURE_ARGS += $(if $(CONFIG_DATAMODEL_TR181),--enable-datamodel=tr181,--enable-datamodel=tr098)
+CONFIGURE_ARGS += $(if $(CONFIG_XMPP_ENABLE),--enable-xmpp=enable,--enable-xmpp=disable)
 
 ifeq ($(BUILD_VARIANT),zstream)
 CONFIGURE_ARGS += \
