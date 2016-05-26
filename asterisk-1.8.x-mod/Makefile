@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=asterisk18-mod
 PKG_VERSION:=1.8.10.1
 
-PKG_SOURCE_VERSION:=2239c2d0e790abfce7ac0684dbbac1cf9c0aff40
+PKG_SOURCE_VERSION:=27e758994968f02b76a634683b87b262108028a2
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/asterisk-1.8.x
 
@@ -392,6 +392,9 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--disable-xmldoc
 
+# I've had strange errors with -fno-caller-saves
+# in global CFLAGS so revert it. /Ronny
+EXTRA_CFLAGS+= -O2 -fcaller-saves
 EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
 EXTRA_LDFLAGS+= $(TARGET_LDFLAGS)
 
