@@ -140,6 +140,9 @@ function genconfig {
 	    exit 1
 	fi
 
+	# Clean base-file package to force rebuild when changing profile
+	make package/base-files/clean
+
 	# Base config on master
 	v  "Config $BOARDTYPE selected"
 	v "cp  $CONFIGPATH/config  .config"
