@@ -11,13 +11,9 @@ PKG_RELEASE:=1
 PKG_VERSION:=1.1.0
 PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr2
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=666c3e93ad56e20493bae8a439e9655ce947f2f7
+PKG_SOURCE_VERSION:=724cc19727f85b18aeb920eff24a403a03628959
 PKG_NAME:=dectmngr2
 
-
-LDFLAGS+= \
-        -Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-		-Wl,-rpath-link=$(STAGING_DIR)/lib
 
 RSTRIP:=true
 export BUILD_DIR
