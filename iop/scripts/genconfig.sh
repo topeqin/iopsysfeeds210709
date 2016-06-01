@@ -175,7 +175,7 @@ function genconfig {
 	    fi
 	    if [ -e "$CUSTCONF/$BOARDTYPE/$CUSTOMER/$BOARDTYPE.diff" ]; then
 		v "Apply $CUSTCONF/$BOARDTYPE/$CUSTOMER/$BOARDTYPE.diff"
-		generate_config $CUSTCONF/$BOARDTYPE/$CUSTOMER/$BOARDTYPE.diff .config
+		cat $CUSTCONF/$BOARDTYPE/$CUSTOMER/$BOARDTYPE.diff >> .config
 	    fi
 	fi
 
