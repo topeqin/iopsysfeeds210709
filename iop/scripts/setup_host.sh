@@ -160,15 +160,30 @@ check_brcm_tools(){
 
 check_gcc_version(){
 
-    gcc_ver=$(ls -l /usr/bin/gcc-[0-9]* | head -1 | awk '{print$NF}' | cut -d'-' -f2)
-    if [ "$gcc_ver" != "4.8" ]; then
+    gcc_ver=$(ls -l $(which gcc) | awk '{ print $NF }')
+
+    # if /usr/bin/gcc -> /etc/alternatives/cc
+    if [ -L $gcc_ver ]; then
+	gcc_ver=$(ls -l $gcc_ver | awk '{ print $NF }')
+    fi
+
+    # transform gcc-* to just a number.
+    gcc_ver=$(echo $gcc_ver | cut -d- -f2)
+    
+    if [ "$gcc_ver" != 4.8 ]; then
 	echo "Your current gcc version is $gcc_ver, but it must be changed to 4.8"
 	read -p "Do you approve this change (y/n): " ans
 	if [ "$ans" == "y" ]; then
-	    sudo apt-get install gcc-4.8
-	    sudo apt-get install g++-4.8
-	    sudo apt-get install gcc-4.8-multilib
-
+	    if ! dpkg -s gcc-4.8 >/dev/null 2>/dev/null ;then
+		sudo apt-get install gcc-4.8
+	    fi
+	    if ! dpkg -s g++-4.8 >/dev/null 2>/dev/null ;then
+		sudo apt-get install g++-4.8
+	    fi
+	    if ! dpkg -s gcc-4.8-multilib >/dev/null 2>/dev/null ;then
+		sudo apt-get install gcc-4.8-multilib
+	    fi
+	    
 	    sudo update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-4.8 100
 	    sudo update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-$gcc_ver 90
 
