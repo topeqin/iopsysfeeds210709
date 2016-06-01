@@ -165,28 +165,25 @@ check_gcc_version(){
 	echo "Your current gcc version is $gcc_ver, but it must be changed to 4.8"
 	read -p "Do you approve this change (y/n): " ans
 	if [ "$ans" == "y" ]; then
-	    apt-get install gcc-4.8
-	    apt-get install g++-4.8
-	    apt-get install gcc-4.8-multilib
+	    sudo apt-get install gcc-4.8
+	    sudo apt-get install g++-4.8
+	    sudo apt-get install gcc-4.8-multilib
 
-	    update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-4.8 100
-	    update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-$gcc_ver 90
+	    sudo update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-4.8 100
+	    sudo update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-$gcc_ver 90
 
-	    update-alternatives --install /usr/bin/gcc cc /usr/bin/gcc-4.8 100
-	    update-alternatives --install /usr/bin/gcc cc /usr/bin/gcc-$gcc_ver 90
+	    sudo update-alternatives --install /usr/bin/gcc cc /usr/bin/gcc-4.8 100
+	    sudo update-alternatives --install /usr/bin/gcc cc /usr/bin/gcc-$gcc_ver 90
 
-	    update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-4.8 100
-	    update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-$gcc_ver 90
+	    sudo update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-4.8 100
+	    sudo update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-$gcc_ver 90
 
-	    update-alternatives --set c++ /usr/bin/g++-4.8
-	    update-alternatives --set cc  /usr/bin/gcc-4.8
-	    update-alternatives --set cpp /usr/bin/cpp-4.8
-	    ln -s /etc/alternatives/cc /usr/bin/cc 
+	    sudo update-alternatives --set c++ /usr/bin/g++-4.8
+	    sudo update-alternatives --set cc  /usr/bin/gcc-4.8
+	    sudo update-alternatives --set cpp /usr/bin/cpp-4.8
+	    sudo ln -s /etc/alternatives/cc /usr/bin/cc 
 
 	    echo "The deafult gcc version has now been changed from $gcc_ver to 4.8"
-	else
-	    cd $curdir
-	    exit 1
 	fi
     fi
 }
