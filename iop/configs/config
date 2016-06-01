@@ -32,7 +32,6 @@ CONFIG_PACKAGE_ice-client-netrounds=m
 CONFIG_PACKAGE_ice-client-rshell=m
 CONFIG_PACKAGE_ice-client-texec=m
 # CONFIG_PACKAGE_icgroupd is not set
-CONFIG_PACKAGE_icwmp-curl=y
 CONFIG_PACKAGE_iperf-mt=y
 CONFIG_PACKAGE_ipset=y
 CONFIG_PACKAGE_iup=y
