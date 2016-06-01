@@ -203,6 +203,37 @@ check_gcc_version(){
     fi
 }
 
+restore_gcc() {
+    if dpkg -s gcc-5
+    then
+	gcc_ver=$(ls -l $(which gcc) | awk '{ print $NF }')
+
+	# if /usr/bin/gcc -> /etc/alternatives/cc
+	if [ -L $gcc_ver ]; then
+	    gcc_ver=$(ls -l $gcc_ver | awk '{ print $NF }')
+	fi
+
+	# transform gcc-* to just a number.
+	gcc_ver=$(echo $gcc_ver | cut -d- -f2)
+	
+	# is 4.8 the default reset back to 5 
+	if [ "$gcc_ver" = "4.8" ]; then
+	    echo "Your current gcc version is $gcc_ver that is not the distro default. set it back to default ?"
+	    read -p "Do you approve this change (y/n): " ans
+	    if [ "$ans" == "y" ]; then
+		sudo update-alternatives --set c++ /usr/bin/g++-5
+		sudo update-alternatives --set cc  /usr/bin/gcc-5
+		sudo update-alternatives --set cpp /usr/bin/cpp-5
+
+		# force a reinstall of default version
+		# yes it needs to be done twice.
+		sudo apt-get install --reinstall gcc cpp g++
+		sudo apt-get install --reinstall gcc cpp g++
+	    fi
+	fi
+    fi
+}
+
 function setup_host {
 
     #===============#
@@ -214,6 +245,7 @@ function setup_host {
     install_npm
     check_brcm_tools
     check_gcc_version
+    #restore_gcc
 
     echo ""
     echo ""
