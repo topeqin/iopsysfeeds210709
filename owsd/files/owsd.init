@@ -22,12 +22,16 @@ validate_owsd_iface() {
 		'port:port' \
 		'interface:string' \
 		'origin:list(string)' \
-		'cert:string' \
-		'key:string'
+		'whitelist_interface_as_origin:bool' \
+		'ipv6:bool' \
+		'cert:file' \
+		'key:file'
 }
 
+. /lib/functions/network.sh
+
 parse_owsd_iface() {
-	local port interface cert key
+	local port interface whitelist_interface_as_origin ipv6 cert key
 
 	validate_owsd_iface "$1" || {
 		echo "Validation failed"
@@ -36,8 +40,22 @@ parse_owsd_iface() {
 
 	[ -n "${port}"      ] && procd_append_param command -p "${port}"
 	[ -n "${interface}" ] && procd_append_param command -i "${interface}"
+	[ -n "${ipv6}"      ] && procd_append_param command -6
 	[ -n "${cert}"      ] && procd_append_param command -c "${cert}"
 	[ -n "${key}"       ] && procd_append_param command -k "${key}"
+
+	if [ -n "${interface}" ] && [ -n "$whitelist_interface_as_origin" ]; then
+		local ip4addrs ip6addrs
+
+		if network_get_ipaddrs ip4addrs "${interface}"; then for addr in $ip4addrs; do
+			append_origin "http${cert:+s}://${addr}:${port}"
+			# TODO allow omitting default ports
+		done; fi
+		if [ -n "$ipv6}" ] && network_get_ip6addrs ip6addrs "${interface}"; then for addr in $ip6addrs; do
+			append_origin "http${cert:+s}://[[${addr}]]:${port}"
+			# TODO allow omitting default ports
+		done; fi
+	fi
 
 	config_list_foreach "$1" "origin" append_origin
 }
