@@ -8,16 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owsd
-PKG_VERSION:=0.94
+PKG_VERSION:=0.97
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=git@public.inteno.se:owsd.git
-PKG_SOURCE_VERSION:=18825d54a38d137fb26f418d1d2f7bb2991eaf89
+PKG_SOURCE_VERSION:=40487a5d2d6541451095b9afcb23fd0d8395fde2
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -27,6 +28,15 @@ define Package/owsd
   CATEGORY:=Network
   DEPENDS:=+ubus +ubox +libjson-c +libblobmsg-json +rpcd +libwebsockets
   TITLE:=owsd daemon
+endef
+
+define Package/owsd/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/owsd $(1)/usr/bin/owsd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/owsd.init $(1)/etc/init.d/owsd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_BIN) ./files/owsd.config $(1)/etc/config/owsd
 endef
 
 define Package/owsd-testdata
@@ -69,15 +79,6 @@ define Package/owsd-testdata/prerm
 set -e
 uci delete rpcd.owsd_test
 uci commit
-endef
-
-define Package/owsd/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/owsd $(1)/usr/bin/
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/owsd.init $(1)/etc/init.d/owsd
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_BIN) ./files/owsd $(1)/etc/config/owsd
 endef
 
 $(eval $(call BuildPackage,owsd))
