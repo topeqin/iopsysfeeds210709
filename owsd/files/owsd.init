@@ -17,6 +17,19 @@ append_origin() {
 	procd_append_param command -o "$1"
 }
 
+append_origin_parts() {
+	local proto host port
+	proto="$1"
+	host="$2"
+	port="$3"
+
+	if [ "${proto}" = "https" ] && [ "${port}" -eq 443 ] || [ "${proto}" = "http" ] && [ "${port}" -eq 80 ]; then
+		append_origin "${proto}://${host}"
+	else
+		append_origin "${proto}://${host}:${port}"
+	fi
+}
+
 validate_owsd_iface() {
 	uci_validate_section "owsd" "owsd-listen" "$1" \
 		'port:port' \
@@ -24,6 +37,7 @@ validate_owsd_iface() {
 		'origin:list(string)' \
 		'whitelist_interface_as_origin:bool' \
 		'ipv6:bool' \
+		'ipv6only:bool' \
 		'cert:file' \
 		'key:file'
 }
@@ -31,7 +45,7 @@ validate_owsd_iface() {
 . /lib/functions/network.sh
 
 parse_owsd_iface() {
-	local port interface whitelist_interface_as_origin ipv6 cert key
+	local port interface whitelist_interface_as_origin ipv6 ipv6only cert key
 
 	validate_owsd_iface "$1" || {
 		echo "Validation failed"
@@ -39,22 +53,32 @@ parse_owsd_iface() {
 	}
 
 	[ -n "${port}"      ] && procd_append_param command -p "${port}"
-	[ -n "${interface}" ] && procd_append_param command -i "${interface}"
-	[ -n "${ipv6}"      ] && procd_append_param command -6
 	[ -n "${cert}"      ] && procd_append_param command -c "${cert}"
 	[ -n "${key}"       ] && procd_append_param command -k "${key}"
 
-	if [ -n "${interface}" ] && [ -n "$whitelist_interface_as_origin" ]; then
-		local ip4addrs ip6addrs
+	[ -n "${ipv6}"      ] && procd_append_param command -6
+	[ -n "${ipv6}" ] && [ -n "${ipv6only}" ] && procd_append_param command -6
 
-		if network_get_ipaddrs ip4addrs "${interface}"; then for addr in $ip4addrs; do
-			append_origin "http${cert:+s}://${addr}:${port}"
-			# TODO allow omitting default ports
-		done; fi
-		if [ -n "$ipv6}" ] && network_get_ip6addrs ip6addrs "${interface}"; then for addr in $ip6addrs; do
-			append_origin "http${cert:+s}://[[${addr}]]:${port}"
-			# TODO allow omitting default ports
-		done; fi
+	local interfacedev
+
+	if [ -n "${interface}" ]; then
+		network_get_device interfacedev "${interface}" && procd_append_param command -i "${interfacedev}"
+	fi
+
+	if [ -n "${interface}" ] && [ -n "$whitelist_interface_as_origin" ]; then
+		local ip4addrs ip6addrs addr
+
+		if [ -z "${ipv6}" ] || [ -z "${ipv6only}" ] && network_get_ipaddrs ip4addrs "${interface}"; then
+			for addr in $ip4addrs; do
+				append_origin_parts "http${cert:+s}" "${addr}" "${port}"
+			done
+		fi
+
+		if [ -n "$ipv6}" ] && network_get_ipaddrs6 ip6addrs "${interface}"; then
+			for addr in $ip6addrs; do
+				append_origin_parts "http${cert:+s}" "[${addr}]" "${port}"
+			done
+		fi
 	fi
 
 	config_list_foreach "$1" "origin" append_origin
