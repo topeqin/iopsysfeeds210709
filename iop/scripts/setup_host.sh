@@ -240,13 +240,14 @@ is_older() {
     local target=$(stat -c %Y $1 2> /dev/null)
     local ref=$(stat -c %Y $2 2> /dev/null)
 
-    [ -n "$target" -a -n "$ref" -a $target -lt $ref ] && return 0
+    [ -z "$target" -o -z "$ref" ] && return 1
+    [ $target -lt $ref ] && return 0
     return 1
 }
 
 install_iop_completion() {
     local instloc=/usr/share/bash-completion/completions/iop
-    local srcloc=./feeds/feed_inteno_packages/iop/iop.complete
+    local srcloc=./feeds/feed_inteno_packages/iop/iop.completion
     local inst=0
 
     if [ ! -e $instloc ]; then
@@ -261,6 +262,7 @@ install_iop_completion() {
         read -p "Install latest version to '$instloc' (y/n): " ans
         if [ "$ans" == "y" ]; then
             sudo cp $srcloc $instloc
+            echo "Start a new shell to enable ./iop command completion!"
         fi
     fi
 }
