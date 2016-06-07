@@ -204,7 +204,7 @@ check_gcc_version(){
 }
 
 restore_gcc() {
-    if dpkg -s gcc-5
+    if dpkg -s gcc-5 >/dev/null 2>/dev/null
     then
 	gcc_ver=$(ls -l $(which gcc) | awk '{ print $NF }')
 
