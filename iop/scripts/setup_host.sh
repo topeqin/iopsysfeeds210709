@@ -234,6 +234,37 @@ restore_gcc() {
     fi
 }
 
+# Compare modification date of two files
+# return 0 (true) if first file is older, 1 (false) otherwise
+is_older() {
+    local target=$(stat -c %Y $1 2> /dev/null)
+    local ref=$(stat -c %Y $2 2> /dev/null)
+
+    [ -n "$target" -a -n "$ref" -a $target -lt $ref ] && return 0
+    return 1
+}
+
+install_iop_completion() {
+    local instloc=/usr/share/bash-completion/completions/iop
+    local srcloc=./feeds/feed_inteno_packages/iop/iop.complete
+    local inst=0
+
+    if [ ! -e $instloc ]; then
+        echo "Bash completion for './iop' utility not found"
+        inst=1
+    elif is_older $instloc $srcloc ; then
+        echo "Bash completion for './iop' utility is outdated"
+        inst=1
+    fi
+
+    if [ $inst -eq 1 ]; then
+        read -p "Install latest version to '$instloc' (y/n): " ans
+        if [ "$ans" == "y" ]; then
+            sudo cp $srcloc $instloc
+        fi
+    fi
+}
+
 function setup_host {
 
     #===============#
@@ -246,6 +277,7 @@ function setup_host {
     check_brcm_tools
     check_gcc_version
     #restore_gcc
+    install_iop_completion
 
     echo ""
     echo ""
