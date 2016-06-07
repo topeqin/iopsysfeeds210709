@@ -9,7 +9,6 @@ function genconfig {
     export CUSTCONF="customerconfigs"
     export VERBOSE=0
     export DEVELOPER=0
-    export TMPDIR="/tmp/builder/"
     LOCAL_MIRROR="http://mirror.inteno.se/mirror"
 
     iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25"
@@ -249,10 +248,8 @@ function genconfig {
 	    esac
 	    shift;
 	done
-	[ -d $TMPDIR ] || mkdir $TMPDIR
 	setup_dirs
 	create_and_copy_files "$1" "$2"
-	[ -d $TMPDIR ] && rm -rf $TMPDIR
 	use_local_mirror
     fi
 }
