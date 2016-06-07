@@ -277,8 +277,8 @@ function setup_host {
     check_bash
     install_npm
     check_brcm_tools
-    check_gcc_version
-    #restore_gcc
+    #check_gcc_version
+    restore_gcc
     install_iop_completion
 
     echo ""
