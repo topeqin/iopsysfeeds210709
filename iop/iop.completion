@@ -1,0 +1,89 @@
+# Bash completion for IOPSYS "./iop" utility
+# Source this file into the curent shell or copy it into
+# /usr/share/bash-completion/completions/ and start a new shell
+# for automatic availability.
+
+_iop_get_profiles()
+{
+    find feeds/feed_inteno_targets/iopsys-*/ -name '*.diff' \
+        |awk -F'/' '{print$NF}' \
+        |awk -F. '{print$1}'
+}
+
+_iop_get_models()
+{
+    find feeds/feed_inteno_targets/iopsys-*/ -mindepth 1 -maxdepth 1 -type d \
+        |awk -F'/' '{print$NF}' \
+        |egrep '^(cg|dg|eg|vg|vox)[0-9]'
+}
+
+_iop_get_model_customers()
+{
+    local model=$1
+    find customerconfigs/$prev -mindepth 1 -maxdepth 1 -type d \
+        |awk -F'/' '{print$NF}'
+}
+
+_iop() 
+{
+    local cur prev iopcmds
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    iopcmds="bootstrap cfe_upgrade cfe_upgrade_latest extract_core \
+             feeds_update genconfig generate_tarballs install_key \
+             scp_changes setup_host ssh_install_key ssh_sysupgrade \
+             ssh_sysupgrade_latest ssh_sysupgrade_latest_w status \
+             update_package"
+
+    if [ $COMP_CWORD -eq 1 ] ; then
+
+        # Complete the primary iop command
+        COMPREPLY=($(compgen -W "${iopcmds}" -- ${cur}))  
+        return 0
+
+    else
+    
+        # Complete the arguments to "iopcmds"
+        local cmd="${COMP_WORDS[1]}"
+        case "$cmd" in
+
+            extract_core)
+                if [ "$prev" == "-e" ] ; then
+                    _filedir -d
+                else
+                    COMPREPLY=( $(compgen -W "-e -h" -- ${cur}) )
+                fi
+                return 0
+                ;;
+
+            genconfig)
+                if [ "$prev" == "-p" ] ; then
+                    local profiles=$(_iop_get_profiles)
+                    COMPREPLY=( $(compgen -W "juci $profiles" -- ${cur}) )
+                elif [[ $cur == -* ]] ; then
+                    COMPREPLY=( $(compgen -W "-c -h -p -s -t -u -v" -- ${cur}) )
+                else
+                    local models=$(_iop_get_models)
+                    if echo $models |grep -qw -- $prev ; then
+                        local customers=$(_iop_get_model_customers $prev)
+                        COMPREPLY=( $(compgen -W "$customers" -- ${cur}) )
+                    else
+                        COMPREPLY=( $(compgen -W "$models" -- ${cur}) )
+                    fi
+                fi
+                return 0
+                ;;
+
+            *)
+                # No arguments or arguments not supported yet
+                ;;
+        esac
+    fi
+}
+
+complete -F _iop ./iop
+complete -F _iop iop
+
