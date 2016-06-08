@@ -48,7 +48,7 @@ endef
 define Package/libcgroup-daemon
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+libcgroup
+  DEPENDS:=+libcgroup +librt
   TITLE:=Control group management daemon
   URL:=https://sourceforge.net/p/libcg/
 endef
