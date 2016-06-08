@@ -99,9 +99,9 @@ atm_inf_conf() {
 
 		checkxtmlist $atmtype $pcr $scr $mbs
 		ret="$?"
-		xtmctl operate conn --add 1.$vpi.$vci aal5 $encaps 0 $ret $ret
-		xtmctl operate conn --addq 1.$vpi.$vci 0 wrr 1
-		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 # fixes pppoe disconnect issue
+		xtmctl operate conn --add 1.$vpi.$vci aal5 $encaps 0 1 $ret
+		xtmctl operate conn --addq 1.$vpi.$vci 0 wrr 1 # low  priority queue
+		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 # high priority queue
 		xtmctl operate conn --createnetdev 1.$vpi.$vci ${ifname%%.*}
 		xtmctl operate intf --state 1 enable
 		
