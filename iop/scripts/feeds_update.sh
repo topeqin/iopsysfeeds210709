@@ -43,6 +43,9 @@ function feeds_update {
     ./scripts/feeds install -f -p feed_inteno_packages mtd-utils
     ./scripts/feeds uninstall qrencode
     ./scripts/feeds install -f -p feed_inteno_packages qrencode
+    ./scripts/feeds uninstall libwebsockets
+    ./scripts/feeds uninstall libwebsockets-openssl
+    ./scripts/feeds install -f -p feed_inteno_juci libwebsockets
 
     rm -rf package/feeds/oldpackages/libzstream # have to run this for now since uninstall is not working every time
 
