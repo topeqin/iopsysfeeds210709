@@ -150,7 +150,7 @@ function genconfig {
 	# Apply profile diff to master config if selected
 	if [ -n "$PROFILE" ]; then 
 	    if [ -e "$CONFIGPATH/$PROFILE.diff" ]; then
-		generate_config configs/$PROFILE.diff .config
+		cat $CONFIGPATH/$PROFILE.diff >> .config
 	    elif [ "$PROFILE" == "juci" ]; then
 		v "Default profile (juci) is selected."
 	    else
