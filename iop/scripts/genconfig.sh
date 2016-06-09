@@ -211,6 +211,7 @@ function genconfig {
 	if [ "$PROFILE" == "luci" ]; then
 	    sed -i '/CONFIG_DEFAULT_juci/d' .config
 	    sed -i '/CONFIG_PACKAGE_juci/d' .config
+	    sed -i '/CONFIG_PACKAGE_uhttpd/d' .config
 	fi
 
 	echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
