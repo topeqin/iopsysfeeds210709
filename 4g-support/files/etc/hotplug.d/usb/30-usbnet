@@ -1,6 +1,6 @@
 #!/bin/sh
 
-local usb_dir uVid uPid uMa uPr uSe bConf bNumConfs vendor product mdmtyp netdev comdev cdcdev ttydev usbno usbbr
+local usb_dir uVid uPid uMa uPr uSe bConf bNumConfs vendor product mdmtyp netdev comdev cdcdev ttydev interface usbno usbbr
 
 sanitize() {
 	sed -e 's/[[:space:]]\+$//; s/[[:space:]]\+/_/g' "$@"
@@ -20,6 +20,7 @@ find_usb_attrs() {
 	netdev=$(find $usb_dir -name wwan* | awk -F'/' '{print$NF}' | head -2 | tail -1)
 	cdcdev=$(find $usb_dir -name cdc-wdm* | awk -F'/' '{print$NF}' | head -2 | tail -1)
 	ttydev=$(ls $(find $usb_dir -name tty | head -2 | tail -1) | tail -1)
+	interface=$(cat $usb_dir/interface)
 	if [ -n "$cdcdev" ]; then
 		comdev=$cdcdev
 		mdmtyp=$(grep $uVid:$uPid /etc/modemdb | grep 'qmi\|mbim' | awk '{print$2}' | head -1)
@@ -48,6 +49,8 @@ case "$usbbr" in
 	*:*) usbbr=$(echo $DEVPATH | cut -d'/' -f6) ;;
 esac
 
+#devno=$(basename $DEVPATH)
+
 find_usb_attrs
 if [ "$ACTION" = add ]; then
 	convert_to_mbim "$uVid:$uPid"
@@ -55,6 +58,9 @@ if [ "$ACTION" = add ]; then
 		if [ -n "$usbno" ] && [ -n "$usbbr" ]; then
 			sed -i "/$usbno:$usbbr/ d" /var/usbnets
 			echo $usbno:$usbbr $uVid:$uPid $uMa $uPr $netdev $comdev $mdmtyp $vendor $product >> /var/usbnets
+			ubus send hotplug.usb "{'action': 'add', 'devpath': '$DEVPATH', 'manufacturer': '$uMa', 'product': '$uPr', 'serial': '$uSe', 'vendor_id': '$uVid', \
+			'product_id': '$uPid', 'driver_interface': '$interface', 'driver': '$DRIVER', 'devtype': '$DEVTYPE'}"
+
 		fi
 	fi
 fi
@@ -62,5 +68,7 @@ fi
 if [ "$ACTION" = remove ]; then
 	if [ -n "$usbno" ] && [ -n "$usbbr" ]; then
 		sed -i "/$usbno:$usbbr/ d" /var/usbnets
+		ubus send hotplug.usb "{'action': 'remove', 'devpath': '$DEVPATH', 'manufacturer': '$uMa', 'product': '$uPr', 'serial': '$uSe', 'vendor_id': '$uVid', \
+		'product_id': '$uPid', 'driver_interface': '$interface', 'driver': '$DRIVER', 'devtype': '$DEVTYPE'}"
 	fi
 fi
