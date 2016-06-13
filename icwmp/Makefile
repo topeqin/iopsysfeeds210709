@@ -34,7 +34,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libexpat +openssl +bcmkernel +curl +libopenssl
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +libexpat +bcmkernel +curl
 endef
 
 define Package/icwmp/description
