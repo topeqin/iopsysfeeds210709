@@ -34,7 +34,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libexpat +openssl +bcmkernel +curl
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libexpat +openssl +bcmkernel +curl +libopenssl
 endef
 
 define Package/icwmp/description
@@ -68,7 +68,7 @@ endif
 
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
-	
+
 ifneq ($(CWMP_REVISION)_,_)
 ifneq ($(CWMP_REVISION),exported)
 ifneq ($(CWMP_REVISION),Unversioned directory)
