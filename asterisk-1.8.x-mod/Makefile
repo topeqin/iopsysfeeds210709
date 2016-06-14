@@ -119,7 +119,7 @@ endef
 define Package/asterisk18-mod-cdr
 $(call Package/asterisk18-mod/Default)
   TITLE:=CDR support
-  DEPENDS:= asterisk18-mod
+  DEPENDS:= asterisk18-mod +libsqlite3
 endef
 
 define Package/asterisk18-mod-cdr/description
