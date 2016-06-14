@@ -46,6 +46,7 @@ define Package/dectmngr2/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/target.bin $(1)/etc/dect/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/nvs_default $(1)/etc/dect/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dect $(1)/etc/init.d/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dectmngr-wrapper.sh $(1)/usr/sbin/
 	$(CP) ./files/dect.config $(1)/etc/config/dect
 endef
 
