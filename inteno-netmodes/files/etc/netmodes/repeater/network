@@ -1,0 +1,24 @@
+
+config interface 'loopback'
+	option is_lan '1'
+	option ifname 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config interface 'wan'
+	option type 'bridge'
+	option proto 'dhcp'
+	option vendorid 'Inteno_Repeater_$MAC4'
+	option hostname 'Inteno_Repeater_$MAC4'
+	option ifname '$WAN.1'
+	option reqopts '43'
+
+config interface 'lan'
+	option is_lan '1'
+	option type 'bridge'
+	option proto 'static'
+	option ifname '$LAN1 $LAN2 $LAN3 $LAN4'
+	option ipaddr '192.168.11.1'
+	option netmask '255.255.255.0'
+

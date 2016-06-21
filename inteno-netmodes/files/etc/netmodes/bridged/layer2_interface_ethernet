@@ -1,0 +1,5 @@
+config ethernet_interface 'Wan'
+        option baseifname '$WAN'
+        option ifname '$WAN.1'
+        option name 'WAN'
+
