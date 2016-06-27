@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=3.0-2016-06-16
+PKG_VERSION:=3.0-2016-06-27
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=http://public.inteno.se:/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=fa9b081fd983914faabd673967c3b30c39c56554
+PKG_SOURCE_VERSION:=198dce8288dcb2ebbc45508224f7e7f4b763772e
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -34,7 +34,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +libexpat +bcmkernel +curl
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +libexpat +libstrophe +curl
 endef
 
 define Package/icwmp/description
