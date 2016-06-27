@@ -46,6 +46,10 @@ define Package/natalie-dect/description
 	Kernel dect driver
 endef
 
+define Package/natalie-dect/config
+	source "$(SOURCE)/Config.in"
+endef
+
 ifeq ($(CONFIG_NATALIE_OPEN),y)
 define Build/Compile
 endef

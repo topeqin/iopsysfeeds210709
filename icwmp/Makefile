@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=3.0-2016-03-30
+PKG_VERSION:=3.0-2016-06-16
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=http://public.inteno.se:/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=dc22607a3da41e5c3c095dc5fed33d4ec7b3fbb5
+PKG_SOURCE_VERSION:=fa9b081fd983914faabd673967c3b30c39c56554
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -34,7 +34,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libexpat +curl
 endef
 
 define Package/icwmp/description
@@ -85,6 +85,9 @@ CONFIGURE_ARGS += \
 	--with-uci-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubox-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubus-include-path=$(STAGING_DIR)/usr/include
+
+CONFIGURE_ARGS += $(if $(CONFIG_DATAMODEL_TR181),--enable-datamodel=tr181,--enable-datamodel=tr098)
+CONFIGURE_ARGS += $(if $(CONFIG_XMPP_ENABLE),--enable-xmpp=enable,--enable-xmpp=disable)
 
 ifeq ($(BUILD_VARIANT),zstream)
 CONFIGURE_ARGS += \

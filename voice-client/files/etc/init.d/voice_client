@@ -2213,6 +2213,11 @@ start_service() {
 
 reload_service() {
 	start
+
+	# turn off voice led; asterisk will turn it on
+	# if there is a registered account
+	ubus call led.voice1 set '{"state":"off"}'
+
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
 	asterisk -rx "brcm reload"

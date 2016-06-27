@@ -48,32 +48,35 @@ init_iup() {
 	config_get starttime  polling  starttime
 
 	### Ask for IUP related DHCP options only if IUP is enabled ###
-	local enabled
-	local newreqopts=
-	local baseopts=
-	local reqopts="$(uci -q get network.wan.reqopts)"
-	local iupopts="66 67 128 224"
-	local ropt iopt
-	local net
-	config_get enabled iup enabled "on"
-	for ropt in $reqopts; do
-		case $ropt in
-			66|67|128|224) ;;
-			*) baseopts="$baseopts $ropt" ;;
-		esac
-	done
-	ropt=""
-	reqopts="$baseopts $iupopts"
-	for ropt in $reqopts; do
-		case $ropt in
-			66|67|128|224) [ $enabled == "on" ] && newreqopts="$newreqopts $ropt" ;;
-			*) newreqopts="$newreqopts $ropt" ;;
-		esac
-	done
+	new_reqopts() {
+		local net=$1
+		local enabled
+		local newreqopts=
+		local baseopts=
+		local reqopts="$(uci -q get network.$net.reqopts)"
+		local iupopts="66 67 128 224"
+		local ropt iopt
+		config_get enabled iup enabled "on"
+		for ropt in $reqopts; do
+			case $ropt in
+				66|67|128|224) ;;
+				*) baseopts="$baseopts $ropt" ;;
+			esac
+		done
+		ropt=""
+		reqopts="$baseopts $iupopts"
+		for ropt in $reqopts; do
+			case $ropt in
+				66|67|128|224) [ $enabled == "on" ] && newreqopts="$newreqopts $ropt" ;;
+				*) newreqopts="$newreqopts $ropt" ;;
+			esac
+		done
 
-	newreqopts="$(echo $newreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
+		newreqopts="$(echo $newreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
+		echo "$newreqopts"
+	}
 	for net in $(management_interfaces); do
-		uci -q set network.$net.reqopts="$newreqopts"
+		uci -q set network.$net.reqopts="$(new_reqopts $net)"
 	done
 	uci commit network
 	ubus call network reload

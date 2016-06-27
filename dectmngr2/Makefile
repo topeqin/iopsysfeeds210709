@@ -11,13 +11,9 @@ PKG_RELEASE:=1
 PKG_VERSION:=1.1.0
 PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr2
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a51f8ed1b9178262777f73f7c275d3962f829c8a
+PKG_SOURCE_VERSION:=46658e95b19c35ff6194a9566bb5439720ec251d
 PKG_NAME:=dectmngr2
 
-
-LDFLAGS+= \
-        -Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-		-Wl,-rpath-link=$(STAGING_DIR)/lib
 
 RSTRIP:=true
 export BUILD_DIR
@@ -41,11 +37,17 @@ endef
 
 
 define Package/dectmngr2/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/dect/
+	$(INSTALL_DIR) $(1)/etc/config/
+	$(INSTALL_DIR) $(1)/etc/init.d/
 
-	cp $(PKG_BUILD_DIR)/src/dectmngr2 $(1)/usr/bin/
-	cp $(PKG_BUILD_DIR)/files/target.bin $(1)/etc/dect/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/dectmngr2 $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/target.bin $(1)/etc/dect/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/nvs_default $(1)/etc/dect/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dect $(1)/etc/init.d/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dectmngr-wrapper.sh $(1)/usr/sbin/
+	$(CP) ./files/dect.config $(1)/etc/config/dect
 endef
 
 $(eval $(call BuildPackage,dectmngr2))

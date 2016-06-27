@@ -56,6 +56,10 @@ define Package/endptcfg/description
 	Broadcom endpoint driver configuration application
 endef
 
+define Package/endptcfg/config
+	source "$(SOURCE)/Config.in"
+endef
+
 ifneq ($(CONFIG_ENDPT_OPEN),y)
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \

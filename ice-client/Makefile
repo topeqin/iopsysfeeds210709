@@ -28,14 +28,14 @@ ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
-PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 #PKG_NAME:=ice-client-open
 else
-PKG_SOURCE_URL:=ssh://git@private.inteno.se/ice-client.git
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=git@private.inteno.se:ice-client.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
-
-PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
 endif
 
 
@@ -53,7 +53,11 @@ define Package/ice-client
 $(call Package/ice-client/Default)
 	TITLE:=ice-client
 	MENU:=1
-	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox
+	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox +libpthread
+endef
+
+define Package/ice-client/config
+	source "$(SOURCE)/Config.in"
 endef
 
 ###########################--DEVELOPMENT--################################
@@ -482,7 +486,7 @@ endef
 define Package/ice-client-fileme
   $(call Package/ice-client/Default)
   TITLE:=FileMe
-  DEPENDS+= +lighttpd +samba2-client
+  DEPENDS+= +lighttpd +lighttpd-mod-webdav +lighttpd-mod-setenv +lighttpd-mod-userdir +samba2-client +samba2-common +libpcre +libltdl +libxml2
 endef
 
 define Package/ice-client-fileme/description

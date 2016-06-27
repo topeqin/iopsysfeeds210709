@@ -18,7 +18,7 @@ TARGET_CFLAGS += $(FPIC) -std=gnu99
 
 define Package/netcheck
   CATEGORY:=Utilities
-  DEPENDS:=+libuci +libjson +questd
+  DEPENDS:=+libuci +libjson-c +questd
   TITLE:=netcheck utility
 endef
 
