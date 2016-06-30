@@ -8,6 +8,6 @@
 		{ "sv" : "LAN4 port överbryggas med IPTV VLAN" }
 	],
 	"credentials" : 0,
-	"excluded_boards" : "CG300"
+	"excluded_boards" : "CG300 CG301"
 }
 
