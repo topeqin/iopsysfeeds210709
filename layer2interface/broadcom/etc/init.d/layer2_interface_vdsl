@@ -18,7 +18,7 @@ checkptm() {
 	fi
 
 	retur=$(xtmctl operate conn --show | awk -v dslat="$dslat" -v ptmprio="$ptmprio" '{if ($2 == dslat && $3 == ptmprio ) print $2 }')
-	
+
 	case $retur in
 		''|*[!0-9]*) return 0 ;;
 		*) return $retur ;;
@@ -37,6 +37,8 @@ ptm_inf_conf() {
 	config_get ifname $1 ifname
 	config_get baseifname $1 baseifname
 	config_get bridge $1 bridge
+
+	ifname="${ifname:-$baseifname.1}"
 
 	checkptm $ptmprio $dslat
 	ret=$?
@@ -58,7 +60,7 @@ remove_netdevices() {
 	local x=0
 
 	IFS=$'\n'
-	for i in `xtmctl operate conn --show`
+	for i in `xtmctl operate conn --show | grep "PTM\|mode"`
 	do
 		if [ $x -eq 1 ]; then
 			delptm=$(echo $i | awk '{if ($1!="ATM") print $2"."$10}')
@@ -97,7 +99,7 @@ reload_service() {
 }
 
 service_triggers() {
-        procd_add_reload_trigger layer2_interface_vdsl
+	procd_add_reload_trigger layer2_interface_vdsl
 }
 
 

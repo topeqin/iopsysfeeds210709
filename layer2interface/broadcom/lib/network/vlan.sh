@@ -9,7 +9,7 @@ removeall_vlandevices()
 	local i
 
 	for i in `ls /proc/sys/net/ipv4/conf`; do
-		case "$i" in 
+		case "$i" in
 			[eap][t][mh][0-9].v1)
 			;;
 			[eap][t][mh][0-9].1)
@@ -33,13 +33,13 @@ ifvlanexits()
 
 	for i in `ls /proc/sys/net/ipv4/conf`; do
 		if [ "$i" == "$vif" ]; then
-			return 1 
+			return 1
 		fi
 	done
 	return 0
 }
 
-ifbaseexists ()
+ifbaseexists()
 {
 	local if=$1
 
@@ -58,17 +58,16 @@ ifbaseexists ()
 	return 0
 }
 
-addbrcmvlan ()
+addbrcmvlan()
 {
 	local baseifname=$1
 	local vlan8021p=$2
 	local vlan8021q=$3
 	local bridge=$4
 	local ifname=$5
-	#local ifname=$4
-	#config_get baseifname $1 baseifname
-	#config_get vlan8021p $1 vlan8021p
-	#config_get vlan8021q $1 vlan8021q
+
+	bridge="${bridge:-0}"
+
 	ifbaseexists $baseifname
 	ret=$?
 	if [ "$ret" -eq 1 ]; then
@@ -86,17 +85,17 @@ addbrcmvlan ()
 				typ=$(uci -q get network."$net".type)
 				proto=$(uci -q get network."$net".proto)
 				proto="${proto:-none}"
-				if [ "$typ" == "bridge" -a "$proto" == "none" ]; then
-					unmanaged=1
-					break
+				if [ "$typ" == "bridge" ]; then
+					bridge=1
+					if [ "$proto" == "none" ]; then
+						unmanaged=1
+						break
+					fi
 				fi
 			done
 
 			echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
 			ifconfig $baseifname up
-			if [ "x$bridge" = "x" ]; then
-				bridge=0
-			fi
 
 			if [ "$bridge" -eq 1 ]; then
 				if [ "$unmanaged" == "1" ]; then
@@ -119,7 +118,7 @@ addbrcmvlan ()
 				vlanctl --if $baseifname --tx --tags 1 --filter-txif $ifname --push-tag --set-vid $vlan8021q 0 --set-pbits $vlan8021p 0 --rule-insert-before -1
 				# tags 2 tx
 				vlanctl --if $baseifname --tx --tags 2 --filter-txif $ifname --push-tag --set-vid $vlan8021q 0 --set-pbits $vlan8021p 0 --rule-insert-before -1
-				# tags 1 rx				
+				# tags 1 rx
 				vlanctl --if $baseifname --rx --tags 1 --filter-vid $vlan8021q 0 --pop-tag --set-rxif $ifname --rule-insert-before -1
 				# tags 2 rx
 				vlanctl --if $baseifname --rx --tags 2 --filter-vid $vlan8021q 0 --pop-tag --set-rxif $ifname --rule-insert-before -1
@@ -136,8 +135,8 @@ addbrcmvlan ()
 				vlanctl --if $baseifname --rx --tags 1 --set-rxif $ifname --filter-vlan-dev-mac-addr 0 --drop-frame --rule-insert-before -1
 				# tags 2 rx
 				vlanctl --if $baseifname --rx --tags 2 --set-rxif $ifname --filter-vlan-dev-mac-addr 0 --drop-frame --rule-insert-before -1
-				# tags 1 rx 
-				vlanctl --if $baseifname --rx --tags 1 --filter-vlan-dev-mac-addr 1 --filter-vid $vlan8021q 0 --pop-tag --set-rxif $ifname --rule-insert-before -1	 
+				# tags 1 rx
+				vlanctl --if $baseifname --rx --tags 1 --filter-vlan-dev-mac-addr 1 --filter-vid $vlan8021q 0 --pop-tag --set-rxif $ifname --rule-insert-before -1
 				# tags 2 rx
 				vlanctl --if $baseifname --rx --tags 2 --filter-vlan-dev-mac-addr 1 --filter-vid $vlan8021q 0 --pop-tag --set-rxif $ifname --rule-insert-before -1
 			fi
@@ -148,11 +147,13 @@ addbrcmvlan ()
 }
 
 
-brcm_virtual_interface_rules ()
+brcm_virtual_interface_rules()
 {
 	local baseifname=$1
 	local ifname=$2
 	local bridge=$3
+
+	bridge="${bridge:-0}"
 
 	local unmanaged=0
 	local nets net typ proto
@@ -161,18 +162,19 @@ brcm_virtual_interface_rules ()
 		typ=$(uci -q get network."$net".type)
 		proto=$(uci -q get network."$net".proto)
 		proto="${proto:-none}"
-		if [ "$typ" == "bridge" -a "$proto" == "none" ]; then
-			unmanaged=1
-			break
+
+		if [ "$typ" == "bridge" ]; then
+			bridge=1
+			if [ "$proto" == "none" ]; then
+				unmanaged=1
+				break
+			fi
 		fi
 	done
 
 	echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
 	ifconfig $baseifname up
-	if [ "x$bridge" = "x" ]; then                                                                                                                         
-		bridge=0
-	fi
-      
+
 	if [ "$bridge" -eq 1 ]; then
 		if [ "$unmanaged" == "1" ]; then
 			vlanctl --if-create-name $baseifname $ifname
@@ -199,21 +201,21 @@ brcm_virtual_interface_rules ()
 		# tags 2 tx
 		vlanctl --if $baseifname --tx --tags 2 --filter-txif $ifname --rule-insert-before -1
 		# tags 0 rx
-		vlanctl --if $baseifname --rx --tags 0 --set-rxif $ifname --rule-insert-last 
+		vlanctl --if $baseifname --rx --tags 0 --set-rxif $ifname --rule-insert-last
 		# tags 1 rx
-		vlanctl --if $baseifname --rx --tags 1 --set-rxif $ifname --rule-insert-last 
+		vlanctl --if $baseifname --rx --tags 1 --set-rxif $ifname --rule-insert-last
 		# tags 2 rx
-		vlanctl --if $baseifname --rx --tags 2 --set-rxif $ifname --rule-insert-last 
+		vlanctl --if $baseifname --rx --tags 2 --set-rxif $ifname --rule-insert-last
 	else
 		# tags 1 rx
 		vlanctl --if $baseifname --rx --tags 1 --set-rxif $ifname --filter-vlan-dev-mac-addr 0 --drop-frame --rule-insert-before -1
 		# tags 2 rx
 		vlanctl --if $baseifname --rx --tags 2 --set-rxif $ifname --filter-vlan-dev-mac-addr 0 --drop-frame --rule-insert-before -1
-		# tags 0 rx 
+		# tags 0 rx
 		vlanctl --if $baseifname --rx --tags 0 --set-rxif $ifname --filter-vlan-dev-mac-addr 1 --rule-insert-before -1
 	fi
 
 	ifconfig $ifname up
-	ifconfig $ifname multicast	 
+	ifconfig $ifname multicast
 }
 

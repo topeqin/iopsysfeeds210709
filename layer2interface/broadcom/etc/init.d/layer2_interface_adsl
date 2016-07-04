@@ -10,7 +10,7 @@ checkpvc() {
 	local retur
 	local vpi=$1
 	local vci=$2
-	
+
 	retur=$(xtmctl operate conn --show | awk -v test="$vpi/$vci" '{if ($3 ==test ) print $5 }')
 
 	case $retur in
@@ -25,31 +25,31 @@ checkxtmlist() {
 	local scr
 	local mbs
 	local retur
-	
+
 	case $# in
 		1)
 			pcr=0
 			scr=0
 			mbs=0
-		;; 
-		2) 
+		;;
+		2)
 			pcr=$2
 			scr=0
-			mbs=0 
+			mbs=0
 		;;
-		4) 
+		4)
 			pcr=$2
 			scr=$3
-			mbs=$4 
+			mbs=$4
 		;;
 	esac
-	
+
 	retur=$(xtmctl operate tdte --show | awk -v test="$dtype" -v pcr="$pcr" -v scr="$scr" -v mbs="$mbs" '{if ($2 ==test && $3==pcr && $4==scr && $5==mbs ) print $1 }')
 
 	case $retur in
 		''|*[!0-9]*) return 0 ;;
 		*) return $retur ;;
-	esac	
+	esac
 }
 
 atm_inf_conf() {
@@ -71,12 +71,14 @@ atm_inf_conf() {
 	config_get mbs $1 mbs
 	config_get vpi $1 vpi
 	config_get vci $1 vci
-	config_get ifname $1 ifname 
+	config_get ifname $1 ifname
 	config_get baseifname $1 baseifname
 	config_get name $1 name
 	config_get bridge $1 bridge
 	checkpvc $vpi $vci
 	ret=$?
+
+	ifname="${ifname:-$baseifname.1}"
 
 	if [ "$ret" -eq 0 ]; then
 		checkxtmlist $atmtype $pcr $scr $mbs
@@ -90,7 +92,7 @@ atm_inf_conf() {
 				rtvbr)xtmctl operate tdte --add "$atmtype" $pcr $scr $mbs;;
 			esac
 		fi
-		 
+
 		case $link_type in
 			EoA)config_get encaps $1 encapseoa;;
 			PPPoA)config_get encaps $1 encapspppoa;;
@@ -105,7 +107,7 @@ atm_inf_conf() {
 		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 # high priority queue, internal traffic dhcp igmp dns and icmp
 		xtmctl operate conn --createnetdev 1.$vpi.$vci ${ifname%%.*}
 		xtmctl operate intf --state 1 enable
-		
+
 		brcm_virtual_interface_rules "$baseifname" "$ifname" "$bridge"
 	fi
 }
@@ -116,7 +118,7 @@ remove_netdevices() {
 	local rest
 	local x=0
 	#local baseifname
-	local vpivci=`xtmctl operate conn --show | awk '{if (NR!=1 && $1!="PTM") {print $3}}'`
+	local vpivci=`xtmctl operate conn --show | grep "ATM\|mode" | awk '{if (NR!=1 && $1!="PTM") {print $3}}'`
 
 	for i in $vpivci
 	do
@@ -146,7 +148,7 @@ stop_service() {
 	echo "Stopping ADSL"
 #xtmctl stop causes IRQ issues"
 #	xtmctl stop
-	remove_netdevices	
+	remove_netdevices
 }
 
 reload_service() {
@@ -155,7 +157,7 @@ reload_service() {
 }
 
 service_triggers() {
-        procd_add_reload_trigger layer2_interface_adsl
+	procd_add_reload_trigger layer2_interface_adsl
 }
 
 
