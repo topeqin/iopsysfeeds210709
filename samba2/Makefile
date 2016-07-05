@@ -80,6 +80,7 @@ define Build/Compile
 			$(DISABLE_NLS) \
 			--with-lockdir=/var/run/samba2 \
 			--with-privatedir=/etc/samba2 \
+			--with-readline=no \
 	);
 	$(MAKE) -C $(PKG_BUILD_DIR)/source \
 		bin/make_smbcodepage bin/make_unicodemap
@@ -150,6 +151,7 @@ define Build/Compile
 			$(DISABLE_NLS) \
 			--with-lockdir=/var/run/samba2 \
 			--with-privatedir=/etc/samba2 \
+			--with-readline=no \
 			--with-syslog \
 	);
 	$(MAKE) -C $(PKG_BUILD_DIR)/source \
