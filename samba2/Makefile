@@ -78,6 +78,7 @@ define Build/Compile
 			--sbindir=/usr/sbin \
 			--sysconfdir=/etc/samba2 \
 			$(DISABLE_NLS) \
+			--with-included-popt \
 			--with-lockdir=/var/run/samba2 \
 			--with-privatedir=/etc/samba2 \
 			--with-readline=no \
@@ -149,6 +150,7 @@ define Build/Compile
 			--sbindir=/usr/sbin \
 			--sysconfdir=/etc/samba2 \
 			$(DISABLE_NLS) \
+			--with-included-popt \
 			--with-lockdir=/var/run/samba2 \
 			--with-privatedir=/etc/samba2 \
 			--with-readline=no \
