@@ -11,7 +11,7 @@ PKG_RELEASE:=1
 PKG_VERSION:=1.1.0
 PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr2
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=bf4e2eb41e2bc71c335ef63f7fa4db76c125edbf
+PKG_SOURCE_VERSION:=1dad4bfc86b0167e7c39fee7fbd4bf0935b4fa4a
 PKG_NAME:=dectmngr2
 
 
