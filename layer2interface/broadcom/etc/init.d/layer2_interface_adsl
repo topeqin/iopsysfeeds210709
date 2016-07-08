@@ -101,7 +101,8 @@ atm_inf_conf() {
 		ret="$?"
 		xtmctl operate conn --add 1.$vpi.$vci aal5 $encaps 0 1 $ret
 		xtmctl operate conn --addq 1.$vpi.$vci 0 wrr 1 # low  priority queue
-		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 # high priority queue
+		xtmctl operate conn --addq 1.$vpi.$vci 1 wrr 1 # mid  priority queue upstream ACK's and ping from LAN will use this queue
+		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 # high priority queue, internal traffic dhcp igmp dns and icmp
 		xtmctl operate conn --createnetdev 1.$vpi.$vci ${ifname%%.*}
 		xtmctl operate intf --state 1 enable
 		
