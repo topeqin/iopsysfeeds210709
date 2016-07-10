@@ -76,16 +76,29 @@ populate_netmodes() {
 			uci -q set netmode.$mode.conf=$mode
 			json_load "$(cat $modedir/$mode/DETAILS)"
 
-			exclude=0
-			json_get_var excluded_boards excluded_boards
-			for board in $excluded_boards; do
-				if [ "$board" == "$hardware" ]; then
-					uci -q delete netmode.$mode
-					exclude=1
-					break
-				fi
-			done
-			[ $exclude -eq 1 ] && continue
+			if json_select excluded_boards; then
+				exclude=0
+				_i=1
+				while json_get_var board $_i; do
+					if [ "$board" == "$hardware" ]; then
+						uci -q delete netmode.$mode
+						exclude=1
+						break
+					fi
+					_i=$((_i+1))
+				done
+				json_select ..
+				[ $exclude -eq 1 ] && continue
+			fi
+
+			if json_select acl; then
+				_i=1
+				while json_get_var user $_i; do
+					uci add_list netmode.$mode._access_r="$user"
+					_i=$((_i+1))
+				done
+				json_select ..
+			fi
 
 			json_select description
 			json_get_keys keys

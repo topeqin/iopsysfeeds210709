@@ -8,6 +8,13 @@
 		{ "sv" : "VoIP on dedicated VLAN + LAN4 port överbryggas med IPTV VLAN" }
 	],
 	"credentials" : 0,
-	"excluded_boards" : "CG300 CG301"
+	"excluded_boards" : [
+		"CG300",
+		"CG301"
+	],
+	"acl" : [
+		"admin",
+		"support"
+	]
 }
 
