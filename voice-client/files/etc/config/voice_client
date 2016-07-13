@@ -141,7 +141,8 @@ config log 'LOG'
 
 config ringing_status 'RINGING_STATUS'
 	option status '0'
-	option enabled '1'
+	option enabled '0'
+	option shouldring '1'
 
 config call_filter 'call_filter0'
         option block_foreign '0'
