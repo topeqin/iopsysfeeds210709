@@ -52,6 +52,12 @@ parse_owsd_iface() {
 		return 1
 	}
 
+	local interfacedev
+
+	if [ -n "${interface}" ]; then
+		network_get_device interfacedev "${interface}" && procd_append_param command -i "${interfacedev}" || return 1
+	fi
+
 	[ -n "${port}"      ] && procd_append_param command -p "${port}"
 	[ -n "${cert}"      ] && procd_append_param command -c "${cert}"
 	[ -n "${key}"       ] && procd_append_param command -k "${key}"
@@ -59,11 +65,7 @@ parse_owsd_iface() {
 	[ -n "${ipv6}"      ] && procd_append_param command -6
 	[ -n "${ipv6}" ] && [ -n "${ipv6only}" ] && procd_append_param command -6
 
-	local interfacedev
-
-	if [ -n "${interface}" ]; then
-		network_get_device interfacedev "${interface}" && procd_append_param command -i "${interfacedev}"
-	fi
+	procd_append_param command -i "${interfacedev}"
 
 	if [ -n "${interface}" ] && [ -n "$whitelist_interface_as_origin" ]; then
 		local ip4addrs ip6addrs addr
