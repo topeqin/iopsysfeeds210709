@@ -55,7 +55,7 @@ parse_owsd_iface() {
 	local interfacedev
 
 	if [ -n "${interface}" ]; then
-		network_get_device interfacedev "${interface}" && procd_append_param command -i "${interfacedev}" || return 1
+		network_get_device interfacedev "${interface}" || return 1
 	fi
 
 	[ -n "${port}"      ] && procd_append_param command -p "${port}"
