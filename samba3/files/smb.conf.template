@@ -14,6 +14,6 @@
 	guest account = nobody
 	invalid users = root
 	smb passwd file = /etc/samba/smbpasswd
-        interfaces = |INTERFACES|
-        bind interfaces only = yes
-
+	interfaces = |INTERFACES|
+	bind interfaces only = yes
+	wide links = no

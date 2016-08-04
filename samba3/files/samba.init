@@ -128,6 +128,9 @@ smb_add_share() {
 
 	[ -z "$name" -o -z "$path" ] && return
 
+	# restrict the shared paths to always be under /mnt/ tree
+	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"$path
+
 	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/smb.conf
 	[ -n "$users" ] && echo -e "\tvalid users = $users" >> /var/etc/smb.conf
 	[ -n "$read_only" ] && echo -e "\tread only = $read_only" >> /var/etc/smb.conf
