@@ -128,6 +128,7 @@ smb_add_share() {
 	[ -z "$name" -o -z "$path" ] && return
 
 	path="$path/$dirpath"
+	path=$(readlink -f $path)
 
 	# restrict the shared paths to always be under /mnt/ tree
 	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"$path
