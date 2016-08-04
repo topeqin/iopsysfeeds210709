@@ -124,9 +124,10 @@ smb_add_share() {
 	config_get dir_mask $1 dir_mask
 	config_get browseable $1 browseable
 	config_get dirpath $1 dirpath
-	path="$path/$dirpath"
 
 	[ -z "$name" -o -z "$path" ] && return
+
+	path="$path/$dirpath"
 
 	# restrict the shared paths to always be under /mnt/ tree
 	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"$path
