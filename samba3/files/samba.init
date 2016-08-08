@@ -133,6 +133,11 @@ smb_add_share() {
 	# restrict the shared paths to always be under /mnt/ tree
 	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"$path
 
+	# if the real path is still not under /mnt/, overwrite it completely
+	# (very unlikely case, but possible). increases security
+	path=$(readlink -f $path)
+	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"
+
 	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/smb.conf
 	[ -n "$users" ] && echo -e "\tvalid users = $users" >> /var/etc/smb.conf
 	[ -n "$read_only" ] && echo -e "\tread only = $read_only" >> /var/etc/smb.conf
