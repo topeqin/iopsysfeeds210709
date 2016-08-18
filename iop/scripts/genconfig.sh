@@ -139,9 +139,6 @@ function genconfig {
 	    exit 1
 	fi
 
-	# Clean base-file package to force rebuild when changing profile
-	make package/base-files/clean
-
 	# Base config on master
 	v  "Config $BOARDTYPE selected"
 	v "cp  $CONFIGPATH/config  .config"
@@ -214,6 +211,11 @@ function genconfig {
 	fi
 
 	echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
+
+	# Clean base-file package to force rebuild when changing profile
+	make package/base-files/clean
+
+
     }
 
     ####### main #####
