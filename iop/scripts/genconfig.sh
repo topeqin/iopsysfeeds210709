@@ -199,7 +199,11 @@ function genconfig {
 	    echo "CONFIG_ENDPT_OPEN=y" >> .config
 	    echo "CONFIG_NATALIE_OPEN=y" >> .config
 	fi
-
+	
+	# Force regeneration of kernel Makefile
+	# Needed to disable kmods for iopsys-brcm targets
+	touch package/kernel/linux/Makefile
+	
 	# Set default values based on selected parameters
 	make defconfig
 
