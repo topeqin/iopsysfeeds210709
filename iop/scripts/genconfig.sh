@@ -231,7 +231,9 @@ function genconfig {
 	    sed -i '/CONFIG_PACKAGE_uhttpd/d' .config
 	fi
 
-	echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
+	if [ $masterconfig -eq 1 ]; then
+	    echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
+	fi
 
 	# Clean base-file package to force rebuild when changing profile
 	make package/base-files/clean
@@ -274,7 +276,10 @@ function genconfig {
 	done
 	setup_dirs
 	create_and_copy_files "$1" "$2"
-	use_local_mirror
+
+	if [ $masterconfig -eq 1 ]; then
+	    use_local_mirror
+	fi
     fi
 }
 
