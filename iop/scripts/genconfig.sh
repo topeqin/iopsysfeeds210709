@@ -13,7 +13,9 @@ function genconfig {
 
     iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25"
     iopsys_brcm63xx_arm="dg400 eg400"
+    ramips="mt7621"
     target="bogus"
+    masterconfig=1
 
     set_target() {
 
@@ -30,6 +32,14 @@ function genconfig {
 		target="iopsys_brcm63xx_arm"
             fi
 	done
+
+	for p in $ramips; do
+            if [ $p == $profile ]; then
+		target="ramips"
+		masterconfig=0
+            fi
+	done
+
     }
 
 
@@ -139,10 +149,14 @@ function genconfig {
 	    exit 1
 	fi
 
-	# Base config on master
-	v  "Config $BOARDTYPE selected"
-	v "cp  $CONFIGPATH/config  .config"
-	cp  $CONFIGPATH/config  .config
+	# Generate base config 
+	# Used only for iopsys targets, not openwrt targets
+	rm -f .config
+	if [ $masterconfig ]; then
+	    v  "Config $BOARDTYPE selected"
+	    v "cp  $CONFIGPATH/config  .config"
+	    cp  $CONFIGPATH/config  .config
+	fi
 
 	# Apply profile diff to master config if selected
 	if [ -n "$PROFILE" ]; then 
