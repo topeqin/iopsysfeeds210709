@@ -69,8 +69,8 @@ build_ice_consumer() {
 
 function generate_tarballs {
 
-    local SERVER="god@software.inteno.se"
-    local PATH="/var/www/html/iopsys/consumer"
+    SERVER="god@software.inteno.se"
+    PATH="/var/www/html/iopsys/consumer"
 
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment
 
