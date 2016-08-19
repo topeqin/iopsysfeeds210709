@@ -155,7 +155,7 @@ function genconfig {
 	# Generate base config 
 	# Used only for iopsys targets, not openwrt targets
 	rm -f .config
-	if [ $masterconfig ]; then
+	if [ $masterconfig -eq 1 ]; then
 	    v  "Config $BOARDTYPE selected"
 	    v "cp  $CONFIGPATH/config  .config"
 	    cp  $CONFIGPATH/config  .config
