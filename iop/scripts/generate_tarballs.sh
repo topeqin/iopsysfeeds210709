@@ -1,7 +1,7 @@
 #!/bin/sh
 
-SERVER="god@software.inteno.se"
-PATH="/var/www/html/iopsys/consumer"
+local SERVER="god@software.inteno.se"
+local PATH="/var/www/html/iopsys/consumer"
 
 build_bcmkernel_consumer() {
 	local tarfile bcmkernelcommith
