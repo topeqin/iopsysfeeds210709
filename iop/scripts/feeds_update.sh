@@ -36,6 +36,7 @@ function feeds_update {
     ./scripts/feeds install -f -p feed_inteno_broadcom -a
     ./scripts/feeds install -f -p feed_inteno_targets iopsys-brcm63xx-mips
     ./scripts/feeds install -f -p feed_inteno_targets iopsys-brcm63xx-arm
+    ./scripts/feeds install -f -p feed_inteno_targets iopsys-ramips
     ./scripts/feeds install -a 
     ./scripts/feeds uninstall asterisk18
     ./scripts/feeds uninstall zstream
