@@ -13,6 +13,7 @@ function genconfig {
 
     iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25"
     iopsys_brcm63xx_arm="dg400 eg400"
+    iopsys_ramips="ex300"
     ramips="mt7621"
     target="bogus"
     masterconfig=1
@@ -31,6 +32,14 @@ function genconfig {
 	for p in $iopsys_brcm63xx_arm; do
             if [ $p == $profile ]; then
 		target="iopsys_brcm63xx_arm"
+		return
+            fi
+	done
+
+	for p in $iopsys_ramips; do
+            if [ $p == $profile ]; then
+		target="iopsys_ramips"
+		masterconfig=0
 		return
             fi
 	done
