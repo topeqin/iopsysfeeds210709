@@ -9,6 +9,26 @@ USE_PROCD=1
 PROG=/usr/bin/owsd
 CONFIGFILE="/etc/config/owsd"
 
+DHCP_DOMAINS=""
+
+load_dhcp_domains() {
+
+	append_domain() {
+		local domain=$1
+		DHCP_DOMAINS="$DHCP_DOMAINS $domain"
+	}
+
+	dhcp_domain_section() {
+		local section=$1
+		local ip
+		config_get ip "$section" ip
+		[ -z "$ip" ] && config_list_foreach "$section" "name" append_domain
+	}
+
+	config_load dhcp # note: do not overload a config while parsing it
+	config_foreach dhcp_domain_section "domain"
+}
+
 validate_owsd() {
 	uci_validate_section "owsd" "owsd" "global" \
 		'sock:string' \
@@ -88,23 +108,19 @@ parse_owsd_iface() {
 	config_list_foreach "$1" "origin" append_origin
 
 	if [ -n "$whitelist_dhcp_domains" ]; then
-		append_domain() {
-			append_origin_parts "http${cert:+s}" "$1" "${port}"
-		}
-
-		dhcp_domain_section() {
-			local ip
-			config_get ip "$1" ip
-			[ -z "$ip" ] && config_list_foreach "$1" "name" append_domain
-		}
-
-		config_load dhcp
-		config_foreach dhcp_domain_section "domain"
+		http="http${cert:+s}"
+		for domain in $DHCP_DOMAINS; do
+			append_origin_parts "$http" "$domain" "$port"
+		done
 	fi
 }
 
 start_service() {
-	config_load owsd
+
+	# preload dhcp domains list, in case any interface config requires it
+	load_dhcp_domains
+
+	config_load owsd # note: do not overload a config while parsing it
 	procd_open_instance
 	procd_set_param command $PROG
 
