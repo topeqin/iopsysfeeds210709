@@ -3,20 +3,18 @@
 function feeds_update {
 
     developer=0
+    override=1
+
+    while getopts "n" opt; do
+	case $opt in
+	    n)
+		override=0
+		;;
+	esac
+    done
+
 
     git remote -v | grep -q http || developer=1
-
-    #while getopts "d" opt; do
-    #    case $opt in
-    #        d)
-    #	    developer=1
-    #            ;;
-    #        \?)
-    #            echo "Invalid option: -$OPTARG" >&2
-    #            exit 1
-    #            ;;
-    #    esac
-    #done
 
     cp .config .genconfig_config_bak
 
@@ -28,9 +26,10 @@ function feeds_update {
     else
 	./scripts/feeds update
     fi
-
-
-    ./scripts/feeds install -f -p feed_inteno_openwrt -a
+    
+    if [ $override == 1 ]; then
+	./scripts/feeds install -f -p feed_inteno_openwrt -a
+    fi
     ./scripts/feeds install -f -p feed_inteno_juci -a
     ./scripts/feeds install -f -p feed_inteno_packages -a
     ./scripts/feeds install -f -p feed_inteno_broadcom -a
