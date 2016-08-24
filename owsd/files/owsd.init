@@ -149,11 +149,22 @@ stop_service()
 }
 
 reload_service() {
-        stop
-        start
+	stop
+	start
 }
 
 service_triggers() {
-        procd_add_reload_trigger owsd
-}
+	procd_open_trigger
 
+	add_interface_trigger() {
+		local interface
+		config_get interface "$1" interface
+		[ -n "${interface}" ] && procd_add_interface_trigger "interface.*" "${interface}" /etc/init.d/owsd reload
+	}
+
+	config_load owsd
+	config_foreach add_interface_trigger "owsd-listen"
+	procd_add_config_trigger "config.change" "owsd" /etc/init.d/owsd reload
+	procd_add_config_trigger "config.change" "network" /etc/init.d/owsd reload
+	procd_close_trigger
+}
