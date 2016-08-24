@@ -183,7 +183,7 @@ wlmngr_startWsc()
 	nvram set wl_wps_reg="enabled"
 	nvram set lan_wps_reg=enabled #"enabled/disabled"
 	nvram set wps_uuid=0x000102030405060708090a0b0c0d0ebb
-	nvram set wps_device_name=BroadcomAP
+	nvram set wps_device_name=Inteno
 	nvram set wps_mfstring=Broadcom
 	nvram set wps_modelname=Broadcom
 	nvram set wps_modelnum=123456
