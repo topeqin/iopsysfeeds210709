@@ -38,6 +38,9 @@ function feeds_update {
     # install all packages
     ./scripts/feeds install -a 
 
+    # remove broken symlinks ( for packages that are no longer in the feed )
+    find -L package/feeds -type l -delete
+
     cp .genconfig_config_bak .config
     make defconfig
 
