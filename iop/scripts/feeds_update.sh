@@ -4,7 +4,7 @@ function feeds_update {
 
     developer=0
     override=1
-
+    start=$(date -u +'%s');
     while getopts "n" opt; do
 	case $opt in
 	    n)
@@ -18,24 +18,17 @@ function feeds_update {
 
     cp .config .genconfig_config_bak
 
-    rm -rf package/feeds
-
     #if -d argument is passed, clone feeds with ssh instead of http
     if [ $developer == 1 ]; then
 	./scripts/feeds update -g
     else
 	./scripts/feeds update
     fi
-    
+
     # replace core packages with iopsys versions
     if [ $override == 1 ]; then
 	./scripts/feeds install -f -p feed_inteno_openwrt -a
     fi
-
-    # install our feeds first to enable replacing a package in another feed
-    ./scripts/feeds install -p feed_inteno_juci -a
-    ./scripts/feeds install -p feed_inteno_packages -a
-    ./scripts/feeds install -p feed_inteno_broadcom -a
 
     # targets need to be installed explicitly
     ./scripts/feeds install -p feed_inteno_targets iopsys-brcm63xx-mips
