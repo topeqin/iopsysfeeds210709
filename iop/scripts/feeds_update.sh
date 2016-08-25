@@ -38,8 +38,6 @@ function feeds_update {
     ./scripts/feeds install -f -p feed_inteno_targets iopsys-ramips
     ./scripts/feeds install -a 
     ./scripts/feeds uninstall asterisk18
-    ./scripts/feeds uninstall libwebsockets
-    ./scripts/feeds install -f -p feed_inteno_juci libwebsockets
 
     cp .genconfig_config_bak .config
     make defconfig
