@@ -27,15 +27,22 @@ function feeds_update {
 	./scripts/feeds update
     fi
     
+    # replace core packages with iopsys versions
     if [ $override == 1 ]; then
 	./scripts/feeds install -f -p feed_inteno_openwrt -a
     fi
-    ./scripts/feeds install -f -p feed_inteno_juci -a
-    ./scripts/feeds install -f -p feed_inteno_packages -a
-    ./scripts/feeds install -f -p feed_inteno_broadcom -a
-    ./scripts/feeds install -f -p feed_inteno_targets iopsys-brcm63xx-mips
-    ./scripts/feeds install -f -p feed_inteno_targets iopsys-brcm63xx-arm
-    ./scripts/feeds install -f -p feed_inteno_targets iopsys-ramips
+
+    # install our feeds first to enable replacing a package in another feed
+    ./scripts/feeds install -p feed_inteno_juci -a
+    ./scripts/feeds install -p feed_inteno_packages -a
+    ./scripts/feeds install -p feed_inteno_broadcom -a
+
+    # targets need to be installed explicitly
+    ./scripts/feeds install -p feed_inteno_targets iopsys-brcm63xx-mips
+    ./scripts/feeds install -p feed_inteno_targets iopsys-brcm63xx-arm
+    ./scripts/feeds install -p feed_inteno_targets iopsys-ramips
+    
+    # install all packages
     ./scripts/feeds install -a 
     ./scripts/feeds uninstall asterisk18
 
