@@ -44,7 +44,6 @@ function feeds_update {
     
     # install all packages
     ./scripts/feeds install -a 
-    ./scripts/feeds uninstall asterisk18
 
     cp .genconfig_config_bak .config
     make defconfig
