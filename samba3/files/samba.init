@@ -174,5 +174,17 @@ reload_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger samba network
+	procd_open_trigger
+
+	add_interface_trigger() {
+		local interface
+		config_get interface "$1" interface
+		[ -n "${interface}" ] && procd_add_interface_trigger "interface.*" "${interface}" /etc/init.d/samba reload
+	}
+
+	config_load samba
+	config_foreach add_interface_trigger "samba"
+	procd_add_config_trigger "config.change" "samba" /etc/init.d/samba reload
+	procd_add_config_trigger "config.change" "network" /etc/init.d/samba reload
+	procd_close_trigger
 }
