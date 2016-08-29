@@ -1,6 +1,11 @@
 #!/bin/sh
 
 function compile {
+	if [ -z "$1" ]; then
+		echo "Please give a valid package as first argument."
+		return 1
+	fi
+
 	local cpath pck
 	local lpath=$(find package/ -type l -name $1)
 	local dpath=$(find package/ -type d -name $1)
@@ -19,4 +24,4 @@ function compile {
 	fi
 }
 
-register_command "compile" "Compile a specific package: ./iop compile <PACKAGE_NAME> [0-99]; i.e ./iop netifd 99"
+register_command "compile" "Compile a specific package: ./iop compile <PACKAGE_NAME> [0-99]; i.e ./iop compile netifd 99"
