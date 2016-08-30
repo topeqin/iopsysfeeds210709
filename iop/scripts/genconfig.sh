@@ -188,9 +188,10 @@ function genconfig {
 	echo "CONFIG_TARGET_${target}=y" >> .config
 	echo "CONFIG_TARGET_${target}_${BOARDTYPE}=y" >> .config
 
+	echo "$BOARDTYPE $CUSTOMER" > .current_config_file
+
 	# Add customerconfig diff if a customer is selected
 	if [ -n "$CUSTOMER" ]; then
-	    echo "$BOARDTYPE $CUSTOMER" > .current_config_file
 	    if [ -d "$CUSTCONF/$BOARDTYPE/$CUSTOMER/fs" ]; then
 		v "cp -rLp $CUSTCONF/$BOARDTYPE/$CUSTOMER/fs/* $FILEDIR"
 		cp -rLp $CUSTCONF/$BOARDTYPE/$CUSTOMER/fs/* $FILEDIR
