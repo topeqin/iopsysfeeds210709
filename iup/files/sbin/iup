@@ -423,8 +423,6 @@ if [ -n "$1" ]; then
 	elif [ -n "$vlanid" ]; then
 		logger -t dhcp_opt132 "vlanid: ${vlanid}"
 		change_to_vlan ${vlanid} 0 ${interface}
-	else
-		logger -t dhcp_opt132 "no vlanid given"
 	fi
 fi
 
