@@ -155,6 +155,8 @@ define Package/ice-client/install
 	$(CP) $(PKG_BUILD_DIR)/scripts/inteno_root_ca.pem $(1)/etc/iopsys/certificates
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) $(PKG_BUILD_DIR)/scripts/ice-client $(1)/etc/init.d/ice-client
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/
+	$(CP) ./files/ice-client.uci_default $(1)/etc/uci-defaults/95-ice-client
 endef
 endif
 
