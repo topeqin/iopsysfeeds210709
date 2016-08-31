@@ -1,4 +1,4 @@
 
 config service 'catv'
-        option enable 'no'
+        option enable '0'
         option filter '3'
