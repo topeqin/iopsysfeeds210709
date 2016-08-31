@@ -10,12 +10,16 @@ USE_PROCD=1
 
 start_service() {
 	local enable=0
-        local filter=0
+	local filter=0
 
-        config_load catv
-        config_get enable catv enable
-        config_get filter catv filter
-	ubus call catv set-enable "{\"enable\":\"$enable\"}"
+	config_load catv
+	config_get_bool enable catv enable 0
+	config_get filter catv filter
+	if [ $enable -eq 0 ]; then
+		ubus call catv set-enable "{\"enable\":\"off\"}"
+	else
+		ubus call catv set-enable "{\"enable\":\"on\"}"
+	fi
 	ubus call catv set-filter "{\"filter\":\"$filter\"}"
 
 }
