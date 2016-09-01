@@ -66,6 +66,8 @@ endef
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CROSS_COMPILE=$(TARGET_CROSS)
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+		CROSS_COMPILE=$(TARGET_CROSS) env
 endef
 
 define Package/uboot/install/default
@@ -73,6 +75,9 @@ define Package/uboot/install/default
 	$(CP) \
 		$(PKG_BUILD_DIR)/uboot.img \
 		$(BIN_DIR)/$(TARGET)/
+	$(INSTALL_DIR) $$(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv $$(1)/usr/sbin/
+	ln -s $$(1)/usr/sbin/fw_printenv $$(1)/usr/sbin/fw_setenv
 endef
 
 define Package/uboot/install/template
