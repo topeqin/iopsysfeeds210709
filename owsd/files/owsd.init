@@ -37,7 +37,7 @@ validate_owsd() {
 }
 
 append_origin() {
-	procd_append_param command -o "$1"
+	procd_append_param command -o"$1"
 }
 
 append_origin_parts() {
@@ -56,14 +56,16 @@ append_origin_parts() {
 validate_owsd_iface() {
 	uci_validate_section "owsd" "owsd-listen" "$1" \
 		'port:port' \
-		'interface:string' \
+		'interface:network' \
 		'origin:list(string)' \
-		'whitelist_interface_as_origin:bool' \
-		'whitelist_dhcp_domains:bool' \
-		'ipv6:bool' \
-		'ipv6only:bool' \
+		'whitelist_interface_as_origin:bool:0' \
+		'whitelist_dhcp_domains:bool:0' \
+		'ipv6:bool:1' \
+		'ipv6only:bool:0' \
 		'cert:file' \
-		'key:file'
+		'key:file' \
+		&&
+	[ -n "${port}" ]
 }
 
 parse_owsd_iface() {
@@ -74,44 +76,62 @@ parse_owsd_iface() {
 		return 1
 	}
 
-	local interfacedev
+	# utility function
+	new_listen_socket() {
+		procd_append_param command -p "${port}"
 
+		[ -n "${cert}"      ] && procd_append_param command -c"${cert}"
+		[ -n "${key}"       ] && procd_append_param command -k"${key}"
+
+		[ -n "$1" ] && procd_append_param command -i"$1"
+	}
+
+	append_whitelists () {
+		config_list_foreach "$1" "origin" append_origin
+
+		if [ -n "$whitelist_dhcp_domains" ]; then
+			for domain in $DHCP_DOMAINS; do
+				append_origin_parts "${http}" "${domain}" "${port}"
+			done
+		fi
+
+		if [ -n "${interface}" -a -n "${addr}" -a "${whitelist_interface_as_origin}" -eq 1 ]; then
+			append_origin_parts "${http}" "${addr}" "${port}"
+		fi
+	}
+
+	local http="http${cert:+s}"
+	local ip4addrs ip6addrs
+
+	# bind to some network
 	if [ -n "${interface}" ]; then
-		network_get_device interfacedev "${interface}" || return 1
-	fi
+		# 1 listen-socket (vhost) for each IP address on that network's iface
 
-	[ -n "${port}"      ] && procd_append_param command -p "${port}"
-	[ -n "${cert}"      ] && procd_append_param command -c "${cert}"
-	[ -n "${key}"       ] && procd_append_param command -k "${key}"
-
-	[ -n "${ipv6}"      ] && procd_append_param command -6
-	[ -n "${ipv6}" ] && [ -n "${ipv6only}" ] && procd_append_param command -6
-
-	procd_append_param command -i "${interfacedev}"
-
-	if [ -n "${interface}" ] && [ -n "$whitelist_interface_as_origin" ]; then
-		local ip4addrs ip6addrs addr
-
-		if [ -z "${ipv6}" ] || [ -z "${ipv6only}" ] && network_get_ipaddrs ip4addrs "${interface}"; then
-			for addr in $ip4addrs; do
-				append_origin_parts "http${cert:+s}" "${addr}" "${port}"
-			done
+		# ipv4 addresses
+		if [ "${ipv6only}" -eq 0 ]; then
+			network_get_ipaddrs ip4addrs "${interface}";
 		fi
-
-		if [ -n "$ipv6}" ] && network_get_ipaddrs6 ip6addrs "${interface}"; then
-			for addr in $ip6addrs; do
-				append_origin_parts "http${cert:+s}" "[${addr}]" "${port}"
-			done
-		fi
-	fi
-
-	config_list_foreach "$1" "origin" append_origin
-
-	if [ -n "$whitelist_dhcp_domains" ]; then
-		http="http${cert:+s}"
-		for domain in $DHCP_DOMAINS; do
-			append_origin_parts "$http" "$domain" "$port"
+		for addr in ${ip4addrs}; do
+			new_listen_socket "${addr}"
+			append_whitelists "$1"
 		done
+
+		# ipv6 addresses
+		if [ "${ipv6}" -eq 1 ]; then
+			network_get_ipaddrs6 ip6addrs "${interface}"
+		fi
+		for addr in ${ip6addrs}; do
+			new_listen_socket "${addr}"
+			addr="\\[${addr}]"
+			append_whitelists "$1"
+			procd_append_param command -66
+		done
+	else
+		new_listen_socket
+		if [ "${ipv6}" -eq 1 ]; then procd_append_param command -6; fi
+		if [ "${ipv6}" -eq 1 -a "${ipv6only}" -eq 1 ]; then procd_append_param command -6; fi
+
+		append_whitelists "$1"
 	fi
 }
 
@@ -124,16 +144,16 @@ start_service() {
 	procd_open_instance
 	procd_set_param command $PROG
 
-	local sock www
+	local sock www redirect
 
 	validate_owsd || {
 		echo "Global validation failed"
 		return 1
 	}
 
-	[ -n "${sock}"      ] && procd_append_param command -s "${sock}"
-	[ -n "${www}"       ] && procd_append_param command -w "${www}"
-	[ -n "${redirect}"  ] && procd_append_param command -r "${redirect}"
+	[ -n "${sock}"      ] && procd_append_param command -s"${sock}"
+	[ -n "${www}"       ] && procd_append_param command -w"${www}"
+	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
 
 	config_foreach parse_owsd_iface "owsd-listen"
 
