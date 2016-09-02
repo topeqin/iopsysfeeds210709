@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=3.1.12
+PKG_VERSION:=3.1.13
 
-PKG_SOURCE_VERSION:=ae0dcde9453b585cc4a693af4c853f13e5094eb7
+PKG_SOURCE_VERSION:=f3886f9bdc511151b5b121a310afa6a83f3e733f
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
