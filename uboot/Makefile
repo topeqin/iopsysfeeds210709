@@ -77,7 +77,7 @@ define Package/uboot/install/default
 		$(BIN_DIR)/$(TARGET)/
 	$(INSTALL_DIR) $$(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv $$(1)/usr/sbin/
-	ln -s $$(1)/usr/sbin/fw_printenv $$(1)/usr/sbin/fw_setenv
+	ln -s /usr/sbin/fw_printenv $$(1)/usr/sbin/fw_setenv
 endef
 
 define Package/uboot/install/template
