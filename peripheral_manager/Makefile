@@ -36,7 +36,7 @@ define Package/peripheral_manager
 	CATEGORY:=Utilities
 	TITLE:=Application deamon for handling of peripheral
 	URL:=
-	DEPENDS:=+libuci +libubus +libblobmsg-json bcmkernel
+	DEPENDS:=+libuci +libubus +libblobmsg-json +PACKAGE_bcmkernel:bcmkernel
 endef
 
 define Package/peripheral_manager/description
@@ -54,7 +54,7 @@ define Package/peripheral_manager/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/peripheral_manager $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/gpio_test $(1)/sbin/
+#	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/gpio_test $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,peripheral_manager))
