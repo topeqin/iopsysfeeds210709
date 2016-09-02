@@ -5,8 +5,10 @@ PKG_NAME:=ice-client
 
 CFMODULES:=$(filter CONFIG_PACKAGE_$(PKG_NAME)-%,$(.VARIABLES))
 CFMODULES:=$(subst CONFIG_PACKAGE_$(PKG_NAME)-,,$(CFMODULES))
-CFMODULES:=$(CFMODULES) webaccess texec iperf
-CFMODULES:=$(sort $(CFMODULES))
+
+#CFMODULES:=$(CFMODULES) webaccess texec iperf
+#CFMODULES:=$(sort $(CFMODULES))
+
 $(info Building package: $(PKG_NAME))
 $(info Building with additional modules: $(CFMODULES))
 export CFMODULES
@@ -17,14 +19,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
-BASE_PKG_VERSION:=4.0.0
-PKG_RELEASE:=RC6
+BASE_PKG_VERSION:=4.0.1
+PKG_RELEASE:=RC0
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
-PKG_SOURCE_VERSION:=4371ef12ed04724934b5426db2c6d85b0d5c211b
+PKG_SOURCE_VERSION:=fc61df2183d91edd39b4bc1848567c2b6e0ef7e8
 ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
