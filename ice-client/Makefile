@@ -5,6 +5,8 @@ PKG_NAME:=ice-client
 
 CFMODULES:=$(filter CONFIG_PACKAGE_$(PKG_NAME)-%,$(.VARIABLES))
 CFMODULES:=$(subst CONFIG_PACKAGE_$(PKG_NAME)-,,$(CFMODULES))
+CFMODULES:=$(CFMODULES) webaccess texec iperf
+CFMODULES:=$(sort $(CFMODULES))
 $(info Building package: $(PKG_NAME))
 $(info Building with additional modules: $(CFMODULES))
 export CFMODULES
@@ -15,31 +17,33 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
-BASE_PKG_VERSION:=3.4.1
-PKG_RELEASE:=RC11
+BASE_PKG_VERSION:=4.0.0
+PKG_RELEASE:=RC6
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
-PKG_SOURCE_VERSION:=184d29446fe6103f567c968bf35569625326a82c
+PKG_SOURCE_VERSION:=4371ef12ed04724934b5426db2c6d85b0d5c211b
 ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
-PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-#PKG_NAME:=ice-client-open
 else
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@private.inteno.se:ice-client.git
+PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
-PKG_SOURCE:=$(PKG_NAME)-$(BASE_PKG_VERSION)-$(PKG_RELEASE).tar.gz
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
 endif
 
 
 ###########################--RELEASE--################################
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/ice-client/Default
@@ -52,7 +56,7 @@ define Package/ice-client
 $(call Package/ice-client/Default)
 	TITLE:=ice-client
 	MENU:=1
-	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox +libpthread
+	DEPENDS:=+libopenssl +uclibcxx +libubus +ubus +ubusd +jshn +libubox +libpthread
 endef
 
 define Package/ice-client/config
@@ -81,7 +85,6 @@ endef
 #define Build/Prepare
 #	rm -rf $(PKG_BUILD_DIR)
 #	ln -s /home/erik/Desktop/ice-client $(PKG_BUILD_DIR)
-##	ln -s /home/erik/Desktop/checkCompilation/iopsys-client $(PKG_BUILD_DIR)
 #endef
 
 ###########################--DEVELOPMENT--################################
@@ -139,7 +142,7 @@ define Package/ice-client/install
 	$(CP) $(PKG_BUILD_DIR)/core/ice $(1)/bin
 	$(CP) $(PKG_BUILD_DIR)/modules/system/ubusevent/obj/iopsys/ubusevent $(1)/bin
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/core/lib/{systemService.so.1.0.1,libconfStore.so.1,networkService.so.1.0.1,packageService.so.1.0.1,monitorService.so.1.0.1,iperfService.so.1.0.1,logService.so.1.0.1,texecService.so.1.0.1} $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/core/lib/{systemService.so.1.0.1,libconfStore.so.1,networkService.so.1.0.1,packageService.so.1.0.1,monitorService.so.1.0.1,iperfService.so.1.0.1,logService.so.1.0.1,texecService.so.1.0.1,webaccessService.so.1.0.1} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/wsice/obj/iopsys/libwsice.so $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/execute
 	$(INSTALL_DIR) $(1)/bin/ifs/iperf/progress
@@ -906,7 +909,7 @@ PROC_ID=$$(cat /tmp/ice.pid)
 PROC_EXISTS=$$(/usr/bin/pgrep -P $${PROC_ID})
 if [ -n "$$PROC_EXISTS" ]; then
   read -t 1 <>/tmp/cfout
-  echo "system moduleRemove topic=texec" > /tmp/cfin
+  echo "system moduleRemove topic=tExecMgr" > /tmp/cfin
 fi
 exit 0
 endef
@@ -937,6 +940,54 @@ fi
 exit 0
 endef
 
+# webaccess
+define Package/ice-client-webaccess
+  $(call Package/ice-client/Default)
+  TITLE:=webaccess
+  DEPENDS+= 
+endef
+
+define Package/ice-client-webaccess/description
+remote script execution module for ice-client
+endef
+
+define Package/ice-client-webaccess/prerm
+#!/bin/sh
+if [ ! -f "/tmp/ice.pid" ] ; then exit 0 ; fi
+PROC_ID=$$(cat /tmp/ice.pid)
+PROC_EXISTS=$$(/usr/bin/pgrep -P $${PROC_ID})
+if [ -n "$$PROC_EXISTS" ]; then
+  read -t 1 <>/tmp/cfout
+  echo "system moduleRemove topic=webAccess" > /tmp/cfin
+fi
+exit 0
+endef
+
+define Package/ice-client-webaccess/preinst
+#!/bin/sh
+if [ ! -f "/tmp/ice.pid" ] ; then exit 0 ; fi
+PROC_ID=$$(cat /tmp/ice.pid)
+PROC_EXISTS=$$(/usr/bin/pgrep -P $${PROC_ID})
+if [ -n "$$PROC_EXISTS" ]; then
+  read -t 1 <>/tmp/cfout
+  echo "system moduleRemove topic=webAccess" > /tmp/cfin
+fi
+exit 0
+endef
+
+define Package/ice-client-webaccess/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/core/lib/webaccessService.so.1.0.1 $(1)/usr/lib
+endef
+
+define Package/ice-client-webaccess/postinst
+#!/bin/sh
+read -t 1 <>/tmp/cfout
+if [ -f /tmp/ice.pid  ]; then
+	echo "system moduleAdd file=webaccessService.so.1.0.1" package="ice-client-webaccess" > /tmp/cfin
+fi
+exit 0
+endef
 # bmspeedtest
 define Package/ice-client-bcmspeedmgr
   $(call Package/ice-client/Default)
@@ -987,4 +1038,5 @@ $(eval $(call BuildPackage,ice-client-monitor))
 $(eval $(call BuildPackage,ice-client-gigaset))
 $(eval $(call BuildPackage,ice-client-texec))
 $(eval $(call BuildPackage,ice-client-bcmspeedmgr))
+$(eval $(call BuildPackage,ice-client-webaccess))
 endif
