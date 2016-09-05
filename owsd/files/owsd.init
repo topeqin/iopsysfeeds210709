@@ -89,7 +89,7 @@ parse_owsd_iface() {
 	append_whitelists () {
 		config_list_foreach "$1" "origin" append_origin
 
-		if [ -n "$whitelist_dhcp_domains" ]; then
+		if [ "$whitelist_dhcp_domains" == "1" ]; then
 			for domain in $DHCP_DOMAINS; do
 				append_origin_parts "${http}" "${domain}" "${port}"
 			done
