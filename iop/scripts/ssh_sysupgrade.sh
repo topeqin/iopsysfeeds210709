@@ -34,7 +34,7 @@ function ssh_sysupgrade_latest {
 		exit 1
 	fi
 	{ cd `dirname $0`
-		IMAGE=`ls -Art bin/*/*.y | tail -n1`
+		IMAGE=`ls -Art bin/*/*.y2 | tail -n1`
 		[ "$IMAGE" ] && [ -e "$IMAGE" ] && ./iop ssh_sysupgrade $1 $IMAGE $2
 	}
 }
