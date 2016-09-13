@@ -27,5 +27,13 @@ EOT
 
 }
 
+uci -q batch <<-EOT
+        delete firewall.sip
+        set firewall.sip=include
+        set firewall.sip.path=/etc/firewall.sip
+        set firewall.sip.reload=1
+        commit firewall
+EOT
+
 exit 0
 
