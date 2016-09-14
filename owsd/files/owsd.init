@@ -80,10 +80,12 @@ parse_owsd_iface() {
 	new_listen_socket() {
 		procd_append_param command -p "${port}"
 
+		procd_append_param command -L"$1"
+
 		[ -n "${cert}"      ] && procd_append_param command -c"${cert}"
 		[ -n "${key}"       ] && procd_append_param command -k"${key}"
 
-		[ -n "$1" ] && procd_append_param command -i"$1"
+		[ -n "$2" ] && procd_append_param command -i"$2"
 	}
 
 	append_whitelists () {
@@ -112,7 +114,7 @@ parse_owsd_iface() {
 			network_get_ipaddrs ip4addrs "${interface}";
 		fi
 		for addr in ${ip4addrs}; do
-			new_listen_socket "${addr}"
+			new_listen_socket "$1" "${addr}"
 			append_whitelists "$1"
 		done
 
@@ -121,13 +123,13 @@ parse_owsd_iface() {
 			network_get_ipaddrs6 ip6addrs "${interface}"
 		fi
 		for addr in ${ip6addrs}; do
-			new_listen_socket "${addr}"
+			new_listen_socket "$1" "${addr}"
 			addr="\\[${addr}]"
 			append_whitelists "$1"
 			procd_append_param command -66
 		done
 	else
-		new_listen_socket
+		new_listen_socket "$1"
 		if [ "${ipv6}" -eq 1 ]; then procd_append_param command -6; fi
 		if [ "${ipv6}" -eq 1 -a "${ipv6only}" -eq 1 ]; then procd_append_param command -6; fi
 
