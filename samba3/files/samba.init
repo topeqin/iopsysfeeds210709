@@ -180,7 +180,7 @@ service_triggers() {
 		local interface net
 		config_get interface "$1" interface
 		for net in $interface; do
-			procd_add_interface_trigger "network.interface" "${net}" /etc/init.d/samba reload
+			procd_add_interface_trigger "interface.*" "${net}" /etc/init.d/samba reload
 		done
 	}
 
