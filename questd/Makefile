@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=3.1.16
+PKG_VERSION:=3.1.17
 
 PKG_SOURCE_VERSION:=eda189074fd45df90d1641da37d792cc7ddb1607
 PKG_SOURCE_PROTO:=git
