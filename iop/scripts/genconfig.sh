@@ -215,6 +215,7 @@ function genconfig {
 	# developer mode selected ?
 	if [ $DEVELOPER -eq 1 ]; then
 	    # rewrite url to clone with ssh instead of http
+	    echo "CONFIG_DEVEL=y" >>.config
 	    echo "CONFIG_GITMIRROR_REWRITE=y" >>.config
 	    [ $bcmAllowed -eq 0 ] && echo "CONFIG_BCM_OPEN=y" >> .config
 	    [ $iceAllowed -eq 0 ] && echo "CONFIG_ICE_OPEN=y" >> .config
