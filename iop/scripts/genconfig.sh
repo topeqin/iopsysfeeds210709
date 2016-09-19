@@ -13,7 +13,7 @@ function genconfig {
 
     iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25"
     iopsys_brcm63xx_arm="dg400 eg400"
-    iopsys_ramips="ex300"
+    iopsys_ramips="ex400"
     ramips="mt7621"
     target="bogus"
     masterconfig=1
