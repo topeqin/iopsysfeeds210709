@@ -12,7 +12,7 @@ PKG_VERSION:=2016.08
 PKG_RELEASE:=1
 PKG_SOURCE_URL:=git@private.inteno.se:uboot
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=1ab2028647ef081ee7514d93bdf58bef6321e181
+PKG_SOURCE_VERSION:=7c6619be4dd4d0963f35b484a0eccc19cce34e8c
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -28,12 +28,12 @@ define uboot/Default
   IMAGE:=
 endef
 
-define uboot/ex300
-  TITLE:=U-Boot for the ex300
+define uboot/ex400
+  TITLE:=U-Boot for the ex400
 endef
 
 UBOOTS := \
-	ex300
+	ex400
 
 define Package/uboot/template
 define Package/uboot-$(1)
