@@ -136,7 +136,7 @@ set_fiber_status() {
 		disabled)
 			ethctl $port phy-power down
 		;;
-		100*FDAUTO|auto)
+		100*FD|auto)
 			ethctl $port media-type sfp fiber $status
 			ethctl $port phy-power up
 		;;
