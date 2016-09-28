@@ -39,7 +39,6 @@ function genconfig {
 	for p in $iopsys_ramips; do
             if [ $p == $profile ]; then
 		target="iopsys_ramips"
-		masterconfig=0
 		return
             fi
 	done
