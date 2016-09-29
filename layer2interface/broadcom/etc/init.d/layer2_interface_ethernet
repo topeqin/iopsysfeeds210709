@@ -72,8 +72,9 @@ boot() {
 	fi
 	for interf in `db get hw.board.ethernetPortOrder`; do ethswctl -c wan -i $interf -o disable ; done
 	wanport=$(db get hw.board.ethernetWanPort)
-	portnum=$(get_port_number $wanport)
-	ethswctl -c pause -p $portnum -v 1
+	unit=$(echo $(get_port_number $wanport) | cut -d ' ' -f 1)
+	port=$(echo $(get_port_number $wanport) | cut -d ' ' -f 2)
+	ethswctl -c pause -n $unit -p $port -v 1
 	ethswctl -c hw-switching -o enable
 	if [ $baseifname ]; then
 		ethswctl -c wan -i $baseifname -o enable

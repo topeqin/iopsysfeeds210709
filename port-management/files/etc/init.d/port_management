@@ -1,7 +1,5 @@
 #!/bin/sh /etc/rc.common
 
-DEBUG=0
-
 START=15
 USE_PROCD=1
 
@@ -11,7 +9,6 @@ USE_PROCD=1
 check_for_config(){
 	if [ -s "/etc/config/ports" ]
 	then
-		debug_print "file exists and has content"
 		if uci -q get ports.@ethport[0] >/dev/null #are there any valid content then continue
 		then
 			return 0
@@ -19,7 +16,6 @@ check_for_config(){
 			rm -f /etc/config/ports
 		fi
 	fi
-	debug_print "ports config file doesn't exsist or is empty"
 	touch /etc/config/ports
 	local fiberorder="$(db get hw.board.fiberPortOrder)"
 	local portorder="$(db get hw.board.ethernetPortOrder)"
@@ -49,32 +45,10 @@ check_for_config(){
 	[ $DEBUG ] && cat /etc/config/ports
 }
 
-
-debug_print(){
-	if [ $DEBUG = "1" ]
-	then
-	echo -e $1 >/dev/console
-	fi
-}
-
-get_port_no() {
-	local ports="0 1 2 3 4 5 6 7"
-	local port="$1"
-	local ifname
-
-	for p in $ports; do
-		ifname="$(ethswctl getifname $p | awk '{print$NF}')"
-		if [ "$ifname" == "$port" ]; then
-			echo "$p"
-			break
-		fi
-	done
-}
-
 get_current_status() {
 	local port="$1"
-	local media="$(ethctl $port media-type 2>&1)"
-	#echo Media: $media >/dev/console
+	local flag="$2"
+	local media="$(ethctl $port media-type $flag 2>&1)"
 	if echo $media | grep "Auto-negotiation enabled" >/dev/null; then
 		echo "auto"
 	elif echo $media | grep "100 mbps, full-duplex" >/dev/null; then
@@ -88,11 +62,18 @@ get_current_status() {
 	fi
 }
 
+sfp_flag(){
+	local port=$1
+	local sfptype=$2
+	local media="$(ethctl $port media-type 2>&1)"
+	[ -z "$media" ] && echo "sfp $sfptype" || echo ""
+}
+
 set_port_status() {
 	local port="$1"
 	local status="$2"
-	local curstatus=$(get_current_status $port)
-	local portno
+	local flag=$(sfp_flag $port "copper")
+	local curstatus=$(get_current_status $port $flag)
 
 	ifconfig $port >/dev/null 2>&1 || return
 
@@ -103,22 +84,15 @@ set_port_status() {
 		*)
 			if [ "$status" != "$curstatus" ]; then
 				case "$status" in
-					1000*)
-						local portno=$(get_port_no $port)
-						case "$status" in
-							1000FD) ethswctl -c phymode -p $portno -y 1000 -z 1 ;;
-							1000HD) ethswctl -c phymode -p $portno -y 1000 -z 0 ;;
-						esac
-					;;
 					10*AUTO)
-						ethctl $port media-type advertise $status
+						ethctl $port media-type advertise $status $flag
 					;;
 					10*)
-						ethctl $port media-type $status
+						ethctl $port media-type $status $flag
 					;;
 					*)
-						ethctl $port media-type advertise 1000FDAUTO
-						ethctl $port media-type auto
+						ethctl $port media-type advertise 1000FDAUTO $flag
+						ethctl $port media-type auto $flag
 					;;
 				esac
 			else
@@ -131,13 +105,26 @@ set_port_status() {
 set_fiber_status() {
 	local port="$1"
 	local status="$2"
+	local flag=$(sfp_flag $port "fiber")
+	local curstatus=$(get_current_status $port $flag)
 
 	case "$status" in
 		disabled)
 			ethctl $port phy-power down
 		;;
-		100*FD|auto)
-			ethctl $port media-type sfp fiber $status
+		*)
+			if [ "$status" != "$curstatus" ]; then
+				case "$status" in
+					100*FD|auto)
+						ethctl $port media-type $status $flag
+						ethctl $port phy-power up
+					;;
+					*)
+						ethctl $port media-type advertise 1000FDAUTO $flag
+						ethctl $port media-type auto $flag
+					;;
+				esac
+			fi
 			ethctl $port phy-power up
 		;;
 	esac
@@ -167,8 +154,9 @@ configure_sfpports(){
 #arg2: 0 or 1
 set_port_pause() {
 	local pause="$2"
-	portno=$(get_port_no $1)
-	ethswctl -c pause -p $portno -v $pause
+	unit=$(echo $(get_port_number $1) | cut -d ' ' -f 1)
+	port=$(echo $(get_port_number $1) | cut -d ' ' -f 2)
+	ethswctl -c pause -n $unit -p $port -v $pause
 }
 
 start_service() {
