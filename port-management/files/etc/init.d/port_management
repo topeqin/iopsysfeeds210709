@@ -65,8 +65,8 @@ get_current_status() {
 sfp_flag(){
 	local port=$1
 	local sfptype=$2
-	local media="$(ethctl $port media-type 2>&1)"
-	[ -z "$media" ] && echo "sfp $sfptype" || echo ""
+	local media="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
+	[ -z "$media" ] && echo "" || echo "sfp $sfptype"
 }
 
 set_port_status() {
@@ -84,6 +84,14 @@ set_port_status() {
 		*)
 			if [ "$status" != "$curstatus" ]; then
 				case "$status" in
+					1000*)
+						local unit=$(echo $(get_port_number $port) | cut -d ' ' -f 1)
+						local port=$(echo $(get_port_number $port) | cut -d ' ' -f 2)
+						case "$status" in
+							1000FD) ethswctl -c phymode -n $unit -p $port -y 1000 -z 1 ;;
+							1000HD) ethswctl -c phymode -n $unit -p $port -y 1000 -z 0 ;;
+						esac
+					;;
 					10*AUTO)
 						ethctl $port media-type advertise $status $flag
 					;;
