@@ -160,7 +160,7 @@ handle_Downloaded_file()
 {
 	local DECKEY
 	local KEY
-	[ -n "$1" ] && DECKEY=$(echo $1 | hexdump -e '16/1 "%02x"')
+	[ -n "$1" ] && DECKEY=$(echo $1 | tr -d '\n' | hexdump -e '16/1 "%02x"')
 	KEY=${DECKEY:-$DESKEY}
 	local img_type
 	case "$(get_image_type "$IUPCONFFILES")" in                                  
