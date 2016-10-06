@@ -424,6 +424,8 @@ if [ -n "$1" ]; then
 		logger -t dhcp_opt132 "vlanid: ${vlanid}"
 		change_to_vlan ${vlanid} 0 ${interface}
 	fi
+
+	exit 0
 fi
 
 local iupurl
