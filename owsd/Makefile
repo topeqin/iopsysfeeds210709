@@ -39,6 +39,8 @@ define Package/owsd/install
 	$(INSTALL_BIN) ./files/owsd.config $(1)/etc/config/owsd
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/owsd.hotplug $(1)/etc/hotplug.d/iface/55-owsd
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/owsd.uci_default $(1)/etc/uci-defaults/55-owsd-interfaces
 endef
 
 define Package/owsd-testdata
