@@ -72,7 +72,7 @@ if [ $NOT_DEFAULT -eq 0 ]; then
 			uci -q set owsd.$mgmt.origin="*"
 
 			uci -q set owsd.$mgmt"_8080"=owsd-listen
-			uci -q set owsd.$mgmt"_8080".port=80
+			uci -q set owsd.$mgmt"_8080".port=8080
 			uci -q set owsd.$mgmt"_8080".interface="$mgmt"
 			uci -q set owsd.$mgmt"_8080".ipv6="on"
 			uci -q set owsd.$mgmt"_8080".whitelist_interface_as_origin="1"
