@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=questd
 PKG_VERSION:=3.1.20
 
-PKG_SOURCE_VERSION:=6098f4f22c2edc4ac80e8b86f59fabc5e9bff387
+PKG_SOURCE_VERSION:=fc3fa3a8cd8a3fdf544e10be251ee1feddf953d5
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
@@ -50,6 +50,8 @@ define Package/questd/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netcheck $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/router.sh $(1)/usr/libexec/rpcd/router
 	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/wps.sh $(1)/usr/libexec/rpcd/wps
