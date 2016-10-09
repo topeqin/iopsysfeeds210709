@@ -350,8 +350,9 @@ handle_option224()
 
 	if [ $url ] && [ $active -eq 1 ]; then
 		echo "Software version to download $softwareminuspath"
-		local sysinfo=$(ubus call router quest "{ \"info\": \"system\" }")
+		local sysinfo=$(ubus call router.system info)
 		json_load "$sysinfo"
+		json_select system
 		json_get_var firmware firmware
 		local firmware_new=${softwareminuspath%.*}	# remove extension (.w, .y or .y2) from filename
 		if [ "$firmware_new" != "$firmware" ] ; then
@@ -455,8 +456,9 @@ sofwareminuspath=${software##*/}
 v "Software version to download $sofwareminuspath"
 
 if [ $software ]; then
-	local sysinfo=$(ubus call router quest "{ \"info\": \"system\" }")
+	local sysinfo=$(ubus call router.system info)
 	json_load "$sysinfo"
+	json_select system
 	json_get_var firmware firmware
 	json_get_var filesystem filesystem                                  
         if [ "$filesystem" == "JFFS2" ] ; then                               

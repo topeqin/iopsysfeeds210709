@@ -78,7 +78,8 @@ start_service() {
 
 	xtmctl start
 	xtmctl operate intf --state 1 enable
-	json_load "$(ubus call router quest "{ \"info\": \"specs\" }")"
+	json_load "$(ubus call router.system info)"
+	json_select specs
 	json_get_var vdsl vdsl
 
 	if [ $vdsl -eq 1 ]; then

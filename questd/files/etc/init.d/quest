@@ -23,6 +23,6 @@ service_triggers()
 }
 
 reload_service() {
-	ubus call router reload
+	ubus -t 5 call router.network reload
 }
 
