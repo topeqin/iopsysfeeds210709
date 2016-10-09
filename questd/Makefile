@@ -52,7 +52,7 @@ define Package/questd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/router.sh $(1)/usr/libexec/rpcd/router
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wps.sh $(1)/usr/libexec/rpcd/wps
+	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/wps.sh $(1)/usr/libexec/rpcd/wps
 endef
 
 $(eval $(call BuildPackage,questd))
