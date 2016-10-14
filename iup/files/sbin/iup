@@ -381,12 +381,14 @@ done
 
 # Process IUP related DHCP options #
 if [ -n "$1" ]; then
-	local privopt224 vendorspecinf httpurl128
+	local privopt224 privopt225 privopt226 vendorspecinf httpurl128
 	local tftp bootfile vlanid vlanpriority interface
 
 	json_load "$1"
 	json_get_var interface interface
 	json_get_var privopt224 privopt224
+	json_get_var privopt225 privopt225
+	json_get_var privopt226 privopt226
 	json_get_var vendorspecinf vendorspecinf
 	json_get_var httpurl128 httpurl128
 	json_get_var tftp tftp
@@ -422,6 +424,24 @@ if [ -n "$1" ]; then
 	elif [ -n "$vlanid" ]; then
 		logger -t dhcp_opt132 "vlanid: ${vlanid}"
 		change_to_vlan ${vlanid} 0 ${interface}
+	elif [ -n "$privopt225" ] || [ -n "$privopt226" ]; then
+		# opt225 and opt226 can be used together or separatly
+		if [ -n "$privopt225" ]; then
+			echo "dhcp option 225: $privopt225" >/dev/console
+			# option225 is allowd to change only once per CPE
+			if [ "$(uci get -q ice.cloud.frozen)" != "1" ] ; then
+				uci set ice.cloud.frozen="1"
+				uci set ice.cloud.enabled="1"
+				uci set ice.cloud.server="$privopt225"
+			fi
+		fi
+		if [ -n "$privopt226" ]; then
+			echo "dhcp option 226: $privopt226" >/dev/console
+			[ -z "$(uci get -q ice.dhcp)" ] && uci set ice.dhcp="dhcp"
+			uci set ice.dhcp.opt226connectionid="$privopt226"
+			ubus send dhcp.opt226connectionid '{"opt226connectionid":"","value":"'$privopt226'"}'
+		fi
+		uci commit
 	fi
 
 	exit 0
