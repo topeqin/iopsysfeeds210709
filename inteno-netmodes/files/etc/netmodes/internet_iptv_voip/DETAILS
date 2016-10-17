@@ -10,7 +10,8 @@
 	"credentials" : 0,
 	"excluded_boards" : [
 		"CG300",
-		"CG301"
+		"CG301",
+		"EX400"
 	],
 	"acl" : [
 		"admin",
