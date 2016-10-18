@@ -130,7 +130,10 @@ set_port_pause() {
 }
 
 start_service() {
-	check_for_config
+	[ -f /sbin/db ] && check_for_config
+
+	[ -f /usr/sbin/ethswctl -a -f /usr/sbin/ethctl ] || return
+
 	config_load ports
 	config_foreach configure_ethports ethport
 }
