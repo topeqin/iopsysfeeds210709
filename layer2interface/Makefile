@@ -29,12 +29,14 @@ endef
 define Build/Compile
 endef
 
-define Package/layer2interface/install
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
+define Package/layer2interface/install
 	$(CP) ./broadcom/* $(1)/
-else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
-	$(CP) ./broadcom/* $(1)/
-endif
 endef
+else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+define Package/layer2interface/install
+	$(CP) ./broadcom/* $(1)/
+endef
+endif
 
 $(eval $(call BuildPackage,layer2interface))
