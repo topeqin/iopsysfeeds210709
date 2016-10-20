@@ -721,6 +721,8 @@ flush() {
     echo "## Flushing IP Rules & Routes ##"
 
     ip rule flush > /dev/null 2>&1
+    ip rule add lookup 128 prio 0 > /dev/null 2>&1
+    ip rule add lookup local prio 1 > /dev/null 2>&1
     ip rule add lookup main prio 32766 > /dev/null 2>&1
     ip rule add lookup default prio 32767 > /dev/null 2>&1
 
