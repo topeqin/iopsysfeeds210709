@@ -46,7 +46,7 @@ append_origin_parts() {
 	host="$2"
 	port="$3"
 
-	if [ "${proto}" = "https" ] && [ "${port}" -eq 443 ] || [ "${proto}" = "http" ] && [ "${port}" -eq 80 ]; then
+	if [ "${proto}" = "https" -a "${port}" -eq 443 -o "${proto}" = "http" -a "${port}" -eq 80 ]; then
 		append_origin "${proto}://${host}"
 	else
 		append_origin "${proto}://${host}:${port}"
@@ -91,7 +91,7 @@ parse_owsd_iface() {
 	append_whitelists () {
 		config_list_foreach "$1" "origin" append_origin
 
-		if [ "$whitelist_dhcp_domains" == "1" ]; then
+		if [ "$whitelist_dhcp_domains" -eq 1 ]; then
 			for domain in $DHCP_DOMAINS; do
 				append_origin_parts "${http}" "${domain}" "${port}"
 			done
