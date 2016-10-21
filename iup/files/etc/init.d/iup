@@ -103,10 +103,6 @@ init_iup() {
 	fi
 }
 
-boot() {
-	init_iup
-}
-
 start_service() {
 	init_iup
 
