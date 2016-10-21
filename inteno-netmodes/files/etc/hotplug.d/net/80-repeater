@@ -39,10 +39,10 @@ case "$ACTION" in
 		sleep 2
 		# remove wifi client interface
 		case "$(uci get netmode.setup.curmode)" in
-			repeater)
+			repeater_dualdown)
 				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).disabled=1
 			;;
-			repeater_dualdown)
+			repeater)
 				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).mode=ap
 			;;
 		esac
@@ -56,10 +56,10 @@ case "$ACTION" in
 		sleep 2
 		# add wifi client interface
 		case "$(uci get netmode.setup.curmode)" in
-			repeater)
+			repeater_dualdown)
 				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).disabled=0
 			;;
-			repeater_dualdown)
+			repeater)
 				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).mode=wet
 			;;
 		esac
