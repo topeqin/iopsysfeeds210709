@@ -80,11 +80,13 @@ populate_netmodes() {
 				exclude=0
 				_i=1
 				while json_get_var board $_i; do
-					if [ "$board" == "$hardware" ]; then
-						uci -q delete netmode.$mode
-						exclude=1
-						break
-					fi
+					case "$hardware" in
+						$board)
+							uci -q delete netmode.$mode
+							exclude=1
+							break
+						;;
+					esac
 					_i=$((_i+1))
 				done
 				json_select ..
