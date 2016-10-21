@@ -1147,7 +1147,7 @@ configure_call_filters()
 			break
 		fi
 	done < "/etc/idc_cc.cfg"
-	
+ 
 	echo "Found IDCs: $idc"
 	echo "Found CCs: $cc"
 
@@ -1164,6 +1164,42 @@ configure_call_filters()
 	echo "exten => s,n,Set(FOREIGN=1)" >>			$WORKDIR/macros.tmp
 	echo "exten => s,n,MacroExit()" >>			$WORKDIR/macros.tmp
 	echo "exten => s,n(not-foreign),Set(FOREIGN=0)" >>	$WORKDIR/macros.tmp
+	echo "" >>						$WORKDIR/macros.tmp
+
+	# Get special rate numbers from etc/special_rate_nr.cfg
+	while read line
+	do
+	    i=0
+	    for v in $(echo $line | tr ";" "\n")
+		do
+			if [ "$i" -eq "0" -a "$v" != "$country" ] ; then
+				continue 2
+			fi
+			if [ "$i" -eq "1" ] ; then
+				srn=$v
+			fi
+			i=$((i+1))
+		done
+
+		if [ -n "$srn"  ] ; then
+			# Special rate numbers found
+			break
+		fi
+	done < "/etc/special_rate_nr.cfg"
+
+	echo "Found special rate numbers: $srn"
+
+	echo "[macro-check-special-rate]" >>			$WORKDIR/macros.tmp
+	echo "exten => s,1,NoOp(${srn})" >>			$WORKDIR/macros.tmp
+
+	# Create regex patterns
+	# All x characters are replaced with [0-9] to match a single digit
+	srn="($(echo $srn | tr -s "" | tr "," "|" | sed 's/x/[0-9]/g'))"
+
+	echo "exten => s,n,GotoIf($[\"\${ARG1}\":\"($srn[0-9]+)\">0]?special-rate:normal-rate)" >> $WORKDIR/macros.tmp
+	echo "exten => s,n(special-rate),Set(SPECRATE=1)" >>	$WORKDIR/macros.tmp
+	echo "exten => s,n,MacroExit()" >>			$WORKDIR/macros.tmp
+	echo "exten => s,n(normal-rate),Set(SPECRATE=0)" >>	$WORKDIR/macros.tmp
 	echo "" >>						$WORKDIR/macros.tmp
 }
 
@@ -1194,7 +1230,7 @@ configure_call_filter_helper()
 	config_get block_special_rate $1 block_special_rate
 
 	[ "$#" -ge 2 ] || return 0
-	
+
 	direction=$2
 	if ! [ "x$direction" != "xincoming" -o "x$direction" != "xoutgoing" ] ; then
 		return
@@ -1220,6 +1256,13 @@ configure_call_filter_helper()
 		echo "exten => s,n,GotoIf($[\${FOREIGN}==1]?block)" >>		$WORKDIR/macros.tmp
 	fi
 
+	# martinl - PROPOSAL --------------------------------
+	if [ "x$direction" == "xoutgoing" -a "x$block_special_rate" == "x1" ] ; then
+		echo "exten => s,n,Macro(check-special-rate,\${DIAL_EXTEN})" >>	$WORKDIR/macros.tmp
+		echo "exten => s,n,GotoIf($[\${SPECRATE}==1]?block)" >>		$WORKDIR/macros.tmp
+	fi
+	# ---------------------------------------------------
+
 	local section cfgtype owner
 	for section in ${CONFIG_SECTIONS}; do
 		config_get cfgtype "$section" TYPE
@@ -1229,7 +1272,6 @@ configure_call_filter_helper()
 			local rule_extension rule_enabled
 			config_get rule_extension $section extension
 			config_get rule_enabled $section enabled
-
 			[ -z "$rule_enabled" -o "$rule_enabled" = "0" ] && continue
 
 			# Regular expression for matching calling or called number
