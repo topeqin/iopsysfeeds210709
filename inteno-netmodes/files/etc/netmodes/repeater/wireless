@@ -84,18 +84,3 @@ config wifi-iface
 	option wmf_bss_enable '1'
 	option autoconf '1'
 
-config wifi-iface
-	option device 'wl1'
-	option network 'wan'
-	option mode 'ap'
-	option ssid 'Inteno-$BSSID4'
-	option encryption 'psk2'
-	option cipher 'auto'
-	option key '$WPAKEY'
-	option gtk_rekey '3600'
-	option macfilter '0'
-	option wps_pbc '1'
-	option wmf_bss_enable '1'
-	option bss_max '32'
-	option autoconf '1'
-
