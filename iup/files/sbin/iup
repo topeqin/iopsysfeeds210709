@@ -315,11 +315,6 @@ handle_option224()
 		c=$(echo $1|cut -d',' -f4)
 	fi
 
-	echo "url" $url
-	echo "a" $a
-	echo "b" $b
-	echo "c" $c
-
 	currdate=$(date +"%Y-%m-%d")
 
 	active=0
