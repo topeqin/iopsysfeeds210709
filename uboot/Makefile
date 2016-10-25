@@ -12,7 +12,7 @@ PKG_VERSION:=2016.08
 PKG_RELEASE:=1
 PKG_SOURCE_URL:=git@private.inteno.se:uboot
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=8cd9e3642b5e6be5630385aa2e7eb7666ed0d4fb
+PKG_SOURCE_VERSION:=324760505a977d5239f61cd5d0549fc3f1e4c897 
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -72,9 +72,13 @@ endef
 
 define Package/uboot/install/default
 	$(INSTALL_DIR) $(BIN_DIR)/$(TARGET)
+	$(INSTALL_DIR) $$(1)/boot
 	$(CP) \
 		$(PKG_BUILD_DIR)/uboot.img \
 		$(BIN_DIR)/$(TARGET)/
+	$(CP) \
+		$(PKG_BUILD_DIR)/uboot.img \
+		$$(1)/boot
 	$(INSTALL_DIR) $$(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv $$(1)/usr/sbin/
 	ln -s /usr/sbin/fw_printenv $$(1)/usr/sbin/fw_setenv
