@@ -40,7 +40,7 @@ get_ip(){
 init_asterisk() {
 	# do not start asterisk until the
 	# router receives a default route
-	config_load asterisk
+	config_load voice_client
 	local bindintf
 	config_get bindintf SIP bindintf
 	if [ "$bindintf" == ""  ]; then
