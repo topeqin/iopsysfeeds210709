@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-START=21
+START=15
 USE_PROCD=1
 
 . /lib/functions.sh
@@ -93,47 +93,19 @@ set_port_status() {
 						esac
 					;;
 					10*AUTO)
-						ethctl $port media-type advertise $status $flag
+						ethctl $port media-type $flag advertise $status
 					;;
 					10*)
-						ethctl $port media-type $status $flag
+						ethctl $port media-type $flag $status
 					;;
 					*)
-						ethctl $port media-type advertise 1000FDAUTO $flag
-						ethctl $port media-type auto $flag
+						ethctl $port media-type $flag advertise 1000FDAUTO
+						ethctl $port media-type $flag auto
 					;;
 				esac
 			else
 				ethctl $port phy-power up
 			fi
-		;;
-	esac
-}
-
-set_fiber_status() {
-	local port="$1"
-	local status="$2"
-	local flag=$(sfp_flag $port "fiber")
-	local curstatus=$(get_current_status $port $flag)
-
-	case "$status" in
-		disabled)
-			ethctl $port phy-power down
-		;;
-		*)
-			if [ "$status" != "$curstatus" ]; then
-				case "$status" in
-					100*FD|auto)
-						ethctl $port media-type $status $flag
-						ethctl $port phy-power up
-					;;
-					*)
-						ethctl $port media-type advertise 1000FDAUTO $flag
-						ethctl $port media-type auto $flag
-					;;
-				esac
-			fi
-			ethctl $port phy-power up
 		;;
 	esac
 }
@@ -145,16 +117,6 @@ configure_ethports(){
 	config_get ifname $name ifname
 	config_get pause $name pause
 	set_port_status $ifname $speed
-	set_port_pause $ifname $pause
-}
-
-configure_sfpports(){
-	local port ifname pause speed
-	name=$1
-	config_get speed $name speed
-	config_get ifname $name ifname
-	config_get pause $name pause
-	set_fiber_status $ifname $speed
 	set_port_pause $ifname $pause
 }
 
@@ -171,7 +133,6 @@ start_service() {
 	check_for_config
 	config_load ports
 	config_foreach configure_ethports ethport
-	config_foreach configure_sfpports sfpport
 }
 
 service_triggers() {

@@ -1,0 +1,88 @@
+#!/bin/sh /etc/rc.common
+
+START=97
+USE_PROCD=1
+
+. /lib/functions.sh
+. /lib/network/config.sh
+
+get_current_status() {
+	local port="$1"
+	local flag="$2"
+	local media="$(ethctl $port media-type $flag 2>&1)"
+	if echo $media | grep "Auto-negotiation enabled" >/dev/null; then
+		echo "auto"
+	elif echo $media | grep "100 mbps, full-duplex" >/dev/null; then
+		echo "100FD"
+	elif echo $media | grep "100 mbps, half-duplex" >/dev/null; then
+		echo "100HD"
+	elif echo $media | grep "10 mbps, full-duplex" >/dev/null; then
+		echo "10FD"
+	elif echo $media | grep "10 mbps, half-duplex" >/dev/null; then
+		echo "10HD"
+	fi
+}
+
+sfp_flag(){
+	local port=$1
+	local sfptype=$2
+	local media="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
+	[ -z "$media" ] && echo "" || echo "sfp $sfptype"
+}
+
+set_fiber_status() {
+	local port="$1"
+	local status="$2"
+	local flag=$(sfp_flag $port "fiber")
+	local curstatus=$(get_current_status $port $flag)
+
+	case "$status" in
+		disabled)
+			ethctl $port phy-power down
+		;;
+		*)
+			if [ "$status" != "$curstatus" ]; then
+				case "$status" in
+					100*FD|auto)
+						ethctl $port media-type $status $flag
+						ethctl $port phy-power up
+					;;
+					*)
+						ethctl $port media-type advertise 1000FDAUTO $flag
+						ethctl $port media-type auto $flag
+					;;
+				esac
+			fi
+			ethctl $port phy-power up
+		;;
+	esac
+}
+
+configure_sfpports(){
+	local port ifname pause speed
+	name=$1
+	config_get speed $name speed
+	config_get ifname $name ifname
+	config_get pause $name pause
+	set_fiber_status $ifname $speed
+	set_port_pause $ifname $pause
+}
+
+#arg1: ethX
+#arg2: 0 or 1
+set_port_pause() {
+	local pause="$2"
+	unit=$(echo $(get_port_number $1) | cut -d ' ' -f 1)
+	port=$(echo $(get_port_number $1) | cut -d ' ' -f 2)
+	ethswctl -c pause -n $unit -p $port -v $pause
+}
+
+start_service() {
+	config_load ports
+	config_foreach configure_sfpports sfpport
+}
+
+service_triggers() {
+	procd_add_reload_trigger ports
+}
+
