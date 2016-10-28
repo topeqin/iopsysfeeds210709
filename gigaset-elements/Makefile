@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gigaset-elements
 
-PKG_VERSION:=2.3.0
+PKG_VERSION:=2.4.2
 # PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_GIGASET_ELEMENTS_SRC_URL ?= git@public.inteno.se:gigaset-elements.git
@@ -10,7 +10,7 @@ PKG_GIGASET_ELEMENTS_VERSION ?= v$(PKG_VERSION)
 
 PKG_SOURCE_URL:=$(PKG_GIGASET_ELEMENTS_SRC_URL)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=ec56d8652c75b1e014b27532345ce8b9e2650b4f
+PKG_SOURCE_VERSION:=aa906b37062b6d7937a9c0f8e7b62b32afe4bdeb
 
 
 PKG_MAINTAINER:=Magier Marcin, Figlarek Piotr
@@ -26,7 +26,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/gigaset-elements
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=+libjson-c +libcurl
+  DEPENDS:=+libjson-c +libcurl +libpthread
   TITLE:=Gigaset elements
 endef
 
@@ -39,7 +39,8 @@ endef
 
 
 define Package/gigaset-elements/install
-	$(CP) -r $(PKG_BUILD_DIR)/sysroot/* $(1)/
+	$(CP) -r $(PKG_BUILD_DIR)/sysroot_common/* $(1)/
+	$(CP) -r $(PKG_BUILD_DIR)/sysroot_$(CONFIG_ARCH)/* $(1)/
 endef
 
 
