@@ -1,11 +1,11 @@
 {
 	"description": [
-		{ "en" : "Repeater 2.4▴▾5" },
-		{ "sv" : "Repeater 2.4▴▾5" }
+		{ "en" : "Repeater 2.4▴▾2.4&5" },
+		{ "sv" : "Repeater 2.4▴▾2.4&5" }
 	],
 	"explanation": [
-		{ "en" : "Your router is going to act as a wired extender or wireless repeater to the selected Wireless Access Point. Uplink 2.4G & Downlink 5G" },
-		{ "sv" : "Routern kommer att fungera som en trådbunden extender eller trådlös repeater till den valda trådlösa åtkomstpunkten. Uplink 2.4G & Downlink 5G" }
+		{ "en" : "Your router is going to act as a wired extender or wireless repeater to the selected Wireless Access Point. Uplink 2.4G & Downlink 2.4G + 5G" },
+		{ "sv" : "Routern kommer att fungera som en trådbunden extender eller trådlös repeater till den valda trådlösa åtkomstpunkten. Uplink 2.4G & Downlink 2.4G + 5G" }
 	],
 	"excluded_boards" : [
 		"DG*",
@@ -15,4 +15,3 @@
 	"credentials" : 1,
 	"reboot" : 0
 }
-
