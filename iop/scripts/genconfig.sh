@@ -53,7 +53,6 @@ function genconfig {
 
     }
 
-
     git remote -v | grep -q http || {
 	DEVELOPER=1
 
@@ -205,11 +204,15 @@ function genconfig {
 	local GIT_TAG=$(git describe --abbrev=0 --tags)
 	echo "CONFIG_TARGET_VERSION=\"${GIT_TAG}\"" >> .config
 
-
 	# Enable Pckage source tree override if selected
-	[ $SRCTREEOVERR -eq 1 ] && \
-            echo CONFIG_SRC_TREE_OVERRIDE=y >> .config
+	[ $SRCTREEOVERR -eq 1 ] && echo CONFIG_SRC_TREE_OVERRIDE=y >> .config
 
+	# Force regeneration of kernel Makefile
+	# Needed to disable kmods for iopsys-brcm targets
+	touch package/kernel/linux/Makefile
+
+	# Set default values based on selected parameters
+	make defconfig
 
 	# developer mode selected ?
 	if [ $DEVELOPER -eq 1 ]; then
@@ -226,13 +229,6 @@ function genconfig {
 	    echo "CONFIG_ENDPT_OPEN=y" >> .config
 	    echo "CONFIG_NATALIE_OPEN=y" >> .config
 	fi
-	
-	# Force regeneration of kernel Makefile
-	# Needed to disable kmods for iopsys-brcm targets
-	touch package/kernel/linux/Makefile
-	
-	# Set default values based on selected parameters
-	make defconfig
 
 	# Temporary fixup for juci/luci profile
 	if [ "$PROFILE" == "luci" ]; then
