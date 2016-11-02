@@ -51,13 +51,14 @@ define Build/Compile
 endef
 endif
 
-define Package/natalie-dect/install
-	mkdir -p $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra/
 ifeq ($(CONFIG_NATALIE_OPEN),y)
+define Package/natalie-dect/install
 	$(CP) $(PKG_BUILD_DIR)/dect.ko $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra/dect.ko
-else
-	$(CP) $(PKG_BUILD_DIR)/NatalieFpCvm6362/Src/Projects/NatalieV3/FpCvm/Linux6362/dects.ko $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra/dect.ko
-endif
 endef
+else
+define Package/natalie-dect/install
+	$(CP) $(PKG_BUILD_DIR)/NatalieFpCvm6362/Src/Projects/NatalieV3/FpCvm/Linux6362/dects.ko $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra/dect.ko
+endef
+endif
 
 $(eval $(call BuildPackage,natalie-dect))
