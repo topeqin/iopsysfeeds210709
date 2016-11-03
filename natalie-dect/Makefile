@@ -53,10 +53,12 @@ endif
 
 ifeq ($(CONFIG_NATALIE_OPEN),y)
 define Package/natalie-dect/install
+	$(INSTALL_DIR) $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra
 	$(CP) $(PKG_BUILD_DIR)/dect.ko $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra/dect.ko
 endef
 else
 define Package/natalie-dect/install
+	$(INSTALL_DIR) $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra
 	$(CP) $(PKG_BUILD_DIR)/NatalieFpCvm6362/Src/Projects/NatalieV3/FpCvm/Linux6362/dects.ko $(1)/lib/modules/$(BCM_KERNEL_VERSION)/extra/dect.ko
 endef
 endif
