@@ -1200,7 +1200,7 @@ configure_call_filters()
 	# All x characters are replaced with [0-9] to match a single digit
 	srn="($(echo $srn | tr -s "" | tr "," "|" | sed 's/x/[0-9]/g'))"
 
-	echo "exten => s,n,GotoIf($[\"\${ARG1}\":\"(^$srn[0-9]+)\">0]?special-rate:normal-rate)" >> $WORKDIR/macros.tmp
+	echo "exten => s,n,GotoIf($[\"\${ARG1}\":\"(^$srn$)\">0]?special-rate:normal-rate)" >> $WORKDIR/macros.tmp
 	echo "exten => s,n(special-rate),Set(SPECRATE=1)" >>	$WORKDIR/macros.tmp
 	echo "exten => s,n,MacroExit()" >>			$WORKDIR/macros.tmp
 	echo "exten => s,n(normal-rate),Set(SPECRATE=0)" >>	$WORKDIR/macros.tmp
