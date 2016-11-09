@@ -85,6 +85,7 @@ wlmngr_doWlConf() {
 
 	#wlctl -i wl$idx nreqd $nreqd
 	wlconf wl$idx up
+	wlctl -i wl$idx obss_coex 1
 }
 
 wlmngr_setupMbssMacAddr() {
