@@ -155,7 +155,7 @@ wlmngr_startServices() {
 }
 
 enableBSD() {
-	local wdev
+	local wdev wdev_to_steer
 
 	nvram set bsd_role=0
 	nvram unset bsd_ifnames
@@ -177,8 +177,9 @@ enableBSD() {
 	for wdev in wl0 wl1; do
 		#if [ "$(uci -q get wireless.$wdev.band_steering)" == "1" ]; then
 			nvram set bsd_ifnames="$(nvram get bsd_ifnames) $wdev"
+			[ "$wdev" == "wl0" ] && wdev_to_steer="wl1" || wdev_to_steer="wl0"
+			nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
 
-			nvram set ${wdev}_bsd_if_select_policy=$wdev
 			if [ "$(nvram get ${wdev}_nband)" == "1" ]; then
 				# 5G
 				nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x10"
