@@ -43,10 +43,12 @@ define Package/ated/description
 	Daemon for handling wifi calibration
 endef
 
+#TARGET_CFLAGS += -I$(LINUX_DIR)/include -I$(LINUX_DIR)/arch/mips/include
+
 MAKE_FLAGS += \
-	v=3 \
-	m=3 \
-	-I$(LINUX_DIR)/include
+	v=2 \
+	m=3
+
 
 #TARGET_CPPFLAGS := \
 #	-I$(STAGING_DIR)/usr/include/bcm963xx/shared/opensource/include/bcm963xx \
