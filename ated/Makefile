@@ -12,9 +12,9 @@ PKG_NAME:=ated
 PKG_VERSION:=1.2.2
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=940e3eccdd7aa6fa09e64d3d061c3570e3351cb6
+PKG_SOURCE_VERSION:=840f91a5937a159350bb5d52d976e34014f7639c
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://private.inteno.se/ated
+PKG_SOURCE_URL:=git@private.inteno.se:ated
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -43,19 +43,23 @@ define Package/ated/description
 	Daemon for handling wifi calibration
 endef
 
+MAKE_FLAGS += \
+	v=3 \
+	m=3 \
+	-I$(LINUX_DIR)/include
+
 #TARGET_CPPFLAGS := \
 #	-I$(STAGING_DIR)/usr/include/bcm963xx/shared/opensource/include/bcm963xx \
 #	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx \
 #	$(TARGET_CPPFLAGS)
 
+# we donot wwant to have any install.
+define Build/Install/Default
+endef
+
 define Package/ated/install
-	echo "KEN: was here"
-	# $(CP) ./files/* $(1)/
-	# $(INSTALL_DIR) $(1)/etc/
-	# $(INSTALL_DIR) $(1)/etc/init.d/
-	# $(INSTALL_DIR) $(1)/sbin
-	# $(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/peripheral_manager $(1)/sbin/
-#	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/gpio_test $(1)/sbin/
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ated $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,ated))
