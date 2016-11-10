@@ -99,22 +99,6 @@ wlmngr_setupMbssMacAddr() {
 	done
 }
 
-#enableBSD() {
-#	nvram_set bsd_role=0
-#	[ act_wl_cnt == 0 ] && return FALSE
-#	for i in wl0 wl1; do
-#		if [ m_instance_wl[i].m_wlVar.wlEnbl == TRUE && m_instance_wl[i].m_wlVar.bsdRole > 0 ]; then
-#			nvram set bsd_role=m_instance_wl[i].m_wlVar.bsdRole
-#			nvram set bsd_pport=m_instance_wl[i].m_wlVar.bsdPport
-#			nvram set bsd_hpport=m_instance_wl[i].m_wlVar.bsdHport
-#			nvram set bsd_helper=m_instance_wl[i].m_wlVar.bsdHelper
-#			nvram set bsd_primary=m_instance_wl[i].m_wlVar.bsdPrimary
-#			return TRUE
-#		fi
-#	done
-#	return FALSE
-#}
-
 #enableSSD() {
 #	nvram set ssd_enable=0
 #	[ act_wl_cnt == 0 ] && return FALSE
@@ -168,6 +152,55 @@ wlmngr_startServices() {
 #			ssd&
 #		fi
 #	}
+}
+
+enableBSD() {
+	local wdev
+
+	nvram set bsd_role=0
+	nvram unset bsd_ifnames
+
+	[ "$(uci -q get wireless.status.bsd)" == "1" ] || return 1
+
+	nvram set bsd_role=3
+	nvram set bsd_pport=9878
+	nvram set bsd_hpport=9877
+	nvram set bsd_helper=192.168.1.2
+	nvram set bsd_primary=192.168.1.1
+	nvram set bsd_scheme=2
+	nvram set bsd_poll_interval=1
+	nvram set bsd_bounce_detect="180 8 3600"
+	nvram set bsd_msglevel=0
+	nvram set bsd_status_poll=5
+	nvram set bsd_status=3
+
+	for wdev in wl0 wl1; do
+		#if [ "$(uci -q get wireless.$wdev.band_steering)" == "1" ]; then
+			nvram set bsd_ifnames="$(nvram get bsd_ifnames) $wdev"
+
+			nvram set ${wdev}_bsd_if_select_policy=$wdev
+			if [ "$(nvram get ${wdev}_nband)" == "1" ]; then
+				# 5G
+				nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x10"
+				nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x600"
+				nvram set ${wdev}_bsd_if_quality_policy="0 0x0 -75"
+			else
+				# 2.4G
+				nvram set ${wdev}_bsd_steering_policy="60 5 3 0 0 0x40"
+				nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x240"
+				nvram set ${wdev}_bsd_if_quality_policy="40 0x0 -75"
+			fi
+		#fi
+	done
+
+	return 0
+}
+
+wlmngr_BSDCtrl() {
+	killall -q -15 bsd 2>/dev/null
+	if $(enableBSD); then
+		bsd&
+	fi
 }
 
 wlmngr_startWsc()
