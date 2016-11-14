@@ -42,6 +42,10 @@ define Package/natalie-dect
   DEPENDS:=bcmkernel
 endef
 
+define Package/natalie-dect/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define Package/natalie-dect/description
 	Kernel dect driver
 endef
