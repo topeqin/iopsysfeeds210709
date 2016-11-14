@@ -111,7 +111,7 @@ insert_version_in_feed_makefile()
 
     last_version=$(awk -F '=' '/PKG_VERSION:=/ {print $2}' ${PKG_DIR}/${name})
 
-	echo -n "pleace enter version: "
+	echo -n "please enter version: "
 	read -ei "$last_version" answer
 
 	if [ -z ${answer} ]; then
