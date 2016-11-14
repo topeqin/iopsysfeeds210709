@@ -1,5 +1,6 @@
 #!/bin/bash
 
+UPDATE=0
 
 print_git_update()
 {
@@ -96,6 +97,28 @@ insert_hash_in_feed_makefile()
     git_last=$(cd ${PKG_BUILD_DIR}; git rev-parse HEAD)
 
     sed -i -e "s/\(^PKG_SOURCE_VERSION:=\).*/\1${git_last}/" ${PKG_DIR}/${name}
+    (cd ${PKG_DIR}; git add ${name})
+}
+
+insert_version_in_feed_makefile()
+{
+    if [ -n "$PKG_SOURCE_VERSION_FILE" ]
+    then
+	name="$PKG_SOURCE_VERSION_FILE"
+    else
+	name=Makefile
+    fi
+
+    last_version=$(awk -F '=' '/PKG_VERSION:=/ {print $2}' ${PKG_DIR}/${name})
+
+	echo -n "pleace enter version: "
+	read -ei "$last_version" answer
+
+	if [ -z ${answer} ]; then
+		return
+	fi
+
+    sed -i -e "s/\(^PKG_VERSION:=\).*/\1${answer}/" ${PKG_DIR}/${name}
     (cd ${PKG_DIR}; git add ${name})
 }
 
@@ -400,6 +423,7 @@ check_packages()
 		    #  print_git_update
 		    git_repos_uptodate
 		    insert_hash_in_feed_makefile
+		    [ "${UPDATE}" ] && insert_version_in_feed_makefile
 		    create_message >tmp/msg
 		    commit_feed tmp/msg
 		    insert_hash_in_feeds_config
@@ -547,6 +571,13 @@ feeds_at_top()
     exit 0
 }
 
+usage(){
+	echo -e "$0 [flags]"
+	echo -e "flags:"
+	echo -e "  -v\tVerbose mode"
+	echo -e "  -h\tShow this help"
+	echo -e "  -u\tUpdate package version\n"
+}
 
 # Exported interface
 function update_package {
@@ -563,15 +594,18 @@ function update_package {
     Cyan='\033[0;36m'         # Cyan
     White='\033[0;37m'        # White
 
-    while getopts "v:h" opt; do
+    while getopts "v:hu" opt; do
 	case $opt in
 	    v)
 		verbose=$OPTARG
 		;;
 	    h)
-		echo "some help! No options yet"
-		exit 1
-		;;
+			usage
+			exit 1
+			;;
+		u)
+			UPDATE=1
+			;;
 	    \?)
 		echo "Invalid option: -$OPTARG" >&2
 		exit 1
