@@ -178,18 +178,21 @@ enableBSD() {
 		#if [ "$(uci -q get wireless.$wdev.band_steering)" == "1" ]; then
 			nvram set bsd_ifnames="$(nvram get bsd_ifnames) $wdev"
 			[ "$wdev" == "wl0" ] && wdev_to_steer="wl1" || wdev_to_steer="wl0"
-			nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
 
-			if [ "$(nvram get ${wdev}_nband)" == "1" ]; then
-				# 5G
+			if [ "$(nvram get ${wdev}_nband)" == "2" ]; then
+				# 2.4G
 				nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x10"
 				nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x600"
+				nvram set ${wdev}_bsd_steer_prefix=$wdev
 				nvram set ${wdev}_bsd_if_quality_policy="0 0x0 -75"
+				nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
 			else
-				# 2.4G
+				# 5G
 				nvram set ${wdev}_bsd_steering_policy="60 5 3 0 0 0x40"
 				nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x240"
+				nvram set ${wdev}_bsd_steer_prefix=$wdev
 				nvram set ${wdev}_bsd_if_quality_policy="40 0x0 -75"
+				nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
 			fi
 		#fi
 	done
