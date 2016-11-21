@@ -278,6 +278,20 @@ wlmngr_wlIfcUp() {
 			ifconfig $vif down
 		fi
 	done
+
+	case "$(uci -q get wireless.wl$idx.monitor)" in
+		1)
+			wlctl -i wl$idx monitor 1
+			ifconfig prism$idx up
+		;;
+		2)
+			wlctl -i wl$idx monitor 2
+			ifconfig radiotap$idx up
+		;;
+		*)
+			wlctl -i wl$idx monitor 0
+		;;
+	esac
 }
 
 wlmngr_doWds() {
