@@ -8,9 +8,10 @@
 		{ "sv" : "Routern kommer att fungera som en trådbunden extender eller trådlös repeater till den valda trådlösa åtkomstpunkten. Uplink 2.4G & Downlink 2.4G + 5G" }
 	],
 	"excluded_boards" : [
-		"DG*",
-		"EG*",
-		"VG*"
+		"DG15*"
+	],
+	"acl" : [
+		"admin"
 	],
 	"credentials" : 1,
 	"reboot" : 0
