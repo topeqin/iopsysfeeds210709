@@ -167,3 +167,6 @@ config 'sip_service_provider' 'sip0'
 	option 'is_fax' '0'
 	option 'transport' 'udp'
 
+config cdr_log 'CDR_LOG'
+        option cdr_syslog '0'
+
