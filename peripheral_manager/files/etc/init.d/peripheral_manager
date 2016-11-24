@@ -20,7 +20,8 @@ service_running() {
 	ubus -t 2 wait_for button
 }
 
-stop() {
-	service_stop /sbin/peripheral_manager
+stop_service() {
+    ubus call leds set '{"state":"alloff"}'
+    service_stop /sbin/peripheral_manager
 }
 
