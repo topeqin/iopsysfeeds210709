@@ -92,7 +92,7 @@ function genconfig {
 		echo -e "  -l|--list [customer]\tList all Customers or all boards for one customer"
 		echo -e "  -a|--list-all\tList all Customers and their board types"
 		echo
-		echo "Example ./genconfig vg50 TELIA"
+		echo "Example ./iop genconfig vg50 TELIA"
 		echo "(if no customerconfig is chosen the Inteno Config will be used)"
 		echo
 		exit 0
@@ -301,7 +301,7 @@ function genconfig {
 	if [ $# -eq 0 ]; then
 		echo Current profile:
 		cat $CURRENT_CONFIG_FILE
-		echo "Try ./iop_get_config.sh -h' to get instructions if you want to change current config"
+		echo "Try ./iop genconfig -h' to get instructions if you want to change current config"
 		exit 0
 	else
 		while [ -n "$1" ]; do
