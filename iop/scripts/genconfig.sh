@@ -236,9 +236,9 @@ function genconfig {
 				v "cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR"
 				cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR
 			fi
-			if [ -e "$CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff" ]; then
-				v "Apply $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff"
-				cat $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff >> .config
+			if [ -e "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
+				v "Apply $CUSTCONF/$CUSTOMER/common/common.diff"
+				cat $CUSTCONF/$CUSTOMER/common/common.diff >> .config
 			fi
 			if [ -e "$CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff" ]; then
 				v "Apply $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff"
