@@ -19,14 +19,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
-BASE_PKG_VERSION:=4.0.1
-PKG_RELEASE:=RC17
+BASE_PKG_VERSION:=4.1.0
+PKG_RELEASE:=RC4
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
-PKG_SOURCE_VERSION:=97a3da5fae8b5374a598c78346cb11477c85e293
+PKG_SOURCE_VERSION:=2ab7c8c907d25b94121f240150969ac7a68cbd40
 ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
@@ -45,7 +45,7 @@ endif
 
 ###########################--RELEASE--################################
 
-#include $(INCLUDE_DIR)/uclibc++.mk
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/ice-client/Default
@@ -58,8 +58,7 @@ define Package/ice-client
 $(call Package/ice-client/Default)
 	TITLE:=ice-client
 	MENU:=1
-	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox +libpthread
-#	DEPENDS:=+libopenssl +uclibcxx +libubus +ubus +ubusd +jshn +libubox +libpthread
+	DEPENDS:=+libopenssl +uclibcxx +libubus +ubus +ubusd +jshn +libubox +libpthread
 endef
 
 define Package/ice-client/config
@@ -79,7 +78,7 @@ endef
 # PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(BASE_PKG_VERSION)
 # 
 #
-# These settings allow you to specify a soruce folder where your source code is located
+# These settings allow you to specify a source folder where your source code is located
 # This avoids having to tar-zip or fetch from git each time
 # Changes can be done in your sources while the build is performed somewhere else
 # If you forget some settings, your source folder will be deleted!!! So be carefull and 
