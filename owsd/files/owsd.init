@@ -33,6 +33,7 @@ validate_owsd() {
 	uci_validate_section "owsd" "owsd" "global" \
 		'sock:string' \
 		'redirect:string' \
+		'ubusproxy:list(string)' \
 		'www:string'
 }
 
@@ -156,6 +157,12 @@ start_service() {
 	[ -n "${sock}"      ] && procd_append_param command -s"${sock}"
 	[ -n "${www}"       ] && procd_append_param command -w"${www}"
 	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
+
+	append_ubusproxy () {
+		[ -n "$1"   ] && procd_append_param command -C"$1"
+	}
+
+	config_list_foreach "global" "ubusproxy" append_ubusproxy
 
 	config_foreach parse_owsd_iface "owsd-listen"
 
