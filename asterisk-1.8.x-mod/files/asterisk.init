@@ -24,6 +24,7 @@ init_asterisk() {
 		network_get_ipaddr ip "$bindintf"
 		while [ "$ip" == "" ]; do
 			sleep 1
+			network_flush_cache
 			network_get_ipaddr ip "$bindintf"
 		done
 	fi
