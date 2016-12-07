@@ -845,6 +845,7 @@ encrypt_password()
 		if [ -e /usr/bin/voicesec ] ; then
 			echo "Encrypting password for $1"
 			/usr/bin/voicesec -e $secret > /usr/lib/asterisk/voicesec_$1
+			fsync /usr/lib/asterisk/voicesec_$1
 		fi
 		uci_remove voice_client $1 secret
 		uci_commit voice_client
