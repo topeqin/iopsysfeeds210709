@@ -69,6 +69,13 @@ populate_netmodes() {
 	local hardware=$(db get hw.board.hardware)
 	local keys lang desc exp exclude
 	for mode in $(ls $modedir); do
+
+			case "$mode" in
+				repeater*)
+					wlctl -i wl1 ap >/dev/null 2>&1 || continue
+				;;
+			esac
+
 			lang=""
 			desc=""
 			exp=""
