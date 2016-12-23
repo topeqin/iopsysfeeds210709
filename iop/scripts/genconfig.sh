@@ -5,6 +5,7 @@ function genconfig {
 	export IMPORT=1
 	export SRCTREEOVERR=0
 	export FILEDIR="files/"
+	export THEMEDIR="themes"
 	CURRENT_CONFIG_FILE=".current_config_file"
 	export CONFIGPATH="package/feeds/feed_inteno_packages/iop/configs"
 	CUSTPATH="customerconfigs"
@@ -180,6 +181,13 @@ function genconfig {
 			v "rm -rf $FILEDIR*"
 			rm -rf $FILEDIR*
 		fi
+
+		if [ ! -d "$THEMEDIR" ]; then
+			mkdir -p $THEMEDIR
+		elif [ -d "$THEMEDIR" -a $CLEAN -eq 1 ]; then
+			v "rm -rf $THEMEDIR/*"
+			rm -rf $THEMEDIR/*
+		fi
 	}
 
 	create_and_copy_files()
@@ -235,6 +243,11 @@ function genconfig {
 			if [ -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/fs" ]; then
 				v "cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR"
 				cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR
+			fi
+			if [ -d "$CUSTCONF/$CUSTOMER/juci-theme" ]; then
+				customer="$(echo $CUSTOMER | tr 'A-Z' 'a-z')"
+				v "cp -ar $CUSTCONF/$CUSTOMER/juci-theme $THEMEDIR/juci-theme-$customer"
+				cp -ar $CUSTCONF/$CUSTOMER/juci-theme $THEMEDIR/juci-theme-$customer
 			fi
 			if [ -e "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
 				v "Apply $CUSTCONF/$CUSTOMER/common/common.diff"
