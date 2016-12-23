@@ -4,7 +4,6 @@
 include /lib/network
 
 [ "$INTERFACE" != "$(uci get layer2_interface_ethernet.Wan.ifname)" ] && exit
-[ "$(uci get netmode.setup.curmode)" != "repeater" ] && exit
 
 case "$(uci get netmode.setup.curmode)" in
 		repeater|repeater_dualdown) echo "Preparing to switch mode" ;;
