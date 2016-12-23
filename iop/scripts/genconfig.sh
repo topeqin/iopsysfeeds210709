@@ -282,6 +282,9 @@ function genconfig {
 			echo "CONFIG_NATALIE_OPEN=y" >> .config
 		fi
 
+		# Force regeneration of themes
+		touch package/feeds/feed_inteno_juci/juci/Makefile
+
 		# Force regeneration of kernel Makefile
 		# Needed to disable kmods for iopsys-brcm targets
 		touch package/kernel/linux/Makefile
