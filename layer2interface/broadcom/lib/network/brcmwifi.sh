@@ -323,6 +323,7 @@ wlmngr_finalize() {
 #	local isac="$(db get hw.$pcid.is_ac)"
 #	if [ "$isac" == "1" ]; then
 #		wlctl -i $device msglevel +radar +dfs
+#		#dhdctl -i $device dconpoll 200
 #	fi
 	local rdrthrs="$(db get hw.$pcid.radarthrs)"
 	if [ -n "$rdrthrs" ]; then
