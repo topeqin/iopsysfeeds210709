@@ -160,7 +160,7 @@ enableBSD() {
 	nvram set bsd_role=0
 	nvram unset bsd_ifnames
 
-	[ "$(uci -q get wireless.status.bsd)" == "1" ] || return 1
+	[ "$(uci -q get wireless.status.bandsteering)" == "1" ] || return 1
 
 	nvram set bsd_role=3
 	nvram set bsd_pport=9878
