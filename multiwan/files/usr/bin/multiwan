@@ -27,9 +27,9 @@ failover() {
 
     add() {
 
-	wan_fail_map=$(echo $wan_fail_map | sed -e "s/${1}\[${failchk}\]//g")
+	wan_fail_map=$(echo $wan_fail_map | sed -e "s/\(^\|.*\]\)${1}\[${failchk}\]/\1/g")
 	wan_fail_map="$wan_fail_map${1}[x]"
-	wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/${1}\[${recvrychk}\]//g")
+	wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/\(^\|.*\]\)${1}\[${recvrychk}\]/\1/g")
 	update_cache
 
 	if [ "$existing_failover" == "2" ]; then
@@ -46,8 +46,8 @@ failover() {
 
     del() {
 
-	wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/${1}\[${recvrychk}\]//g")
-	wan_fail_map=$(echo $wan_fail_map | sed -e "s/${1}\[${failchk}\]//g")
+	wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/\(^\|.*\]\)${1}\[${recvrychk}\]/\1/g")
+	wan_fail_map=$(echo $wan_fail_map | sed -e "s/\(^\|.*\]\)${1}\[${failchk}\]/\1/g")
 	update_cache
 
 	if [ "$existing_failover" == "3" ]; then
@@ -70,7 +70,7 @@ fail_wan() {
 
     local failchk=$(query_config failchk $1)
     local recvrychk=$(query_config recvrychk $1)
-    wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/${1}\[${recvrychk}\]//g")
+    wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/\(^\|.*\]\)${1}\[${recvrychk}\]/\1/g")
 
     if [ -z "$failchk" ]; then
 	failchk=1
@@ -80,7 +80,7 @@ fail_wan() {
     if [ "$failchk" != "x" ]; then
 	new_fail_count=$(($failchk + 1))
 	if [ "$new_fail_count" -lt "$health_fail_retries" ]; then
-	    wan_fail_map=$(echo $wan_fail_map | sed -e "s/${1}\[${failchk}\]/$1\[${new_fail_count}\]/g")
+	    wan_fail_map=$(echo $wan_fail_map | sed -e "s/\(^\|.*\]\)${1}\[${failchk}\]/\1${1}\[${new_fail_count}\]/g")
 	else
 	    failover add $1
 	    refresh_dns
@@ -103,7 +103,7 @@ recover_wan() {
     local wanid=$(query_config wanid $1)
 
     if [ ! -z "$failchk" -a "$failchk" != "x" ]; then
-	wan_fail_map=$(echo $wan_fail_map | sed -e "s/${1}\[${failchk}\]//g")
+	wan_fail_map=$(echo $wan_fail_map | sed -e "s/\(^\|.*\]\)${1}\[${failchk}\]/\1/g")
 	update_cache
     fi
 
@@ -117,7 +117,7 @@ recover_wan() {
 	else
 	    new_recovery_count=$(($recvrychk + 1))
 	    if [ "$new_recovery_count" -lt "$health_recovery_retries" ]; then
-		wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/${1}\[${recvrychk}\]/$1\[${new_recovery_count}\]/g")
+		wan_recovery_map=$(echo $wan_recovery_map | sed -e "s/\(^\|.*\]\)${1}\[${recvrychk}\]/\1${1}\[${new_recovery_count}\]/g")
 		update_cache
 	    else
 		failover del $1
@@ -143,7 +143,7 @@ acquire_wan_data() {
     network_get_ipaddr  ipaddr  ${1} || ipaddr=x
     network_get_gateway gateway ${1} || gateway=x
 
-    check_old_map=$(echo $wan_id_map 2>&1 | grep -o "$1\[")
+    check_old_map=$(echo $wan_id_map 2>&1 | grep -o -e "^$1\[" -e "\]$1\[")
 
     if [ -z $check_old_map ]; then
 	wancount=$(($wancount + 1))
@@ -161,9 +161,9 @@ acquire_wan_data() {
 	old_ifname=$(query_config ifname $1)
 	get_wanid=$(query_config wanid $1)
 
-	wan_if_map=$(echo $wan_if_map | sed -e "s/${1}\[${old_ifname}\]/$1\[${ifname}\]/g")
-	wan_ip_map=$(echo $wan_ip_map | sed -e "s/${1}\[${old_ipaddr}\]/$1\[${ipaddr}\]/g")
-	wan_gw_map=$(echo $wan_gw_map | sed -e "s/${1}\[${old_gateway}\]/$1\[${gateway}\]/g")
+	wan_if_map=$(echo $wan_if_map | sed -e "s/\(^\|.*\]\)${1}\[${old_ifname}\]/\1${1}\[${ifname}\]/g")
+	wan_ip_map=$(echo $wan_ip_map | sed -e "s/\(^\|.*\]\)${1}\[${old_ipaddr}\]/\1${1}\[${ipaddr}\]/g")
+	wan_gw_map=$(echo $wan_gw_map | sed -e "s/\(^\|.*\]\)${1}\[${old_gateway}\]/\1${1}\[${gateway}\]/g")
 
 	if [ "$old_ifname" != "$ifname" ]; then
 	    iptables -D MultiWanPreHandler -t mangle -i $old_$ifname -m state --state NEW -j FW${get_wanid}MARK
@@ -206,14 +206,14 @@ update_cache() {
 
 query_config() {
     case $1 in
-	ifname) echo $wan_if_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';; 
-	ipaddr) echo $wan_ip_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
-	gateway) echo $wan_gw_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
-	wanid) echo $wan_id_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
-	failchk) echo $wan_fail_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
-	recvrychk) echo $wan_recovery_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
-	monitor) echo $wan_monitor_map | grep -o "$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
-	group) echo $wan_id_map | grep -o "\w*\[$2\]" | awk -F "[" '{print $1}';;
+	ifname)		echo $wan_if_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	ipaddr)		echo $wan_ip_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	gateway)	echo $wan_gw_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	wanid)		echo $wan_id_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	failchk)	echo $wan_fail_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	recvrychk)	echo $wan_recovery_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	monitor)	echo $wan_monitor_map	| grep -o -e "^$2\[\w*.*\]" -e "\]$2\[\w*.*\]" | awk -F "[" '{print $2}' | awk -F "]" '{print $1}';;
+	group)		echo $wan_id_map	| grep -o "\w*\[$2\]" | awk -F "[" '{print $1}';;
     esac
 }
 
@@ -896,7 +896,7 @@ monitor_wan() {
 	fi
 
 	[ "$health_monitor" = 'serial' ] && {
-	    wan_monitor_map=$(echo $wan_monitor_map | sed -e "s/$1\[\w*\]/$1\[$(date +%s)\]/g")
+	    wan_monitor_map=$(echo $wan_monitor_map | sed -e "s/\(^\|.*\]\)${1}\[\w*\]/\1${1}\[$(date +%s)\]/g")
 	    update_cache
 	    break
 	}
