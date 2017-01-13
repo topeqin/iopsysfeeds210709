@@ -138,6 +138,7 @@ acquire_wan_data() {
     local old_gateway
 
     local ifname ipaddr gateway
+	network_flush_cache
     network_get_device  ifname  ${1} || ifname=x
     network_get_ipaddr  ipaddr  ${1} || ipaddr=x
     network_get_gateway gateway ${1} || gateway=x
@@ -444,6 +445,8 @@ refresh_dns() {
     local failchk
     local compile_dns
     local dns_server
+
+	network_flush_cache
 
     iptables -F MultiWanDNS -t mangle
 
@@ -822,6 +825,7 @@ monitor_wan() {
     while :; do
 	[ "${health_monitor%.*}" = 'parallel' ] && sleep $health_interval
 
+	network_flush_cache
 	network_get_device  ifname  ${1} || ifname=x
 	network_get_ipaddr  ipaddr  ${1} || ipaddr=x
 	network_get_gateway gateway ${1} || gateway=x
