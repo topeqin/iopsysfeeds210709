@@ -33,8 +33,12 @@ validate_owsd() {
 	uci_validate_section "owsd" "owsd" "global" \
 		'sock:string' \
 		'redirect:string' \
+		'www:string' \
 		'ubusproxy:list(string)' \
-		'www:string'
+		'client_key:file' \
+		'client_cert:file' \
+		'client_ca:file' \
+
 }
 
 append_origin() {
@@ -65,12 +69,16 @@ validate_owsd_iface() {
 		'ipv6only:bool:0' \
 		'cert:file' \
 		'key:file' \
+		'ca:file' \
+		'restrict_to_user:list(string)' \
 		&&
 	[ -n "${port}" ]
 }
 
 parse_owsd_iface() {
-	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only cert key
+	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only
+	local cert key ca
+	local restrict_to_user
 
 	validate_owsd_iface "$1" || {
 		echo "Validation failed"
@@ -85,6 +93,9 @@ parse_owsd_iface() {
 
 		[ -n "${cert}"      ] && procd_append_param command -c"${cert}"
 		[ -n "${key}"       ] && procd_append_param command -k"${key}"
+		[ -n "${ca}"        ] && procd_append_param command -a"${ca}"
+
+		[ -n "${restrict_to_user}" ] && procd_append_param command -u"${restrict_to_user}"
 
 		[ -n "$2" ] && procd_append_param command -i"$2"
 	}
@@ -148,6 +159,7 @@ start_service() {
 	procd_set_param command $PROG
 
 	local sock www redirect
+	local client_cert client_key client_ca
 
 	validate_owsd || {
 		echo "Global validation failed"
@@ -158,8 +170,12 @@ start_service() {
 	[ -n "${www}"       ] && procd_append_param command -w"${www}"
 	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
 
+	[ -n "${client_cert}" ] && procd_append_param command -C"${client_cert}"
+	[ -n "${client_key}"  ] && procd_append_param command -K"${client_key}"
+	[ -n "${client_ca}"   ] && procd_append_param command -A"${client_ca}"
+
 	append_ubusproxy () {
-		[ -n "$1"   ] && procd_append_param command -C"$1"
+		[ -n "$1"   ] && procd_append_param command -P"$1"
 	}
 
 	config_list_foreach "global" "ubusproxy" append_ubusproxy
@@ -185,4 +201,3 @@ reload_service() {
 service_triggers() {
         procd_add_reload_trigger owsd
 }
-
