@@ -493,7 +493,7 @@ refresh_dns() {
 
 	dns=$(uci_get_state multiwan ${group} dns 'auto')
 	[ "$dns" == "auto" ] && dns=$(get_dns_servers $group)
-	dns=$(echo $dns | sed -e "s/ /\n/g")
+	dns=$(echo $dns | sed -e "s/\,/ /g" | sed -e "s/ /\n/g")
 
 	if [ ! -z "$dns" -a "$failchk" != "x" -a "$ipaddr" != "x" -a "$gateway" != "x" -a "$ifname" != "x" ]; then
 	    echo "$dns" | while read dns_server; do
