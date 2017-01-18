@@ -436,6 +436,34 @@ mwanrule() {
     add_rule
 }
 
+
+get_dns_servers() {
+	local group=$1
+	local groups=$1
+	local dns=""
+	local dnss=""
+	local aliases=""
+	local g
+
+	aliases="$(uci show network| grep =\'@$group\')"
+
+	for g in $aliases ; do
+		g=${g#*.}; g=${g%%.*}
+		[ "$(uci -q get network.$g)" == "interface" ] || continue
+		groups="$groups $g"
+	done
+
+	groups="$(echo $groups | tr ' ' '\n' | sort -u | tr '\n' ' ')"
+
+	for group in $groups ; do
+		network_get_dnsserver dns ${group}
+		dnss="$dnss $dns"
+	done
+
+	echo $dnss
+}
+
+
 refresh_dns() {
     local dns
     local group
@@ -464,7 +492,7 @@ refresh_dns() {
 	failchk=$(query_config failchk $group)
 
 	dns=$(uci_get_state multiwan ${group} dns 'auto')
-	[ "$dns" == "auto" ] && network_get_dnsserver dns ${group}
+	[ "$dns" == "auto" ] && dns=$(get_dns_servers $group)
 	dns=$(echo $dns | sed -e "s/ /\n/g")
 
 	if [ ! -z "$dns" -a "$failchk" != "x" -a "$ipaddr" != "x" -a "$gateway" != "x" -a "$ifname" != "x" ]; then
