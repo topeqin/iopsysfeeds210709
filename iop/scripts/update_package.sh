@@ -399,9 +399,13 @@ check_packages()
     echo "Now checking if any changes has been done to the packages."
     echo -e "${Green}_______________________________________________________________________________${Color_Off}"
 
+    # only scan in the build directory that is currently in use.
+    CPU=$(grep  "CONFIG_CPU_TYPE=" .config| cut -f2 -d\")
+    LIBC=$(grep "CONFIG_LIBC=" .config| cut -f2 -d\")
+    
     # First scan all files in build dir for packages that have .git directories.
-    all_pkgs=$(find build_dir/ -name ".git")
-
+    all_pkgs=$(find build_dir/*${CPU}*${LIBC}* -name ".git")
+    
     for pkg in `echo "$all_pkgs"`
     do
 	pkg=$(dirname $pkg)
