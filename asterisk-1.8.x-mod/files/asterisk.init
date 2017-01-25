@@ -9,26 +9,9 @@ USE_PROCD=1
 NAME=asterisk
 PROG=/usr/sbin/asterisk
 DEFAULT=/etc/default/asterisk
+CONFDIR=/etc/asterisk
 
 init_asterisk() {
-	# do not start asterisk until the
-	# router receives a default route
-	config_load voice_client
-	local bindintf
-	config_get bindintf SIP bindintf ""
-	if [ "$bindintf" == ""  ]; then
-		while ! ip r | grep -q default; do
-			sleep 1
-		done
-	else
-		network_get_ipaddr ip "$bindintf"
-		while [ "$ip" == "" ]; do
-			sleep 1
-			network_flush_cache
-			network_get_ipaddr ip "$bindintf"
-		done
-	fi
-
 	[ -f $DEFAULT ] && . $DEFAULT
 	[ -d /var/run/asterisk ] || mkdir -p /var/run/asterisk
 	[ -d /var/log/asterisk ] || mkdir -p /var/log/asterisk
@@ -56,6 +39,7 @@ start_service() {
 }
 
 reload_service() {
+	asterisk -rx "config reload $CONFDIR/sip.conf"
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
 	asterisk -rx "brcm reload"

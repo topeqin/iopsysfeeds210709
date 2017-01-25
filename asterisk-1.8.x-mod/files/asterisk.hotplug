@@ -1,0 +1,18 @@
+#!/bin/sh
+
+[ "$ACTION" = ifup ] || exit 0
+
+config_load voice_client
+config_get bindintf SIP bindintf
+
+[ "$INTERFACE" == "$bindintf" ] || exit 0
+
+. /lib/functions/network.sh
+
+if [ -n "$bindintf" ]; then
+	network_get_ipaddr bindaddr "$bindintf"
+	bindaddr="${bindaddr:-0.0.0.0}"
+	sed -i "s/bindaddr=.*/bindaddr=$bindaddr/g" /etc/asterisk/sip.conf
+	[ -e /var/run/asterisk/asterisk.ctl ] && /etc/init.d/asterisk reload
+fi
+
