@@ -1,0 +1,163 @@
+#!/bin/sh
+set +x
+
+# 1. sleep for $SLEEP_LONG seconds
+# 2. run the check_* functions
+# 3. sleep for $SLEEP_SHORT seconds
+# 4. go to step 2. $SAMPLES-1 times (step 2. will run $SAMPLES times)
+# 5. go to step 1.
+SAMPLES=4
+SLEEP_SHORT=2
+SLEEP_LONG=10
+
+# worst-case scenario:
+# quest will be restarted in:
+# SLEEP_LONG + (SAMPLES-1)*SLEEP_SHORT + UBUS_TIMEOUT + epsilon =
+# = 21 seconds
+
+# number of process
+NPROC_LIMIT=2	# the value that is considered to be wrong (and above)
+NPROC_COUNT=4	# number of time that the NPROC_LIMIT has to be hit to trigger a process restart
+NPROC_NFAIL=0	# current consecutive Number of FAILures. process restarts when NPROC_NFAIL == NPROC_COUNT
+
+# memmory limit
+MEM_LIMIT=50000
+MEM_COUNT=4
+MEM_NFAIL=0
+
+# procentage of CPU usage
+PCPU_LIMIT=38
+PCPU_COUNT=4
+PCPU_NFAIL=0
+
+UBUS_TIMEOUT=5
+
+
+restart_questd()
+{
+	logger -s -t $0[$$] "Restarting questd. $NPROC_NFAIL $MEM_NFAIL $PCPU_NFAIL"
+
+	/etc/init.d/quest stop
+	killall -q -KILL questd
+	/etc/init.d/quest start
+
+	NPROC_NFAIL=0
+	MEM_NFAIL=0
+	PCPU_NFAIL=0
+}
+
+
+check_nproc()
+{
+	local nproc="$@"
+
+	if [ "$nproc" -ge "$NPROC_LIMIT" ]; then
+		NPROC_NFAIL=$((NPROC_NFAIL + 1))
+	else
+		NPROC_NFAIL=0
+	fi
+
+	[ "$NPROC_NFAIL" -ge "$NPROC_COUNT" ] && return 1
+
+	return 0
+}
+
+check_mem()
+{
+	local mem="$@"
+	local ok=true
+
+	for m in $mem; do
+		if [ "$m" -ge "$MEM_LIMIT" ]; then
+			ok=false
+			break
+		fi
+	done
+
+	[ "$ok" = "true"  ] && MEM_NFAIL=0
+	[ "$ok" = "false" ] && MEM_NFAIL=$((MEM_NFAIL + 1))
+
+	[ "$MEM_NFAIL" -ge "$MEM_COUNT" ] && return 1
+
+	return 0
+}
+
+check_pcpu()
+{
+	local pcpu="$@"
+	local ok=true
+
+	for p in $pcpu; do
+		p=${p%%%*}
+		if [ "$p" -ge "$PCPU_LIMIT" ]; then
+			ok=false
+			break
+		fi
+	done
+
+	[ "$ok" = "true"  ] && PCPU_NFAIL=0
+	[ "$ok" = "false" ] && PCPU_NFAIL=$((PCPU_NFAIL + 1))
+
+	[ "$PCPU_NFAIL" -ge "$PCPU_COUNT" ] && return 1
+
+	return 0
+}
+
+check_ubuscall()
+{
+	local rv
+
+	ubus -t $UBUS_TIMEOUT call router.system info >/dev/null 2>&1
+	rv=$?
+
+	[ "$rv" = "0" ] && return 0
+	return 1
+}
+
+
+main()
+{
+	local topline nproc mem pcpu
+	local restart_nproc restart_mem restart_pcpu
+	local sample=1
+
+	while true ; do
+
+		# collect info
+		topline=$(top -bn1 | grep "/sbin/[q]uestd" | grep -v monitor)
+
+		nproc=$(echo "$topline" | wc -l)
+		check_nproc $nproc
+		restart_nproc=$?
+
+		mem=$(echo -en "$topline" | awk '{print $5}')
+		check_mem $mem
+		restart_mem=$?
+
+		pcpu=$(echo -en "$topline" | awk '{print $7}')
+		check_pcpu $pcpu
+		restart_pcpu=$?
+
+		# do the restart
+		if [ 	"$restart_nproc" = "1" -o \
+			"$restart_mem"   = "1" -o \
+			"$restart_pcpu"  = "1" ]
+		then
+			check_ubuscall || restart_questd
+		fi
+
+		# sleep
+		if [ "$sample" -lt "$SAMPLES" ]; then
+			sample=$((sample + 1))
+			sleep $SLEEP_SHORT
+		else
+			sample=1
+			sleep $SLEEP_LONG
+		fi
+	done
+}
+
+main $@
+
+
+set +x
