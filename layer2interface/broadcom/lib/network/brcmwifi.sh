@@ -156,11 +156,22 @@ wlmngr_startServices() {
 
 enableBSD() {
 	local wdev wdev_to_steer
+	local enabled policy
+	local rssi_threshold bw_util
 
 	nvram set bsd_role=0
 	nvram unset bsd_ifnames
 
-	[ "$(uci -q get wireless.status.bandsteering)" == "1" ] || return 1
+	enabled="$(uci -q get wireless.bandsteering.enabled)"
+
+	[ "$enabled" == "1" ] || return 1
+
+	policy="$(uci -q get wireless.bandsteering.policy)"
+	policy=${policy:-0}
+	rssi_threshold="$(uci -q get wireless.bandsteering.rssi_threshold)"
+	rssi_threshold=${rssi_threshold:--75}
+	bw_util="$(uci -q get wireless.bandsteering.bw_util)"
+	bw_util=${bw_util:--60}
 
 	nvram set bsd_role=3
 	nvram set bsd_pport=9878
@@ -179,20 +190,40 @@ enableBSD() {
 			nvram set bsd_ifnames="$(nvram get bsd_ifnames) $wdev"
 			[ "$wdev" == "wl0" ] && wdev_to_steer="wl1" || wdev_to_steer="wl0"
 
-			if [ "$(nvram get ${wdev}_nband)" == "2" ]; then
-				# 2.4G
-				nvram set ${wdev}_bsd_if_quality_policy="0 0x0 -100"
-				nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
-				nvram set ${wdev}_bsd_sta_select_policy="10 0 0 0 1 1 0 0 0 0x400"
-				nvram set ${wdev}_bsd_steer_prefix=$wdev
-				nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x1"
+			if [ "$policy" == "0" ]; then
+				# RSSI Threshold based policy #
+				if [ "$(nvram get ${wdev}_nband)" == "2" ]; then
+					# 2.4G
+					nvram set ${wdev}_bsd_if_quality_policy="0 0x0 -100"
+					nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
+					nvram set ${wdev}_bsd_sta_select_policy="10 0 0 0 1 1 0 0 0 0x400"
+					nvram set ${wdev}_bsd_steer_prefix=$wdev
+					nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x1"
+				else
+					# 5G
+					nvram set ${wdev}_bsd_if_quality_policy="20 0x0 $rssi_threshold"
+					nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
+					nvram set ${wdev}_bsd_sta_select_policy="100 0 0 0 0 1 0 0 0 0x40"
+					nvram set ${wdev}_bsd_steer_prefix=$wdev
+					nvram set ${wdev}_bsd_steering_policy="80 5 3 $rssi_threshold 0 0x40"
+				fi
 			else
-				# 5G
-				nvram set ${wdev}_bsd_if_quality_policy="20 0x0 -75"
-				nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
-				nvram set ${wdev}_bsd_sta_select_policy="100 0 0 0 0 1 0 0 0 0x40"
-				nvram set ${wdev}_bsd_steer_prefix=$wdev
-				nvram set ${wdev}_bsd_steering_policy="80 5 3 -75 0 0x40"
+				# Bandwidth Usage based policy #
+				if [ "$(nvram get ${wdev}_nband)" == "2" ]; then
+					# 2.4G
+					nvram set ${wdev}_bsd_if_quality_policy="0 0x0 -75"
+					nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
+					nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x600"
+					nvram set ${wdev}_bsd_steer_prefix=$wdev
+					nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x10"
+				else
+					# 5G
+					nvram set ${wdev}_bsd_if_quality_policy="40 0x0 -75"
+					nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
+					nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x240"
+					nvram set ${wdev}_bsd_steer_prefix=$wdev
+					nvram set ${wdev}_bsd_steering_policy="$bw_util 5 3 0 0 0x40"
+				fi
 			fi
 		#fi
 	done
