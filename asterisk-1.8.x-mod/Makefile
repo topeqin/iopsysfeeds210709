@@ -455,7 +455,7 @@ define Package/asterisk18-mod/install
 	$(INSTALL_DATA)  ./files/asterisk.default $(1)/etc/default/asterisk
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN)  ./files/asterisk.init $(1)/etc/init.d/asterisk
-	$(INSTALL_DIR) $(1)/etc/hotplug.d
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN)  ./files/asterisk.hotplug $(1)/etc/hotplug.d/iface/80-asterisk
 endef
 
