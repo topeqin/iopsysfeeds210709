@@ -425,7 +425,7 @@ check_packages()
 		    #  print_git_update
 		    git_repos_uptodate
 		    insert_hash_in_feed_makefile
-		    [ "${UPDATE}" ] && insert_version_in_feed_makefile
+		    [ ${UPDATE} -eq 1 ] && insert_version_in_feed_makefile
 		    create_message >tmp/msg
 		    commit_feed tmp/msg
 		    insert_hash_in_feeds_config
