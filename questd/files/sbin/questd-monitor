@@ -1,5 +1,4 @@
 #!/bin/sh
-set +x
 
 # 1. sleep for $SLEEP_LONG seconds
 # 2. run the check_* functions
@@ -158,6 +157,3 @@ main()
 }
 
 main $@
-
-
-set +x
