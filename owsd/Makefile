@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owsd
-PKG_VERSION:=1.0.990
+PKG_VERSION:=1.1.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=http://public.inteno.se/owsd.git
-PKG_SOURCE_VERSION:=1ed6f735009a80aa8eaca95efd466cbb841e8d99
+PKG_SOURCE_VERSION:=f17bb09f8fff087a9b2c48ee84af67540d90516f
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
