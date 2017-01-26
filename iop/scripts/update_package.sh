@@ -491,7 +491,7 @@ Date: %ai%n\
 check_feeds()
 {
     echo -e "${Green}_______________________________________________________________________________${Color_Off}"
-    echo "Now checking if any changes has been done to the feeds."
+    echo "Now checking if any changes have been done to the feeds."
     echo -e "${Green}_______________________________________________________________________________${Color_Off}"
 
     feeds=$(grep -v "^#" feeds.conf| awk '{print $2}')
