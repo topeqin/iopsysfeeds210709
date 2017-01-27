@@ -12,7 +12,7 @@ PKG_NAME:=inbd
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=51f7502ad1ce347af8a09531a782b87e94484599
+PKG_SOURCE_VERSION:=366039bdfc80418f7089cb08230fe1b74de4edec
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se/inbd
 
@@ -45,7 +45,9 @@ endef
 
 define Package/inbd/install
 	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/inbd $(1)/usr/bin/
+	cp files/etc/init.d/inbd $(1)/etc/init.d/
 endef
 
 $(eval $(call BuildPackage,inbd))
