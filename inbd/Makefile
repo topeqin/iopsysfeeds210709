@@ -47,7 +47,7 @@ define Package/inbd/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/inbd $(1)/usr/bin/
-	cp files/etc/init.d/inbd $(1)/etc/init.d/
+	cp $(PKG_BUILD_DIR)/files/etc/init.d/inbd $(1)/etc/init.d/
 endef
 
 $(eval $(call BuildPackage,inbd))
