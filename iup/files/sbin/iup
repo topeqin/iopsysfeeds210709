@@ -176,7 +176,7 @@ handle_Downloaded_file()
 					reboot="off"
 					rm -rf $IUPTEMP
 				else
-					cd /tmp/iup/
+					cd $IUPTEMP
 					tar xvzf $IUPCONFFILES
 					for f in $CONFILESLURP
 					do
