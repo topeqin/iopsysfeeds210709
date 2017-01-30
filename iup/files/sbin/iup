@@ -289,7 +289,9 @@ change_to_vlan() {
 	logger -t dhcp_opt132 "committed update to file network: ifname=${new_wan_if}"
 
 	# reboot into new if configuration.
-	reboot
+	v "Rebooting"
+	export REBOOT_REASON=iup
+	/sbin/reboot
 }
 
 handle_option224()
@@ -497,7 +499,8 @@ if [ $CONF -eq 1 ]; then
 fi
 
 if [ "$reboot" == "on" ]; then
-	v "Reboot Signaled"
+	v "Rebooting"
+	export REBOOT_REASON=iup
 	/sbin/reboot
 fi
 
