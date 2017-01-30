@@ -27,7 +27,7 @@ MAC=${MAC// /}
 MAC=$(echo $MAC | tr '[a-z]' '[A-Z]')
 
 v() {
-	[ "$VERBOSE" -ge 1 ] && logger -t iup "$@"
+	[ "$VERBOSE" -ge 1 ] && logger -s -t $0[$$] "$@" 2>&1 | tee /dev/console
 }
 
 if [ -f $IUPMD5 ]; then
