@@ -391,27 +391,32 @@ if [ -n "$1" ]; then
 	json_get_var privopt224 privopt224
 	json_get_var privopt225 privopt225
 	json_get_var privopt226 privopt226
-	json_get_var vendorspecinf vendorspecinf
+	json_get_var vendorspecinf vendorspecinf # option 43
 	json_get_var httpurl128 httpurl128
-	json_get_var tftp tftp
-	json_get_var bootfile bootfile
-	json_get_var vlanid vlanid
-	json_get_var vlanpriority vlanpriority
+	json_get_var tftp tftp # option 66
+	json_get_var bootfile bootfile #option 67
+	json_get_var vlanid vlanid # option 132
+	json_get_var vlanpriority vlanpriority # option 133
+
+	v "Processing dhcp options"
 
 	if [ $privopt224 ]; then
-		echo "Option224 recived " $privopt224 > /dev/console
+		v "dhcp option 224 firmware url $privopt224"
 		handle_option224 $privopt224
 		[ $? -eq 1 ] && exit
 	fi
 
 	if [ $vendorspecinf ]; then
+		v "dhcp option 43 tr69 url $vendorspecinf"
 		url=${vendorspecinf%%,*}; rest=${vendorspecinf#*,}
 		provisioningcode=${rest%%,*};
 		uci_set_state provisioning iup url "$url"
 		uci_set_state provisioning iup provisioningcode "$provisioningcode"
 	elif [ $httpurl128 ]; then
+		v "dhcp option 128 http config url $httpurl128"
 		uci_set_state provisioning iup urliup "$httpurl128"
 	elif [ $tftp ]; then
+		v "dhcp option 66 tftp config url $tftp"
 		if [ ${bootfile:0:1} == '/' ]; then
 			uci_set_state provisioning iup urliup "tftp://$tftp$bootfile"
 		else
@@ -421,15 +426,15 @@ if [ -n "$1" ]; then
 
 	# if we get vlanid and maybe vlanpriority, configure for that.
 	if [ -n "$vlanid" -a -n "$vlanpriority" ]; then
-		logger -t dhcp_opt132 "vlanid: ${vlanid}, vlanpriority: ${vlanpriority}"
+		v "dhcp option 132 vlanid: ${vlanid} vlanpriority: ${vlanpriority}"
 		change_to_vlan ${vlanid} ${vlanpriority} ${interface}
 	elif [ -n "$vlanid" ]; then
-		logger -t dhcp_opt132 "vlanid: ${vlanid}"
+		v "dhcp option 132 vlanid: ${vlanid}"
 		change_to_vlan ${vlanid} 0 ${interface}
 	elif [ -n "$privopt225" ] || [ -n "$privopt226" ]; then
 		# opt225 and opt226 can be used together or separatly
 		if [ -n "$privopt225" ]; then
-			echo "dhcp option 225: $privopt225" >/dev/console
+			v "dhcp option 225: $privopt225"
 			# option225 is allowd to change only once per CPE
 			if [ "$(uci get -q ice.cloud.frozen)" != "1" ] ; then
 				uci set ice.cloud.frozen="1"
@@ -438,7 +443,7 @@ if [ -n "$1" ]; then
 			fi
 		fi
 		if [ -n "$privopt226" ]; then
-			echo "dhcp option 226: $privopt226" >/dev/console
+			v "dhcp option 226: $privopt226"
 			[ -z "$(uci get -q ice.dhcp)" ] && uci set ice.dhcp="dhcp"
 			uci set ice.dhcp.opt226connectionid="$privopt226"
 			ubus send dhcp.opt226connectionid '{"opt226connectionid":"","value":"'$privopt226'"}'
