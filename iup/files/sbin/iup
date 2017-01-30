@@ -378,9 +378,9 @@ while [ -n "$1" ]; do
 done
 
 if [ -f $IUPMD5 ]; then
-	v "File $IUPMD5 exists"
+	v "File $IUPMD5 exists, nothing to do"
 else
-	v "File $IUPMD5 did not exists"
+	v "Creating file $IUPMD5"
 	touch $IUPMD5
 fi
 
