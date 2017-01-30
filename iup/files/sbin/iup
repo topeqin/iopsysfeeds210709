@@ -119,13 +119,13 @@ handle_provisioning() {
 		if [ "$config" == "iup" ]; then
 			v "using url from dhcp options"
 			config_get url "$config" urliup
-		else 
+		else
 			config_get url "$config" url
 		fi
 		url=${url//\$MAC/$MAC}
 		v "Download from $url"
-		  
-		while [ $retry -le $RETRYSTOP ]  
+
+		while [ $retry -le $RETRYSTOP ]
 		do
 		  if [ ${url%%:*} == "tftp" ]; then
 			tftpfile=${url#*\/\/}
@@ -139,8 +139,8 @@ handle_provisioning() {
 		  if [ -s $IUPCONFFILES ]; then
 			v "File Downloaded"
 			retry=$((RETRYSTOP + 1))
-		  else		  
 		  v "Download failed will try again in $incsleep sec"
+		  else
 		  sleep $incsleep
 		  incsleep=$((incsleep * retry + number))
 		  retry=$((retry+1))
@@ -163,13 +163,13 @@ handle_Downloaded_file()
 	[ -n "$1" ] && DECKEY=$(echo $1 | tr -d '\n' | hexdump -e '16/1 "%02x"')
 	KEY=${DECKEY:-$DESKEY}
 	local img_type
-	case "$(get_image_type "$IUPCONFFILES")" in                                  
-                "INTENO") img_type=2 ;;                                      
-                "CFE+FS") img_type=1 ;;                                         
-                "FS")     img_type=0 ;;                                      
-                *)      img_type="UNKNOWN";;                                
-        esac                                                                                     
-                                                                                                 
+	case "$(get_image_type "$IUPCONFFILES")" in
+                "INTENO") img_type=2 ;;
+                "CFE+FS") img_type=1 ;;
+                "FS")     img_type=0 ;;
+                *)      img_type="UNKNOWN";;
+        esac
+
         if [ "$img_type" == "UNKNOWN" ] ; then
 		case "$(hexdump -v -n 2 -e '1/1 "%02x"' $IUPCONFFILES)" in
 			1f8b)
@@ -179,7 +179,7 @@ handle_Downloaded_file()
 				md5sum "$IUPCONFFILES" >> "$IUPMD5.temp"
 				if grep -q "$md5" "$IUPMD5"; then
 					v "Config Already Up to Date"
-					#becuse config is up to date we need to disable last step reboot if set
+					#because config is up to date we need to disable last step reboot if set
 					reboot="off"
 					rm -rf $IUPTEMP
 				else
@@ -478,12 +478,12 @@ if [ $software ]; then
 	json_load "$sysinfo"
 	json_select system
 	json_get_var firmware firmware
-	json_get_var filesystem filesystem                                  
-        if [ "$filesystem" == "JFFS2" ] ; then                               
-                firmware=$firmware.w                                                                                                           
-        else                                                                 
-                firmware=$firmware.y                                         
-        fi     
+	json_get_var filesystem filesystem
+        if [ "$filesystem" == "JFFS2" ] ; then
+                firmware=$firmware.w
+        else
+                firmware=$firmware.y
+        fi
 	if [ "$sofwareminuspath" == "${sofwareminuspath/$firmware/}" ] ; then
 		echo $software
 		handle_provisioning uppgradeserver "0"
