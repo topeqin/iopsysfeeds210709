@@ -110,13 +110,13 @@ handle_provisioning() {
 	config_get deckey "$config" deckey
 	if [ "$enabled" -eq 1	]; then
 		if [ "$config" == "iup" ]; then
-			v "using url from dhcp options"
+			v "Using url received in dhcp options"
 			config_get url "$config" urliup
 		else
 			config_get url "$config" url
 		fi
 		url=${url//\$MAC/$MAC}
-		v "Download from $url"
+		v "Downloading from url \"$url\""
 
 		while [ $retry -le $RETRYSTOP ]
 		do
@@ -130,10 +130,10 @@ handle_provisioning() {
 			get_image "$url" "cat" > $IUPCONFFILES
 		  fi
 		  if [ -s $IUPCONFFILES ]; then
-			v "File Downloaded"
+			v "Download finished"
 			retry=$((RETRYSTOP + 1))
-		  v "Download failed will try again in $incsleep sec"
 		  else
+		  v "Download failed, retrying in $incsleep seconds"
 		  sleep $incsleep
 		  incsleep=$((incsleep * retry + number))
 		  retry=$((retry+1))
@@ -166,12 +166,12 @@ handle_Downloaded_file()
         if [ "$img_type" == "UNKNOWN" ] ; then
 		case "$(hexdump -v -n 2 -e '1/1 "%02x"' $IUPCONFFILES)" in
 			1f8b)
-				v "Found Config"
+				v "Downloaded file is an unencrypted config"
 				md5=$(md5sum $IUPCONFFILES)
 				md5="${md5%% *}" # remove the first space and everything after it
 				md5sum "$IUPCONFFILES" >> "$IUPMD5.temp"
 				if grep -q "$md5" "$IUPMD5"; then
-					v "Config Already Up to Date"
+					v "Config is already up to date, nothing to do"
 					#because config is up to date we need to disable last step reboot if set
 					reboot="off"
 					rm -rf $IUPTEMP
@@ -180,11 +180,11 @@ handle_Downloaded_file()
 					tar xvzf $IUPCONFFILES
 					for f in $CONFILESLURP
 					do
-						v "file to be applied $f and config $(cat $f)"
+						v "File to be applied $f and config $(cat $f)"
 						uci import -f $f
 					done
 					pack=$(get_packages $CONFILESLURP)
-					v "$pack packages to be commited"
+					v "Packages to be commited: $pack"
 					for packname in $pack
 					do
 						uci commit $packname
@@ -200,7 +200,7 @@ handle_Downloaded_file()
 				fi
 			;;
 			*)
-				v "encrypted"
+				v "Downloaded file is an encrypted config"
 				if [ $KEY ]; then
 					openssl enc -d -des-ede -nosalt -K $KEY -iv "0000000000000000" -in $IUPCONFFILES -out $IUPCONFFILES.tmp
 					if [ $? -eq 0 ]; then
@@ -342,19 +342,22 @@ handle_option224()
 	softwareminuspath=${url##*/}
 
 	if [ $url ] && [ $active -eq 1 ]; then
-		echo "Software version to download $softwareminuspath"
+		v "Software version to download \"$softwareminuspath\""
 		local sysinfo=$(ubus call router.system info)
 		json_load "$sysinfo"
 		json_select system
 		json_get_var firmware firmware
 		local firmware_new=${softwareminuspath%.*}	# remove extension (.w, .y or .y2) from filename
 		if [ "$firmware_new" != "$firmware" ] ; then
-			echo "Image found $url will start flashing"
+			v "Firmware found $url will start flashing"
+			v "Currently running firmware: \"$firmware\""
+			v "Newly received firmware: \"$firmware_new\""
 			wait_for_dns $url
+			v "Start flashing"
 			/sbin/sysupgrade -v $url &
 			return 1
 		else
-			echo "Will not update software, already up to date"
+			v "Firmware is up to date, nothing to do"
 			return 0
 		fi
 	fi
@@ -478,9 +481,9 @@ config_load provisioning
 config_foreach handle_provisioning subconfig "0"
 config_get software uppgradeserver url
 sofwareminuspath=${software##*/}
-v "Software version to download $sofwareminuspath"
 
 if [ $software ]; then
+	v "Software version to download \"$sofwareminuspath\""
 	local sysinfo=$(ubus call router.system info)
 	json_load "$sysinfo"
 	json_select system
@@ -492,7 +495,7 @@ if [ $software ]; then
                 firmware=$firmware.y
         fi
 	if [ "$sofwareminuspath" == "${sofwareminuspath/$firmware/}" ] ; then
-		echo $software
+		v "Software \"$software\""
 		handle_provisioning uppgradeserver "0"
 	else
 		v "Will not update software, already up to date"
