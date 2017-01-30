@@ -246,7 +246,7 @@ change_to_vlan() {
 
 	# bring down old interface/device.
 	ifdown "${base_dev}"
-	logger -t dhcp_opt132 "bringing down old if: ${base_dev}"
+	v "option 132: bringing down old if: ${base_dev}"
 
 	# extract base name of device.
 	base_dev=$(echo ${base_dev} | cut -d. -f1)
@@ -260,15 +260,15 @@ change_to_vlan() {
 	uci set layer2_interface_vlan.@vlan_interface[-1].baseifname=${base_dev}
 	# and commit the change.
 	uci commit layer2_interface_vlan
-	logger -t dhcp_opt132 "committed update to file layer2_interface_vlan"
+	v "option 132: committed update to file layer2_interface_vlan"
 
 	# reload configuration files.
 	/etc/init.d/layer2_interface_vlan reload
-	logger -t dhcp_opt132 "reload layer2_interface_vlan config"
+	v "option 132: reload layer2_interface_vlan config"
 
 	# replace old interface (like eth0.1 with new eth0.101).
 	wan_if=$(uci get network.$3.ifname)
-	logger -t dhcp_opt132 "old network.${3}.ifname: $wan_if"
+	v "option 132: old network.${3}.ifname: $wan_if"
 
 	# loop through the string, remove any word close to "base_dev".
 	for word in ${wan_if}; do
@@ -286,7 +286,7 @@ change_to_vlan() {
 	uci set network.wan.ifname="${new_wan_if}"
 	# and commit the change.
 	uci commit network
-	logger -t dhcp_opt132 "committed update to file network: ifname=${new_wan_if}"
+	v "option 132: committed update to file network: ifname=${new_wan_if}"
 
 	# reboot into new if configuration.
 	v "Rebooting"
