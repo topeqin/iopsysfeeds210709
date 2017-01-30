@@ -30,13 +30,6 @@ v() {
 	[ "$VERBOSE" -ge 1 ] && logger -s -t $0[$$] "$@" 2>&1 | tee /dev/console
 }
 
-if [ -f $IUPMD5 ]; then
-	v "File $IUPMD5 exists"
-else
-	v "File $IUPMD5 did not exists"
-	touch $IUPMD5
-fi
-
 handle_ucitrack()
 {
 	local config="$1"
@@ -378,6 +371,13 @@ while [ -n "$1" ]; do
 	esac
 	shift;
 done
+
+if [ -f $IUPMD5 ]; then
+	v "File $IUPMD5 exists"
+else
+	v "File $IUPMD5 did not exists"
+	touch $IUPMD5
+fi
 
 # Process IUP related DHCP options #
 if [ -n "$1" ]; then
