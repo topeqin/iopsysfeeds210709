@@ -26,8 +26,15 @@ MAC=${MAC// /}
 #lower to upper Conversion
 MAC=$(echo $MAC | tr '[a-z]' '[A-Z]')
 
+# no verbose:	no output
+# -v		log to system log
+# -v -v		log to system log and console
+# -v -v -v	log to system log, console and stderr
 v() {
-	[ "$VERBOSE" -ge 1 ] && logger -s -t $0[$$] "$@" 2>&1 | tee /dev/console
+	[ "$VERBOSE" -eq 0 ] && return
+	[ "$VERBOSE" -eq 1 ] && logger -t $0[$$] "$@" && return
+	[ "$VERBOSE" -eq 2 ] && logger -s -t $0[$$] "$@" >/dev/console 2>&1 && return
+	[ "$VERBOSE" -eq 3 ] && logger -s -t $0[$$] "$@" 2>&1 | tee /dev/console && return
 }
 
 handle_ucitrack()
