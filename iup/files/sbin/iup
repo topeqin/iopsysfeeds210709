@@ -363,33 +363,15 @@ handle_option224()
 	fi
 }
 
-### MAIN ###
-while [ -n "$1" ]; do
-	case "$1" in
-		-v) export VERBOSE="$(($VERBOSE + 1))";;
-		-q) export VERBOSE="$(($VERBOSE - 1))";;
-		-*)
-			echo "Invalid option: $1"
-			exit 1
-		;;
-		*) break;;
-	esac
-	shift;
-done
 
-if [ -f $IUPMD5 ]; then
-	v "File $IUPMD5 exists, nothing to do"
-else
-	v "Creating file $IUPMD5"
-	touch $IUPMD5
-fi
-
-# Process IUP related DHCP options #
-if [ -n "$1" ]; then
+parse_dhcp_options()
+{
+	local the_json="$@"
+	# Process IUP related DHCP options #
 	local privopt224 privopt225 privopt226 vendorspecinf httpurl128
 	local tftp bootfile vlanid vlanpriority interface
 
-	json_load "$1"
+	json_load "$the_json"
 	json_get_var interface interface
 	json_get_var privopt224 privopt224
 	json_get_var privopt225 privopt225
@@ -427,7 +409,7 @@ if [ -n "$1" ]; then
 		fi
 	fi
 
-	# if we get vlanid and maybe vlanpriority, configure for that.
+	# vlanid (and vlanpriority)
 	if [ -n "$vlanid" -a -n "$vlanpriority" ]; then
 		v "dhcp option 132 vlanid: ${vlanid} vlanpriority: ${vlanpriority}"
 		change_to_vlan ${vlanid} ${vlanpriority} ${interface}
@@ -453,63 +435,94 @@ if [ -n "$1" ]; then
 		fi
 		uci commit
 	fi
+}
 
-	exit 0
-fi
 
-local iupurl
-local configurl
-local software
-local sofwareminuspath
+main()
+{
 
-config_load provisioning
-#check if iup should be used or if its overridden by /etc/config
-config_get configurl configserver	url
-config_get reboot configserver reboot
-config_get iupurl iup	urliup
+	while [ -n "$1" ]; do
+		case "$1" in
+			-v) export VERBOSE="$(($VERBOSE + 1))";;
+			-q) export VERBOSE="$(($VERBOSE - 1))";;
+			--dhcp-options)
+				shift
+				parse_dhcp_options "$@"
+				exit 0
+				;;
+			-*)
+				echo "Invalid option: $1"
+				exit 1
+			;;
+			*) break;;
+		esac
+		shift;
+	done
 
-if [ $configurl ]; then
-	handle_provisioning configserver "0"
-elif [ $iupurl ]; then
-	handle_provisioning iup "1"
-else
-	v "No Provisioning Server Found"
-	exit
-fi
-
-config_load provisioning
-config_foreach handle_provisioning subconfig "0"
-config_get software uppgradeserver url
-sofwareminuspath=${software##*/}
-
-if [ $software ]; then
-	v "Software version to download \"$sofwareminuspath\""
-	local sysinfo=$(ubus call router.system info)
-	json_load "$sysinfo"
-	json_select system
-	json_get_var firmware firmware
-	json_get_var filesystem filesystem
-        if [ "$filesystem" == "JFFS2" ] ; then
-                firmware=$firmware.w
-        else
-                firmware=$firmware.y
-        fi
-	if [ "$sofwareminuspath" == "${sofwareminuspath/$firmware/}" ] ; then
-		v "Software \"$software\""
-		handle_provisioning uppgradeserver "0"
+	if [ -f $IUPMD5 ]; then
+		v "File $IUPMD5 exists, nothing to do"
 	else
-		v "Will not update software, already up to date"
+		v "Creating file $IUPMD5"
+		touch $IUPMD5
 	fi
-fi
 
-if [ $CONF -eq 1 ]; then
-	mv "$IUPMD5.temp" $IUPMD5
-fi
 
-if [ "$reboot" == "on" ]; then
-	v "Rebooting"
-	export REBOOT_REASON=iup
-	/sbin/reboot
-fi
+	local iupurl
+	local configurl
+	local software
+	local sofwareminuspath
 
-rm -rf /var/run/iup.pid
+	config_load provisioning
+	#check if iup should be used or if its overridden by /etc/config
+	config_get configurl configserver	url
+	config_get reboot configserver reboot
+	config_get iupurl iup	urliup
+
+	if [ $configurl ]; then
+		handle_provisioning configserver "0"
+	elif [ $iupurl ]; then
+		handle_provisioning iup "1"
+	else
+		v "No Provisioning Server Found"
+		exit
+	fi
+
+	config_load provisioning
+	config_foreach handle_provisioning subconfig "0"
+	config_get software uppgradeserver url
+	sofwareminuspath=${software##*/}
+
+	if [ $software ]; then
+		v "Software version to download \"$sofwareminuspath\""
+		local sysinfo=$(ubus call router.system info)
+		json_load "$sysinfo"
+		json_select system
+		json_get_var firmware firmware
+		json_get_var filesystem filesystem
+	        if [ "$filesystem" == "JFFS2" ] ; then
+	                firmware=$firmware.w
+		else
+			firmware=$firmware.y
+		fi
+		if [ "$sofwareminuspath" == "${sofwareminuspath/$firmware/}" ] ; then
+			v "Software \"$software\""
+			handle_provisioning uppgradeserver "0"
+		else
+			v "Will not update software, already up to date"
+		fi
+	fi
+
+	if [ $CONF -eq 1 ]; then
+		mv "$IUPMD5.temp" $IUPMD5
+	fi
+
+	if [ "$reboot" == "on" ]; then
+		v "Rebooting"
+		export REBOOT_REASON=iup
+		/sbin/reboot
+	fi
+
+	rm -rf /var/run/iup.pid
+}
+
+main $@
