@@ -451,8 +451,8 @@ wait_for_default_gateway()
 {
 	local gateway
 	local device
-	local wait_time=60
-	local wait_interval=5
+	local wait_time=120
+	local wait_interval=10
 
 	while [ true ] ; do
 
