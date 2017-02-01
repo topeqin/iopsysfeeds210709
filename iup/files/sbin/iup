@@ -444,6 +444,35 @@ parse_dhcp_options()
 	fi
 }
 
+# wait_for_default_gateway to become reachable
+# return 0 if the default gateway is reachable
+# return 1 if the default gateway is not reachable after $wait_time
+wait_for_default_gateway()
+{
+	local gateway
+	local wait_time=60
+	local wait_interval=5
+
+	while [ true ] ; do
+
+		gateway=""
+		network_flush_cache
+		network_get_gateway gateway wan #true
+		if ping -q -w 1 -c 1 $gateway >/dev/null 2>&1 ; then
+			[ "$wait_time" -lt "60" ] && v "Default gateway $gateway is reachable"
+			sleep $wait_interval
+			return 0
+		fi
+
+		v "Waiting for default gateway. Countdown $wait_time seconds"
+		sleep $wait_interval
+		wait_time=$((wait_time - wait_interval))
+		[ "$wait_time" -le "0" ] && break # timer expired
+	done
+
+	return 1 # default gateway not reachable
+}
+
 
 main()
 {
@@ -465,6 +494,11 @@ main()
 		esac
 		shift;
 	done
+
+	if ! wait_for_default_gateway ; then
+		v "Default gateway is not reachable. Aborting iup."
+		exit 1
+	fi
 
 	if [ -f $IUPMD5 ]; then
 		v "File $IUPMD5 exists, nothing to do"
