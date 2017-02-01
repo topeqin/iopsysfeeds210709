@@ -37,19 +37,6 @@ v() {
 	[ "$VERBOSE" -eq 3 ] && logger -s -t $0[$$] "$@" 2>&1 | tee /dev/console && return
 }
 
-handle_ucitrack()
-{
-	local config="$1"
-	config_get init "$config" init
-	echo $init
-	config_get affects "$config" affects
-
-	for aff in $affects
-	do
-		config_foreach handle_ucitrack $aff
-	done
-}
-
 get_packages()
 {
 	local pack
@@ -61,35 +48,13 @@ get_packages()
 
 reload ()
 {
-	local reload
-	local initlist
-	local reload
 	local pack
 	pack=$(get_packages $1)
-	config_load ucitrack
+	v "Calling ubus call uci commit for $pack"
 	for packname in $pack
 	do
-		initlist=$(config_foreach handle_ucitrack $packname)
-		for reltest in $initlist
-		do
-			case $reload in
-				*" $reltest "*) v "already added to reload $reltest" ;;
-				*) reload="$reload"" ""$reltest" ;;
-			esac
-		done
+		ubus call uci commit '{"config":"'$packname'"}'
 	done
-	v "Init scripts to be run $reload"
-	for inittoreload in $reload
-	do
-		if [ "$inittoreload" != "iup" ]; then
-			/etc/init.d/$inittoreload restart
-		fi
-	done
-	#Ugly hack need to figure out something here
-	test_default_route
-	if [ "$?" -eq 1 ]; then
-		sleep 5
-	fi
 }
 
 handle_provisioning() {
