@@ -106,10 +106,7 @@ init_iup() {
 start_service() {
 	init_iup
 
-	test_default_route
-	if [ "$?" -eq 0 ]; then
-		/sbin/iup -v &
-	fi
+	/sbin/iup -v -v &
 }
 
 stop_service() {
