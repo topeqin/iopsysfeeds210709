@@ -450,15 +450,19 @@ parse_dhcp_options()
 wait_for_default_gateway()
 {
 	local gateway
+	local device
 	local wait_time=60
 	local wait_interval=5
 
 	while [ true ] ; do
 
 		gateway=""
+		device=""
 		network_flush_cache
 		network_get_gateway gateway wan #true
-		if ping -q -w 1 -c 1 $gateway >/dev/null 2>&1 ; then
+		network_get_device device wan
+		device="${device:+-I }$device"
+		if ping -q -w 1 -c 1 $device $gateway >/dev/null 2>&1 ; then
 			[ "$wait_time" -lt "60" ] && v "Default gateway $gateway is reachable"
 			sleep $wait_interval
 			return 0
