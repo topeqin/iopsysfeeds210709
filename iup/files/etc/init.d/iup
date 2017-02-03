@@ -31,6 +31,7 @@ management_interfaces() {
 }
 
 init_iup() {
+	local polling_enabled
 	local interval
 	local starttime
 	local nummber
@@ -44,6 +45,7 @@ init_iup() {
 	fi
 
 	config_load provisioning
+	config_get polling_enabled polling enabled on
 	config_get interval  polling  interval
 	config_get starttime  polling  starttime
 
@@ -81,6 +83,11 @@ init_iup() {
 	uci commit network
 	ubus call network reload
 	#################################################################
+
+	if [ $polling_enabled == "off" ]; then
+		sed -i "/\/sbin\/iup/d" $CRONPATH
+		return
+	fi
 
 	if [ $interval == "weekly" ]; then
 		interval="0"
