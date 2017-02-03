@@ -211,7 +211,7 @@ handle_Downloaded_file()
 				if [ $KEY ]; then
 					openssl enc -d -des-ede -nosalt -K $KEY -iv "0000000000000000" -in $IUPCONFFILES -out $IUPCONFFILES.tmp
 					if [ $? -eq 0 ]; then
-						v "Decrypted Content"
+						v "Decryption successful"
 						mv $IUPCONFFILES.tmp $IUPCONFFILES
 						handle_Downloaded_file
 					else
@@ -227,11 +227,12 @@ handle_Downloaded_file()
 			;;
 		esac
 	else
-		v "Image found will start flashing"
+		v "Downloaded file is a firmware, will start reflashing"
 		if [ "$defaultreset" -eq 1 ]; then
-			v "nuke config"
+			v "Not saving configuration over reflash"
 			 /sbin/sysupgrade -v -n $IUPCONFFILES
 		else
+			v "Saving configuration over reflash"
 			/sbin/sysupgrade -v $IUPCONFFILES
 		fi
 	fi
@@ -358,7 +359,7 @@ handle_option224()
 		if [ "$firmware_new" != "$firmware" ] ; then
 			v "Firmware found $url will start flashing"
 			v "Currently running firmware: \"$firmware\""
-			v "Newly received firmware: \"$firmware_new\""
+			v "Newly received firmware:    \"$firmware_new\""
 			wait_for_dns $url
 			v "Start flashing"
 			/sbin/sysupgrade -v $url &
@@ -504,9 +505,7 @@ main()
 		exit 1
 	fi
 
-	if [ -f $IUPMD5 ]; then
-		v "File $IUPMD5 exists, nothing to do"
-	else
+	if [ ! -f $IUPMD5 ]; then
 		v "Creating file $IUPMD5"
 		touch $IUPMD5
 	fi
@@ -528,7 +527,7 @@ main()
 	elif [ $iupurl ]; then
 		handle_provisioning iup "1"
 	else
-		v "No Provisioning Server Found"
+		v "No provisioning server configured"
 		exit
 	fi
 
