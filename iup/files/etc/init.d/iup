@@ -37,12 +37,7 @@ init_iup() {
 	local nummber
 	number=$RANDOM
 
-	if [ -f $CRONPATH ]; then
-		echo "File $CRONPATH exists"
-	else
-		echo  "File $CRONPATH did not exists"
-		touch $CRONPATH
-	fi
+	[ -f $CRONPATH ] || touch $CRONPATH
 
 	config_load provisioning
 	config_get polling_enabled polling enabled on
@@ -86,11 +81,16 @@ init_iup() {
 
 	if [ $polling_enabled == "off" ]; then
 		sed -i "/\/sbin\/iup/d" $CRONPATH
+		logger -s -t /etc/init.d/iup[$$] "Provisioning polling unscheduled"
 		return
 	fi
 
+	local log_hour=$starttime
+	local log_minute
+	local log_interval=$interval
 	if [ $interval == "weekly" ]; then
 		interval="0"
+		log_interval="$log_interval/sunday"
 	elif [ $interval == "hourly" ]; then
 		interval='*'
 		starttime='*'
@@ -98,9 +98,7 @@ init_iup() {
 		interval='*'
 	fi
         let "number %= $RANGE"
-	if grep -q "$starttime  \* \* \\$interval     /sbin/iup" "$CRONPATH" ; then
-		echo "IUP is scheduled $starttime  \* \* \\$interval "
-	else 
+	if ! grep -q "$starttime  \* \* \\$interval     /sbin/iup" "$CRONPATH" ; then
 		if grep -q "iup" "$CRONPATH" ; then
 			sed -i "/iup/d" $CRONPATH
 		fi
@@ -108,6 +106,8 @@ init_iup() {
 		fsync $CRONPATH
 		/etc/init.d/cron restart
 	fi
+	log_minute=$(awk '/\/sbin\/iup/ {print $1}' /etc/crontabs/root)
+	logger -s -t /etc/init.d/iup[$$] "Provisioning is scheduled at $log_hour:$log_minute $log_interval"
 }
 
 start_service() {
