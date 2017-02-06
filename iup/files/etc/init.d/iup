@@ -81,7 +81,7 @@ init_iup() {
 
 	if [ $polling_enabled == "off" ]; then
 		sed -i "/\/sbin\/iup/d" $CRONPATH
-		logger -s -t /etc/init.d/iup[$$] "Provisioning polling unscheduled"
+		logger -s -t /etc/init.d/iup[$$] "Provisioning polling unscheduled" 2>/dev/console
 		return
 	fi
 
@@ -107,7 +107,7 @@ init_iup() {
 		/etc/init.d/cron restart
 	fi
 	log_minute=$(awk '/\/sbin\/iup/ {print $1}' /etc/crontabs/root)
-	logger -s -t /etc/init.d/iup[$$] "Provisioning is scheduled at $log_hour:$log_minute $log_interval"
+	logger -s -t /etc/init.d/iup[$$] "Provisioning is scheduled at $log_hour:$log_minute $log_interval" 2>/dev/console
 }
 
 start_service() {
