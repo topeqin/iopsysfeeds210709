@@ -13,6 +13,7 @@ export IUPCONFFILES=/tmp/iup/sysupgrade.conffiles.tar.gz
 export IUPMD5=/etc/configchecksums
 export CONFILESLURP='/tmp/iup/*.conf'
 export IUPTEMP="/tmp/iup"
+export IUPUSERCFG="/tmp/iupusercfg"
 export INTERACTIVE=0
 export VERBOSE=0
 export CONF=1
@@ -55,6 +56,49 @@ reload ()
 	do
 		ubus call uci commit '{"config":"'$packname'"}'
 	done
+}
+
+save_usercfg()
+{
+	rm -f $IUPUSERCFG
+	touch $IUPUSERCFG
+
+	# save the firewall redirects/port forwarding
+	uci show firewall | grep redirect >> $IUPUSERCFG
+
+	# save the parental rules
+	local parentalrules=$(uci show firewall | grep -i "Parental Rule" | grep -o "rule\[.*\]")
+	for rule in $parentalrules ; do
+		rule=${rule//\[/\\[} # escape [
+		rule=${rule//]/\]} # escape ]
+		uci show firewall | grep "$rule" >>$IUPUSERCFG
+	done
+
+	# tranfsorm the output of uci show into a uci script
+
+	# prepend "set" to each line NOT containing "]="
+	# firewall.@redirect[0].enabled='1' becomes
+	# set firewall.@redirect[0].enabled='1'
+	sed -i '/.*]=.*/! s/.*/set \0/' $IUPUSERCFG
+
+	# prepend "add" to each line containing "]="
+	# AND keep only the package name (before the first dot) and section type (after equal)
+	# firewall.@redirect[0]=redirect becomes
+	# add firewall redirect
+	sed -i 's/\(.*\)\..*]=\(.*\)/add \1 \2/' $IUPUSERCFG
+
+	# change all the array indexes to [-1]
+	sed -i 's/\[.\?.\?.\?.\?\]/[-1]/' $IUPUSERCFG
+
+	# commit at the end of the script
+	echo "commit" >> $IUPUSERCFG
+}
+
+apply_usercfg()
+{
+	# run the uci batch script
+	cat $IUPUSERCFG | uci batch >/dev/null 2>&1
+	rm -f $IUPUSERCFG
 }
 
 handle_provisioning() {
@@ -148,6 +192,7 @@ handle_Downloaded_file()
 					reboot="off"
 					rm -rf $IUPTEMP
 				else
+					save_usercfg
 					cd $IUPTEMP
 					tar xvzf $IUPCONFFILES
 					for f in $CONFILESLURP
@@ -161,6 +206,7 @@ handle_Downloaded_file()
 					do
 						uci commit $packname
 					done
+					apply_usercfg
 					reboot=`uci -q  get provisioning.configserver.reboot`
 					if [ "$reboot" != "on" ]; then
 						reload $CONFILESLURP
