@@ -196,14 +196,14 @@ enableBSD() {
 					# 2.4G
 					nvram set ${wdev}_bsd_if_quality_policy="0 0x0 -100"
 					nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
-					nvram set ${wdev}_bsd_sta_select_policy="10 0 0 0 1 1 0 0 0 0x400"
+					nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x600"
 					nvram set ${wdev}_bsd_steer_prefix=$wdev
-					nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x1"
+					nvram set ${wdev}_bsd_steering_policy="0 5 3 0 0 0x10"
 				else
 					# 5G
-					nvram set ${wdev}_bsd_if_quality_policy="20 0x0 $rssi_threshold"
+					nvram set ${wdev}_bsd_if_quality_policy="40 0x0 $rssi_threshold"
 					nvram set ${wdev}_bsd_if_select_policy=$wdev_to_steer
-					nvram set ${wdev}_bsd_sta_select_policy="100 0 0 0 0 1 0 0 0 0x40"
+					nvram set ${wdev}_bsd_sta_select_policy="0 0 0 0 0 1 0 0 0 0x240"
 					nvram set ${wdev}_bsd_steer_prefix=$wdev
 					nvram set ${wdev}_bsd_steering_policy="80 5 3 $rssi_threshold 0 0x40"
 				fi
