@@ -39,6 +39,13 @@ v() {
 	[ "$VERBOSE" -eq 3 ] && logger -s -t $0[$$] "$@" 2>&1 | tee /dev/console && return
 }
 
+vv() {
+	VERBOSE="$(($VERBOSE + 1))"
+	v "$@"
+	VERBOSE="$(($VERBOSE - 1))"
+
+}
+
 get_packages()
 {
 	local pack
@@ -363,7 +370,7 @@ change_to_vlan() {
 	v "option 132: committed update to file network: ifname=${new_wan_if}"
 
 	# reboot into new if configuration.
-	v "Rebooting"
+	vv "Rebooting"
 	export REBOOT_REASON=iup
 	/sbin/reboot
 }
@@ -627,7 +634,7 @@ main()
 	fi
 
 	if [ "$reboot" == "on" ]; then
-		v "Rebooting"
+		vv "Rebooting"
 		export REBOOT_REASON=iup
 		/sbin/reboot
 	fi
