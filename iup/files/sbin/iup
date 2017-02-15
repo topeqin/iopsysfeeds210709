@@ -68,6 +68,9 @@ reload ()
 
 save_usercfg()
 {
+	local keep=$(uci -q get provisioning.configserver.keepuserconfig )
+	[ "$keep" == "on" ] || return
+
 	rm -f $IUPUSERCFG $IUPUSERCFG_WIFI
 	touch $IUPUSERCFG $IUPUSERCFG_WIFI
 
@@ -107,6 +110,9 @@ save_usercfg()
 
 apply_usercfg()
 {
+	local keep=$(uci -q get provisioning.configserver.keepuserconfig )
+	[ "$keep" == "on" ] || return
+
 	local index ifname network
 	local newindex newifname newnetwork
 
