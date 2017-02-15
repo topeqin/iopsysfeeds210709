@@ -14,6 +14,7 @@ export IUPMD5=/etc/configchecksums
 export CONFILESLURP='/tmp/iup/*.conf'
 export IUPTEMP="/tmp/iup"
 export IUPUSERCFG="/tmp/iupusercfg"
+export IUPUSERCFG_WIFI="/tmp/iupusercfg_wifi"
 export INTERACTIVE=0
 export VERBOSE=0
 export CONF=1
@@ -60,8 +61,8 @@ reload ()
 
 save_usercfg()
 {
-	rm -f $IUPUSERCFG
-	touch $IUPUSERCFG
+	rm -f $IUPUSERCFG $IUPUSERCFG_WIFI
+	touch $IUPUSERCFG $IUPUSERCFG_WIFI
 
 	# save the firewall redirects/port forwarding
 	uci show firewall | grep redirect >> $IUPUSERCFG
@@ -91,14 +92,68 @@ save_usercfg()
 	sed -i 's/\[.\?.\?.\?.\?\]/[-1]/' $IUPUSERCFG
 
 	# commit at the end of the script
-	echo "commit" >> $IUPUSERCFG
+	[ -s $IUPUSERCFG ] && echo "commit" >> $IUPUSERCFG
+
+	# save wireless interfaces
+	uci show wireless | grep "wifi-iface" > $IUPUSERCFG_WIFI
 }
 
 apply_usercfg()
 {
-	# run the uci batch script
+	local index ifname network
+	local newindex newifname newnetwork
+
+	# loop through all the user wifi-ifaces
+	for index in $(seq 0 99) ; do
+		ifname=$(sed -n 's/.*wifi-iface\['$index'\]\.ifname='\''\(.*\)'\''/\1/p' $IUPUSERCFG_WIFI )
+		[ "$ifname" ] || break
+		network=$(sed -n 's/.*wifi-iface\['$index'\]\.network='\''\(.*\)'\''/\1/p' $IUPUSERCFG_WIFI )
+
+		newindex=""
+		newifname=""
+		newnetwork=""
+
+		# loop through all the newly configured wifi-ifaces
+		for newindex in $(seq 0 99) ; do
+			newifname=$( uci show wireless | grep wifi-iface | sed -n 's/.*wifi-iface\['$newindex'\]\.ifname='\''\(.*\)'\''/\1/p' )
+			if [ -z "$newifname" ] ; then
+				# no newifname means that all the wifi-ifaces have already been parsed
+				newindex="-1"
+				break
+			fi
+			newnetwork=$(uci show wireless | grep wifi-iface | sed -n 's/.*wifi-iface\['$newindex'\]\.network='\''\(.*\)'\''/\1/p' )
+
+			# two wifi interfaces are the same if "ifname" and "network" are the same
+			if [ "$newifname" == "$ifname" ] && [ "$newnetwork" == "$network" ] ; then
+				break
+			fi
+		done
+
+		# prepend "set" to each line NOT containing "]="
+		# wireless.@wifi-iface[$index].<option>='<value>' becomes
+		# set wireless.@wifi-iface[$index].<option>='<value>'
+		sed -i '/.*]=.*/! s/\(.*\[\)'$index'\(\].*\)/set \1'$newindex'\2/' $IUPUSERCFG_WIFI
+
+		if [ "$newindex" == "-1" ] ; then
+			# prepend "add" to each line containing "]="
+			# AND keep only the package name (before the first dot) and section type (after equal)
+			# wireless.@wifi-iface[0]=wifi-iface becomes
+			# add wireless wifi-iface
+			sed -i 's/\(.*\)\..*\['$index'\]=\(.*\)/add \1 \2/' $IUPUSERCFG_WIFI
+		else
+			# no need to create a new uci section, just delete the line defining a new section
+			sed -i '/\(.*\)\..*\['$index'\]=\(.*\)/d' $IUPUSERCFG_WIFI
+		fi
+
+	done
+	# commit at the end of the script
+	[ -s $IUPUSERCFG_WIFI ] && echo "commit" >> $IUPUSERCFG_WIFI
+
+	# run the uci batch scripts
 	cat $IUPUSERCFG | uci batch >/dev/null 2>&1
-	rm -f $IUPUSERCFG
+	cat $IUPUSERCFG_WIFI | uci batch >/dev/null 2>&1
+
+	rm -f $IUPUSERCFG $IUPUSERCFG_WIFI
 }
 
 handle_provisioning() {
