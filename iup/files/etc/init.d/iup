@@ -113,7 +113,7 @@ init_iup() {
 start_service() {
 	init_iup
 
-	/sbin/iup -v -v &
+	/sbin/iup -v &
 }
 
 stop_service() {

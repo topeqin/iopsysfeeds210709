@@ -58,6 +58,19 @@ ifbaseexists()
 	return 0
 }
 
+check_mac_address()
+{
+	local baseifname="$1"
+	local vlan="$2"
+	local basemac
+	local mac=$(ifconfig -a | grep "^${baseifname}.${vlan} " | awk '{print $NF}')
+	local mac_in_use=$(ifconfig -a | grep "$mac" | grep -v "^${baseifname}.${vlan}[ ]")
+	if [ "$mac_in_use" ]; then
+		basemac=$(ifconfig -a | grep "^$baseifname " | awk '{print $NF}')
+		ifconfig ${baseifname}.${vlan} hw ether $basemac
+	fi
+}
+
 addbrcmvlan()
 {
 	local baseifname=$1
@@ -102,9 +115,11 @@ addbrcmvlan()
 					vlanctl --if-create $baseifname $vlan8021q
 				else
 					vlanctl --dhcp-bridged --if-create $baseifname $vlan8021q
+					check_mac_address $baseifname $vlan8021q
 				fi
 			else
 				vlanctl --routed --if-create $baseifname $vlan8021q
+				check_mac_address $baseifname $vlan8021q
 			fi
 
 			if [ "$bridge" -eq 1 ]; then
