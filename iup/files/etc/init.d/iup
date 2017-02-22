@@ -51,12 +51,12 @@ init_iup() {
 		local newreqopts=
 		local baseopts=
 		local reqopts="$(uci -q get network.$net.reqopts)"
-		local iupopts="66 67 128 224"
+		local iupopts="66 67 128 224 225 226"
 		local ropt iopt
 		config_get enabled iup enabled "on"
 		for ropt in $reqopts; do
 			case $ropt in
-				66|67|128|224) ;;
+				66|67|128|224|225|226) ;;
 				*) baseopts="$baseopts $ropt" ;;
 			esac
 		done
@@ -64,7 +64,7 @@ init_iup() {
 		reqopts="$baseopts $iupopts"
 		for ropt in $reqopts; do
 			case $ropt in
-				66|67|128|224) [ $enabled == "on" ] && newreqopts="$newreqopts $ropt" ;;
+				66|67|128|224|225|226) [ $enabled == "on" ] && newreqopts="$newreqopts $ropt" ;;
 				*) newreqopts="$newreqopts $ropt" ;;
 			esac
 		done
