@@ -351,11 +351,11 @@ wlmngr_finalize() {
 
 	# RADAR THRESHOLD VALUES #
 	local pcid="$(wlctl -i wl$idx revinfo | awk 'FNR == 2 {print}' | cut -d'x' -f2)"
-#	local isac="$(db get hw.$pcid.is_ac)"
-#	if [ "$isac" == "1" ]; then
-#		wlctl -i $device msglevel +radar +dfs
-#		#dhdctl -i $device dconpoll 200
-#	fi
+	local isac="$(db get hw.$pcid.is_ac)"
+	if [ "$isac" == "1" ]; then
+		wlctl -i $device msglevel +radar +dfs 2>/dev/null
+		dhdctl -i $device dconpoll 200 2>/dev/null
+	fi
 	local rdrthrs="$(db get hw.$pcid.radarthrs)"
 	if [ -n "$rdrthrs" ]; then
 		wlctl -i wl$idx radarthrs $rdrthrs
