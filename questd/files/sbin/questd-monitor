@@ -50,7 +50,7 @@ check_nproc()
 {
 	local nproc="$@"
 
-	if [ "$nproc" -ge "$NPROC_LIMIT" ]; then
+	if [ "$nproc" -ge "$NPROC_LIMIT" -o "$nproc" -eq "0" ]; then
 		NPROC_NFAIL=$((NPROC_NFAIL + 1))
 	else
 		NPROC_NFAIL=0
@@ -125,7 +125,7 @@ main()
 		# collect info
 		topline=$(top -bn1 | grep "/sbin/[q]uestd" | grep -v monitor)
 
-		nproc=$(echo "$topline" | wc -l)
+		nproc=$(echo -n "$topline" | awk 'END{print NR}')
 		check_nproc $nproc
 		restart_nproc=$?
 
