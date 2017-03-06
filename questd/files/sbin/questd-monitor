@@ -36,6 +36,7 @@ restart_questd()
 {
 	logger -s -t $0[$$] "Restarting questd. $NPROC_NFAIL $MEM_NFAIL $PCPU_NFAIL"
 
+	killall -q -KILL questd
 	/etc/init.d/quest stop
 	killall -q -KILL questd
 	/etc/init.d/quest start
