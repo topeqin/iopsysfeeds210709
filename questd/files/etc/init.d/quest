@@ -12,7 +12,7 @@ start_service() {
 	procd_set_param respawn
 	procd_close_instance
 
-	pidof questd-monitor > /dev/null 2>&1 || /sbin/questd-monitor &
+	pidof imonitor > /dev/null 2>&1 || /sbin/imonitor &
 }
 
 stop() {
