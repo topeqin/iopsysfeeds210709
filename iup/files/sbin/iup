@@ -63,6 +63,7 @@ reload ()
 	for packname in $pack
 	do
 		ubus call uci commit '{"config":"'$packname'"}'
+		sleep 1
 	done
 }
 
@@ -281,6 +282,7 @@ handle_Downloaded_file()
 					apply_usercfg
 					reboot=`uci -q  get provisioning.configserver.reboot`
 					if [ "$reboot" != "on" ]; then
+						sync
 						reload $CONFILESLURP
 					fi
 					rm -rf $IUPTEMP
