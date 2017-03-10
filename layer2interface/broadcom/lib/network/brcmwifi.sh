@@ -184,6 +184,8 @@ enableBSD() {
 	nvram set bsd_msglevel=0
 	nvram set bsd_status_poll=5
 	nvram set bsd_status=3
+	nvram set bsd_actframe=1
+	nvram set bsd_steer_no_deauth=1
 
 	for wdev in wl0 wl1; do
 		#if [ "$(uci -q get wireless.$wdev.band_steering)" == "1" ]; then
