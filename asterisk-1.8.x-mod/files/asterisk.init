@@ -40,6 +40,7 @@ start_service() {
 
 reload_service() {
 	asterisk -rx "config reload $CONFDIR/sip.conf"
+	sleep 1
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
 	asterisk -rx "brcm reload"
