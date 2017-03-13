@@ -19,14 +19,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
-BASE_PKG_VERSION:=4.2.0
-PKG_RELEASE:=RC7
+BASE_PKG_VERSION:=4.3.0
+PKG_RELEASE:=RC2
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
-PKG_SOURCE_VERSION:=ee66d278b90b931013f2bc1c7a69f24ef5c742ea
+PKG_SOURCE_VERSION:=416d2d1b811592bceb9b479988d0c96323bf4f12
 ifeq ($(CONFIG_ICE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
@@ -45,7 +45,7 @@ endif
 
 ###########################--RELEASE--################################
 
-include $(INCLUDE_DIR)/uclibc++.mk
+#include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/ice-client/Default
@@ -58,7 +58,7 @@ define Package/ice-client
 $(call Package/ice-client/Default)
 	TITLE:=ice-client
 	MENU:=1
-	DEPENDS:=+libopenssl +uclibcxx +libubus +ubus +ubusd +jshn +libubox +libpthread
+	DEPENDS:=+libopenssl +libstdccp +libubus +ubus +ubusd +jshn +libubox +libpthread
 endef
 
 define Package/ice-client/config
