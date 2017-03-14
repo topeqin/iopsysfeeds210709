@@ -58,7 +58,7 @@ define Package/ice-client
 $(call Package/ice-client/Default)
 	TITLE:=ice-client
 	MENU:=1
-	DEPENDS:=+libopenssl +libstdccp +libubus +ubus +ubusd +jshn +libubox +libpthread
+	DEPENDS:=+libopenssl +libstdcpp +libubus +ubus +ubusd +jshn +libubox +libpthread
 endef
 
 define Package/ice-client/config
