@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=3.0-2017-02-16
+PKG_VERSION:=3.0-2017-03-16
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=http://public.inteno.se:/icwmp.git
 PKG_SOURCE_PROTO:=git

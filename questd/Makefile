@@ -36,7 +36,7 @@ export QUESTD_CFLAGS
 
 define Package/questd
 	CATEGORY:=Utilities
-	DEPENDS:=+libuci +libubox +ubus +libpthread
+	DEPENDS:=+libuci +libubox +ubus +libpthread +libdbus
 	TITLE:=router info daemon
 endef
 
