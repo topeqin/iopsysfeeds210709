@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+
+USE_PROCD=0
+NAME=peripheral_led_normal
+
+start_service() {
+	ubus -t 2 wait_for led.status
+	ubus call led.status set '{"state":"ok"}'
+	ubus -t 2 wait_for button
+}
+
+
