@@ -1,0 +1,15 @@
+{
+	"description": [
+		{ "en" : "Fully Routed (NAT)" },
+		{ "sv" : "Fullt Omdirigerad (NAT)" }
+	],
+	"explanation": [
+		{ "en" : "" },
+		{ "sv" : "" }
+	],
+	"excluded_boards" : [
+		"*G*"
+	],
+	"credentials" : 0
+}
+

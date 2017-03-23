@@ -3,24 +3,38 @@
 . /lib/functions.sh
 include /lib/network
 
-[ "$INTERFACE" != "$(uci get layer2_interface_ethernet.Wan.ifname)" ] && exit
+ps | grep hotplug | grep button && exit
+
+MTK=0
+[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
+
+WANDEV="$(uci get layer2_interface_ethernet.Wan.ifname)"
+[ $MTK -eq 1 ] && WANDEV="eth0.2"
+
+[ "$INTERFACE" != "$WANDEV" ] && exit
+
+defroute=$(ip route | grep default | awk '{print$3}')
 
 case "$(uci get netmode.setup.curmode)" in
-		repeater|repeater_dualdown) echo "Preparing to switch mode" ;;
-		*) exit ;;
+		repeater*)
+			echo "Preparing to switch mode"
+		;;
+		*)
+			ping -c 1 -w 5 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
+			exit
+		;;
 esac
 
 get_wifi_wet_interface() {
-#	handle_interface() {
-#		config_get mode "$1" mode
-#		if [ "$mode" == "wet" ] ; then
-#			config_get ifname "$1" ifname
-#			echo "$ifname"
-#		fi
-#	}
-#	config_load wireless
-#	config_foreach handle_interface wifi-iface "$device"
-	echo "wl1"
+	handle_interface() {
+		config_get mode "$1" mode
+		if [ "$mode" == "sta" -o "$mode" == "wet" ] ; then
+			config_get ifname "$1" ifname
+			echo "$ifname"
+		fi
+	}
+	config_load wireless
+	config_foreach handle_interface wifi-iface "$device"
 }
 
 get_wifi_iface_cfgstr() {
@@ -32,39 +46,44 @@ get_wifi_iface_cfgstr() {
 	config_foreach get_cfgno wifi-iface $1 $2
 }
 
+link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
+[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
+
 case "$ACTION" in
 	add|register)
+		[ "$link" == "down" ] && return
 		echo "Autoswitch to Extender mode" > /dev/console
 		sleep 2
+		wetif="$(get_wifi_wet_interface)"
 		# remove wifi client interface
 		case "$(uci get netmode.setup.curmode)" in
-			repeater_dualdown)
-				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).disabled=1
-			;;
-			repeater)
-				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).mode=ap
+			repeater*)
+				uci -q set $(get_wifi_iface_cfgstr $wetif).disabled=1
 			;;
 		esac
 		uci commit wireless
 		#add wan ethernet port
-		uci set network.wan.ifname="$(echo $(uci get layer2_interface_ethernet.Wan.ifname) $(uci get network.wan.ifname) | tr ' ' '\n' | sort -u | tr '\n' ' ')"
-		ubus call uci commit '{"config":"network"}'
+		uci set network.wan.ifname="$(echo $WANDEV $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$wetif //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
+		uci commit network
+		ubus call network reload
+		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
 	;;
 	remove|unregister)
+		[ "$link" == "up" ] && return
 		echo "Autoswitch to Repeater mode" > /dev/console
 		sleep 2
+		wetif="$(get_wifi_wet_interface)"
 		# add wifi client interface
 		case "$(uci get netmode.setup.curmode)" in
-			repeater_dualdown)
-				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).disabled=0
-			;;
-			repeater)
-				uci -q set $(get_wifi_iface_cfgstr $(get_wifi_wet_interface)).mode=wet
+			repeater*)
+				uci -q set $(get_wifi_iface_cfgstr $wetif).disabled=0
 			;;
 		esac
 		uci commit wireless
 		#remove wan ethernet port
-		uci set network.wan.ifname="$(uci get network.wan.ifname | sed 's/$/ /' | sed -r "s/`uci get layer2_interface_ethernet.Wan.ifname` //g")"
-		ubus call uci commit '{"config":"network"}'
+		uci set network.wan.ifname="$(echo $wetif $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$WANDEV //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
+		uci commit network
+		ubus call network reload
+		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
 	;;
 esac

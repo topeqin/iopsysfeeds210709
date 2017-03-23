@@ -1,0 +1,39 @@
+[ "$INTERFACE" != "wan" ] && exit
+ip="$(ip a show $DEVICE | awk '/inet / {print $2; exit}')"
+ip="${ip%%/*}"
+
+[ -z "$ip" ] && exit
+
+handle_rule() {
+	local name enabled
+	enabled=$2
+	config_get name $1 name
+	if [ "$name" == "Repeater-Management" ]; then
+		uci set firewall.$1.enabled="$enabled"
+		uci commit firewall
+	fi
+}
+
+set_enabled() {
+	local enabled=$1
+	config_load firewall
+	config_foreach handle_rule rule $enabled
+}
+
+test_ip() {
+	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
+		set_enabled 1
+	else
+		set_enabled 0
+	fi
+}
+	
+
+case "$(uci -q get netmode.setup.curmode)" in
+                repeater*)
+			test_ip
+                ;;
+                *)
+			exit
+                ;;
+esac

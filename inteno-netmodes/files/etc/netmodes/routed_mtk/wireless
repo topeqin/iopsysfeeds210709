@@ -1,0 +1,40 @@
+config wifi-status 'status'
+	option wlan '1'
+	option wps '1'
+	option sched_status '0'
+	option schedule '0'
+
+config wifi-device  ra0
+	option band b
+	option channel  1
+	option bandwidth '20'
+	option hwmode   11n
+	option htmode   HT20
+	option country 'DE'
+	option beamforming 0
+
+config wifi-iface
+	option device   ra0
+	option network  lan
+	option mode     ap
+	option ssid     Inteno-$BSSID4
+	option encryption psk2
+	option key      $WPAKEY
+
+config wifi-device  rai0
+	option band a
+	option channel  36
+	option bandwidth '80'
+	option hwmode   11ac
+	option htmode   VHT80
+	option country 'DE'
+	option beamforming 0
+
+config wifi-iface
+	option device   rai0
+	option network  lan
+	option mode     ap
+	option ssid     Inteno-$BSSID4
+	option encryption psk2
+	option key      $WPAKEY
+

@@ -10,7 +10,8 @@
 	"excluded_boards" : [
 		"DG15*",
 		"DG40*",
-		"EG40*"
+		"EG40*",
+		"EX40*"
 	],
 	"acl" : [
 		"admin"

@@ -72,7 +72,7 @@ populate_netmodes() {
 
 			case "$mode" in
 				repeater*)
-					wlctl -i wl1 ap >/dev/null 2>&1 || continue
+					wlctl -i wl1 ap >/dev/null 2>&1 || ifconfig rai0 2>/dev/null | grep -q rai0 || continue
 				;;
 			esac
 
@@ -137,6 +137,8 @@ populate_netmodes() {
 
 			json_get_var cred credentials
 			uci -q set netmode.$mode.askcred="$cred"
+			json_get_var ulb uplink_band
+			uci -q set netmode.$mode.uplink_band="$ulb"
 			json_get_var reboot reboot
 			uci -q set netmode.$mode.reboot="$reboot"
 	done
@@ -154,8 +156,17 @@ switch_netmode() {
 	rm -f /etc/config/DETAILS
 	sync
 	local reboot=$(uci -q get netmode.$curmode.reboot)
+	local askcred=$(uci -q get netmode.$curmode.askcred)
 	if [ "$reboot" == "0" ]; then
 		/etc/init.d/enviroment reload
+		if [ "$askcred" == "1" -a -f /tmp/wifi_imported_credentials ]; then
+			wifi import "$(cat /tmp/wifi_imported_credentials)"
+			rm -f /tmp/wifi_imported_credentials
+			ubus call network reload
+			wifi reload nodat
+			sleep 5
+			ubus call router.network reload
+		fi
 	else
 		reboot &
 	fi
@@ -167,6 +178,10 @@ start_service() {
 
 reload_service() {
         switch_netmode
+
+	# set default JUCI page to overview
+	uci -q set juci.juci.homepage="overview"
+	uci commit juci
 }
 
 service_triggers()
