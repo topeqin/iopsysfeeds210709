@@ -142,6 +142,12 @@ populate_netmodes() {
 			json_get_var reboot reboot
 			uci -q set netmode.$mode.reboot="$reboot"
 	done
+
+	config_get curmode setup curmode
+	[ -d /etc/netmodes/$curmode ] || {
+		[ "$(db -q get hw.board.hardware)" == "EX400" ] && uci -q set netmode.setup.curmode="routed_mtk" || uci -q set netmode.setup.curmode="routed_brcm"
+	}
+
 	uci commit netmode
 }
 
