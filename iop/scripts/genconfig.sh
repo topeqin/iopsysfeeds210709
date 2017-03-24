@@ -214,6 +214,12 @@ function genconfig {
 			cp $CONFIGPATH/config .config
 		fi
 
+		# Add target diff
+		local target_conf=target/linux/${target/_/-}/config
+		if [ -f $target_conf ]; then
+			cat $target_conf >> .config
+		fi
+
 		# Apply profile diff to master config if selected
 		if [ -n "$PROFILE" ]; then
 			if [ -e "$CONFIGPATH/$PROFILE.diff" ]; then
