@@ -1,88 +1,125 @@
 #!/bin/bash
 
-# Intermediate repo for core packages
-core_repo=git@public.inteno.se:iopsys-cc-core.git
-
-# Repo to which core packages should be imported
-import_repo=git@public.inteno.se:feed-inteno-openwrt.git
-import_branch=openwrt-cc-core
-
-
-function export_core {
-
-    local path=$1
-
-    # export paths to their own branches in an intermediate repo
-    repo=$(basename $path)
-    git subtree push -q --prefix=$path $core_repo $repo
-}
-
-
-function update_core {
-    
-    local path=$1
-    
-    if [ ! -d $topdir/feeds/feed_inteno_openwrt ]; then
-	echo "You need to run ./iop feeds_update"
-	exit -1
-    fi
-
-    # ensure that we are synced with the remote
-    cd $topdir/feeds/feed_inteno_openwrt
-    git checkout $import_branch
-    git pull
-
-    # first install subtrees if they don't already exist
-    repo=$(basename $path)
-    git subtree add --prefix=$repo $core_repo $repo
-    
-    # install subtrees in feed from intermediate repo
-    repo=$(basename $path)
-    echo "Exporting $repo"
-    git subtree pull -q -m "Exporting $repo" --prefix=$repo $core_repo $repo
-
-    # update import repo sync branch
-    git push origin $import_branch
-}
-
-function display_help {
-    
-    echo "Usage: ./iop export_core -e path/to/package"
-}
-
 function extract_core {
+	initial_commit=1427738ac4b77f474999ae21af1a8b916468df36
+	topdir=$(pwd)
 
-# Dir of script location
-topdir=$(pwd)
+	# Paths to packages that should be exported.
+	paths+='package/network/services/samba36 '
+	paths+='package/network/services/dnsmasq '
+	paths+='package/network/services/dropbear '
+	paths+='package/network/services/odhcpd '
+	paths+='package/network/config/firewall '
+	paths+='package/network/config/netifd '
+	paths+='package/network/config/qos-scripts '
+	paths+='package/network/utils/iproute2 '
+	paths+='package/network/utils/curl '
+	paths+='package/utils/busybox '
 
+	function print_usage {
+		echo "Usage: $0 extract_core"
+		echo "  -p <path-to-package> | default"
+		echo "  -r <import-repo>"
+		echo "  -b <import-branch>"
+		echo ""
+		echo "Example: $0 extract_core"
+		echo "  -p package/utils/busybox"
+		echo "  -r feeds/feed_inteno_openwrt"
+		echo "  -b devel"
+	}
 
-if [ $# -eq 0 ]; then
-    display_help
-    exit -1
-fi
+	function orphan_branch {
+		local branch=$1
 
-# Execute user command
-while getopts "he:" opt; do
-    case $opt in
-	e)
-	    path=${OPTARG}
-	    echo "Extracting ${path} from core to ${import_repo}:${import_branch}"
-	    export_core $path
-	    update_core $path
-	    ;;
-	h)
-	    display_help
-	    exit 0
-	    ;;
-	\?)
-	    display_help
-	    exit -1
-	    ;;
-	esac
-done
+		git checkout --orphan $branch
+		git rm -rf --cached *
+		git rm -rf --cached .empty
+		rm -rf *
+		rm -rf .empty
+	}
 
+	function export_core {
+		local path=$1
+
+		echo "Extracting ${path} from core to ${import_repo}:${import_branch}"
+
+		# Generate patches from start of openwrt repo.
+		mkdir -p patches
+		repo=$(basename $path)
+		git format-patch $initial_commit $path -o patches
+		cd $import_repo
+		
+		if [ -n "$(git rev-parse -q --verify remotes/origin/$repo)" ]; then
+			# Create temporary branch to apply patches on.
+			# We need to do this as git am does not like it
+			# when patches have already been applied.
+			orphan_branch tmp
+			git am $topdir/patches/*
+			
+			# Rebase and merge.
+			git rebase origin/$repo
+			git checkout $repo
+			git merge tmp
+			git br -d tmp
+		else
+			# Remote branch does not exist for packet so create it.
+			orphan_branch $repo
+			git am $topdir/patches/*		
+		fi
+
+		git push origin $repo
+		
+		# Merge the package branch into the main branch.
+		git checkout $import_branch
+		git merge $repo -m "Syncing $repo"
+		git push origin $import_branch
+		git br -d $repo
+		
+		rm -rf $topdir/patches
+		cd $topdir
+	}
+
+	# Execute user command
+	while getopts "p:r:b:h" opt; do
+		case $opt in
+			p)
+				export_path=${OPTARG}
+				;;
+			r)
+				import_repo=${OPTARG}
+				;;
+			b)
+				import_branch=${OPTARG}
+				;;
+			h)
+				print_usage
+				exit 1
+				;;
+			\?)
+				print_usage
+				exit 1
+				;;
+		esac
+	done
+
+	if [ ! -n "$export_path" ] || [ ! -n "$import_repo" ] || [ ! -n "$import_branch" ]; then
+   		print_usage
+		exit 1
+	fi
+
+	if [ "$export_path" == "default" ]; then
+		echo "Extracting default packages:"
+		for p in $paths; do
+			export_core $p
+
+		done
+	else
+		export_core $export_path
+	fi
+
+	exit 0
 }
 
-register_command "extract_core" "Extract core package to feeds_inteno_openwrt"
+register_command "extract_core" "Extract core package to separate feed"
 
 
