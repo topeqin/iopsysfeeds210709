@@ -58,12 +58,12 @@ build_ice_consumer() {
 	icebasever=$(grep -w "BASE_PKG_VERSION:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
 	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
 	iceversion=$icebasever$icerelease
-	ssh $SERVER "ls $FPATH/ice-client-$profile-$iceversion-$icecommith.tar.gz" && return
+	ssh $SERVER "ls $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
 	cd ./build_dir/target-*_uClibc-0.9.33.*/ice-client-$icebasever/ipkg-*
-	tar -czv  ice-client -f ice-client-$profile-$iceversion-$icecommith.tar.gz
-	scp ice-client-$profile-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
-	cp ice-client-$profile-$iceversion-$icecommith.tar.gz $curdir/
-	rm -f ice-client-$profile-$iceversion-$icecommith.tar.gz
+	tar -czv  ice-client -f ice-client-$target-$iceversion-$icecommith.tar.gz
+	scp ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
+	cp ice-client-$target-$iceversion-$icecommith.tar.gz $curdir/
+	rm -f ice-client-$target-$iceversion-$icecommith.tar.gz
 	cd $curdir
 }
 
@@ -74,6 +74,7 @@ function generate_tarballs {
 
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment
 
+    target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
     sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
     curdir=$(pwd)
