@@ -47,7 +47,7 @@ function extract_core {
 		mkdir -p patches
 		repo=$(basename $path)
 		dir=$(dirname $path)
-		git format-patch $initial_commit $path -o patches #> /dev/null
+		git format-patch $initial_commit $path -o patches
 
 		# Remove dirname from patches to commit the packages to the
 		# top directory in the destination repo.
@@ -67,7 +67,7 @@ function extract_core {
 			
 			# Rebase and merge.
 			git rebase origin/$repo
-			git checkout $repo
+			git checkout --track -b $repo origin/$repo
 			git merge tmp
 			git br -d tmp
 		else
