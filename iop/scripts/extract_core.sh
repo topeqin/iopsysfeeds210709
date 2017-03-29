@@ -46,7 +46,16 @@ function extract_core {
 		# Generate patches from start of openwrt repo.
 		mkdir -p patches
 		repo=$(basename $path)
-		git format-patch $initial_commit $path -o patches
+		dir=$(dirname $path)
+		git format-patch $initial_commit $path -o patches #> /dev/null
+
+		# Remove dirname from patches to commit the packages to the
+		# top directory in the destination repo.
+		ls patches | while read line; do
+			sdir=$(echo "$dir/" | sed 's/\//\\\//g')
+			sed -i "s/$sdir//g" patches/$line
+		done
+		
 		cd $import_repo
 		
 		if [ -n "$(git rev-parse -q --verify remotes/origin/$repo)" ]; then
