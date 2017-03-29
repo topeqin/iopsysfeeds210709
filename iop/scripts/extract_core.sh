@@ -2,6 +2,7 @@
 
 function extract_core {
 	initial_commit=1427738ac4b77f474999ae21af1a8b916468df36
+	patch_dir=extract_core_patches
 	topdir=$(pwd)
 
 	# Paths to packages that should be exported.
@@ -44,16 +45,16 @@ function extract_core {
 		echo "Extracting ${path} from core to ${import_repo}:${import_branch}"
 
 		# Generate patches from start of openwrt repo.
-		mkdir -p patches
+		mkdir -p $patch_dir
 		repo=$(basename $path)
 		dir=$(dirname $path)
-		git format-patch $initial_commit $path -o patches
+		git format-patch $initial_commit $path -o $patch_dir
 
 		# Remove dirname from patches to commit the packages to the
 		# top directory in the destination repo.
-		ls patches | while read line; do
+		ls $patch_dir | while read line; do
 			sdir=$(echo "$dir/" | sed 's/\//\\\//g')
-			sed -i "s/$sdir//g" patches/$line
+			sed -i "s/$sdir//g" $patch_dir/$line
 		done
 		
 		cd $import_repo
@@ -63,7 +64,7 @@ function extract_core {
 			# We need to do this as git am does not like it
 			# when patches have already been applied.
 			orphan_branch tmp
-			git am $topdir/patches/*
+			git am $topdir/$patch_dir/*
 			
 			# Rebase and merge.
 			git rebase origin/$repo
@@ -73,7 +74,7 @@ function extract_core {
 		else
 			# Remote branch does not exist for packet so create it.
 			orphan_branch $repo
-			git am $topdir/patches/*		
+			git am $topdir/$patch_dir/*
 		fi
 
 		git push origin $repo
@@ -84,7 +85,7 @@ function extract_core {
 		git push origin $import_branch
 		git br -d $repo
 		
-		rm -rf $topdir/patches
+		rm -rf $topdir/$patch_dir
 		cd $topdir
 	}
 
