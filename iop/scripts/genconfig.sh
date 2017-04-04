@@ -215,7 +215,8 @@ function genconfig {
 		fi
 
 		# Add target diff
-		local target_conf=target/linux/${target/_/-}/config
+		local target_name=$(echo $target | sed 's/_/-/g')
+		local target_conf=target/linux/${target_name}/config
 		if [ -f $target_conf ]; then
 			cat $target_conf >> .config
 		fi
