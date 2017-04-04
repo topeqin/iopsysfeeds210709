@@ -196,8 +196,7 @@ case "$1" in
 				uci commit wireless
 				json_select ..
 				if [ $amount_a -ne 0 -o $amount_b -ne 0 ]; then
-					#/sbin/wifi apply &
-					echo "" >/tmp/asdf
+					/sbin/wifi apply &
 				else
 					/sbin/wifi reload nodat >/dev/null 2>&1 &
 				fi
