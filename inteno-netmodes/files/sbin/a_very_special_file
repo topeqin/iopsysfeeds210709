@@ -1,0 +1,171 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+. /lib/functions.sh
+
+get_if_creds() {
+	local section=$1
+	local network=$2
+	local net dev ssid key encryption band
+	config_get net $section "network"
+	if [ "$net" == "$network" ]; then
+		json_add_object
+		config_get dev $section "device"
+		band="$(uci -q get wireless.$dev.band)"
+		config_get ssid $section ssid
+		config_get key $section key
+		config_get encryption $section encryption
+		[ "$ssid" == "" -o "$band" == "" ] && return
+		json_add_string "ssid" "$ssid"
+		json_add_string "band" "$band"
+		json_add_string "key" "$key"
+		json_add_string "encryption" "$encryption"
+		json_close_object
+	fi
+}
+
+validate_file() {
+	local file="$1"
+	local real="$(readlink -f `dirname $file`)"
+	real="${real}/`basename $file`"
+	case "$real" in
+		/tmp/*)
+			touch $real && return 0 || return 1
+		;;
+		*)
+			return 1
+		;;
+	esac
+}
+
+write_error(){
+	json_init
+	json_add_string "status" "error: $1"
+	json_dump
+	exit 1
+}
+
+get_wifi_device_from_band(){
+	local section="$1"
+	local band="$2"
+	local __ret="$3"
+	local b
+	config_get b $section "band"
+	if [ "$band" == "$b" ]; then
+		eval "export -- \"$__ret=$section\""
+	fi
+}
+
+get_device(){
+	local band="$1"
+	config_foreach get_wifi_device_from_band "wifi-device" "$band" "$2"
+}
+
+count_wifi_ifaces() {
+	local section="$1"
+	local dev="$2"
+	local __ret="$3"
+	local device mode
+	config_get device "$section" "device"
+	config_get mode "$section" "mode"
+	if [ "$device" == "$dev" -a "$mode" == "ap" ]; then
+		eval "export -- \"$__ret=$((__ret+1))\""
+	fi
+}
+
+get_amount_of_ifaces() {
+	local band="$1"
+	local __ret=$2
+	config_load "wireless"
+	get_device "$band" dev
+	[ "$dev" == "" ] && exit 1
+	config_foreach count_wifi_ifaces "wifi-iface" "$dev" "$__ret"
+}
+
+
+set_wireless_values() {
+	local iface_num="$1"
+	local ssid="$2"
+	local key="$3"
+	local encryption="$4"
+	local band="$5"
+	local mode="$6"
+	local dev
+	get_device "$band" dev
+	if ! uci -q get wireless.@wifi-iface[$iface_num] >/dev/null 2>&1; then
+		uci add wireless wifi-iface >/dev/null 2>&1
+	fi
+	#TODO: get network dynamicaly
+	uci set wireless.@wifi-iface[$iface_num].network="wan"
+	uci set wireless.@wifi-iface[$iface_num].mode="$mode"
+	uci set wireless.@wifi-iface[$iface_num].ssid="$ssid"
+	uci set wireless.@wifi-iface[$iface_num].device="$dev"
+	uci set wireless.@wifi-iface[$iface_num].key="$key"
+	uci set wireless.@wifi-iface[$iface_num].encryption="$encryption"
+}
+
+clean_wifi_ifaces() {
+	index=$1
+	while uci -q get wireless.@wifi-iface[$index] >/dev/null 2>&1; do
+		if [ "$(uci -q get wireless.@wifi-iface[$index].mode)" == "ap" ]; then
+			uci -q delete wireless.@wifi-iface[$index]
+		fi
+		index=$((index+1))
+	done
+}
+
+#a_very_special_function() {
+	local file=$1
+
+	json_load "`cat $file`"
+	json_select "wifi_ifaces"
+
+	# 0 switch netmode if needed
+	local curmode
+	config_load netmode
+	config_get curmode setup curmode
+	case $curmode in
+		*repeater*);;
+		*)
+			uci set netmode.setup.curmode="repeater_mtk_5g_up_dual_down"
+			uci commit netmode
+			/etc/init.d/netmode reload
+			# maybe sleep, maybe not
+			;;
+	esac
+
+	# 1 save current apcli settings.. ?
+	# 2 which interface should become apcli ?
+	local apcliband="a"
+	case $curmode in
+		*_2g_*) apcliband="b";;
+	esac
+	i=1
+
+	local dummy band
+	while json_get_var dummy $i; do
+		json_select $i
+		json_get_var band band
+		[ "$apcliband" == "$band" ] && break
+	done
+	[ "$apcliband" == "$band" ] || exit
+
+	json_get_var ssid ssid
+	json_get_var key key
+	json_get_var encryption encryption
+	local wifi_iface_num=$(uci -q show wireless | grep ".mode='wet'"  | sed 's/.*\[\([0-9]\)\].*/\1/')
+	[ -z "$wifi_iface_num" ] && exit
+
+	set_wireless_values $wifi_iface_num "$ssid" "$key" "$encryption" "$band" "wet"
+	uci commit wireless
+	wifi apply
+	# 3 compare old&new apcli settings
+	# 4 apply if changed
+	# 5 ?? call wifi apply
+
+#}
+
+
+#a_very_special_function $file >/dev/null 2>&1 &
+#a_very_special_file $file >/dev/null 2>&1 &
+
