@@ -3,7 +3,7 @@
 . /usr/share/libubox/jshn.sh
 . /lib/functions.sh
 
-get_creds() {
+get_if_creds() {
 	local section=$1
 	local network=$2
 	local net dev ssid key encryption band
@@ -115,11 +115,11 @@ clean_wifi_ifaces() {
 
 case "$1" in
 	list)
-		echo '{ "extract_creds": { "network": "str", "file": "str" }, "set_down_creds": { "file": "str" } }'
+		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds_uplink": { "file": "str" }, "set_creds_downlink": { "file": "str" } }'
 	;;
 	call)
 		case "$2" in
-			extract_creds)
+			get_creds)
 				#TODO: if not routed exit
 				local curmode="$(uci -q get netmode.setup.curmode)"
 				case $curmode in
@@ -135,7 +135,7 @@ case "$1" in
 				json_init
 				json_add_array "wifi-ifaces"
 				config_load wireless
-				config_foreach get_creds "wifi-iface" "$network"
+				config_foreach get_if_creds "wifi-iface" "$network"
 				json_close_array
 
 				if [ "$file" == "" ]; then
@@ -147,7 +147,12 @@ case "$1" in
 				json_add_string "status" success
 				json_dump
 			;;
-			set_down_creds)
+			set_creds_uplink)
+				json_init
+				json_add_string "status" success
+				json_dump
+			;;
+			set_creds_downlink)
 				pidof wifi >/dev/null 2>&1 && write_error "wifi script already running"
 				local file
 				read input
