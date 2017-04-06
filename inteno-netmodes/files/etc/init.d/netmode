@@ -160,8 +160,15 @@ populate_netmodes() {
 
 switch_netmode() {
 	[ -f /etc/config/netmode -a -d $modedir ] || return
+	local curmode conf repeaterready
 
 	config_load netmode
+
+	config_get repeaterready setup repeaterready "0"
+	if [ "$repeaterready" == "1" ] ; then
+		uci -q set netmode.setup.repeaterredy="0"
+		uci commit netmode
+	fi
 
 	config_get curmode setup curmode
 	config_get conf $curmode conf
