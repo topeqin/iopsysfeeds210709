@@ -123,8 +123,7 @@ case "$1" in
 				#TODO: if not routed exit
 				local curmode="$(uci -q get netmode.setup.curmode)"
 				case $curmode in
-					*repeater*);;
-					*) write_error "not in repeater mode";;
+					*repeater*) write_error "not in repeater mode";;
 				esac
 				local network file input
 				read input
