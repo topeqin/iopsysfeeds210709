@@ -28,7 +28,6 @@ validate_file() {
 	local file="$1"
 	local real="$(readlink -f `dirname $file`)"
 	real="${real}/`basename $file`"
-	echo "$real" >>/tmp/uci.dbg
 	case "$real" in
 		/tmp/*)
 			touch $real && return 0 || return 1
@@ -107,10 +106,10 @@ set_wireless_values() {
 clean_wifi_ifaces() {
 	index=$1
 	while uci -q get wireless.@wifi-iface[$index] >/dev/null 2>&1; do
-		while [ "$(uci -q get wireless.@wifi-iface[$index].mode)" != "ap" ]; do
-			index=$((index+1))
-		done
-		uci -q delete wireless.@wifi-iface[$index]
+		if [ "$(uci -q get wireless.@wifi-iface[$index].mode)" == "ap" ]; then
+			uci -q delete wireless.@wifi-iface[$index]
+		fi
+		index=$((index+1))
 	done
 }
 
@@ -149,9 +148,10 @@ case "$1" in
 				json_dump
 			;;
 			set_down_creds)
+				pidof wifi >/dev/null 2>&1 && write_error "wifi script already running"
 				local file
 				read input
-				json_load $input
+				json_load "$input"
 				json_get_var file file
 				validate_file "$file" || write_error "invalid filename (\"$file\"), file must be in /tmp and exist"
 				json_load "`cat $file`" || write_error "invalid file content"
@@ -184,9 +184,12 @@ case "$1" in
 							write_error "unknown_error"
 					esac
 					#skip ifaces not in ap mode
-					while uci -q get wireless.@wifi-iface[$wifi_iface_num] >/dev/null &&
-							[ "$(uci -q get wireless.@wifi-iface[$wifi_iface_num].mode)" != "ap" ]; do
-						wifi_iface_num=$((wifi_iface_num+1))
+					while uci -q get wireless.@wifi-iface[$wifi_iface_num] >/dev/null; do
+						if [ "$(uci -q get wireless.@wifi-iface[$wifi_iface_num].mode)" != "ap" ]; then
+							wifi_iface_num=$((wifi_iface_num+1))
+						else
+							break
+						fi
 					done
 					set_wireless_values $wifi_iface_num "$ssid" "$key" "$encryption" "$band"
 					wifi_iface_num=$((wifi_iface_num+1))
@@ -196,11 +199,11 @@ case "$1" in
 				uci commit wireless
 				json_select ..
 				if [ $amount_a -ne 0 -o $amount_b -ne 0 ]; then
-					/sbin/wifi apply &
+					#/sbin/wifi apply &
+					/sbin/wifi reload nodat >/dev/null 2>&1 &
 				else
 					/sbin/wifi reload nodat >/dev/null 2>&1 &
 				fi
-				pidof wifi >/dev/null 2>&1 && write_error "wifi script already running"
 				json_init
 				json_add_string "status" "success"
 				json_dump
