@@ -190,8 +190,25 @@ switch_netmode() {
 	fi
 }
 
+start_client_listener() {
+	local curmode
+	config_load netmode
+
+	config_get curmode setup curmode
+
+	case "$mode" in
+		repeater*)
+			killall -SIGKILL client_listener >/dev/null 2>&1
+		;;
+		*)
+			pidof client_listener || /sbin/client_listener &
+		;;
+	esac
+}
+
 start_service() {
 	populate_netmodes
+	start_client_listener
 }
 
 reload_service() {
@@ -200,6 +217,11 @@ reload_service() {
 	# set default JUCI page to overview
 	uci -q set juci.juci.homepage="overview"
 	uci commit juci
+	start_client_listener
+}
+
+stop_service() {
+	killall -SIGKILL client_listener >/dev/null 2>&1
 }
 
 service_triggers()

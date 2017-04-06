@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# receive new client events
+# and trigger wificontrol in --router mode for that client
+
+. /usr/share/libubox/jshn.sh
+
+
+local action ipaddr macaddr network
+
+ubus listen client | \
+while read event ; do
+	echo "client_listener got event: $event" >/dev/console
+
+	json_load "$event"
+	json_select client
+	json_get_var action action
+	[ "$action" == "connect" ] || continue
+	json_get_var macaddr macaddr
+	json_get_var ipaddr ipaddr
+	json_get_var network netwrork "lan"
+	echo "client_listener got event: $macaddr $ipaddr $network" >/dev/console
+	ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
+	/sbin/wificontrol --router --destination $ipaddr
+	# todo add macaddr
+	
+done
