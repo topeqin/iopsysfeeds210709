@@ -179,14 +179,12 @@ switch_netmode() {
 	local askcred=$(uci -q get netmode.$curmode.askcred)
 	if [ "$reboot" == "0" ]; then
 		/etc/init.d/enviroment reload
-		if [ "$askcred" == "1" -a -f /tmp/wifi_imported_credentials ]; then
-			wifi import "$(cat /tmp/wifi_imported_credentials)"
-			rm -f /tmp/wifi_imported_credentials
-			ubus call network reload
-			wifi reload nodat
-			sleep 5
-			ubus call router.network reload
-		fi
+		#if [ "$askcred" == "1" ]; then
+		#	ubus call network reload
+		#	wifi reload nodat
+		#	sleep 5
+		#	ubus call router.network reload
+		#fi
 	else
 		reboot &
 	fi
