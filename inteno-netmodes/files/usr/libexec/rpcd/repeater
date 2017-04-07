@@ -47,7 +47,7 @@ write_error(){
 
 case "$1" in
 	list)
-		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds: { "file": "str" } }'
+		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str" } }'
 	;;
 	call)
 		case "$2" in
