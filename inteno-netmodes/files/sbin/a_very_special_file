@@ -156,6 +156,7 @@ clean_wifi_ifaces() {
 	local wifi_iface_num=$(uci -q show wireless | grep ".mode='wet'"  | sed 's/.*\[\([0-9]\)\].*/\1/')
 	[ -z "$wifi_iface_num" ] && exit
 
+	config_load wireless
 	set_wireless_values $wifi_iface_num "$ssid" "$key" "$encryption" "$band" "wet"
 	uci commit wireless
 	wifi apply
