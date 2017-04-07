@@ -45,78 +45,9 @@ write_error(){
 	exit 1
 }
 
-get_wifi_device_from_band(){
-	local section="$1"
-	local band="$2"
-	local __ret="$3"
-	local b
-	config_get b $section "band"
-	if [ "$band" == "$b" ]; then
-		eval "export -- \"$__ret=$section\""
-	fi
-}
-
-get_device(){
-	local band="$1"
-	config_foreach get_wifi_device_from_band "wifi-device" "$band" "$2"
-}
-
-count_wifi_ifaces() {
-	local section="$1"
-	local dev="$2"
-	local __ret="$3"
-	local device mode
-	config_get device "$section" "device"
-	config_get mode "$section" "mode"
-	if [ "$device" == "$dev" -a "$mode" == "ap" ]; then
-		eval "export -- \"$__ret=$((__ret+1))\""
-	fi
-}
-
-get_amount_of_ifaces() {
-	local band="$1"
-	local __ret=$2
-	config_load "wireless"
-	get_device "$band" dev
-	[ "$dev" == "" ] && exit 1
-	config_foreach count_wifi_ifaces "wifi-iface" "$dev" "$__ret"
-}
-
-
-set_wireless_values() {
-	local iface_num="$1"
-	local ssid="$2"
-	local key="$3"
-	local encryption="$4"
-	local band="$5"
-	local mode="$6"
-	local dev
-	get_device "$band" dev
-	if ! uci -q get wireless.@wifi-iface[$iface_num] >/dev/null 2>&1; then
-		uci add wireless wifi-iface >/dev/null 2>&1
-	fi
-	#TODO: get network dynamicaly
-	uci set wireless.@wifi-iface[$iface_num].network="wan"
-	uci set wireless.@wifi-iface[$iface_num].mode="$mode"
-	uci set wireless.@wifi-iface[$iface_num].ssid="$ssid"
-	uci set wireless.@wifi-iface[$iface_num].device="$dev"
-	uci set wireless.@wifi-iface[$iface_num].key="$key"
-	uci set wireless.@wifi-iface[$iface_num].encryption="$encryption"
-}
-
-clean_wifi_ifaces() {
-	index=$1
-	while uci -q get wireless.@wifi-iface[$index] >/dev/null 2>&1; do
-		if [ "$(uci -q get wireless.@wifi-iface[$index].mode)" == "ap" ]; then
-			uci -q delete wireless.@wifi-iface[$index]
-		fi
-		index=$((index+1))
-	done
-}
-
 case "$1" in
 	list)
-		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds_uplink": { "file": "str" }, "set_creds_downlink": { "file": "str" } }'
+		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds: { "file": "str" } }'
 	;;
 	call)
 		case "$2" in
@@ -147,7 +78,7 @@ case "$1" in
 				json_add_string "status" success
 				json_dump
 			;;
-			set_creds_uplink)
+			set_creds)
 				local file
 				read input
 				json_load "$input"
@@ -161,71 +92,7 @@ case "$1" in
 				json_add_string "status" success
 				json_dump
 
-				a_very_special_file $file >/dev/null 2>&1 &
-
-
-				echo $(date) >>/tmp/debug
-			;;
-			set_creds_downlink)
-				pidof wifi >/dev/null 2>&1 && write_error "wifi script already running"
-				local file
-				read input
-				json_load "$input"
-				json_get_var file file
-				validate_file "$file" || write_error "invalid filename (\"$file\"), file must be in /tmp and exist"
-				json_load "`cat $file`" || write_error "invalid file content"
-				json_select "wifi_ifaces" || write_error "invalid file content"
-				get_amount_of_ifaces "a" amount_a
-				get_amount_of_ifaces "b" amount_b
-				i=1
-				local wifi_iface_num=0
-				clean_wifi_ifaces $wifi_iface_num
-				local dummy
-				while json_get_var dummy $i; do
-					local num_ifaces
-					json_select $i
-					json_get_var band band
-					json_get_var ssid ssid
-					json_get_var key key
-					json_get_var encryption encryption
-					[ "$ssid" == "" ] && {
-						i=$((i+1))
-						continue
-					}
-					case $band in
-						a)
-							amount_a=$((amount_a-1))
-							;;
-						b)
-							amount_b=$((amount_b-1))
-							;;
-						*)
-							write_error "unknown_error"
-					esac
-					#skip ifaces not in ap mode
-					while uci -q get wireless.@wifi-iface[$wifi_iface_num] >/dev/null; do
-						if [ "$(uci -q get wireless.@wifi-iface[$wifi_iface_num].mode)" != "ap" ]; then
-							wifi_iface_num=$((wifi_iface_num+1))
-						else
-							break
-						fi
-					done
-					set_wireless_values $wifi_iface_num "$ssid" "$key" "$encryption" "$band" "ap"
-					wifi_iface_num=$((wifi_iface_num+1))
-					json_select ..
-					i=$((i+1))
-				done
-				uci commit wireless
-				json_select ..
-				if [ $amount_a -ne 0 -o $amount_b -ne 0 ]; then
-					#/sbin/wifi apply &
-					/sbin/wifi reload nodat >/dev/null 2>&1 &
-				else
-					/sbin/wifi reload nodat >/dev/null 2>&1 &
-				fi
-				json_init
-				json_add_string "status" "success"
-				json_dump
+				repeater_credentials $file >/dev/null 2>&1 &
 			;;
 		esac
 	;;
