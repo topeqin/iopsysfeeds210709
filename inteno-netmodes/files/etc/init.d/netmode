@@ -166,7 +166,7 @@ switch_netmode() {
 
 	config_get repeaterready setup repeaterready "0"
 	if [ "$repeaterready" == "1" ] ; then
-		uci -q set netmode.setup.repeaterredy="0"
+		uci -q set netmode.setup.repeaterready="0"
 		uci commit netmode
 	fi
 
