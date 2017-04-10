@@ -92,7 +92,7 @@ case "$1" in
 				json_add_string "status" success
 				json_dump
 
-				repeater_credentials $file >/dev/null 2>&1 &
+				netmode-conf $file >/dev/null 2>&1 &
 			;;
 		esac
 	;;
