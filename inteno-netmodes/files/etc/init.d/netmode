@@ -59,11 +59,18 @@ populate_netmodes() {
 	lan5=$(get_device LAN5)
 
 	for file in $(find $modedir -type f); do
-		grep -q "\$WAN" $file && sed -i "s/\$WAN/$wan/g" $file
-		grep -q "\$LAN1" $file && sed -i "s/\$LAN1/$lan1/g" $file
-		grep -q "\$LAN2" $file && sed -i "s/\$LAN2/$lan2/g" $file
-		grep -q "\$LAN3" $file && sed -i "s/\$LAN3/$lan3/g" $file
-		grep -q "\$LAN4" $file && sed -i "s/\$LAN4/$lan4/g" $file
+		conf="$(echo $file | cut -d'/' -f5)"
+		if [ "$conf" == "network" ]; then
+			grep -q "\$WAN" $file && sed -i "s/\$WAN/$wan/g" $file
+			grep -q "\$LAN1" $file && sed -i "s/\$LAN1/$lan1/g" $file
+			grep -q "\$LAN2" $file && sed -i "s/\$LAN2/$lan2/g" $file
+			grep -q "\$LAN3" $file && sed -i "s/\$LAN3/$lan3/g" $file
+			grep -q "\$LAN4" $file && sed -i "s/\$LAN4/$lan4/g" $file
+
+			ifname="$(uci -q get $file.wan.ifname | sed 's/[ \t]*$//')"
+			uci -q set $file.wan.ifname="$ifname"
+			uci -q commit $file
+		fi
 	done
 
 	local hardware=$(db get hw.board.hardware)
