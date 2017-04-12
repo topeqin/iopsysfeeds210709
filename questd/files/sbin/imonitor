@@ -35,7 +35,7 @@ UBUS_TIMEOUT=5
 
 
 BSDBIN=$(which bsd)
-
+ACSDBIN=$(which acsd)
 
 restart_questd()
 {
@@ -139,6 +139,31 @@ check_bsdcall()
 }
 
 
+restart_acsd()
+{
+	logger -s -t $0[$$] "Restarting acsd."
+	killall -q -KILL acsd
+	acsd &
+}
+
+check_acsd()
+{
+	local topline pcpu p
+
+	topline=$(top -bn1 | grep "[a]csd")
+	pcpu=$(echo -en "$topline" | awk '{print $7}')
+
+	for p in $pcpu; do
+		p=${p%%%*}
+		if [ "$p" -ge "20" ]; then
+			return 1
+		fi
+	done
+
+	return 0
+}
+
+
 main()
 {
 	local topline nproc mem pcpu
@@ -177,6 +202,10 @@ main()
 			if [ $bsdenabled == "1" -a "$(pidof wifi)" == "" ] ; then
 				check_bsdcall || restart_bsd
 			fi
+		fi
+
+		if [ "$ACSDBIN" ] ; then
+			check_acsd || restart_acsd
 		fi
 
 		# sleep
