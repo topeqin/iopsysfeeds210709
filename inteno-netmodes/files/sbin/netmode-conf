@@ -159,8 +159,8 @@ if [ "$state" == "exit" ]; then
 	return
 elif [ "$state" == "apply" ]; then
 	# wifi apply
-	reboot
+	wifi reload nodat
 else
 	# wifi reload
-	reboot
+	wifi reload nodat
 fi
