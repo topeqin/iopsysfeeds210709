@@ -2,7 +2,8 @@
 
 
 build_bcmkernel_consumer() {
-	local tarfile bcmkernelcommith
+	local tarfile bcmkernelcommith sdkversion
+    sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
 	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/$sdkversion.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
 	ssh $SERVER "ls $FPATH/bcmopen-$profile-$bcmkernelcommith.tar.gz" && return
@@ -67,6 +68,30 @@ build_ice_consumer() {
 	cd $curdir
 }
 
+build_mediatek_kernel() {
+	local mediatek_commit kernel_version kernel
+
+	mediatek_commit=$(grep CONFIG_KERNEL_GIT_COMMIT .config | cut -d '=' -f2 | tr -d '"')
+	kernel_version=$(grep KERNEL_PATCHVER target/linux/iopsys-ramips/Makefile  | cut -d '=' -f2)
+	kernel=linux-${kernel_version}.*
+
+	echo "Building mediatek kernel tarball from kernel commit:"	
+	echo $mediatek_commit
+	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips_*
+	rm -rf $kernel/drivers/net/wireless/mt_wifi
+	rm -rf $kernel/drivers/net/wireless/rlt_wifi
+	rm -rf $kernel/.git
+	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
+	# copy to remote
+	cp mediatek-kernel-open-$mediatek_commit.tar.gz /var/www/html
+	cd $curdir
+}
+
+function print_usage {
+	echo "Usage: $0 generate_tarballs"
+	echo "  -t <target>"
+}
+
 function generate_tarballs {
 
     SERVER="god@software.inteno.se"
@@ -76,13 +101,43 @@ function generate_tarballs {
 
     target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
-    sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
     curdir=$(pwd)
 
-    build_bcmkernel_consumer
-    build_natalie_consumer
-    build_endptcfg_consumer
-    build_ice_consumer
+
+	# Execute user command
+	while getopts "t:h" opt; do
+		case $opt in
+			t)
+				stk_target=${OPTARG}
+				;;
+			h)
+				print_usage
+				exit 1
+				;;
+			\?)
+				print_usage
+				exit 1
+				;;
+		esac
+	done
+
+	if [ ! -n "$stk_target" ]; then
+		print_usage
+		exit 1
+	fi
+
+	if [ "$stk_target" == "broadcom" ]; then
+		build_bcmkernel_consumer
+		build_natalie_consumer
+		build_endptcfg_consumer
+		build_ice_consumer
+	elif [ "$stk_target" == "mediatek" ]; then
+		build_mediatek_kernel
+	else
+		echo "Invalid target: $stk_target"
+		print_usage
+		exit 1
+	fi
 
 }
 
