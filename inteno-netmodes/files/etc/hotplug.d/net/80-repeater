@@ -84,6 +84,9 @@ case "$ACTION" in
 		uci set network.wan.ifname="$(echo $wetif $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$WANDEV //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 		uci commit network
 		ubus call network reload
-		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
+		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || {
+			wifi reload nodat
+			killall -USR1 udhcpc
+		}
 	;;
 esac
