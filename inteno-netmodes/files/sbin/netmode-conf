@@ -68,6 +68,16 @@ get_iface_num() {
 	eval "export -- \"$__save=$i\""
 }
 
+get_default_repeater_mode() {
+	local board="$(db -q get hw.board.hardware)"
+	local mode="repeater"
+	case "$board" in
+		EX400) mode="repeater_mtk_5g_up_dual_down" ;;
+		*) mode="repeater_brcm_2g_up_5g_down" ;;
+	esac
+	echo "$mode"
+}
+
 ###### START HERE #######
 
 local file="$1"
@@ -76,17 +86,19 @@ local file="$1"
 json_load "`cat $file`"
 json_select "wifi_ifaces"
 
-local curmode
+local curmode repmode
 config_load netmode
 config_get curmode setup curmode
 
 case $curmode in
-	*repeater*);;
+	*repeater*)
+	;;
 	*)
-		uci set netmode.setup.curmode="repeater_mtk_5g_up_dual_down"
+		repmode=$(get_default_repeater_mode)
+		uci set netmode.setup.curmode="$repmode"
 		uci commit netmode
 		/etc/init.d/netmode reload
-		;;
+	;;
 esac
 
 local apcliband="a"
@@ -159,8 +171,8 @@ if [ "$state" == "exit" ]; then
 	return
 elif [ "$state" == "apply" ]; then
 	# wifi apply
-	wifi reload nodat
+	wifi reload
 else
 	# wifi reload
-	wifi reload nodat
+	wifi reload
 fi

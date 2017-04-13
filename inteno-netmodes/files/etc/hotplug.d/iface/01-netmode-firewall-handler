@@ -2,20 +2,30 @@
 
 [ "$INTERFACE" != "wan" ] && exit
 
-local ip="$(ip a show $DEVICE | awk '/inet / {print $2; exit}')"
-ip="${ip%%/*}"
+. /lib/functions/network.sh
+
+network_get_ipaddr ip $INTERFACE
 
 [ -z "$ip" ] && exit
 
+toggle_firewall() {
+	local section=$1
+	local disable=$2
+	config_get name "$1" name
+	if [ "$name" == "wan" ]; then
+		uci -q set firewall.settings.disabled=$disable
+		if [ "$disable" == "1" ]; then
+			uci -q set firewall.$section.input="ACCEPT"
+		else
+			uci -q set firewall.$section.input="REJECT"
+		fi
+		uci -q commit firewall
+	fi
+}
+
 set_disabled() {
-	local disabled
-	local new_disabled=$1
 	config_load firewall
-	config_get disabled settings disabled 0
-	[ $disabled -eq $new_disabled ] && return
-	uci set firewall.settings.disabled="$1"
-	uci commit firewall
-	fw3 reload
+	config_foreach toggle_firewall zone $1
 }
 
 test_ip() {
@@ -25,10 +35,9 @@ test_ip() {
 		set_disabled 0
 	fi
 }
-	
 
 case "$(uci -q get netmode.setup.curmode)" in
-                repeater*)
-			test_ip
-                ;;
+                repeater*) test_ip ;;
+		*) [ "$(uci -q get netmode.setup.repeaterready)" == "1" ] && test_ip ;;
 esac
+
