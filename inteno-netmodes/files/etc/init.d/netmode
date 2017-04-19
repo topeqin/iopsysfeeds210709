@@ -60,6 +60,9 @@ populate_netmodes() {
 
 	for file in $(find $modedir -type f); do
 		conf="$(echo $file | cut -d'/' -f5)"
+		if [ "$conf" == "layer2_interface_ethernet" ]; then
+			grep -q "\$WAN" $file && sed -i "s/\$WAN/$wan/g" $file
+		fi
 		if [ "$conf" == "network" ]; then
 			grep -q "\$WAN" $file && sed -i "s/\$WAN/$wan/g" $file
 			grep -q "\$LAN1" $file && sed -i "s/\$LAN1/$lan1/g" $file
