@@ -81,6 +81,9 @@ build_mediatek_kernel() {
 	rm -rf $kernel/drivers/net/wireless/mt_wifi
 	rm -rf $kernel/drivers/net/wireless/rlt_wifi
 	rm -rf $kernel/.git
+	cd $kernel
+	ls consumer_release | while read line; do patch -p1 < consumer_release/$line; done
+	cd ..
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
 	# copy to remote
 	cp mediatek-kernel-open-$mediatek_commit.tar.gz /var/www/html
