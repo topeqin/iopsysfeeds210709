@@ -160,6 +160,11 @@ while json_get_var dummy $i; do
 done
 
 while uci -q get wireless.@wifi-iface[$i] >/dev/null; do
+	local mode="$(uci -q get wireless.@wifi-iface[$i].mode)"
+	if [ "$mode" == "wet" -o "$mode" == "sta" ]; then
+		i=$((i+1))
+		continue
+	fi
 	state="reload"
 	uci -q delete wireless.@wifi-iface[$i] >/dev/null
 	i=$((i+1))
