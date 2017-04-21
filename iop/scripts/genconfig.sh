@@ -283,6 +283,8 @@ function genconfig {
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 		else
+			echo "CONFIG_DEVEL=n" >>.config
+			echo "CONFIG_GITMIRROR_REWRITE=n" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
 			echo "CONFIG_ICE_OPEN=y" >> .config
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
