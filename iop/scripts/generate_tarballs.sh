@@ -78,12 +78,22 @@ build_mediatek_kernel() {
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
 	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips_*
-	rm -rf $kernel/drivers/net/wireless/mt_wifi
-	rm -rf $kernel/drivers/net/wireless/rlt_wifi
-	rm -rf $kernel/.git
+
+
 	cd $kernel
+	# remove propriatary code
+	find drivers/net/wireless/mt_wifi -name \*.[ch] | xargs rm
+	find drivers/net/wireless/rlt_wifi -name \*.[ch] | xargs rm
+	find drivers/net/wireless/wifi_forward/ -name \*.[ch] | xargs rm
+	find net/nat/foe_hook -name \*.[ch] | xargs rm
+
+	# remove git repo
+	rm -rf .git
+
+	# patch kernel for openstk
 	ls consumer_release | while read line; do patch -p1 < consumer_release/$line; done
 	cd ..
+
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
 	# copy to remote
 	cp mediatek-kernel-open-$mediatek_commit.tar.gz /var/www/html
