@@ -24,6 +24,7 @@ function feeds_update {
     else
 	./scripts/feeds update
     fi
+	./scripts/feeds update -ai
 
     # replace core packages with iopsys versions
     if [ $override == 1 ]; then
