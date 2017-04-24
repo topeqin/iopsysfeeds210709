@@ -54,6 +54,11 @@ get_iface_num() {
 	local dev
 	while true; do
 		[ $i -gt 100 ] && break ## just a safty messure
+		mode="$(uci -q get wireless.@wifi-iface[$i].mode)"
+		if [ "$mode" != "ap" ]; then
+			i=$((i+1))
+			break
+		fi
 		dev="$(uci -q get wireless.@wifi-iface[$i].device)"
 		if [ "$dev" != "$device" ]; then
 			[ -z "$dev" ] && break
