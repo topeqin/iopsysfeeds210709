@@ -81,9 +81,12 @@ build_mediatek_kernel() {
 
 
 	cd $kernel
-	# remove propriatary code
-	find drivers/net/wireless/mt_wifi -name \*.[ch] | xargs rm
-	find drivers/net/wireless/rlt_wifi -name \*.[ch] | xargs rm
+	# Save Kconfig files to recreate the same kernel config,
+	# delete everyting else.
+	find drivers/net/wireless/mt_wifi -type f ! -name Kconfig | xargs rm
+	find drivers/net/wireless/rlt_wifi -type f ! -name Kconfig | xargs rm
+
+	# Delete all source code
 	find drivers/net/wireless/wifi_forward/ -name \*.[ch] | xargs rm
 	find net/nat/foe_hook -name \*.[ch] | xargs rm
 
