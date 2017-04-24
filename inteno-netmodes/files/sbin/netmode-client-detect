@@ -7,6 +7,16 @@
 
 local action ipaddr macaddr network
 
+timed_check() {
+	while true; do
+		wificontrol --router
+		sleep $1
+	done
+}
+
+
+timed_check 60 &
+
 ubus listen client | \
 while read event ; do
 	#echo "netmode-client-detect got event: $event" >/dev/console
