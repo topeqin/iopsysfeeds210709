@@ -174,7 +174,18 @@ switch_netmode() {
 	fi
 
 	config_get curmode setup curmode
+	if [ "$curmode" == "repeater" ]; then
+		local hw="$(db -q get hw.board.hardware)"
+		if [ "$hw" == "EX400" ]; then
+			curmode="repeater_mtk_5g_up_dual_down"
+		else
+			curmode="repeater_brcm_2g_up_dual_down"
+		fi
+		uci set netmode.setup.curmode="$curmode"
+		uci commit netmode
+	fi
 	config_get conf $curmode conf
+	[ -f "/etc/netmode/$conf" ] || return
 	cp /etc/netmodes/$conf/* /etc/config/
 	rm -f /etc/config/DETAILS
 	sync
