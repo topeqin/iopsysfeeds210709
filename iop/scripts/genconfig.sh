@@ -64,6 +64,7 @@ function genconfig {
 		iceAllowed=0
 		endptAllowed=0
 		natalieAllowed=0
+		mediatekAllowed=0
 
 		allowedRepos="$(ssh -o ConnectTimeout=5 git@private.inteno.se 2>/dev/null | grep -w 'R\|W' | awk '{print$NF}')"
 		for repo in $allowedRepos; do
@@ -72,6 +73,7 @@ function genconfig {
 			ice-client) iceAllowed=1 ;;
 			endptcfg) endptAllowed=1 ;;
 			natalie-dect*) natalieAllowed=1 ;;
+			linux) mediatekAllowed=1 ;;
 			esac
 		done
 	}
@@ -282,6 +284,7 @@ function genconfig {
 			[ $iceAllowed -eq 0 ] && echo "CONFIG_ICE_OPEN=y" >> .config
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
+			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
 		else
 			echo "CONFIG_DEVEL=n" >>.config
 			echo "CONFIG_GITMIRROR_REWRITE=n" >>.config
@@ -289,6 +292,7 @@ function genconfig {
 			echo "CONFIG_ICE_OPEN=y" >> .config
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
 			echo "CONFIG_NATALIE_OPEN=y" >> .config
+			echo "CONFIG_MEDIATEK_OPEN=y" >> .config
 		fi
 
 		# Force regeneration of themes
