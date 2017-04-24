@@ -185,7 +185,6 @@ switch_netmode() {
 		uci commit netmode
 	fi
 	config_get conf $curmode conf
-	[ -f "/etc/netmode/$conf" ] || return
 	cp /etc/netmodes/$conf/* /etc/config/
 	rm -f /etc/config/DETAILS
 	sync
