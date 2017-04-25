@@ -207,8 +207,15 @@ switch_netmode() {
 }
 
 start_client_listener() {
-	local curmode
+	local curmode repeaterready
 	config_load netmode
+
+	config_get repeaterready setup repeaterready 0
+
+	[ $repeaterready -eq 1 ] && {
+		killall -SIGKILL netmode-client-detect >/dev/null 2>&1
+		return
+	}
 
 	config_get curmode setup curmode
 
