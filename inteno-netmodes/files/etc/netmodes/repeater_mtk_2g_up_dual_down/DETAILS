@@ -10,7 +10,7 @@
 	"excluded_boards" : [
 		"*G*"
 	],
-	"uplink_band": 'b',
+	"uplink_band" : 'b',
 	"credentials" : 1,
 	"reboot" : 0
 }
