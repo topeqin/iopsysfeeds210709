@@ -184,6 +184,16 @@ switch_netmode() {
 		uci set netmode.setup.curmode="$curmode"
 		uci commit netmode
 	fi
+	if [ "$curmode" == "routed" ]; then
+		local hw="$(db -q get hw.board.hardware)"
+		if [ "$hw" == "EX400" ]; then
+			curmode="routed_mtk"
+		else
+			curmode="routed_brcm"
+		fi
+		uci set netmode.setup.curmode="$curmode"
+		uci commit netmode
+	fi
 	config_get conf $curmode conf
 	cp /etc/netmodes/$conf/* /etc/config/
 	rm -f /etc/config/DETAILS
