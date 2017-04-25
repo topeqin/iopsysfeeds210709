@@ -90,7 +90,6 @@ populate_netmodes() {
 			desc=""
 			exp=""
 			uci -q set netmode.$mode=netmode
-			uci -q set netmode.$mode.conf=$mode
 			json_load "$(cat $modedir/$mode/DETAILS)"
 
 			if json_select excluded_boards; then
@@ -194,20 +193,14 @@ switch_netmode() {
 		uci set netmode.setup.curmode="$curmode"
 		uci commit netmode
 	fi
-	config_get conf $curmode conf
-	cp /etc/netmodes/$conf/* /etc/config/
+	[ -d "/etc/netmodes/$curmode" ] || return
+	cp /etc/netmodes/$curmode/* /etc/config/
 	rm -f /etc/config/DETAILS
 	sync
 	local reboot=$(uci -q get netmode.$curmode.reboot)
 	local askcred=$(uci -q get netmode.$curmode.askcred)
 	if [ "$reboot" == "0" ]; then
 		/etc/init.d/enviroment reload
-		#if [ "$askcred" == "1" ]; then
-		#	ubus call network reload
-		#	wifi reload nodat
-		#	sleep 5
-		#	ubus call router.network reload
-		#fi
 	else
 		reboot &
 	fi
