@@ -43,7 +43,7 @@ get_wifi_iface_cfgstr() {
 		[ "$ifname" == "$2" ] && echo "wireless.$1"
 	}
 	config_load wireless
-	config_foreach get_cfgno wifi-iface $1 $2
+	config_foreach get_cfgno wifi-iface $1
 }
 
 link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
