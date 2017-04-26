@@ -193,7 +193,8 @@ main()
 			"$restart_mem"   = "1" -o \
 			"$restart_pcpu"  = "1" ]
 		then
-			check_ubuscall || restart_questd
+			# check_ubuscall || restart_questd
+			restart_questd
 		fi
 
 		if [ "$BSDBIN" ] ; then
