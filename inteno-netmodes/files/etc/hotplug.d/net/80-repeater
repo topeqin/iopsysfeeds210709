@@ -34,7 +34,7 @@ get_wifi_wet_interface() {
 		fi
 	}
 	config_load wireless
-	config_foreach handle_interface wifi-iface "$device"
+	config_foreach handle_interface wifi-iface
 }
 
 get_wifi_iface_cfgstr() {
