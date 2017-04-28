@@ -77,18 +77,12 @@ build_mediatek_kernel() {
 
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
-	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips_*
+	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips_*/$kernel
 
-
-	cd $kernel
 	# Save Kconfig files to recreate the same kernel config,
 	# delete everyting else.
 	find drivers/net/wireless/mt_wifi -type f ! -name Kconfig | xargs rm
 	find drivers/net/wireless/rlt_wifi -type f ! -name Kconfig | xargs rm
-
-	# Delete all source code
-	find drivers/net/wireless/wifi_forward/ -name \*.[ch] | xargs rm
-	find net/nat/foe_hook -name \*.[ch] | xargs rm
 
 	# remove git repo
 	rm -rf .git
@@ -98,8 +92,7 @@ build_mediatek_kernel() {
 	cd ..
 
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
-	# copy to remote
-	cp mediatek-kernel-open-$mediatek_commit.tar.gz /var/www/html
+	scp mediatek-kernel-open-$mediatek_commit.tar.gz $SERVER:$FPATH/
 	cd $curdir
 }
 
