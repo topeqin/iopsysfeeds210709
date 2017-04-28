@@ -74,7 +74,7 @@ build_mediatek_kernel() {
 	mediatek_commit=$(grep CONFIG_KERNEL_GIT_COMMIT .config | cut -d '=' -f2 | tr -d '"')
 	kernel_version=$(grep KERNEL_PATCHVER target/linux/iopsys-ramips/Makefile  | cut -d '=' -f2)
 	kernel=linux-${kernel_version}.*
-
+	ssh $SERVER "ls $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
 	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips_*/$kernel
