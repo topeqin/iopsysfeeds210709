@@ -336,6 +336,7 @@ get_bindaddr() {
 	local bindaddr=""
 
 	[ -n "$intf" ] && network_get_ipaddr bindaddr "$intf"
+	[ -z "$bindaddr" ] && network_get_ipaddr6 bindaddr "$intf"
 	echo "${bindaddr:-0.0.0.0}"
 }
 
