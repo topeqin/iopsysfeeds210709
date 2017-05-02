@@ -35,7 +35,7 @@ endef
 
 define Package/mtk-bndstrg/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mtk-bndstrg $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bndstrg $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,mtk-bndstrg))
