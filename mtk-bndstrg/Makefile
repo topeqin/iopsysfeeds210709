@@ -18,7 +18,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/mtk-bndstrg
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=+libpthread
+  DEPENDS:=+libpthread +librt
   TITLE:=Band steering daemon for Mediatek
 endef
 
