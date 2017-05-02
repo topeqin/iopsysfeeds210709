@@ -16,8 +16,9 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/mtk-bndstrg
-  SECTION:=base
-  CATEGORY:=Network
+  SECTION:=utils
+  CATEGORY:=Utilities
+  DEPENDS:=+libpthread
   TITLE:=Band steering daemon for Mediatek
 endef
 
