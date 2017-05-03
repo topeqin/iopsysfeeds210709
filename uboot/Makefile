@@ -76,7 +76,7 @@ define Build/Compile
 endef
 
 define Package/uboot/install/default
-	$(CP) ./files/* $(1)/
+	$(CP) ./files/* $$(1)/
 	$(INSTALL_DIR) $(BIN_DIR)/$(TARGET)
 	$(INSTALL_DIR) $$(1)/boot
 	$(CP) \
