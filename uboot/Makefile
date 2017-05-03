@@ -12,7 +12,7 @@ PKG_VERSION:=2016.08
 PKG_RELEASE:=1
 PKG_SOURCE_URL:=git@private.inteno.se:uboot
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a2aacfdc3931a65b11929f685e7ed067bf1fbfa9
+PKG_SOURCE_VERSION:=5d905dfbe3c4f70979f3a5026e7de74a5a85461c
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -61,6 +61,11 @@ endif
 define Build/Configure
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		$(UBOOT_CONFIG)_config
+
+	$(SED) "s,CONFIG_INTENO_MAJOR=\"0\",CONFIG_INTENO_MAJOR=\"$(PKG_RELEASE)\"," $(PKG_BUILD_DIR)/.config
+
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+		oldconfig
 endef
 
 define Build/Compile
@@ -71,6 +76,7 @@ define Build/Compile
 endef
 
 define Package/uboot/install/default
+	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(BIN_DIR)/$(TARGET)
 	$(INSTALL_DIR) $$(1)/boot
 	$(CP) \
