@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=8a804320c53dead1c9b9f3650cbbc58908c76832
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git@public.inteno.se:mtk-bndstrg
+PKG_SOURCE_URL:=http://public.inteno.se:/mtk-bndstrg
 
 PKG_SOURCE:=$(PKG_NAME).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)
