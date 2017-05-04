@@ -142,6 +142,7 @@ function generate_tarballs {
 		build_ice_consumer
 	elif [ "$stk_target" == "mediatek" ]; then
 		build_mediatek_kernel
+		build_ice_consumer		
 	else
 		echo "Invalid target: $stk_target"
 		print_usage
