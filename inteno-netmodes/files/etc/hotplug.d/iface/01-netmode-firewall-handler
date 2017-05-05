@@ -31,14 +31,14 @@ set_disabled() {
 test_ip() {
 	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
 		set_disabled 1
+	else
+		set_disabled 0
 		[ "$1" -eq "1" ] && {
 			uci set netmode.setup.repeaterready=0
 			uci commit netmode
 			local pid="$(ps | grep wificontro[l] | awk '/repeater/ {print $1}')"
 			[ "$pid" != "" ] && kill $pid
 		}
-	else
-		set_disabled 0
 	fi
 }
 
