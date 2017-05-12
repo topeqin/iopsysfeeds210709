@@ -144,16 +144,6 @@ function genconfig {
 	}
 
 
-	use_local_mirror()
-	{
-		if wget -T 3 -t 2 -O /dev/null $LOCAL_MIRROR >/dev/null 2>/dev/null; then
-			echo "mirror [$LOCAL_MIRROR] exists. Using local mirror"
-			sed -i "s;CONFIG_LOCALMIRROR=.*;CONFIG_LOCALMIRROR=\"$LOCAL_MIRROR\";" .config
-		else
-			echo "mirror [$LOCAL_MIRROR] does not exist. Not using local mirror"
-		fi
-	}
-
 	generate_config()
 	{
 	DIFFFILE="$1"
@@ -355,10 +345,6 @@ function genconfig {
 		done
 		setup_dirs
 		create_and_copy_files "$1" "$2"
-
-		if [ $masterconfig -eq 1 ]; then
-			use_local_mirror
-		fi
 	fi
 }
 

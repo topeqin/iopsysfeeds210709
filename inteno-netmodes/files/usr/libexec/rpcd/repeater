@@ -9,13 +9,16 @@ get_if_creds() {
 	local net dev ssid key encryption band
 	config_get net $section "network"
 	if [ "$net" == "$network" ]; then
-		json_add_object
 		config_get dev $section "device"
 		band="$(uci -q get wireless.$dev.band)"
 		config_get ssid $section ssid
 		config_get key $section key
 		config_get encryption $section encryption
+		config_get disabled $section disabled 0
+		echo "disabled for $band = $disabled" >>/tmp/dbg
+		[ $disabled -eq 1 ] && return
 		[ "$ssid" == "" -o "$band" == "" ] && return
+		json_add_object
 		json_add_string "ssid" "$ssid"
 		json_add_string "band" "$band"
 		json_add_string "key" "$key"
@@ -45,6 +48,43 @@ write_error(){
 	exit 1
 }
 
+duplicate_if_single_radio() {
+	json_select "wifi-ifaces"
+	local i=1
+	local dummy band dup_band num_radios
+
+	num_radios="$(uci -q show wireless | grep wifi-device | wc -l)"
+
+	[ "$num_radios" == "2" ] && return
+
+	band="$(uci -q get wireless.@wifi-device[0].band)"
+
+	[ "$band" == "a" ] && dup_band="b"
+	[ "$band" == "b" ] && dup_band="a"
+	[ -z "$dup_band" ] && return
+
+
+	while json_get_var dummy $i; do
+		i=$((i+1))
+	done
+	i=$((i-1))
+	local ssid key encryption
+	while [ $i -gt 0 ]; do
+		json_select $i
+		json_get_var ssid ssid
+		json_get_var key key
+		json_get_var encryption encryption
+		json_select ..
+		json_add_object
+		json_add_string "ssid" "$ssid"
+		json_add_string "band" "$dup_band"
+		json_add_string "key" "$key"
+		json_add_string "encryption" "$encryption"
+		json_close_object
+		i=$((i-1))
+	done
+}
+
 case "$1" in
 	list)
 		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str" } }'
@@ -68,6 +108,8 @@ case "$1" in
 				config_load wireless
 				config_foreach get_if_creds "wifi-iface" "$network"
 				json_close_array
+
+				duplicate_if_single_radio
 
 				if [ "$file" == "" ]; then
 					json_dump

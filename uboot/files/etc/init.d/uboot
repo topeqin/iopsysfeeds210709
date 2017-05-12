@@ -1,0 +1,78 @@
+#!/bin/sh /etc/rc.common
+
+START=50
+
+. /usr/share/libubox/jshn.sh
+
+
+sanity_check_env(){
+
+    # make sure iboot is used to start board, but only if verify_boot != 1
+    # that allows a person to change the bootcmd and not have it overwritten automatically
+    # but still force it to iboot for old boards.
+    vb=$(fw_printenv -n verify_boot 2>/dev/null)
+
+    if [ "1" != "$verify_boot" ]
+    then
+	if ! fw_printenv -n bootcmd 2>/dev/null| grep iboot >/dev/null
+	then
+	    echo "update uboot boot command"
+	    fw_setenv bootcmd "rescue;iboot"
+	    fw_setenv verify_boot 1
+	fi
+    fi
+
+    # just set 115200 baudrate as it is really hardcoded in the binary blob
+    fw_setenv baudrate 115200
+}
+
+uboot_upgrade(){
+    echo "doing upgrade of u-boot old version $cur_Major.$cur_Minor new version $Major.$Minor"
+    mtd erase /dev/mtd0
+    mtd write /boot/uboot.img /dev/mtd0
+
+    sanity_check_env
+}
+
+
+start() {
+    iver=$(fw_printenv -n uboot_inteno_version 2>/dev/null)
+
+    if [ -z "$iver" ]
+    then
+	# if this variable is not set by u-boot the u-boot version is too old.
+	uboot_upgrade
+	return
+    fi
+
+    # read in current version into Major Minor variables
+    json_init
+    json_load $(echo $iver |sed -e 's/938f0820-2ffb-11e7-bbc9-2f21351ee6fb: //')
+    json_get_vars Major Minor
+
+#    echo "Major $Major"
+#    echo "Minor $Minor"
+    
+    cur_Major=$Major
+    cur_Minor=$Minor
+
+    # read in new uboot version into Major Minor variables
+    json_load $(strings /boot/uboot.img | grep 938f0820-2ffb-11e7-bbc9-2f21351ee6fb |sed -e 's/938f0820-2ffb-11e7-bbc9-2f21351ee6fb: //')
+    json_get_vars Major Minor
+
+#    echo "Major $Major"
+#    echo "Minor $Minor"
+    
+    if [ $Major -gt $cur_Major ]
+    then
+	uboot_upgrade
+	return
+    fi
+
+    if [ $Major -eq $cur_Major -a $Minor -gt $cur_Minor ]
+    then
+	uboot_upgrade
+	return
+    fi
+}
+
