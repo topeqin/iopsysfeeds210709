@@ -92,6 +92,7 @@ case $curmode in
 		uci set netmode.setup.curmode="repeater"
 		uci commit netmode
 		/etc/init.d/netmode reload
+		curmode="$(uci -q get netmode.setup.curmode)"
 	;;
 esac
 
