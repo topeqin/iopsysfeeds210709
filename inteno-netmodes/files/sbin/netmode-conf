@@ -176,3 +176,5 @@ else
 	# wifi reload
 	wifi reload
 fi
+
+[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
