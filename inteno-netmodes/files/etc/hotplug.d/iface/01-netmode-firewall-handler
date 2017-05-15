@@ -40,6 +40,7 @@ test_ip() {
 			uci commit netmode
 			local pid="$(ps | grep wificontro[l] | awk '/repeater/ {print $1}')"
 			[ "$pid" != "" ] && kill $pid
+			/sbin/netmode-client-detect &
 		}
 	fi
 }
