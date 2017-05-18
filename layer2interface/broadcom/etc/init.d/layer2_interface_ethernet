@@ -50,10 +50,11 @@ addethernet() {
 	config_get baseifname $1 baseifname
 	config_get ifname $1 ifname
 	config_get bridge $1 bridge
+	config_get mac2 $1 mac2
 	
 	ifname="${ifname:-$baseifname.1}"
 
-	brcm_virtual_interface_rules "$baseifname" "$ifname" "$bridge"
+	brcm_virtual_interface_rules "$baseifname" "$ifname" "$bridge" "$mac2"
 
 }
 

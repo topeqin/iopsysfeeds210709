@@ -161,12 +161,38 @@ addbrcmvlan()
 	fi
 }
 
+update_last_mac_group()
+{
+	local ifname=$1
+	local last_mac_group=$2
+
+	local full_mac modified_mac dev_mac
+
+	full_mac="$(ifconfig $ifname | awk '{print $NF; exit}')"
+
+	[ "${full_mac}" == "" ] && return
+
+	modified_mac="${full_mac:0:15}${last_mac_group}"
+
+	devs="wl0 wl1 bcmsw"
+
+	for dev in $devs; do
+		dev_mac="$(ifconfig $dev | awk '{print $NF; exit}')"
+		if [ "$dev_mac" == "$modified_mac" ]; then
+			return
+		fi
+	done
+
+	ifconfig $ifname hw ether "${modified_mac}"
+}
+
 
 brcm_virtual_interface_rules()
 {
 	local baseifname=$1
 	local ifname=$2
 	local bridge=$3
+	local last_mac_group=$4
 
 	bridge="${bridge:-0}"
 
@@ -228,6 +254,10 @@ brcm_virtual_interface_rules()
 		vlanctl --if $baseifname --rx --tags 2 --set-rxif $ifname --filter-vlan-dev-mac-addr 0 --drop-frame --rule-insert-before -1
 		# tags 0 rx
 		vlanctl --if $baseifname --rx --tags 0 --set-rxif $ifname --filter-vlan-dev-mac-addr 1 --rule-insert-before -1
+	fi
+
+	if [ "$last_mac_group" != "" ]; then
+		update_last_mac_group $ifname $last_mac_group
 	fi
 
 	ifconfig $ifname up
