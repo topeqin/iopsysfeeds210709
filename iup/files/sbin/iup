@@ -476,8 +476,6 @@ parse_dhcp_options()
 	json_get_var vlanid vlanid # option 132
 	json_get_var vlanpriority vlanpriority # option 133
 
-	v "Processing dhcp options"
-
 	if [ $privopt224 ]; then
 		v "dhcp option 224 firmware url $privopt224"
 		handle_option224 $privopt224
