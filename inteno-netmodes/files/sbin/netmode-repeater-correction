@@ -1,0 +1,19 @@
+#!/bin/sh
+
+MTK=0
+[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
+
+if [ $MTK -eq 1 ]; then
+	WANDEV="eth0.2"
+	link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
+else
+	WANDEV="$(uci get layer2_interface_ethernet.Wan.ifname)"
+	link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
+fi
+
+[ "$link" == "up" ] && action=add
+[ "$link" == "down" ] && action=remove
+[ -z "$action" ] && exit
+
+# trigger a fake hotplug net event
+INTERFACE=$WANDEV ACTION=$action /sbin/hotplug-call net
