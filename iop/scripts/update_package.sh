@@ -394,7 +394,7 @@ insert_hash_in_feeds_config()
 check_packages()
 {
     echo -e "${Green}_______________________________________________________________________________${Color_Off}"
-    echo "Now checking if any changes has been done to the packages."
+    echo "Now checking if any changes have been done to the packages."
     echo -e "${Green}_______________________________________________________________________________${Color_Off}"
 
     # only scan in the build directory that is currently in use.
