@@ -87,7 +87,7 @@ duplicate_if_single_radio() {
 
 case "$1" in
 	list)
-		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str" } }'
+		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" } }'
 	;;
 	call)
 		case "$2" in
@@ -121,10 +121,11 @@ case "$1" in
 				json_dump
 			;;
 			set_creds)
-				local file
+				local file from_gui
 				read input
 				json_load "$input"
 				json_get_var file file
+				json_get_var from_gui from_gui
 				validate_file "$file" || write_error "invalid filename (\"$file\"), file must be in /tmp and exist"
 				json_load "`cat $file`" || write_error "invalid file content"
 				json_select "wifi_ifaces" || write_error "invalid file content"
@@ -134,7 +135,7 @@ case "$1" in
 				json_add_string "status" success
 				json_dump
 
-				netmode-conf $file >/dev/null 2>&1 &
+				netmode-conf "$file" "$from_gui" >/dev/null 2>&1 &
 			;;
 		esac
 	;;

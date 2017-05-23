@@ -3,7 +3,10 @@
 . /usr/share/libubox/jshn.sh
 . /lib/functions.sh
 
-local state="exit"
+state="exit"
+TMPPATH="/tmp/netmode_config_backup"
+CURMODE=""
+SLEEPTIME=300
 
 set_wireless_values() {
 	local iface_num="$1"
@@ -73,10 +76,37 @@ get_iface_num() {
 	eval "export -- \"$__save=$i\""
 }
 
+restore() {
+	if [ "$1" == "back" ]; then
+		uci set juci.juci.homepage='netmode-wizard'
+		uci commit juci
+		cp $TMPPATH/* /etc/config/
+		uci set netmode.setup.curmode=$CURMODE
+		uci commit netmode
+		ubus call network reload
+		wifi reload
+		ubus call router.network reload
+	fi
+	rm -r $TMPPATH
+	ubus call leds set '{"state":"normal"}'
+}
+
+backup() {
+	mkdir -p $TMPPATH
+	cp /etc/config/* $TMPPATH/
+	CURMODE="$(uci -q get netmode.setup.curmode)"
+	ubus call leds set '{"state":"allflash"}'
+}
+
 ###### START HERE #######
 
-local file="$1"
+file="$1"
+from_gui="$2"
+
+
 [ -f "$file" ] || exit
+
+[ "$from_gui" == "true" ] && backup
 
 json_load "`cat $file`"
 json_select "wifi_ifaces"
@@ -113,10 +143,18 @@ while json_get_var dummy $i; do
 	i=$((i+1))
 done
 
-[ "$apcliband" == "$band" ] || exit
+[ "$apcliband" == "$band" ] || {
+	[ "$from_gui" == "true" ] && restore "back"
+	exit
+}
 
 repeater_iface_num=$(uci -q show wireless | grep -e ".mode='wet'" -e ".mode='sta'"  | sed 's/.*\[\([0-9]\)\].*/\1/')
-[ -z "$repeater_iface_num" ] && exit
+
+[ -z "$repeater_iface_num" ] && {
+	[ "$from_gui" == "true" ] && restore "back"
+	exit
+}
+
 json_get_var ssid ssid
 json_get_var key key
 json_get_var encryption encryption
@@ -145,7 +183,10 @@ while json_get_var dummy $i; do
 			b_num=$((b_num+1))
 			;;
 	esac
-	[ -z $iface_num ] && return
+	[ -z $iface_num ] && {
+		[ "$from_gui" == "true" ] && restore "back"
+		exit
+	}
 	json_get_var ssid ssid
 	json_get_var encryption encryption
 	json_get_var key key
@@ -167,14 +208,38 @@ done
 
 uci commit wireless
 
-if [ "$state" == "exit" ]; then
-	return
-elif [ "$state" == "apply" ]; then
-	# wifi apply
+if [ "$from_gui" == "true" ]; then
+	# check for connectivity
 	wifi reload
-else
-	# wifi reload
-	wifi reload
-fi
+	[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
+	i=$SLEEPTIME;
 
-[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
+	while [ $i -gt 0 ]; do
+		ip=`route -n | awk '/^0.0.0.0/{print $2}'`
+		if [ "$ip" == "" ]; then
+			i=$((i-10))
+			sleep 10
+			continue
+		fi
+		ping -w1 $ip
+		if [ $? -eq 0 ]; then
+			restore
+			exit
+		else
+			i=$((i-10))
+			sleep 9
+		fi
+	done
+	restore "back"
+else
+	if [ "$state" == "exit" ]; then
+		return
+	elif [ "$state" == "apply" ]; then
+		# wifi apply
+		wifi reload
+	else
+		# wifi reload
+		wifi reload
+	fi
+	[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
+fi
