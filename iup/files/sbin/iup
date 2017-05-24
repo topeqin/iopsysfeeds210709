@@ -4,6 +4,7 @@ echo $$ > /var/run/iup.pid
 
 . /lib/functions.sh
 . /lib/functions/network.sh
+. /lib/functions/savecfg.sh
 . /usr/share/libubox/jshn.sh
 
 include /lib/upgrade
@@ -13,8 +14,6 @@ export IUPCONFFILES=/tmp/iup/sysupgrade.conffiles.tar.gz
 export IUPMD5=/etc/configchecksums
 export CONFILESLURP='/tmp/iup/*.conf'
 export IUPTEMP="/tmp/iup"
-export IUPUSERCFG="/tmp/iupusercfg"
-export IUPUSERCFG_WIFI="/tmp/iupusercfg_wifi"
 export INTERACTIVE=0
 export VERBOSE=0
 export CONF=1
@@ -69,41 +68,7 @@ reload ()
 
 save_usercfg()
 {
-	rm -f $IUPUSERCFG $IUPUSERCFG_WIFI
-	touch $IUPUSERCFG $IUPUSERCFG_WIFI
-
-	# save the firewall redirects/port forwarding
-	uci show firewall | grep redirect >> $IUPUSERCFG
-
-	# save the parental rules
-	local parentalrules=$(uci show firewall | grep -i "Parental Rule" | grep -o "rule\[.*\]")
-	for rule in $parentalrules ; do
-		rule=${rule//\[/\\[} # escape [
-		rule=${rule//]/\]} # escape ]
-		uci show firewall | grep "$rule" >>$IUPUSERCFG
-	done
-
-	# tranfsorm the output of uci show into a uci script
-
-	# prepend "set" to each line NOT containing "]="
-	# firewall.@redirect[0].enabled='1' becomes
-	# set firewall.@redirect[0].enabled='1'
-	sed -i '/.*]=.*/! s/.*/set \0/' $IUPUSERCFG
-
-	# prepend "add" to each line containing "]="
-	# AND keep only the package name (before the first dot) and section type (after equal)
-	# firewall.@redirect[0]=redirect becomes
-	# add firewall redirect
-	sed -i 's/\(.*\)\..*]=\(.*\)/add \1 \2/' $IUPUSERCFG
-
-	# change all the array indexes to [-1]
-	sed -i 's/\[.\?.\?.\?.\?\]/[-1]/' $IUPUSERCFG
-
-	# commit at the end of the script
-	[ -s $IUPUSERCFG ] && echo "commit" >> $IUPUSERCFG
-
-	# save wireless interfaces
-	uci show wireless | grep "wifi-iface" > $IUPUSERCFG_WIFI
+	savecfg_save_config fw_redirect fw_parental wifi
 }
 
 apply_usercfg()
@@ -114,64 +79,11 @@ apply_usercfg()
 	config_get_bool keep configserver keepuserconfig "0"
 	v "apply_usercfg(): keepuserconfig = $keep"
 	if [ "$keep" != "1" ] ; then
-		rm -f $IUPUSERCFG $IUPUSERCFG_WIFI
+		savecfg_rm_files
 		return
 	fi
 
-	local index ifname network
-	local newindex newifname newnetwork
-
-	# loop through all the user wifi-ifaces
-	for index in $(seq 0 99) ; do
-		ifname=$(sed -n 's/.*wifi-iface\['$index'\]\.ifname='\''\(.*\)'\''/\1/p' $IUPUSERCFG_WIFI )
-		[ "$ifname" ] || break
-		network=$(sed -n 's/.*wifi-iface\['$index'\]\.network='\''\(.*\)'\''/\1/p' $IUPUSERCFG_WIFI )
-
-		newindex=""
-		newifname=""
-		newnetwork=""
-
-		# loop through all the newly configured wifi-ifaces
-		for newindex in $(seq 0 99) ; do
-			newifname=$( uci show wireless | grep wifi-iface | sed -n 's/.*wifi-iface\['$newindex'\]\.ifname='\''\(.*\)'\''/\1/p' )
-			if [ -z "$newifname" ] ; then
-				# no newifname means that all the wifi-ifaces have already been parsed
-				newindex="-1"
-				break
-			fi
-			newnetwork=$(uci show wireless | grep wifi-iface | sed -n 's/.*wifi-iface\['$newindex'\]\.network='\''\(.*\)'\''/\1/p' )
-
-			# two wifi interfaces are the same if "ifname" and "network" are the same
-			if [ "$newifname" == "$ifname" ] && [ "$newnetwork" == "$network" ] ; then
-				break
-			fi
-		done
-
-		# prepend "set" to each line NOT containing "]="
-		# wireless.@wifi-iface[$index].<option>='<value>' becomes
-		# set wireless.@wifi-iface[$index].<option>='<value>'
-		sed -i '/.*]=.*/! s/\(.*\[\)'$index'\(\].*\)/set \1'$newindex'\2/' $IUPUSERCFG_WIFI
-
-		if [ "$newindex" == "-1" ] ; then
-			# prepend "add" to each line containing "]="
-			# AND keep only the package name (before the first dot) and section type (after equal)
-			# wireless.@wifi-iface[0]=wifi-iface becomes
-			# add wireless wifi-iface
-			sed -i 's/\(.*\)\..*\['$index'\]=\(.*\)/add \1 \2/' $IUPUSERCFG_WIFI
-		else
-			# no need to create a new uci section, just delete the line defining a new section
-			sed -i '/\(.*\)\..*\['$index'\]=\(.*\)/d' $IUPUSERCFG_WIFI
-		fi
-
-	done
-	# commit at the end of the script
-	[ -s $IUPUSERCFG_WIFI ] && echo "commit" >> $IUPUSERCFG_WIFI
-
-	# run the uci batch scripts
-	cat $IUPUSERCFG | uci batch >/dev/null 2>&1
-	cat $IUPUSERCFG_WIFI | uci batch >/dev/null 2>&1
-
-	rm -f $IUPUSERCFG $IUPUSERCFG_WIFI
+	savecfg_apply_config fw_redirect fw_parental wifi
 }
 
 handle_provisioning() {
