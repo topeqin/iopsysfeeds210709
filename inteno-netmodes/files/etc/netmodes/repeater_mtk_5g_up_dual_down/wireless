@@ -6,7 +6,7 @@ config wifi-status 'status'
 
 config wifi-device  ra0
 	option band b
-	option channel  1
+	option channel  auto
 	option bandwidth '20'
 	option hwmode   11n
 	option htmode   HT20

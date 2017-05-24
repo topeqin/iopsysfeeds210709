@@ -24,7 +24,7 @@ config wifi-iface
 
 config wifi-device  rai0
 	option band a
-	option channel  36
+	option channel  auto
 	option bandwidth '80'
 	option hwmode   11ac
 	option htmode   VHT80
