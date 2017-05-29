@@ -13,10 +13,12 @@ set_wireless_values() {
 	local ssid="$2"
 	local key="$3"
 	local encryption="$4"
+	local device="$5"
 	local old_ssid old_key old_encryption
 	if ! uci -q get wireless.@wifi-iface[$iface_num] >/dev/null 2>&1; then
 		state="reload"
 		uci add wireless wifi-iface >/dev/null 2>&1
+		uci set wireless.@wifi-iface[$iface_num].device="$device"
 	fi
 	local network="$(uci -q get wireless.@wifi-iface[$iface_num].network)"
 	old_ssid="$(uci -q get wireless.@wifi-iface[$iface_num].ssid)"
@@ -57,10 +59,13 @@ get_iface_num() {
 	local dev
 	while true; do
 		[ $i -gt 100 ] && break ## just a safty messure
+		if ! uci -q get wireless.@wifi-iface[$i] >/dev/null; then
+			break
+		fi
 		mode="$(uci -q get wireless.@wifi-iface[$i].mode)"
 		if [ "$mode" != "ap" ]; then
 			i=$((i+1))
-			break
+			continue
 		fi
 		dev="$(uci -q get wireless.@wifi-iface[$i].device)"
 		if [ "$dev" != "$device" ]; then
@@ -190,7 +195,7 @@ while json_get_var dummy $i; do
 	json_get_var ssid ssid
 	json_get_var encryption encryption
 	json_get_var key key
-	set_wireless_values "$iface_num" "$ssid" "$key" "$encryption"
+	set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
 	json_select ..
 	i=$((i+1))
 done
