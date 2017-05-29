@@ -85,6 +85,7 @@ case "$ACTION" in
 		uci commit network
 		ubus call network reload
 		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || {
+			killall -9 wifi
 			wifi reload nodat
 			killall -USR1 udhcpc
 		}
