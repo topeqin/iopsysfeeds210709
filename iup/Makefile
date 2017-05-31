@@ -21,7 +21,7 @@ define Package/iup
 endef
 
 define Package/iup/description
-	This package contains Intenos IUP Client
+	This package contains Inteno's IUP Client
 endef
 
 define Build/Compile
