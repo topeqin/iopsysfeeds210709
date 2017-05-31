@@ -106,7 +106,7 @@ function genconfig {
 		local ALL="$1"
 		local CUSTOMER="$2"
 		if [ "$CUSTOMER" -a -d "$CUSTCONF/$CUSTOMER" ]; then
-			local boards="$(ls -1 "$CUSTCONF/$CUSTOMER" | grep -v common)"
+			local boards="$(ls -1 "$CUSTCONF/$CUSTOMER" | grep -v common | grep -v juci-theme)"
 			if [ "$boards" ]; then
 				echo "$CUSTOMER has following boards:"
 				for board in $boards; do
@@ -120,10 +120,10 @@ function genconfig {
 			exit 1
 		elif [ -d $CUSTCONF ]; then
 			local customers="$(ls -1 $CUSTCONF)"
-			if [ "$customers" -a "$1" == 1 ]; then
+			if [ "$customers" -a "$ALL" == 1 ]; then
 				for customer in $customers; do
 					echo $customer
-					local boards="$(ls -1 $CUSTCONF/$customer | grep -v common)"
+					local boards="$(ls -1 $CUSTCONF/$customer | grep -v common | grep -v juci-theme)"
 					if [ "$boards" ]; then
 						for board in $boards; do
 							echo -e "\t$board"
