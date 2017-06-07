@@ -5,6 +5,7 @@
 . /lib/functions/network.sh
 
 network_get_ipaddr ip $INTERFACE
+repeaterready="$(uci -q get netmode.setup.repeaterready)"
 
 [ -z "$ip" ] && exit
 
@@ -31,6 +32,18 @@ set_disabled() {
 test_ip() {
 	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
 		# private IP
+		if [ "$repeaterready" == "1" ]; then
+			ubus call leds set  '{"state" : "allflash"}'
+			echo "Switching to 'repeater' mode" > /dev/console
+			uci -q set netmode.setup.curmode='repeater'
+			uci commit netmode
+			/etc/init.d/netmode reload
+			echo "Restarting network services" > /dev/console
+			ubus call network reload
+			wifi reload nodat
+			ubus call router.network reload
+			ubus call leds set  '{"state" : "normal"}'
+		fi
 		set_disabled 1
 	else
 		# public IP
@@ -47,7 +60,7 @@ test_ip() {
 }
 
 case "$(uci -q get netmode.setup.curmode)" in
-                repeater*) test_ip ;;
-		*) [ "$(uci -q get netmode.setup.repeaterready)" == "1" ] && test_ip 1;;
+		repeater*) test_ip ;;
+		*) [ "$repeaterready" == "1" ] && test_ip 1;;
 esac
 
