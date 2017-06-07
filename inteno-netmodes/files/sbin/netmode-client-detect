@@ -14,6 +14,21 @@ timed_check() {
 	done
 }
 
+is_inteno_macaddr()
+{
+	macaddr=$1
+
+	echo $macaddr | grep -i -e "^00:22:07" \
+				-e "^44:D4:37" \
+				-e "^00:0C:07" \
+				-e "^02:0C:07" \
+				-e "^06:0C:07" \
+				-e "^00:0C:43" \
+				-e "^02:0C:43" \
+				-e "^06:0C:43" \
+	&& return
+	false
+}
 
 timed_check 60 &
 
@@ -28,7 +43,7 @@ while read event ; do
 	json_get_var ipaddr ipaddr
 	json_get_var network netwrork "lan"
 
-	if echo $macaddr | grep -i -e "^00:22:07" -e "^44:D4:37" -e "^02:0C:07" -e "^06:0C:07"; then
+	if is_inteno_macaddr $macaddr; then
 		echo "netmode-client-detect: a new Inteno device detected on '$network' network (MACAddr:$macaddr IPAddr:$ipaddr)" >/dev/console
 		ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
 		/sbin/wificontrol --router --destination $ipaddr
