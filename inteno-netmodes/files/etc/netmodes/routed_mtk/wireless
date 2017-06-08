@@ -6,7 +6,7 @@ config wifi-status 'status'
 
 config wifi-device  ra0
 	option band b
-	option channel  1
+	option channel  auto
 	option bandwidth '20'
 	option hwmode   11n
 	option htmode   HT20
@@ -20,10 +20,11 @@ config wifi-iface
 	option ssid     Inteno-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
+	option wps_pbc	1
 
 config wifi-device  rai0
 	option band a
-	option channel  36
+	option channel  auto
 	option bandwidth '80'
 	option hwmode   11ac
 	option htmode   VHT80
@@ -37,4 +38,5 @@ config wifi-iface
 	option ssid     Inteno-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
+	option wps_pbc	1
 
