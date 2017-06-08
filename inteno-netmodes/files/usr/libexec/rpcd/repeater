@@ -7,7 +7,7 @@ get_if_creds() {
 	local section=$1
 	local network=$2
 	local net dev ssid key encryption band
-	config_get net $section "network"
+	config_get net $section "network" "lan"
 	if [ "$net" == "$network" ]; then
 		config_get dev $section "device"
 		band="$(uci -q get wireless.$dev.band)"
