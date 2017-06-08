@@ -536,7 +536,7 @@ check_feeds()
 	    read answer
 
 	    case $answer in
-		n|N)
+		n|N|'')
 		    continue;;
 	    esac
 	    branch_uptodate feeds/${feed}
