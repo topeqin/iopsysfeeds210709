@@ -239,7 +239,9 @@ if [ "$from_gui" == "true" ]; then
 else
 	if [ "$state" == "exit" ]; then
 		return
-	elif [ "$state" == "apply" ]; then
+	fi
+	ubus call leds set '{"state":"allflash"}'
+	if [ "$state" == "apply" ]; then
 		# wifi apply
 		wifi reload
 	else
@@ -247,4 +249,5 @@ else
 		wifi reload
 	fi
 	[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
+	ubus call leds set '{"state":"normal"}'
 fi
