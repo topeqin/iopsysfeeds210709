@@ -29,20 +29,42 @@ set_disabled() {
 	config_foreach toggle_firewall zone $1
 }
 
+is_inteno_macaddr()
+{
+	macaddr=$1
+
+	echo $macaddr | grep -i -e "^00:22:07" \
+				-e "^44:D4:37" \
+				-e "^00:0C:07" \
+				-e "^02:0C:07" \
+				-e "^06:0C:07" \
+				-e "^00:0C:43" \
+				-e "^02:0C:43" \
+				-e "^06:0C:43" \
+	&& return
+	false
+}
+
 test_ip() {
 	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
 		# private IP
 		if [ "$repeaterready" == "1" ]; then
-			ubus call leds set  '{"state" : "allflash"}'
-			echo "Switching to 'repeater' mode" > /dev/console
-			uci -q set netmode.setup.curmode='repeater'
-			uci commit netmode
-			/etc/init.d/netmode reload
-			echo "Restarting network services" > /dev/console
-			ubus call network reload
-			wifi reload nodat
-			ubus call router.network reload
-			ubus call leds set  '{"state" : "normal"}'
+			defroute=$(ip r | grep default | awk '{print$3}')
+			ping -c 1 -W 1 $defroute >/dev/null 2>&1
+			uplinkmac=$(grep "$defroute" /proc/net/arp | awk '{print$4}')
+			if ! is_inteno_macaddr $uplinkmac; then
+				ubus call leds set  '{"state" : "allflash"}'
+				echo "Switching to 'extender' mode" > /dev/console
+				uci -q set netmode.setup.curmode='repeater'
+				uci set netmode.setup.repeaterready=0
+				uci commit netmode
+				/etc/init.d/netmode reload
+				echo "Restarting network services" > /dev/console
+				ubus call network reload
+				wifi reload nodat
+				ubus call router.network reload
+				ubus call leds set  '{"state" : "normal"}'
+			fi
 		fi
 		set_disabled 1
 	else
