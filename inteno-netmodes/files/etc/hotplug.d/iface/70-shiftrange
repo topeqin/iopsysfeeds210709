@@ -1,0 +1,251 @@
+#!/bin/sh
+# this scripts shifts the lan network prefixes
+# if a wan interface has the same network prefix.
+
+. /lib/functions.sh
+. /lib/functions/network.sh
+
+local lockfile="/tmp/70-shiftrange.lock"
+local restricted_nets=""
+local all_nets=""
+
+
+#####
+##### initial functions
+#####
+
+initial_check()
+{
+	# run only on ifup
+	[ "$ACTION" == "ifup" ] || exit 0
+
+	# run only for uplink (not is_lan) interfaces
+	local islan="$(uci -q get network.$INTERFACE.is_lan)"
+	[ "$islan" != "1" ] || exit 0
+
+	# run only if the uplink interface has a configured protocol
+	local proto="$(uci -q get network.$INTERFACE.proto)"
+	[ "$proto" != "none" ] || exit 0
+}
+
+finish()
+{
+    lock -u $lockfile
+    rm -f $lockfile
+}
+
+# just one instance of this script at a time
+just_one_instance()
+{
+	local counter=0
+	local limit=10
+
+	#wait for the lock to become free
+	while [ -e $lockfile ] ; do
+		sleep 1
+		counter=$((counter + 1))
+		[ "$counter" -gt "$limit" ] && exit 1
+	done
+
+	lock $lockfile
+	trap finish EXIT INT TERM
+}
+
+
+#####
+##### helper functions
+#####
+
+#given a an ip and a mask in the form of "192.168.1.1/24"
+#return the network address like "192.168.1.0/24"
+get_network_address()
+{
+	local ip="$1"
+	[ -z "$ip" ] && return
+
+	local prefix=${ip##*/}
+
+	local ip1=${ip%%.*} ; ip=${ip#*.*}
+	local ip2=${ip%%.*} ; ip=${ip#*.*}
+	local ip3=${ip%%.*} ; ip=${ip#*.*}
+	local ip4=${ip%%/*}
+
+	local ip=$((($ip1 << 24) + ($ip2 << 16) + ($ip3 << 8) + $ip4))
+	local mask=$((0xFFFFFFFF >> (32 - $prefix) << (32 - $prefix)))
+	local network=$(($ip & $mask))
+
+	local n1=$((($network & 0xFF000000) >> 24))
+	local n2=$((($network & 0x00FF0000) >> 16))
+	local n3=$((($network & 0x0000FF00) >> 8))
+	local n4=$(( $network & 0x000000FF))
+
+	echo "$n1.$n2.$n3.$n4/$prefix"
+}
+
+#given a network address (192.168.1.0/24)
+#find the next network address (192.168.2.0/24)
+next_network_address()
+{
+	local ip=$1
+	local prefix=${ip##*/}
+
+	local ip1=${ip%%.*} ; ip=${ip#*.*}
+	local ip2=${ip%%.*} ; ip=${ip#*.*}
+	local ip3=${ip%%.*} ; ip=${ip#*.*}
+	local ip4=${ip%%/*}
+
+	local ip=$((($ip1 << 24) + ($ip2 << 16) + ($ip3 << 8) + $ip4))
+	local one=$((1 << (32-$prefix)))
+	local new=$(($ip + $one))
+
+	local n1=$((($new & 0xFF000000) >> 24))
+	local n2=$((($new & 0x00FF0000) >> 16))
+	local n3=$((($new & 0x0000FF00) >> 8))
+	local n4=$(( $new & 0x000000FF))
+
+	echo "$n1.$n2.$n3.$n4/$prefix"
+}
+
+# given a network address and a prefix (192.168.2.0/24)
+# return the first host ip available   (192.168.2.1)
+first_host_in_network ()
+{
+	local ip=$1
+	local prefix=${ip##*/}
+
+	local ip1=${ip%%.*} ; ip=${ip#*.*}
+	local ip2=${ip%%.*} ; ip=${ip#*.*}
+	local ip3=${ip%%.*} ; ip=${ip#*.*}
+	local ip4=${ip%%/*}
+
+	local ip=$((($ip1 << 24) + ($ip2 << 16) + ($ip3 << 8) + $ip4))
+	local new=$(($ip + 1))
+
+	local n1=$((($new & 0xFF000000) >> 24))
+	local n2=$((($new & 0x00FF0000) >> 16))
+	local n3=$((($new & 0x0000FF00) >> 8))
+	local n4=$(( $new & 0x000000FF))
+
+	echo "$n1.$n2.$n3.$n4"
+}
+
+# given a network address,
+# find the next available network address.
+shift_range()
+{
+	local net="$1"
+	while true ; do
+		if [ "$restricted_nets" == "${restricted_nets//$net/}" ] && [ "$all_nets" == "${all_nets//$net/}" ]; then
+			# found a net that is not in restricted nets nor in all nets
+			break
+		fi
+		net=$(next_network_address $net)
+	done
+
+	echo "$net"
+}
+
+
+#####
+##### parse all interfaces section
+#####
+
+# restricted_nets = all the IPs on wan interfaces
+# all_nets = all the IPs on any interface
+parse_interface()
+{
+	local interface=$1
+	local nets=""		# "192.168.1.1/24"
+	local networks=""	# "192.168.1.0/24"
+
+	config_get is_lan $interface is_lan
+	network_get_subnets nets $interface
+
+	for n in $nets ; do
+		networks="$networks $(get_network_address $n)"
+	done
+
+	[ "$is_lan" != "1" ] && restricted_nets="$restricted_nets $networks"
+	all_nets="$all_nets $networks"
+}
+
+# parse all the interfaces
+# get all the IPs on wan interfaces and store them in restrict_nets
+# get all the IPs on all interfaces and store them in all_nets
+parse_interfaces()
+{
+	config_foreach parse_interface "interface"
+}
+
+
+#####
+##### parse all lan interfaces section
+#####
+
+parse_lan()
+{
+	local interface=$1
+	local nets=""
+	local ips=""
+	local newips=""
+	local ips_changed=0
+
+	[ "$interface" == "loopback" ] && return
+	config_get is_lan $interface is_lan
+	[ "$is_lan" == "1" ] || return
+
+	network_get_subnets ips $interface
+
+	for ip in $ips ; do
+		net="$(get_network_address $ip)"
+
+		if [ "$restricted_nets" == "${restricted_nets//$net/}" ] ; then
+			# net is not in restricted nets
+			# append ip to newips
+			[ -z "$newips" ] && newips="${ip%/*}" ||  newips="$newips ${ip%/*}"
+			continue
+		fi
+
+		#net is in restricted_nets
+		local newnet=$(shift_range $net)
+		local newip="$(first_host_in_network $newnet)"
+		# append newip to newips
+		[ -z "$newips" ] && newips="$newip" ||  newips="$newips $newip"
+
+		ips_changed=1
+		logger "$0: Changing the ip on interface $interface from $ip to $newip/${newnet##*/}"
+		echo "$0: Changing the ip on interface $interface from $ip to $newip/${newnet##*/}" >/dev/console
+	done
+
+	#assign the new ips
+	if [ "$ips_changed" == "1" ] ; then
+		uci -q set network.$interface.ipaddr="$newips"
+	fi
+}
+
+# parse all the interface with is_lan=1
+parse_lans()
+{
+	config_foreach parse_lan "interface"
+}
+
+
+#####
+##### main
+#####
+
+main()
+{
+	initial_check
+	just_one_instance
+
+	config_load network
+	parse_interfaces
+	parse_lans
+
+	if [ -n "$(uci changes network)" ] ; then
+		ubus call uci commit '{"config":"network"}'
+	fi
+}
+
+main $@
