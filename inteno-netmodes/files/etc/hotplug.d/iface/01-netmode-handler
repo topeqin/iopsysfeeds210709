@@ -66,13 +66,12 @@ switch_mode() {
 	wifi reload nodat
 	ubus call router.network reload
 	ubus call leds set  '{"state" : "normal"}'
-
 }
 
 test_ip() {
 	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
 		# private IP
-		#switch_mode
+		switch_mode
 		set_disabled 1
 	else
 		# public IP
