@@ -21,6 +21,7 @@ config wifi-iface
 	option encryption psk2
 	option key      $WPAKEY
 	option ifname	ra0
+	option wps_pbc	1
 
 config wifi-device  rai0
 	option band a
@@ -39,6 +40,7 @@ config wifi-iface
 	option encryption psk2
 	option key      $WPAKEY
 	option ifname	rai0
+	option wps_pbc	1
 
 config wifi-iface
 	option device   rai0
