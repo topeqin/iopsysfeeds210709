@@ -17,15 +17,24 @@ export IUPTEMP="/tmp/iup"
 export INTERACTIVE=0
 export VERBOSE=0
 export CONF=1
-export DESKEY=$(cat /proc/nvram/DesKey | tr -d '\n' | hexdump -e '16/1 "%02x"')
-export MAC=$(cat /proc/nvram/BaseMacAddr)
+export DESKEY=
+export MAC=
 export RANGE=10
 export RETRYSTOP=5
 export SLEEP=10
-#remove whitespace
-MAC=${MAC// /}
-#lower to upper Conversion
-MAC=$(echo $MAC | tr '[a-z]' '[A-Z]')
+
+local sysinfo=$(ubus call router.system info)
+json_load "$sysinfo"
+json_select system
+json_get_var MAC basemac
+json_select ..
+json_select keys
+json_get_var DESKEY des
+json_select ..
+
+# MAC lowercase to uppercase and remove ':'
+MAC=$(echo $MAC | tr '[a-z]' '[A-Z]' | tr -d ':')
+
 
 # no verbose:	no output
 # -v		log to system log
