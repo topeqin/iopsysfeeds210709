@@ -83,6 +83,10 @@ test_ip() {
 			[ "$pid" != "" ] && kill -9 $pid
 			pid="$(pidof netmode-client-detect)"
 			[ "$pid" == "" ] && /sbin/netmode-client-detect &
+
+			# set default JUCI page to overview
+			uci -q set juci.juci.homepage="overview"
+			uci commit juci
 		}
 	fi
 }
