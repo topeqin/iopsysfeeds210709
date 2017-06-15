@@ -129,9 +129,11 @@ define Package/icwmp-$(BUILD_VARIANT)/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/firewall.cwmp $(1)/etc/firewall.cwmp
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmpd.init $(1)/etc/init.d/icwmpd
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uci-defaults/90-cwmpfirewall $(1)/etc/uci-defaults/90-cwmpfirewall
+	$(INSTALL_DIR) $(1)/etc/hotplug.d
+	$(CP) ./files/icwmp.hotplug $(1)/etc/hotplug.d/90-icwmp
 ifeq ($(CONFIG_CWMP_SCRIPTS_FULL),y)
 	$(INSTALL_DIR) $(1)/usr/share/icwmp
 	$(CP) $(PKG_BUILD_DIR)/scripts/defaults $(1)/usr/share/icwmp

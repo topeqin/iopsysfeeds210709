@@ -1,0 +1,44 @@
+#!/bin/sh
+
+grep -q "Designated" /etc/banner || exit 0
+
+. /lib/functions/network.sh
+
+[ "$ACTION" == "ifup" ] || exit 0
+
+local islan="$(uci -q get network.$INTERFACE.is_lan)"
+[ "$islan" == "1" ] && exit 0
+
+local proto="$(uci -q get network.$INTERFACE.proto)"
+[ "$proto" == "none" ] && exit 0
+
+local ifname="$(uci -q get network.$INTERFACE.ifname)"
+[ "${ifname:0:1}" == "@" ] && exit 0
+
+mkdir -p /tmp/ipv4
+
+local previpaddr=""
+local curipaddr=""
+local ipaddrfile=/tmp/ipv4/$INTERFACE-ipaddr
+previpaddr=$(cat $ipaddrfile 2>/dev/null)
+network_get_ipaddr curipaddr $INTERFACE
+[ -n "$curipaddr" ] && echo $curipaddr > $ipaddrfile || rm -f $ipaddrfile
+
+local prevgateway=""
+local curgateway=""
+local gatewayfile=/tmp/ipv4/$INTERFACE-gateway
+prevgateway=$(cat $gatewayfile 2>/dev/null)
+network_get_gateway curgateway $INTERFACE
+[ -n "$curgateway" ] && echo $curgateway > $gatewayfile || rm -f $gatewayfile
+
+local prevsubnets=""
+local cursubnets=""
+local subnetsfile=/tmp/ipv4/$INTERFACE-subnets
+prevsubnets=$(cat $subnetsfile 2>/dev/null)
+network_get_subnets cursubnets $INTERFACE
+[ -n "$cursubnets" ] && echo $cursubnets > $subnetsfile || rm -f $subnetsfile
+
+[ "$previpaddr" = "$curipaddr" -a "$prevgateway" = "$curgateway" -a "$prevsubnets" = "$cursubnets" ] && exit 0
+
+[ -f /etc/config/cwmp ] && /etc/init.d/icwmpd reload &
+
