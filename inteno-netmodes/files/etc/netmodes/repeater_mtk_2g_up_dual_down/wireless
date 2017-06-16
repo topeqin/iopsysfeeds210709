@@ -11,7 +11,6 @@ config wifi-device  ra0
 	option hwmode   11n
 	option htmode   HT20
 	option country 'DE'
-	option beamforming 0
 
 config wifi-iface
 	option device   ra0
@@ -30,7 +29,7 @@ config wifi-device  rai0
 	option hwmode   11ac
 	option htmode   VHT80
 	option country 'DE'
-	option beamforming 0
+	option beamforming 1
 
 config wifi-iface
 	option device   rai0

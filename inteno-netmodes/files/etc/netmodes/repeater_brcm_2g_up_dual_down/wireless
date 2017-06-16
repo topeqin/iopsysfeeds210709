@@ -27,7 +27,7 @@ config wifi-device 'wl0'
 	option rifs '0'
 	option rifs_advert '0'
 	option maxassoc '32'
-	option beamforming '0'
+	option beamforming '1'
 	option doth '1'
 	option dfsc '1'
 
