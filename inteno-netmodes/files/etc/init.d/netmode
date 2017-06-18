@@ -207,13 +207,16 @@ switch_netmode() {
 }
 
 start_client_listener() {
-	local curmode repeaterready
-	config_load netmode
+	local curmode repeaterready ulcpid
 
+	config_load netmode
 	config_get repeaterready setup repeaterready 0
+
+	ulcpid=$(ps | grep "ubus listen client" | grep -v grep | awk '{print$1}')
 
 	[ $repeaterready -eq 1 ] && {
 		killall -SIGKILL netmode-client-detect >/dev/null 2>&1
+		kill -9 $ulcpid >/dev/null 2>&1
 		return
 	}
 
@@ -222,6 +225,7 @@ start_client_listener() {
 	case "$curmode" in
 		repeater*)
 			killall -SIGKILL netmode-client-detect >/dev/null 2>&1
+			kill -9 $ulcpid >/dev/null 2>&1
 		;;
 		*)
 			pidof netmode-client-detect || /sbin/netmode-client-detect &

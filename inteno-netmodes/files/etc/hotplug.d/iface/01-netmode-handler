@@ -48,14 +48,28 @@ is_inteno_macaddr()
 switch_mode() {
 	[ "$repeaterready" == "1" ] || return
 
-	defroute=$(ip r | grep default | awk '{print$3}')
-	ping -c 1 -W 1 $defroute >/dev/null 2>&1
-	uplinkmac=$(grep "$defroute" /proc/net/arp | awk '{print$4}')
-
-	# will be auto-configured if the uplink device is Inteno
-	is_inteno_macaddr $uplinkmac && return
+	# flush iptables in case the MASTER
+	# tries to configure us before
+	# firewall is disabled the proper way
+	iptables -F
 
 	ubus call leds set  '{"state" : "allflash"}'
+
+	local ret=0
+	# let netmode-conf up to 20 seconds before switching mode
+	for tm in 2 4 6 8; do
+		if [ -f /tmp/wificontrol.txt ]; then
+			ret=1
+			break
+		fi
+		sleep $tm
+	done
+
+	# let netmode-conf take over
+	[ $ret -eq 1 ] && return
+
+	# go head with switching mode
+	touch -f /tmp/switching_mode
 	echo "Switching to 'extender' mode" > /dev/console
 	uci -q set netmode.setup.curmode='repeater'
 	uci set netmode.setup.repeaterready=0
@@ -66,6 +80,7 @@ switch_mode() {
 	wifi reload nodat
 	ubus call router.network reload
 	ubus call leds set  '{"state" : "normal"}'
+	rm -f /tmp/switching_mode
 }
 
 test_ip() {

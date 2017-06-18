@@ -108,8 +108,15 @@ backup() {
 file="$1"
 from_gui="$2"
 
-
 [ -f "$file" ] || exit
+
+# let netmode-handler up to 20 seconds to finish switching mode
+for tm in 2 4 6 8; do
+	if [ ! -f /tmp/switching_mode ]; then
+		break
+	fi
+	sleep $tm
+done
 
 [ "$from_gui" == "true" ] && backup
 
