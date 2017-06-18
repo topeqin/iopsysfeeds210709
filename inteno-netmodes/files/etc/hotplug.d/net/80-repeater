@@ -49,6 +49,8 @@ get_wifi_iface_cfgstr() {
 link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
 [ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
 
+ubus call leds set  '{"state" : "allflash"}'
+
 case "$ACTION" in
 	add|register)
 		[ "$link" == "down" ] && return
@@ -91,3 +93,5 @@ case "$ACTION" in
 		}
 	;;
 esac
+
+ubus call leds set  '{"state" : "normal"}'
