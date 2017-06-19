@@ -261,6 +261,7 @@ wlmngr_startWsc()
 	nvram set wps_timeout_enable=0
 	#nvram get wps_config_method
 	nvram set wps_version2=enabled # extra
+	nvram set wps_oob_configured=1
 	nvram set lan_wps_oob=disabled # extra
 	nvram set lan_wps_reg=enabled # extra
 
