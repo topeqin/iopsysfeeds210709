@@ -474,13 +474,22 @@ wait_for_default_gateway()
 			return 0
 		fi
 
-		v "Waiting for default gateway. Countdown $wait_time seconds"
+		# try the nameservers too
+		for ns in $(grep nameserver /var/resolv.conf.auto | awk '{print $2}'); do
+			if ping -q -w 1 -c 1 $device $ns >/dev/null 2>&1 ; then
+				[ "$wait_time" -lt "60" ] && v "Name server $ns is reachable"
+				sleep $wait_interval
+				return 0
+			fi
+		done
+
+		v "Waiting for default gateway or name server. Countdown $wait_time seconds"
 		sleep $wait_interval
 		wait_time=$((wait_time - wait_interval))
 		[ "$wait_time" -le "0" ] && break # timer expired
 	done
 
-	return 1 # default gateway not reachable
+	return 1 # default gateway and name server are not reachable
 }
 
 
@@ -506,7 +515,7 @@ main()
 	done
 
 	if ! wait_for_default_gateway ; then
-		v "Default gateway is not reachable. Aborting iup."
+		v "Neither default gateway nor name server are reachable. Aborting iup."
 		exit 1
 	fi
 
