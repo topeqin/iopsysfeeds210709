@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=u-boot
 PKG_VERSION:=2016.08
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_SOURCE_URL:=http://public.inteno.se:/uboot
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=fccb9d5ee720a9f60cba917ded83e5cebe221eef
