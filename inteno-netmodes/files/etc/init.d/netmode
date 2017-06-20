@@ -201,6 +201,11 @@ switch_netmode() {
 	local askcred=$(uci -q get netmode.$curmode.askcred)
 	if [ "$reboot" == "0" ]; then
 		/etc/init.d/enviroment reload
+		case "$curmode" in
+			routed*)
+				ubus call uci commit '{"config":"network"}'
+			;;
+		esac
 	else
 		reboot &
 	fi

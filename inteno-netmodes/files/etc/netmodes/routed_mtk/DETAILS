@@ -10,6 +10,7 @@
 	"excluded_boards" : [
 		"*G*"
 	],
+	"reboot" : 0,
 	"credentials" : 0
 }
 
