@@ -48,6 +48,10 @@ is_inteno_macaddr()
 switch_mode() {
 	[ "$repeaterready" == "1" ] || return
 
+	# flush the ip on br-lan; br-lan will anyhow be deleted.
+	# this is needed if the ip received on the wan is also from the same net
+	ip addr flush dev br-lan
+
 	# flush iptables in case the MASTER
 	# tries to configure us before
 	# firewall is disabled the proper way
