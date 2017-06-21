@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/image.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-
+PKG_BUILD_PARALLEL:=0
 BCM_KERNEL_VERSION=`cat $(BUILD_DIR)/bcmkernel/bcm963xx/kernel/linux-*/include/config/kernel.release`
 
 export BUILD_DIR
