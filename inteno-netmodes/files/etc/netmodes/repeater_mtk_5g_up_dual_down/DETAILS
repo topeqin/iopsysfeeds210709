@@ -8,7 +8,8 @@
 		{ "sv" : "Routern kommer att fungera som en trådbunden extender eller trådlös repeater till den valda trådlösa åtkomstpunkten. Uplink 5G & Downlink 2.4G + 5G" }
 	],
 	"excluded_boards" : [
-		"*G*"
+		"*G*",
+		"F*"
 	],
 	"uplink_band" : 'a',
 	"credentials" : 1,
