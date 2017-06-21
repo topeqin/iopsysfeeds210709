@@ -1,6 +1,7 @@
 #!/bin/sh
 
-local hasEthWan="1"
+local hasEthWan="$(db -q get hw.board.hasEthWan)"
+hasEthWan=${hasEthWan:-1}
 local hasAdsl="$(db -q get hw.board.hasAdsl)"
 local hasVdsl="$(db -q get hw.board.hasVdsl)"
 
