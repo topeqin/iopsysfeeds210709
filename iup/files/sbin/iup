@@ -192,7 +192,7 @@ handle_Downloaded_file()
 					for f in $CONFILESLURP
 					do
 						v "File to be applied $f and config $(cat $f)"
-						uci import -f $f
+						uci -f import $f
 					done
 					pack=$(get_packages $CONFILESLURP)
 					v "Packages to be commited: $pack"
