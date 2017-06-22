@@ -34,21 +34,21 @@ is_inteno_macaddr()
 timed_check 60 &
 
 while true ; do
-ubus -t 60 listen client | \
-while read event ; do
-	#echo "netmode-client-detect got event: $event" >/dev/console
-	json_load "$event"
-	json_select client
-	json_get_var action action
-	[ "$action" == "connect" ] || continue
-	json_get_var macaddr macaddr
-	json_get_var ipaddr ipaddr
-	json_get_var network network "lan"
+	ubus -t 60 listen client | \
+	while read event ; do
+		#echo "netmode-client-detect got event: $event" >/dev/console
+		json_load "$event"
+		json_select client
+		json_get_var action action
+		[ "$action" == "connect" ] || continue
+		json_get_var macaddr macaddr
+		json_get_var ipaddr ipaddr
+		json_get_var network network "lan"
 
-	if is_inteno_macaddr $macaddr; then
-		echo "netmode-client-detect: a new Inteno device detected on '$network' network (MACAddr:$macaddr IPAddr:$ipaddr)" >/dev/console
-		ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
-		/sbin/wificontrol --router --destination $ipaddr
-	fi
-done
+		if is_inteno_macaddr $macaddr; then
+			echo "netmode-client-detect: a new Inteno device detected on '$network' network (MACAddr:$macaddr IPAddr:$ipaddr)" >/dev/console
+			ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
+			/sbin/wificontrol --router --destination $ipaddr
+		fi
+	done
 done
