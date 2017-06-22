@@ -41,7 +41,7 @@ while read event ; do
 	[ "$action" == "connect" ] || continue
 	json_get_var macaddr macaddr
 	json_get_var ipaddr ipaddr
-	json_get_var network netwrork "lan"
+	json_get_var network network "lan"
 
 	if is_inteno_macaddr $macaddr; then
 		echo "netmode-client-detect: a new Inteno device detected on '$network' network (MACAddr:$macaddr IPAddr:$ipaddr)" >/dev/console
