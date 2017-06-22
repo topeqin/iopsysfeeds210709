@@ -35,6 +35,9 @@ json_select ..
 # MAC lowercase to uppercase and remove ':'
 MAC=$(echo $MAC | tr '[a-z]' '[A-Z]' | tr -d ':')
 
+# Convert DESKEY to HEX format
+DESKEY=$(echo $DESKEY | tr -d '\n' | hexdump -e '16/1 "%02x"')
+
 
 # no verbose:	no output
 # -v		log to system log
