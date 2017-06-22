@@ -32,7 +32,8 @@ is_inteno_macaddr()
 
 timed_check 60 &
 
-ubus listen client | \
+while true ; do
+ubus -t 60 listen client | \
 while read event ; do
 	#echo "netmode-client-detect got event: $event" >/dev/console
 	json_load "$event"
@@ -48,4 +49,5 @@ while read event ; do
 		ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
 		/sbin/wificontrol --router --destination $ipaddr
 	fi
+done
 done
