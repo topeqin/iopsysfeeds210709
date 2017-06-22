@@ -8,7 +8,8 @@
 local action ipaddr macaddr network
 
 timed_check() {
-	ubus call repeater get_creds '{"network":"lan","file":"/tmp/wificontrol.txt"}'
+	network=${network:lan}
+	ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
 	wificontrol --router
 }
 
