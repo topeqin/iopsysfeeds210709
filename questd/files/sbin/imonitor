@@ -22,7 +22,7 @@ NPROC_COUNT=4	# number of time that the NPROC_LIMIT has to be hit to trigger a p
 NPROC_NFAIL=0	# current consecutive Number of FAILures. process restarts when NPROC_NFAIL == NPROC_COUNT
 
 # memmory limit
-MEM_LIMIT=50000
+MEM_LIMIT=15000
 MEM_COUNT=4
 MEM_NFAIL=0
 
