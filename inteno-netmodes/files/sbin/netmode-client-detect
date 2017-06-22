@@ -8,9 +8,12 @@
 local action ipaddr macaddr network
 
 timed_check() {
-	network=${network:-lan}
-	ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
-	wificontrol --router
+	while true; do
+		network=${network:-lan}
+		ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
+		wificontrol --router
+		sleep $1
+	done
 }
 
 is_inteno_macaddr()
@@ -29,8 +32,10 @@ is_inteno_macaddr()
 	false
 }
 
+timed_check 60 &
+
 while true ; do
-	ubus -t 60 listen client | \
+	ubus listen client | \
 	while read event ; do
 		#echo "netmode-client-detect got event: $event" >/dev/console
 		json_load "$event"
@@ -47,7 +52,4 @@ while true ; do
 			/sbin/wificontrol --router --destination $ipaddr
 		fi
 	done
-	sleep 5
-	timed_check
 done
-
