@@ -9,6 +9,7 @@ local action ipaddr macaddr network
 
 timed_check() {
 	while true; do
+		ubus call repeater get_creds '{"network":"lan","file":"/tmp/wificontrol.txt"}'
 		wificontrol --router
 		sleep $1
 	done
