@@ -8,11 +8,8 @@
 local action ipaddr macaddr network
 
 timed_check() {
-	while true; do
-		ubus call repeater get_creds '{"network":"lan","file":"/tmp/wificontrol.txt"}'
-		wificontrol --router
-		sleep $1
-	done
+	ubus call repeater get_creds '{"network":"lan","file":"/tmp/wificontrol.txt"}'
+	wificontrol --router
 }
 
 is_inteno_macaddr()
@@ -30,8 +27,6 @@ is_inteno_macaddr()
 	&& return
 	false
 }
-
-timed_check 60 &
 
 while true ; do
 	ubus -t 60 listen client | \
@@ -51,4 +46,7 @@ while true ; do
 			/sbin/wificontrol --router --destination $ipaddr
 		fi
 	done
+	sleep 5
+	timed_check
 done
+
