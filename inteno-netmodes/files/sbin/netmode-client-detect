@@ -21,6 +21,7 @@ is_inteno_macaddr()
 	macaddr=$1
 
 	echo $macaddr | grep -i -e "^00:22:07" \
+				-e "^02:22:07" \
 				-e "^44:D4:37" \
 				-e "^00:0C:07" \
 				-e "^02:0C:07" \
