@@ -49,11 +49,10 @@ get_wifi_iface_cfgstr() {
 link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
 [ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
 
-ubus call leds set  '{"state" : "allflash"}'
-
 case "$ACTION" in
 	add|register)
 		[ "$link" == "down" ] && return
+		ubus call leds set  '{"state" : "allflash"}'
 		echo "Autoswitch to Extender mode" > /dev/console
 		sleep 2
 		wetif="$(get_wifi_wet_interface)"
@@ -69,9 +68,11 @@ case "$ACTION" in
 		uci commit network
 		ubus call network reload
 		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
+		ubus call leds set  '{"state" : "normal"}'
 	;;
 	remove|unregister)
 		[ "$link" == "up" ] && return
+		ubus call leds set  '{"state" : "allflash"}'
 		echo "Autoswitch to Repeater mode" > /dev/console
 		sleep 2
 		wetif="$(get_wifi_wet_interface)"
@@ -91,7 +92,7 @@ case "$ACTION" in
 			wifi reload nodat
 			killall -USR1 udhcpc
 		}
+		ubus call leds set  '{"state" : "normal"}'
 	;;
 esac
 
-ubus call leds set  '{"state" : "normal"}'
