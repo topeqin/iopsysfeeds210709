@@ -3,6 +3,9 @@
 START=10
 USE_PROCD=1
 
+TMPDIR=/var/netmodes
+OLD_MODE_FILE=/var/netmodes/old_mode
+
 . /usr/share/libubox/jshn.sh
 . /lib/network/config.sh
 
@@ -41,12 +44,18 @@ get_device() {
 
 populate_netmodes() {
 	[ -f /etc/config/netmode -a -d $modedir ] || return
+	local curmode
+
+	config_load netmode
+
+	config_get curmode setup curmode
+
+	mkdir -p $TMPDIR
+	echo $curmode > $OLD_MODE_FILE
 
 	delete_netmode() {
 		uci delete netmode.$1
 	}
-
-	config_load netmode
 
 	config_foreach delete_netmode netmode
 	uci commit netmode
@@ -162,9 +171,11 @@ populate_netmodes() {
 
 switch_netmode() {
 	[ -f /etc/config/netmode -a -d $modedir ] || return
-	local curmode conf repeaterready
+	local curmode conf repeaterready old_mode
 
 	config_load netmode
+
+	config_get curmode setup curmode
 
 	config_get repeaterready setup repeaterready "0"
 	if [ "$repeaterready" == "1" ] ; then
@@ -172,7 +183,6 @@ switch_netmode() {
 		uci commit netmode
 	fi
 
-	config_get curmode setup curmode
 	if [ "$curmode" == "repeater" ]; then
 		local hw="$(db -q get hw.board.hardware)"
 		if [ "$hw" == "EX400" ]; then
@@ -193,6 +203,17 @@ switch_netmode() {
 		uci set netmode.setup.curmode="$curmode"
 		uci commit netmode
 	fi
+
+	old_mode=`cat $OLD_MODE_FILE 2>/dev/null`
+
+        # if curmode has not changed do not copy configs
+        if [ "$curmode" == "$old_mode" ]; then
+                /etc/init.d/enviroment reload
+                return
+        fi
+
+        echo $curmode >$OLD_MODE_FILE
+
 	[ -d "/etc/netmodes/$curmode" ] || return
 	cp /etc/netmodes/$curmode/* /etc/config/
 	rm -f /etc/config/DETAILS
