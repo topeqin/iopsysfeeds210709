@@ -49,10 +49,6 @@ get_wifi_iface_cfgstr() {
 link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
 [ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
 
-# if WAN link state has not changed, exit
-[ "$link" == "$(cat /tmp/wan_link_state 2>/dev/null)" ] && exit
-echo "$link" > /tmp/wan_link_state
-
 case "$ACTION" in
 	add|register)
 		[ "$link" == "down" ] && return
