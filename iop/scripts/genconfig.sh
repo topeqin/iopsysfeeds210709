@@ -9,7 +9,6 @@ function genconfig {
 	CURRENT_CONFIG_FILE=".current_config_file"
 	export CONFIGPATH="package/feeds/feed_inteno_packages/iop/configs"
 	CUSTPATH="customerconfigs"
-	CUSTREPO="git@private.inteno.se:customerconfigs"
 	export CUSTCONF="customerconfigs/customers"
 	export VERBOSE=0
 	export DEVELOPER=0
@@ -158,7 +157,7 @@ function genconfig {
 	{
 		if [ $DEVELOPER -eq 1 ]; then
 			if [ ! -d "$CUSTPATH" ]; then
-			git clone "$CUSTREPO" "$CUSTPATH"
+			git clone "$CUSTREPO" "$CUSTPATH" || exit
 			elif [ $IMPORT -eq 1 ]; then
 			cd $CUSTPATH
 			v "git pull"
@@ -335,6 +334,7 @@ function genconfig {
 			-n|--no-update) export IMPORT=0;;
 			-v|--verbose) export VERBOSE="$(($VERBOSE + 1))";;
 			-p|--profile) export PROFILE="$2"; shift;;
+			-r|--repo) export CUSTREPO="$2"; shift;;
 			-s|--override) export SRCTREEOVERR=1;;
 			-h|--help) usage;;
 			-l|--list) list_customers 0 $2;;
@@ -348,6 +348,9 @@ function genconfig {
 			esac
 			shift;
 		done
+
+		CUSTREPO="${CUSTREPO:-git@private.inteno.se:customerconfigs}"
+
 		setup_dirs
 		create_and_copy_files "$1" "$2"
 	fi
