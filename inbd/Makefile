@@ -12,7 +12,7 @@ PKG_NAME:=inbd
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2d474e9ff37b9cfcffd4b9ac8eba8db03eb38a21
+PKG_SOURCE_VERSION:=92f918d26c0ffc22d1704f5ea6cbb0bd7fdbdab9
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se/inbd
 
