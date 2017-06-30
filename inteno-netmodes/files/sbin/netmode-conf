@@ -63,7 +63,7 @@ get_iface_num() {
 			break
 		fi
 		mode="$(uci -q get wireless.@wifi-iface[$i].mode)"
-		if [ "$mode" != "ap" ]; then
+		if [ "$mode" == "wet" -o "$mode" == "sta" ]; then
 			i=$((i+1))
 			continue
 		fi
