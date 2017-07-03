@@ -16,6 +16,7 @@ start_service() {
 	local AnnexL
 	local ADSL2plus
 	local VDSL2
+	local GFast
 	local a8a
 	local b8b
 	local c8c
@@ -28,6 +29,7 @@ start_service() {
 	local sra
 	local vdsl
 
+
 	config_load layer2_interface
 	config_get Glite capabilities Glite
 	config_get GDmt capabilities GDmt
@@ -36,6 +38,7 @@ start_service() {
 	config_get ADSL2plus capabilities ADSL2plus
 	config_get AnnexL capabilities AnnexL
 	config_get VDSL2 capabilities VDSL2
+	config_get GFast capabilities GFast
 	config_get AnnexM capabilities AnnexM
 
 	config_get a8a capabilities 8a
@@ -58,6 +61,7 @@ start_service() {
 	ADSL2plus=$(echo $ADSL2plus | sed 's/Enabled\|1/p/g')
 	AnnexM=$(echo $AnnexM | sed 's/Enabled\|1/m/g')
 	VDSL2=$(echo $VDSL2 | sed 's/Enabled\|1/v/g')
+	GFast=$(echo $GFast | sed 's/Enabled\|1/f/g')
 
 	a8a=$(echo $a8a | sed 's/Enabled\|1/8a/g')
 	b8b=$(echo $b8b | sed 's/Enabled\|1/8b/g')
@@ -83,8 +87,8 @@ start_service() {
 	json_get_var vdsl vdsl
 
 	if [ $vdsl -eq 1 ]; then
-		echo "xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2 --profile \"$a8a $b8b $c8c $d8d $a12a $b12b $a17a\" --sra $sra --bitswap $bitswap --us0 $US0"
-		xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2 --profile "$a8a $b8b $c8c $d8d $a12a $b12b $a17a" --sra $sra --bitswap $bitswap --us0 $US0
+		echo "xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$4GFast --profile \"$a8a $b8b $c8c $d8d $a12a $b12b $a17a\" --sra $sra --bitswap $bitswap --us0 $US0"
+		xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$4GFast --profile "$a8a $b8b $c8c $d8d $a12a $b12b $a17a" --sra $sra --bitswap $bitswap --us0 $US0
 	else
 		echo "xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM --sra $sra --bitswap $bitswap"
 		xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM --sra $sra --bitswap $bitswap
