@@ -1,11 +1,12 @@
 #!/bin/sh
 
 grep -rq "^ice:" /etc/passwd || {
-	local password="$(db get hw.board.wpaKey)"
-	if [ -n "$password" ]; then
-		adduser -D -H -s /bin/false ice
-		(echo $password; sleep 1; echo $password) | passwd ice >/dev/null 2>&1
-	fi
+	adduser -D -H -s /bin/false ice
+	uci -q delete passwords.ice
+	uci -q set passwords.ice=usertype
+	uci -q set passwords.ice.password="\$WPAKEY"
+	uci -q add_list passwords.ice._access_r=root
+	uci -q commit passwords
 }
 
 uci show rpcd | grep username=.*ice.* >/dev/null || {
@@ -47,6 +48,7 @@ config login
 	list write 'juci-network-netifd'
 	list write 'juci-owsd'
 	list write 'juci-printer'
+	list write 'juci-realtime-graphs'
 	list write 'juci-samba'
 	list write 'juci-sfp'
 	list write 'juci-snmpd'
@@ -56,6 +58,7 @@ config login
 	list write 'juci-usb'
 	list write 'core'
 	list write 'unauthenticated'
+
 EOF
 }
 
