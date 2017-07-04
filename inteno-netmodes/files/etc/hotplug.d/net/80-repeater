@@ -68,6 +68,7 @@ case "$ACTION" in
 		uci commit network
 		ubus call network reload
 		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
+		ubus call router.network reload
 		ubus call leds set  '{"state" : "normal"}'
 	;;
 	remove|unregister)
@@ -92,6 +93,7 @@ case "$ACTION" in
 			wifi reload nodat
 			killall -USR1 udhcpc
 		}
+		ubus call router.network reload
 		ubus call leds set  '{"state" : "normal"}'
 	;;
 esac
