@@ -67,6 +67,7 @@ case "$ACTION" in
 		uci set network.wan.ifname="$(echo $WANDEV $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$wetif //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 		uci commit network
 		ubus call network reload
+		[ -f /usr/sbin/wlctl ] && wlctl -i $wetif bss down 2>/dev/null
 		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
 		ubus call router.network reload
 		ubus call leds set  '{"state" : "normal"}'
@@ -88,6 +89,7 @@ case "$ACTION" in
 		uci set network.wan.ifname="$(echo $wetif $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$WANDEV //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 		uci commit network
 		ubus call network reload
+		[ -f /usr/sbin/wlctl ] && wlctl -i $wetif bss up 2>/dev/null
 		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || {
 			killall -9 wifi
 			wifi reload nodat
