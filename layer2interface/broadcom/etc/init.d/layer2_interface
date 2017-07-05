@@ -87,8 +87,8 @@ start_service() {
 	json_get_var vdsl vdsl
 
 	if [ $vdsl -eq 1 ]; then
-		echo "xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$4GFast --profile \"$a8a $b8b $c8c $d8d $a12a $b12b $a17a\" --sra $sra --bitswap $bitswap --us0 $US0"
-		xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$4GFast --profile "$a8a $b8b $c8c $d8d $a12a $b12b $a17a" --sra $sra --bitswap $bitswap --us0 $US0
+		echo "xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$GFast --profile \"$a8a $b8b $c8c $d8d $a12a $b12b $a17a\" --sra $sra --bitswap $bitswap --us0 $US0"
+		xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$GFast --profile "$a8a $b8b $c8c $d8d $a12a $b12b $a17a" --sra $sra --bitswap $bitswap --us0 $US0
 	else
 		echo "xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM --sra $sra --bitswap $bitswap"
 		xdslctl start --up --mod $GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM --sra $sra --bitswap $bitswap
