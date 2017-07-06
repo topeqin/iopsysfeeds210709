@@ -155,15 +155,17 @@ function genconfig {
 
 	setup_dirs()
 	{
-		if [ $DEVELOPER -eq 1 ]; then
+		if ssh -o ConnectTimeout=5 git@private.inteno.se 2>/dev/null  | grep -qw ${CUSTREPO:22}; then
 			if [ ! -d "$CUSTPATH" ]; then
-			git clone "$CUSTREPO" "$CUSTPATH" || exit
+				git clone "$CUSTREPO" "$CUSTPATH"
 			elif [ $IMPORT -eq 1 ]; then
-			cd $CUSTPATH
-			v "git pull"
-			git pull
-			cd - >/dev/null #go back
+				cd $CUSTPATH
+				v "git pull"
+				git pull
+				cd - >/dev/null #go back
 			fi
+		else
+			echo "You do not have access to $CUSTREPO"
 		fi
 
 		if [ ! -d "$FILEDIR" ]; then
