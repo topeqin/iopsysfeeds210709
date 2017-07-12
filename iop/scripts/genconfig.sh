@@ -296,7 +296,7 @@ function genconfig {
 		# we need to signal to bradcom SDK that we have changed the board id
 		# currently boardparms.c and boardparms_voice.c is the only place that is depending on inteno boardid name
 		# so just touch that file.
-		find build_dir/ -name "boardparms*c" -print0 2>/dev/null | xargs -0 touch 2>/dev/null
+		[ -d ./build_dir ] && find build_dir/ -name "boardparms*c" -print0 2>/dev/null | xargs -0 touch 2>/dev/null
 				
 		# Set default values based on selected parameters
 		v "$(make defconfig 2>&1)"
