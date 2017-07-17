@@ -267,9 +267,9 @@ function genconfig {
 		[ $SRCTREEOVERR -eq 1 ] && echo CONFIG_SRC_TREE_OVERRIDE=y >> .config
 
 		# developer mode selected ?
+		echo "CONFIG_DEVEL=y" >>.config
 		if [ $DEVELOPER -eq 1 ]; then
 			# rewrite url to clone with ssh instead of http
-			echo "CONFIG_DEVEL=y" >>.config
 			echo "CONFIG_GITMIRROR_REWRITE=y" >>.config
 			[ $bcmAllowed -eq 0 ] && echo "CONFIG_BCM_OPEN=y" >> .config
 			[ $iceAllowed -eq 0 ] && echo "CONFIG_ICE_OPEN=y" >> .config
@@ -277,7 +277,6 @@ function genconfig {
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
 		else
-			echo "CONFIG_DEVEL=n" >>.config
 			echo "CONFIG_GITMIRROR_REWRITE=n" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
 			echo "CONFIG_ICE_OPEN=y" >> .config
