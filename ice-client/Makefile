@@ -20,13 +20,13 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
 BASE_PKG_VERSION:=4.4.0
-PKG_RELEASE:=RC8
+PKG_RELEASE:=RC9
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
-PKG_SOURCE_VERSION:=4b9a5eb71dbf14f5fa72c7c10fa53035489f6f88
+PKG_SOURCE_VERSION:=4ea917d5cdc05be15af4deff2ef3f8b5beb09127
 ifeq ($(CONFIG_ICE_OPEN),y)
 TARGET_PROFILE=$(shell echo $(CONFIG_TARGET_BOARD) | sed s/\"//g)
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
@@ -154,6 +154,7 @@ define Package/ice-client/install
 	$(CP) $(PKG_BUILD_DIR)/scripts/etc/config/ice $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/iopsys
 	$(CP) $(PKG_BUILD_DIR)/scripts/server.ini $(1)/etc/iopsys	
+	$(CP) $(PKG_BUILD_DIR)/scripts/defaults.ini $(1)/etc/iopsys	
 	$(CP) $(PKG_BUILD_DIR)/scripts/modify.ini $(1)/etc/iopsys
 	$(INSTALL_DIR) $(1)/etc/iopsys/certificates
 	$(CP) $(PKG_BUILD_DIR)/scripts/cert_server_ca.pem $(1)/etc/iopsys/certificates
