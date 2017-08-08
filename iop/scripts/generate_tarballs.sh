@@ -3,7 +3,7 @@
 
 build_bcmkernel_consumer() {
 	local tarfile bcmkernelcommith sdkversion
-    sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
+	sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
 	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/$sdkversion.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
 	ssh $SERVER "ls $FPATH/bcmopen-$profile-$bcmkernelcommith.tar.gz" && return
@@ -11,7 +11,7 @@ build_bcmkernel_consumer() {
 	sh do_consumer_release -p $profile -y
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
 	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
-	scp $tarfile $SERVER:$FPATH/bcmopen-$profile-$bcmkernelcommith.tar.gz
+	scp $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
 	rm -f $tarfile
 	cd $curdir
 }
@@ -109,6 +109,7 @@ function generate_tarballs {
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment
 
     target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
+    board=$(grep CONFIG_TARGET_IBOARDID .config | cut -d'=' -f2 | tr -d '"')
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
     curdir=$(pwd)
 
