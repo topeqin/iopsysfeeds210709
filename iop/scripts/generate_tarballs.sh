@@ -6,7 +6,7 @@ build_bcmkernel_consumer() {
 	sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
 	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/$sdkversion.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
-	ssh $SERVER "ls $FPATH/bcmopen-$profile-$bcmkernelcommith.tar.gz" && return
+	ssh $SERVER "ls $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
 	cd ./build_dir/target-*_uClibc-0.9.33.*/bcmkernel-3.4-$sdkversion/bcm963xx/release
 	sh do_consumer_release -p $profile -y
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
