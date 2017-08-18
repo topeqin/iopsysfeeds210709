@@ -27,6 +27,7 @@ toggle_firewall() {
 set_disabled() {
 	config_load firewall
 	config_foreach toggle_firewall zone $1
+	/etc/init.d/firewall reload
 }
 
 is_inteno_macaddr()
