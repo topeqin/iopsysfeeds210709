@@ -4,6 +4,13 @@ config wifi-status 'status'
 	option sched_status '0'
 	option schedule '0'
 
+config bandsteering 'bandsteering'
+	option enabled '0'
+	option policy '0'
+
+config apsteering 'apsteering'
+	option enabled '0'
+
 config wifi-device 'wl0'
 	option type 'broadcom'
 	option country 'EU/13'
