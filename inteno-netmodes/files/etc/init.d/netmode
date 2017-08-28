@@ -259,9 +259,29 @@ start_client_listener() {
 	esac
 }
 
+start_netmode_discover() {
+	local curmode repeaterready
+
+	killall -9 netmode-discover >/dev/null 2>&1
+
+	config_load netmode
+	config_get repeaterready setup repeaterready 0
+
+	[ $repeaterready -eq 1 ] && return
+
+	config_get curmode setup curmode
+
+	case "$curmode" in
+		repeater*)
+			/sbin/netmode-discover &
+		;;
+	esac
+}
+
 start_service() {
 	populate_netmodes
 	start_client_listener
+	start_netmode_discover
 }
 
 reload_service() {
@@ -272,10 +292,12 @@ reload_service() {
 	uci commit juci
 
 	start_client_listener
+	start_netmode_discover
 }
 
 stop_service() {
 	killall -SIGKILL netmode-client-detect >/dev/null 2>&1
+	killall -9 netmode-discover >/dev/null 2>&1
 }
 
 service_triggers()
