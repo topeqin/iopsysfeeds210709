@@ -226,6 +226,9 @@ switch_netmode() {
 			routed*)
 				ubus call uci commit '{"config":"network"}'
 			;;
+			repeater*)
+				[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
+			;;
 		esac
 	else
 		reboot &
