@@ -23,18 +23,24 @@ get_current_status() {
 	fi
 }
 
-sfp_flag(){
+get_flag(){
 	local port=$1
-	local sfptype=$2
-	local media="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
-	[ -z "$media" ] && echo "" || echo "sfp $sfptype"
+	local eg300="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
+	local eg400="$(ethctl $port media-type 2>&1 | grep 'Error: Interface eth0 has sub ports, please specified one')"
+	if [ -n "$eg300" ]; then
+		echo "sfp fiber"
+	elif [ -n "$eg400" ]; then
+		echo "port 9"
+	else
+		echo ""
+	fi
 }
 
 set_fiber_status() {
 	local port="$1"
 	local status="$2"
-	local flag=$(sfp_flag $port "fiber")
-	local curstatus=$(get_current_status $port $flag)
+	local flag=$(get_flag $port)
+	local curstatus=$(get_current_status "$port" "$flag")
 
 	case "$status" in
 		disabled)

@@ -62,18 +62,25 @@ get_current_status() {
 	fi
 }
 
-sfp_flag(){
+get_flag(){
 	local port=$1
 	local sfptype=$2
-	local media="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
-	[ -z "$media" ] && echo "" || echo "sfp $sfptype"
+	local eg300="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
+	local eg400="$(ethctl $port media-type 2>&1 | grep 'Error: Interface eth0 has sub ports, please specified one')"
+	if [ -n "$eg300" ]; then
+		echo "sfp copper"
+	elif [ -n "$eg400" ]; then
+		echo "port 10"
+	else
+		echo ""
+	fi
 }
 
 set_port_status() {
 	local port="$1"
 	local status="$2"
-	local flag=$(sfp_flag $port "copper")
-	local curstatus=$(get_current_status $port $flag)
+	local flag=$(get_flag $port)
+	local curstatus=$(get_current_status "$port" "$flag")
 
 	ifconfig $port >/dev/null 2>&1 || return
 
@@ -93,14 +100,14 @@ set_port_status() {
 						esac
 					;;
 					10*AUTO)
-						ethctl $port media-type $flag advertise $status
+						ethctl $port media-type advertise $status $flag
 					;;
 					10*)
-						ethctl $port media-type $flag $status
+						ethctl $port media-type $status $flag
 					;;
 					*)
-						ethctl $port media-type $flag advertise 1000FDAUTO
-						ethctl $port media-type $flag auto
+						ethctl $port media-type advertise 1000FDAUTO $flag
+						ethctl $port media-type auto $flag
 					;;
 				esac
 			else
