@@ -51,6 +51,16 @@ populate_netmodes() {
 	config_get curmode setup curmode
 
 	mkdir -p $TMPDIR
+
+	if [ "$curmode" == "routed" ]; then
+		local hw="$(db -q get hw.board.hardware)"
+		if [ "$hw" == "EX400" ]; then
+			curmode="routed_mtk"
+		else
+			curmode="routed_brcm"
+		fi
+	fi
+
 	echo $curmode > $OLD_MODE_FILE
 
 	delete_netmode() {
