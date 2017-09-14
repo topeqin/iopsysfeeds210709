@@ -215,7 +215,8 @@ while uci -q get wireless.@wifi-iface[$i] >/dev/null; do
 	fi
 	state="reload"
 	uci -q delete wireless.@wifi-iface[$i] >/dev/null
-	i=$((i+1))
+	# do not increment i. The next interface will now
+	# have the same index as the deleted interface
 done
 
 uci commit wireless
