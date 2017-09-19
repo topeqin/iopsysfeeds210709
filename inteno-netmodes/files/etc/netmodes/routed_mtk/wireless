@@ -15,7 +15,7 @@ config wifi-device  ra0
 	option band b
 	option channel  auto
 	option bandwidth '20'
-	option hwmode   11n
+	option hwmode   auto
 	option htmode   HT20
 	option country 'DE'
 
