@@ -8,24 +8,6 @@ local hasVdsl="$(db -q get hw.board.hasVdsl)"
 local LANPORTS="$(db -q get hw.board.ethernetLanPorts)"
 local WANPORTS=""
 
-# populate layer2_interface_ethernet #
-if [ "$hasEthWan" == "1" ]; then
-	local wanEthernetPort="$(db -q get hw.board.ethernetWanPort)"
-	wanEthernetPort="${wanEthernetPort:-eth0}"
-	if [ ! -f /etc/config/layer2_interface_ethernet -o -z "$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)" ]; then
-		cat > /etc/config/layer2_interface_ethernet <<EOF
-config ethernet_interface 'Wan'
-	option name 'WAN'
-	option baseifname '${wanEthernetPort}'
-	option ifname '${wanEthernetPort}.1'
-EOF
-	fi
-	local ifname="$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)"
-	[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
-elif [ "$hasEthWan" == "0" ]; then
-	echo "" > /etc/config/layer2_interface_ethernet
-fi
-
 # populate layer2_interface #
 if [ "$hasAdsl" == "1" ]; then
 	if [ ! -f /etc/config/layer2_interface -o -z "$(uci -q get layer2_interface.capabilities)" ]; then
@@ -61,6 +43,28 @@ elif [ "$hasAdsl" == "0" -a "$hasVdsl" == "0" ]; then
 	echo "" > /etc/config/layer2_interface
 fi
 
+# populate layer2_interface_vdsl #
+if [ "$hasVdsl" == "1" ]; then
+	local wanVdslPort=$(db -q get hw.board.vdslWanPort)
+	wanVdslPort="${wanVdslPort:-ptm0}"
+	if [ ! -f /etc/config/layer2_interface_vdsl -o -z "$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)" ]; then
+		cat > /etc/config/layer2_interface_vdsl <<EOF
+config vdsl_interface
+	option 'unit' '0'
+	option 'ifname' '${wanVdslPort}.1'
+	option 'baseifname' '${wanVdslPort}'
+	option 'name' 'VDSL2'
+	option 'dslat' '1'
+	option 'ptmprio' '1'
+	option 'ipqos' '1'
+EOF
+	fi
+	local ifname="$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)"
+	[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
+elif [ "$hasVdsl" == "0" ]; then
+	echo "" > /etc/config/layer2_interface_vdsl
+fi
+
 # populate layer2_interface_adsl #
 if [ "$hasAdsl" == "1" ]; then
 	local wanAdslPort=$(db -q get hw.board.adslWanPort)
@@ -85,26 +89,22 @@ elif [ "$hasAdsl" == "0" ]; then
 	echo "" > /etc/config/layer2_interface_adsl
 fi
 
-# populate layer2_interface_vdsl #
-if [ "$hasVdsl" == "1" ]; then
-	local wanVdslPort=$(db -q get hw.board.vdslWanPort)
-	wanVdslPort="${wanVdslPort:-ptm0}"
-	if [ ! -f /etc/config/layer2_interface_vdsl -o -z "$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)" ]; then
-		cat > /etc/config/layer2_interface_vdsl <<EOF
-config vdsl_interface
-	option 'unit' '0'
-	option 'ifname' '${wanVdslPort}.1'
-	option 'baseifname' '${wanVdslPort}'
-	option 'name' 'VDSL2'
-	option 'dslat' '1'
-	option 'ptmprio' '1'
-	option 'ipqos' '1'
+# populate layer2_interface_ethernet #
+if [ "$hasEthWan" == "1" ]; then
+	local wanEthernetPort="$(db -q get hw.board.ethernetWanPort)"
+	wanEthernetPort="${wanEthernetPort:-eth0}"
+	if [ ! -f /etc/config/layer2_interface_ethernet -o -z "$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)" ]; then
+		cat > /etc/config/layer2_interface_ethernet <<EOF
+config ethernet_interface 'Wan'
+	option name 'WAN'
+	option baseifname '${wanEthernetPort}'
+	option ifname '${wanEthernetPort}.1'
 EOF
 	fi
-	local ifname="$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)"
+	local ifname="$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)"
 	[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
-elif [ "$hasVdsl" == "0" ]; then
-	echo "" > /etc/config/layer2_interface_vdsl
+elif [ "$hasEthWan" == "0" ]; then
+	echo "" > /etc/config/layer2_interface_ethernet
 fi
 
 # populate network config ifnames #
