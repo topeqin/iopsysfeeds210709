@@ -207,7 +207,13 @@ while json_get_var dummy $i; do
 	i=$((i+1))
 done
 
+if [ $repeater_iface_num -gt $i ]; then
+	i=$((i-1))
+fi
+
 while uci -q get wireless.@wifi-iface[$i] >/dev/null; do
+	# if repeater_iface_num is greater than the number of
+	# configured downlink we need to make sure its not deleted
 	local mode="$(uci -q get wireless.@wifi-iface[$i].mode)"
 	if [ "$mode" == "wet" -o "$mode" == "sta" ]; then
 		i=$((i+1))
