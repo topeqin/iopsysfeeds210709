@@ -150,12 +150,12 @@ local dummy band ssid key encryption device iface_num
 while json_get_var dummy $i; do
 	json_select $i
 	json_get_var band band
-	[ "$apcliband" == "$band" ] && break
+	[ "$band" == "" -o "$apcliband" == "$band" ] && break
 	json_select ..
 	i=$((i+1))
 done
 
-[ "$apcliband" == "$band" ] || {
+[ "$apcliband" == "$band" -o "$band" == "" ] || {
 	[ "$from_gui" == "true" ] && restore "back"
 	exit
 }
@@ -184,28 +184,49 @@ i=1
 while json_get_var dummy $i; do
 	json_select $i
 	json_get_var band band
-	get_device "$band" device
-	case $band in
-		a)
-			get_iface_num "$device" "$a_num" iface_num
-			a_num=$((a_num+1))
-			;;
-		b)
-			get_iface_num "$device" "$b_num" iface_num
-			b_num=$((b_num+1))
-			;;
-	esac
-	[ -z $iface_num ] && {
-		[ "$from_gui" == "true" ] && restore "back"
-		exit
-	}
 	json_get_var ssid ssid
 	json_get_var encryption encryption
 	json_get_var key key
-	set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
-	json_select ..
+	if [ "$band" == "" ]; then
+		get_device "a" device
+		get_iface_num "$device" "$a_num" iface_num
+		a_num=$((a_num+1))
+		[ -z $iface_num ] && {
+			[ "$from_gui" == "true" ] && restore "back"
+			exit
+		}
+		set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
+		get_device "b" device
+                get_iface_num "$device" "$b_num" iface_num
+                b_num=$((b_num+1))
+                [ -z $iface_num ] && {
+                        [ "$from_gui" == "true" ] && restore "back"
+                        exit
+                }
+		set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
+	else
+		get_device "$band" device
+		case $band in
+			a)
+				get_iface_num "$device" "$a_num" iface_num
+				a_num=$((a_num+1))
+				;;
+			b)
+				get_iface_num "$device" "$b_num" iface_num
+				b_num=$((b_num+1))
+				;;
+		esac
+		[ -z $iface_num ] && {
+			[ "$from_gui" == "true" ] && restore "back"
+			exit
+		}
+		set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
+	fi
 	i=$((i+1))
+	json_select ..
 done
+
+i=$((b_num + a_num + 1))
 
 if [ $repeater_iface_num -gt $i ]; then
 	i=$((i-1))
