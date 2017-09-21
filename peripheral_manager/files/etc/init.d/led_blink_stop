@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+
+START=19
+
+
+USE_PROCD=0
+NAME=peripheral_led_normal
+
+start_service() {
+	local b_name=$(proc/nvram/boardid)
+	case $b_name in
+	'DG200R0'| 'CG300R0' | 'EG300R0'| 'DG301R0')
+		brcm_fw_tool set -h 22 0 ;;
+	*)
+		brcm_fw_tool set -h 22 0 ;;
+	esac
+}
+
+
