@@ -4,16 +4,14 @@ START=19
 
 
 USE_PROCD=0
-NAME=peripheral_led_normal
+NAME=led_blink_stop
 
 start_service() {
-	local b_name=$(proc/nvram/boardid)
-	case $b_name in
-	'DG200R0'| 'CG300R0' | 'EG300R0'| 'DG301R0')
-		brcm_fw_tool set -h 22 0 ;;
-	*)
-		brcm_fw_tool set -h 22 0 ;;
-	esac
+        local b_name=$(db -q get hw.board.boardId)
+        case $b_name in
+        'DG200R0'| 'CG300R0' | 'EG300R0'| 'DG301R0')
+                brcm_fw_tool set -h 22 0 ;;
+        esac
 }
 
 
