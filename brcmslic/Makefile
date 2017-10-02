@@ -11,7 +11,7 @@ PKG_RELEASE:=1
 PKG_VERSION:=0.1
 PKG_SOURCE_URL:=git@private.inteno.se:brcmslic
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=4dd8c50ab8f107bd757ff7ece5f6c17b790201b3
+PKG_SOURCE_VERSION:=520245066af315dde9009cd26a306f223c4a8961
 PKG_NAME:=brcmslic
 
 
@@ -28,7 +28,7 @@ define Package/brcmslic
   CATEGORY:=Utilities
   TITLE:=Brcmslic
   URL:=
-  DEPENDS:= bcmkernel
+  DEPENDS:=
 endef
 
 define Package/brcmslic/description
