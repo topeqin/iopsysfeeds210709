@@ -55,6 +55,8 @@ define Package/samba2-client
 endef
 
 TARGET_CFLAGS += $(FPIC)
+WERR := -Werror=format-security
+TARGET_CFLAGS_WITHOUT_WERR := $(filter-out $(WERR),$(TARGET_CFLAGS))
 
 define Build/Compile	
 	rm -rf $(PKG_INSTALL_DIR)
@@ -93,7 +95,7 @@ define Build/Compile
 		clean
 	(cd $(PKG_BUILD_DIR)/source; rm -rf config.{cache,status}; \
 		$(TARGET_CONFIGURE_OPTS) \
-		CFLAGS="$(TARGET_CFLAGS) -D_GNU_SOURCE -DNDEBUG -DSHMEM_SIZE=524288 -Dfcntl=fcntl64" \
+		CFLAGS="$(TARGET_CFLAGS_WITHOUT_WERR) -D_GNU_SOURCE -DNDEBUG -DSHMEM_SIZE=524288" \
 		CPPFLAGS="$(TARGET_CPPFLAGS)" \
 		LDFLAGS="$(TARGET_LDFLAGS) $(LIBGCC_S)" \
 		ac_cv_lib_cups_httpConnect=no \
