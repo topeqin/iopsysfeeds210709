@@ -41,6 +41,7 @@ define Package/brcmslic/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/brcmslic $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/endpt $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,brcmslic))
