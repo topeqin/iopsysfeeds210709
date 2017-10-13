@@ -1,5 +1,11 @@
 . /lib/network/config.sh
 
+# FIX: for EG300 WAN port for release 3.13.1 - 4.x
+if [ "$INTERFACE" == "eth2" ]; then
+	touch /var/update.eth2
+fi
+# end FIX
+
 addif() {
 	# check if wan had a event and start all related services
 	wan=`uci -q get layer2_interface_ethernet.Wan.baseifname`
