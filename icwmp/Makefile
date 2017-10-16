@@ -66,6 +66,10 @@ define Build/Prepare
 endef
 endif
 
+ifeq ($(CONFIG_TARGET_IBOARDID),"EX400")
+TARGET_CFLAGS += -DEX400
+endif
+
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
 
