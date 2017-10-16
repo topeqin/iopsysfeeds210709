@@ -11,6 +11,81 @@ CONFIGFILE="/etc/config/owsd"
 
 DHCP_DOMAINS=""
 
+USERS=""
+OWLNUM=0
+
+owsd_acl() {
+	local section=$1
+	local username=$2
+	local user=""
+
+	acl_add_user() {
+		local user=$1
+		if [ "$user" == "$username" ]; then
+			json_add_string "" $section
+		fi
+	}
+
+	config_get user $section user
+	if [ -n "$user" ]; then
+		config_list_foreach "$section" "user" acl_add_user
+	else
+		for usr in $USERS; do
+			acl_add_user $usr
+		done
+	fi
+
+	OWLNUM=$((OWLNUM+1))
+}
+
+append_users() {
+	local section=$1
+
+	config_get username $section username
+	USERS="$USERS $username"
+}
+
+rpcd_acl() {
+	local section=$1
+	local owl=""
+	local _i=1
+
+	config_get username $section username
+
+	json_select $username
+	uci -q delete rpcd.$section.owsd_listen
+	while json_get_var owl $_i; do
+		uci -q add_list rpcd.$section.owsd_listen="$owl"
+		_i=$((_i+1))
+	done
+
+	[ $((OWLNUM+1)) -eq $_i ] && uci -q delete rpcd.$section.owsd_listen
+
+	json_select ..
+}
+
+handle_owsd_acl() {
+	config_load rpcd
+	config_foreach append_users "login"
+
+	config_load owsd
+	json_init
+	for USR in $USERS; do
+		json_add_array "$USR"
+		OWLNUM=0
+		config_foreach owsd_acl "owsd-listen" "$USR"
+		json_close_array
+	done
+	json_dump > /tmp/owsd_acl
+
+	json_load "$(cat /tmp/owsd_acl)"
+	config_load rpcd
+	config_foreach rpcd_acl "login"
+	uci commit rpcd
+
+	/etc/init.d/rpcd reload
+}
+
 load_dhcp_domains() {
 
 	append_domain() {
@@ -151,6 +226,8 @@ parse_owsd_iface() {
 }
 
 start_service() {
+	# update rpcd config according to owsd acl
+	handle_owsd_acl
 
 	# preload dhcp domains list, in case any interface config requires it
 	load_dhcp_domains
