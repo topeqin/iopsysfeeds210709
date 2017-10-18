@@ -5,7 +5,7 @@ PKG_NAME:=mtk-bndstrg
 PKG_VERSION:=1.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=e5264d8da2a6de30c2e4e100dfee4dc5db0b59d0
+PKG_SOURCE_VERSION:=a67f5ccdf9bc6810f15f1ece9edaad5e89cad0f7
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/mtk-bndstrg
 
