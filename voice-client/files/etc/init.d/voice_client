@@ -68,6 +68,7 @@ TMPL_ASTERISK=$TEMPLATEDIR/asterisk.conf.TEMPLATE
 TMPL_CDR=$TEMPLATEDIR/cdr.conf.TEMPLATE
 TMPL_CDR_SYSLOG=$TEMPLATEDIR/cdr_syslog.conf.TEMPLATE
 TMPL_INDICATIONS=$TEMPLATEDIR/indications.conf.TEMPLATE
+TMPL_CEL=$TEMPLATEDIR/cel.conf.TEMPLATE
 TMPL_LOGGER=$TEMPLATEDIR/logger.conf.TEMPLATE
 TMPL_MANAGER=$TEMPLATEDIR/manager.conf.TEMPLATE
 TMPL_MODULES=$TEMPLATEDIR/modules.conf.TEMPLATE
@@ -80,7 +81,7 @@ TMPL_BRCM_LINE=$TEMPLATEDIR/brcm_line.TEMPLATE
 
 TMPL_MEETME=$TEMPLATEDIR/meetme.conf.TEMPLATE
 
-SPECRATEDIR=$ASTERISKDIR/special_rate_nr.cfg
+SPECRATECFG=$ASTERISKDIR/special_rate_nr.cfg
 
 run_hook()
 {
@@ -97,13 +98,13 @@ escape_sed_substitution()
 # Gets rid of any config files from $ASTERISKDIR not found in $WORKDIR.
 clean_up_asterisk_config_dir()
 {
-        for f in $ASTERISKDIR/* ; do
-                basef="`basename $f`"
-                if [ ! -e "$WORKDIR/$basef" ] ; then
-                        rm -rf "$f"
+	for f in $ASTERISKDIR/* ; do
+		basef="`basename $f`"
+		if [ ! -e "$WORKDIR/$basef" ] ; then
+			rm -rf "$f"
 			echo "$f" >> /tmp/voice.log
-                fi
-        done
+		fi
+	done
 }
 
 # Compares md5sums of the config files in $WORKDIR to those
@@ -113,7 +114,7 @@ compare_configs_and_copy_changed()
 {
 	# First, compute md5sums of the config files in $WORKDIR.
 	cd $WORKDIR/
-	md5sum * > $MD5SUMSFILE
+	md5sum * > $MD5SUMSFILE 2>/dev/null
 
 	# Now, check the files in $ASTERISKDIR against the md5sums.
 	cd $ASTERISKDIR/
@@ -141,15 +142,15 @@ assemble_and_copy_config()
 	# start if a config item is missing and an included config file isn't created.
 
 	# Copy the template files which we don't edit.
-	cp $TMPL_ASTERISK		$WORKDIR/asterisk.conf
-	cp $TMPL_CDR			$WORKDIR/cdr.conf
-	cp $TMPL_CEL			$WORKDIR/cel.conf
-	cp $TMPL_INDICATIONS		$WORKDIR/indications.conf
-	cp $TMPL_MANAGER		$WORKDIR/manager.conf
-	cp $TMPL_MODULES		$WORKDIR/modules.conf
-	cp $TMPL_EXTENSIONS_MACRO	$WORKDIR/extensions_macro.conf
-	cp $TMPL_MUSICONHOLD		$WORKDIR/musiconhold.conf
-	cp $SPECRATEDIR                 $WORKDIR/special_rate_nr.cfg
+	[ -f $TMPL_ASTERISK ]		&& cp $TMPL_ASTERISK		$WORKDIR/asterisk.conf
+	[ -f $TMPL_CDR ]		&& cp $TMPL_CDR			$WORKDIR/cdr.conf
+	[ -f $TMPL_CEL ]		&& cp $TMPL_CEL			$WORKDIR/cel.conf
+	[ -f $TMPL_INDICATIONS ]	&& cp $TMPL_INDICATIONS		$WORKDIR/indications.conf
+	[ -f $TMPL_MANAGER ]		&& cp $TMPL_MANAGER		$WORKDIR/manager.conf
+	[ -f $TMPL_MODULES ]		&& cp $TMPL_MODULES		$WORKDIR/modules.conf
+	[ -f $TMPL_EXTENSIONS_MACRO ]	&& cp $TMPL_EXTENSIONS_MACRO	$WORKDIR/extensions_macro.conf
+	[ -f $TMPL_MUSICONHOLD ]	&& cp $TMPL_MUSICONHOLD		$WORKDIR/musiconhold.conf
+	[ -f $SPECRATECFG ]		&& cp $SPECRATECFG		$WORKDIR/special_rate_nr.cfg
 	
 	test -e $TMPL_MEETME && cp $TMPL_MEETME $WORKDIR/meetme.conf
 	
@@ -178,7 +179,7 @@ assemble_and_copy_config()
 	mv $WORKDIR/features.tmp		$WORKDIR/features.conf
 	mv $WORKDIR/voicemail.tmp		$WORKDIR/voicemail.conf
 	mv $WORKDIR/meetme.tmp			$WORKDIR/meetme.conf
-        mv $WORKDIR/logger.tmp			$WORKDIR/logger.conf
+	mv $WORKDIR/logger.tmp			$WORKDIR/logger.conf
 	mv $WORKDIR/queues.tmp			$WORKDIR/queues.conf
 	mv $WORKDIR/dnsmgr.tmp			$WORKDIR/dnsmgr.conf
 
@@ -467,13 +468,13 @@ configure_sip()
 	if [ -z "$registertimeoutbackoff" ] ; then
 		sed -i "s/registertimeoutbackoff=|REGISTERTIMEOUTBACKOFF|/;registertimeoutbackoff=/g"    $WORKDIR/sip.tmp
 	else
-		sed -i "s/|REGISTERTIMEOUTBACKOFF|/$registertimeoutbackoff/g"                             $WORKDIR/sip.tmp
+		sed -i "s/|REGISTERTIMEOUTBACKOFF|/$registertimeoutbackoff/g"			     $WORKDIR/sip.tmp
 	fi
 
 	if [ -z "$registerattemptsbackoff" ] ; then
 		sed -i "s/registerattemptsbackoff=|REGISTERATTEMPTSBACKOFF|/;registerattemptsbackoff=/g"  $WORKDIR/sip.tmp
 	else
-		sed -i "s/|REGISTERATTEMPTSBACKOFF|/$registerattemptsbackoff/g"                           $WORKDIR/sip.tmp
+		sed -i "s/|REGISTERATTEMPTSBACKOFF|/$registerattemptsbackoff/g"			   $WORKDIR/sip.tmp
 	fi
 
 	if [ -z "$register403timeout" ] ; then
@@ -542,7 +543,7 @@ configure_sip()
 	for section in ${CONFIG_SECTIONS}; do
 		local transport
 		config_get cfgtype "$section" TYPE
-	        [ -n "$type" -a "x$cfgtype" != "x$type" ] && continue
+		[ -n "$type" -a "x$cfgtype" != "x$type" ] && continue
 		config_get transport $section transport
 		if [ "$transport" == "tls" ] ; then
 			tlsenable="yes"
@@ -804,7 +805,7 @@ configure_sip_provider()
 	fi
 	sed -i "s/|AUTOFRAMING|/$autoframing/"			$WORKDIR/sip_provider.tmp
 
-	# Set registered extension so that incoming calls match the correct peer                     
+	# Set registered extension so that incoming calls match the correct peer
 	sed -i "s/|CONTACT_USER|/$user/g"      $WORKDIR/sip_provider.tmp
 
 	# Add SIP Provider configuration to the temp file containing all SIP Provider configs.
@@ -1035,7 +1036,7 @@ configure_queue()
 	echo "[macro-$1]" >>					$WORKDIR/macros.tmp
 	echo "exten => s,1,Answer()" >>				$WORKDIR/macros.tmp
 
-        # Workaround to fix no ringback issue for incoming SIP calls
+	# Workaround to fix no ringback issue for incoming SIP calls
 	echo "exten => s,n,Playback(silence/1)" >>		$WORKDIR/macros.tmp
 
 	echo "exten => s,n,Queue($1,R)" >>			$WORKDIR/macros.tmp
@@ -1127,13 +1128,13 @@ configure_cdr()
 
 	echo "cdr_syslog: $cdr_syslog"
 
-        if [ -z "$cdr_syslog" ] ; then
+	if [ -z "$cdr_syslog" ] ; then
 	    cdr_syslog='0'
 	fi
 
 	# Enable/disable CDR logging in syslog
 	if [ "$cdr_syslog" == "1" ] ; then
-            cp $TMPL_CDR_SYSLOG		        $WORKDIR/cdr_syslog.conf
+	    cp $TMPL_CDR_SYSLOG			$WORKDIR/cdr_syslog.conf
 	fi
 }
 
@@ -1188,27 +1189,28 @@ configure_call_filters()
 	echo "exten => s,n(not-foreign),Set(FOREIGN=0)" >>	$WORKDIR/macros.tmp
 	echo "" >>						$WORKDIR/macros.tmp
 
-
 	# Get special rate numbers from /etc/asterisk/special_rate_nr.cfg
-	while read line
-	do
-	    i=0
-	    for v in $(echo $line | tr ";" "\n")
+	if [ -f $SPECRATECFG ]; then
+		while read line
 		do
-			if [ "$i" -eq "0" -a "$v" != "$country" ] ; then
-				continue 2
-			fi
-			if [ "$i" -eq "1" ] ; then
-				srn=$v
-			fi
-			i=$((i+1))
-		done
+		    i=0
+		    for v in $(echo $line | tr ";" "\n")
+			do
+				if [ "$i" -eq "0" -a "$v" != "$country" ] ; then
+					continue 2
+				fi
+				if [ "$i" -eq "1" ] ; then
+					srn=$v
+				fi
+				i=$((i+1))
+			done
 
-		if [ -n "$srn"  ] ; then
-			# Special rate numbers found
-			break
-		fi
-	done < "/etc/asterisk/special_rate_nr.cfg"
+			if [ -n "$srn"  ] ; then
+				# Special rate numbers found
+				break
+			fi
+		done < $SPECRATECFG
+	fi
 
 	echo "Found special rate numbers: $srn"
 
@@ -1327,8 +1329,8 @@ get_call_filter()
 	macro="NoOp()"
 	
 	if ! [ "x$direction" != "xincoming" -o "x$direction" != "xoutgoing" ] ; then
-                echo $macro
-        fi
+		echo $macro
+	fi
 
 	local call_filter enabled
 	config_get call_filter $provider call_filter "call_filter0"
@@ -1353,20 +1355,20 @@ configure_opening_hours_profile()
 	local section cfgtype
 	[ -z "$CONFIG_SECTIONS" ] && return 0
 	for section in ${CONFIG_SECTIONS}; do
-	        config_get cfgtype "$section" TYPE
-	        [ -n "timespan" -a "x$cfgtype" != "xtimespan" ] && continue
-	        local owner
+		config_get cfgtype "$section" TYPE
+		[ -n "timespan" -a "x$cfgtype" != "xtimespan" ] && continue
+		local owner
 	
-	        config_get owner $section owner
-	        if [ "$owner" == "$1" ] ; then
-	                local tr dow dom months
-	                config_get tr $section time_range
-	                config_get dow $section days_of_week
-	                config_get dom $section days_of_month
-	                config_get months $section months
+		config_get owner $section owner
+		if [ "$owner" == "$1" ] ; then
+			local tr dow dom months
+			config_get tr $section time_range
+			config_get dow $section days_of_week
+			config_get dom $section days_of_month
+			config_get months $section months
 	
-	                echo "exten => s,n,GotoIfTime($tr,$dow,$dom,$months,?$label)" >> $WORKDIR/macros.tmp
-	        fi
+			echo "exten => s,n,GotoIfTime($tr,$dow,$dom,$months,?$label)" >> $WORKDIR/macros.tmp
+		fi
 	done
 	if [ "$invert" == "0" ] ; then
 		echo "exten => s,n,Goto(closed)" >>		$WORKDIR/macros.tmp
@@ -1641,7 +1643,7 @@ configure_extensions_provider()
 	local call_ivr call_queue extension
 	echo "exten => $user,n,Set(__TRANSFER_CONTEXT=\${CHANNEL(peername)}-transfer)" >>	$tmp
 
-        # replace prefix '+' with '00'
+	# replace prefix '+' with '00'
 	echo "exten => $user,n,GotoIf($[\"\${CALLERID(NUM):0:1}\" = \"+\"]?rewrite:norewrite)" >>	$tmp
 	echo "exten => $user,n(rewrite),Set(CALLERID(num)=\"00\${CALLERID(num):1}\"))" >>		$tmp
 	echo "exten => $user,n(norewrite),NoOp()">>							$tmp
@@ -1704,7 +1706,7 @@ configure_brcm_line_extension()
 		echo "Configuring local extension $extension"
 
 		config_get cbbs_enabled "features" cbbs_enabled
-		# load cbbs settings if enabled                                                                                                                                             
+		# load cbbs settings if enabled
 		cbbs_key=""
 		cbbs_maxretry="0"
 		cbbs_retrytime="0"
@@ -1721,7 +1723,7 @@ configure_brcm_line_extension()
 		sed -i "s/|LINE|/$line/g"			$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|TIMEOUT|/$(get_voicemail_timeout)/g"	$WORKDIR/extensions_local_line.tmp
 
-		#cbbs settings                                                                                                                                                              
+		#cbbs settings
 		sed -i "s/|CBBS_KEY|/$(escape_sed_substitution $cbbs_key)/"	$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|MAX_RETRIES|/$cbbs_maxretry/"      			$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|RETRYTIME|/$cbbs_retrytime/"				$WORKDIR/extensions_local_line.tmp
@@ -1998,8 +2000,8 @@ configure_conference()
 	echo "exten => $extension,n(enterno),Read(confno,,5)"			>> $WORKDIR/extensions_local.tmp
 	
 	for section in ${CONFIG_SECTIONS}; do
-                config_get cfgtype "$section" TYPE
-                [ "x$cfgtype" != "xconference_room" ] && continue
+		config_get cfgtype "$section" TYPE
+		[ "x$cfgtype" != "xconference_room" ] && continue
 
 		local name id enabled
 		config_get name $section name
@@ -2011,7 +2013,7 @@ configure_conference()
 		echo "Enabling conference room $id"
 		echo "exten => $extension,n,GotoIf($[\"\${confno}\"=\"$id\"]?enterconf)"	>> $WORKDIR/extensions_local.tmp
 		echo "conf => $id"								>> $WORKDIR/meetme.tmp
-        done
+	done
 
 	echo "exten => $extension,n,Playback(conf-invalid)"			>> $WORKDIR/extensions_local.tmp
 	echo "exten => $extension,n,Goto(enterno)"				>> $WORKDIR/extensions_local.tmp
@@ -2281,11 +2283,13 @@ reload_service() {
 	# if there is a registered account
 	ubus call led.voice1 set '{"state":"off"}'
 
+	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
+	sleep 1
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
 	asterisk -rx "brcm reload"
 }
 
 service_triggers() {
-        procd_add_reload_trigger voice_client
+	procd_add_reload_trigger voice_client
 }
