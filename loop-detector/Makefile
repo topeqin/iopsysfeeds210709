@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=loop-detector
 PKG_VERSION:=1.0
 
-PKG_SOURCE_VERSION:=2e8584ae8a6d2e089f7a6db7628b218792a35c99
+PKG_SOURCE_VERSION:=c2c4b1de3315fe7b04460b57351b9ee9d3163bd7
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/loop-detector
 
@@ -39,8 +39,10 @@ CONFIGURE_ARGS += \
 define Package/loop-detector/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/loop-detector $(1)/sbin/
-	#$(INSTALL_DIR) $(1)/etc/config
-	#$(CP) $(PKG_BUILD_DIR)/config/loopDetect $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(CP) ./files/loop_detection.init $(1)/etc/init.d/loop_detection
+	$(INSTALL_DIR) $(1)/etc/config
+	$(CP) ./files/loop_detection.config $(1)/etc/config/loop_detection
 endef
 
 $(eval $(call BuildPackage,loop-detector))
