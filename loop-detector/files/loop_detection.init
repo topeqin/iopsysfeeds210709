@@ -26,7 +26,7 @@ stop() {
 
 service_triggers()
 {
-	procd_add_reload_trigger loop-detect
+	procd_add_reload_trigger loop_detection
 }
 
 reload_service() {
