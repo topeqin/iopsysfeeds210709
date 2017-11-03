@@ -15,7 +15,6 @@ get_if_creds() {
 		config_get key $section key
 		config_get encryption $section encryption
 		config_get disabled $section disabled 0
-		echo "disabled for $band = $disabled" >>/tmp/dbg
 		[ $disabled -eq 1 ] && return
 		[ "$ssid" == "" -o "$band" == "" ] && return
 		json_add_object
