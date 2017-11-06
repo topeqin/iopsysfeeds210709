@@ -181,6 +181,8 @@ populate_netmodes() {
 
 switch_netmode() {
 	[ -f /etc/config/netmode -a -d $modedir ] || return
+
+	local netreload="$1"
 	local curmode conf repeaterready old_mode
 
 	config_load netmode
@@ -237,7 +239,12 @@ switch_netmode() {
 				ubus call uci commit '{"config":"network"}'
 			;;
 			repeater*)
-				[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
+				if [ -f /etc/init.d/omcproxy ]; then
+					/etc/init.d/omcproxy stop
+				fi
+				if [ "$netreload" != "0" ]; then
+					ubus call uci commit '{"config":"network"}'
+				fi
 			;;
 		esac
 	else
@@ -298,7 +305,7 @@ start_service() {
 }
 
 reload_service() {
-        switch_netmode
+        switch_netmode "$1"
 
 	# set default JUCI page to overview
 	uci -q set juci.juci.homepage="overview"
