@@ -95,6 +95,7 @@ CONFIG_PACKAGE_libdaemon=y
 CONFIG_PACKAGE_libffmpeg-mini=y
 CONFIG_PACKAGE_libgmp=y
 CONFIG_PACKAGE_libreadline=y
+CONFIG_PACKAGE_loop-detector=m
 CONFIG_PACKAGE_minidlna=y
 CONFIG_PACKAGE_miniupnpd=y
 CONFIG_PACKAGE_mtd-utils=y
