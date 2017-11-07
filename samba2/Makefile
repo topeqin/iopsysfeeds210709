@@ -62,6 +62,7 @@ define Build/Compile
 	rm -rf $(PKG_INSTALL_DIR)
 	mkdir -p $(PKG_INSTALL_DIR)
 	(cd $(PKG_BUILD_DIR)/source ; rm -rf config.{cache,status} ; \
+		CFLAGS="-D_LARGEFILE64_SOURCE -D_GNU_SOURCE" \
 		./configure \
 			$(HOST_CONFIGURE_VARS) \
 			$(HOST_CONFIGURE_ARGS) \
