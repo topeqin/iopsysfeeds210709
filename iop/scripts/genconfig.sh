@@ -193,9 +193,18 @@ function genconfig {
 		if [ $target == "bogus" ]; then
 			echo "Hardware profile does not exist"
 			exit 1
-		elif [ -n "$CUSTOMER" -a ! -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/" ]; then
-			echo "Customer profile does not exist"
-			exit 1
+		elif [ -n "$CUSTOMER" ]; then
+			if [ ! -d "$CUSTCONF/$CUSTOMER/" ]; then
+				echo "Customer profile for '$CUSTOMER' does not exist"
+				exit 1
+			elif [ ! -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/" ]; then
+				echo "'$BOARDTYPE' board profile does not exist for customer '$CUSTOMER'"
+				if [ -f "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
+					echo "Common profile configuration will be used"
+				else
+					exit 1
+				fi
+			fi
 		fi
 
 		# Generate base config
