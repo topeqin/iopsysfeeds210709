@@ -2,12 +2,13 @@
 
 grep -rq "^ice:" /etc/passwd || {
 	adduser -D -H -s /bin/false ice
-	uci -q delete passwords.ice
-	uci -q set passwords.ice=usertype
-	uci -q set passwords.ice.password="\$WPAKEY"
-	uci -q add_list passwords.ice._access_r=root
-	uci -q commit passwords
 }
+
+uci -q delete passwords.ice
+uci -q set passwords.ice=usertype
+uci -q set passwords.ice.password="\$WPAKEY"
+uci -q add_list passwords.ice._access_r=root
+uci -q commit passwords
 
 uci show rpcd | grep username=.*ice.* >/dev/null || {
 cat >> /etc/config/rpcd << EOF
