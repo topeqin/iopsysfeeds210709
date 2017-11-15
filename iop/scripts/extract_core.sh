@@ -6,15 +6,12 @@ function extract_core {
 	topdir=$(pwd)
 
 	# Paths to packages that should be exported.
-	paths+='package/network/services/samba36 '
+	paths+='package/network/services/base-files '
 	paths+='package/network/services/dnsmasq '
-	paths+='package/network/services/dropbear '
-	paths+='package/network/services/odhcpd '
 	paths+='package/network/config/firewall '
 	paths+='package/network/config/netifd '
 	paths+='package/network/config/qos-scripts '
-	paths+='package/network/utils/iproute2 '
-	paths+='package/network/utils/curl '
+	paths+='package/system/procd '
 	paths+='package/utils/busybox '
 
 	function print_usage {
