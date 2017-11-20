@@ -28,7 +28,8 @@ function feeds_update {
 
     # replace core packages with iopsys versions
     if [ $override == 1 ]; then
-	./scripts/feeds install -f -p feed_inteno_openwrt -a
+		./scripts/feeds install -f -p feed_inteno_openwrt -a
+		./scripts/feeds install -f -p feed_inteno_lede -a
     fi
 
     # targets need to be installed explicitly
