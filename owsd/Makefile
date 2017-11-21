@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=http://public.inteno.se/owsd.git
-PKG_SOURCE_VERSION:=20fef420d1796b47fb056e98113592471011a9de
+PKG_SOURCE_VERSION:=614fb961a1ed7920247962c2494f6e2a2c557a9c
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
@@ -26,7 +26,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/owsd
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+ubus +ubox +libjson-c +libblobmsg-json +rpcd +libwebsockets
+  DEPENDS:=+ubus +ubox +libjson-c +libblobmsg-json +rpcd +libwebsockets +libdbus +libxml2 +dbus
   TITLE:=owsd daemon
 endef
 
