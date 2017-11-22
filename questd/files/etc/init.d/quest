@@ -21,8 +21,8 @@ start_service() {
 }
 
 stop() {
-	service_stop /sbin/questd
-	service_stop /sbin/graphd
+	#stop_service() is called after procd killed the service
+	echo ;
 }
 
 service_triggers()
