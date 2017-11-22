@@ -104,16 +104,23 @@ load_dhcp_domains() {
 	config_foreach dhcp_domain_section "domain"
 }
 
-validate_owsd() {
+validate_owsd_ubusproxy() {
+	uci_validate_section "owsd" "ubusproxy" "ubusproxy" \
+		'enable:bool:1' \
+		'peer:list(string)' \
+		'object:list(string)' \
+		'peer_key:file' \
+		'peer_cert:file' \
+		'peer_ca:file' \
+
+}
+
+validate_owsd_global() {
 	uci_validate_section "owsd" "owsd" "global" \
 		'sock:string' \
 		'redirect:string' \
 		'www:string' \
 		'www_maxage:integer' \
-		'ubusproxy:list(string)' \
-		'client_key:file' \
-		'client_cert:file' \
-		'client_ca:file' \
 
 }
 
@@ -237,9 +244,9 @@ start_service() {
 	procd_set_param command $PROG
 
 	local sock www redirect www_maxage
-	local client_cert client_key client_ca
+	local enable peer_cert peer_key peer_ca
 
-	validate_owsd || {
+	validate_owsd_global || {
 		echo "Global validation failed"
 		return 1
 	}
@@ -249,15 +256,29 @@ start_service() {
 	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
 	[ -n "${www_maxage}" ] && procd_append_param command -t"${www_maxage}"
 
-	[ -n "${client_cert}" ] && procd_append_param command -C"${client_cert}"
-	[ -n "${client_key}"  ] && procd_append_param command -K"${client_key}"
-	[ -n "${client_ca}"   ] && procd_append_param command -A"${client_ca}"
-
-	append_ubusproxy () {
-		[ -n "$1"   ] && procd_append_param command -P"$1"
+	validate_owsd_ubusproxy || {
+		echo "Ubusproxy validation failed"
+		return 1
 	}
 
-	config_list_foreach "global" "ubusproxy" append_ubusproxy
+	if [ "${enable}" -eq 1 ]; then
+		procd_append_param command -U
+
+		[ -n "${peer_cert}" ] && procd_append_param command -C"${peer_cert}"
+		[ -n "${peer_key}"  ] && procd_append_param command -K"${peer_key}"
+		[ -n "${peer_ca}"   ] && procd_append_param command -A"${peer_ca}"
+
+		append_peer () {
+			[ -n "$1"   ] && procd_append_param command -P"$1"
+		}
+
+		append_object () {
+			[ -n "$1"   ] && procd_append_param command -U"$1"
+		}
+
+		config_list_foreach "ubusproxy" "peer" append_peer
+		config_list_foreach "ubusproxy" "object" append_object
+	fi
 
 	config_foreach parse_owsd_iface "owsd-listen"
 
