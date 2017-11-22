@@ -17,6 +17,11 @@ start_service() {
 	procd_set_param respawn
 	procd_close_instance
 
+	procd_open_instance
+	procd_set_param command "/sbin/uproxyd"
+	procd_set_param respawn
+	procd_close_instance
+
 	pidof imonitor > /dev/null 2>&1 || /sbin/imonitor &
 }
 
@@ -33,4 +38,3 @@ service_triggers()
 reload_service() {
 	ubus -t 5 call router.network reload
 }
-

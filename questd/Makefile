@@ -58,6 +58,7 @@ define Package/questd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/graphd $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uproxyd $(1)/sbin/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netcheck $(1)/usr/bin/
 endef
