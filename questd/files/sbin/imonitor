@@ -199,7 +199,9 @@ main()
 		then
 			restart_questd
 		else
-			check_ubuscall || restart_questd
+			if [ "$sample" -ge "$SAMPLES" ]; then
+				check_ubuscall || restart_questd
+			fi
 		fi
 
 		if [ "$BSDBIN" ] ; then
