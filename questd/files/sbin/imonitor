@@ -110,13 +110,17 @@ check_pcpu()
 
 check_ubuscall()
 {
-	local rv
+#	local rv
 
-	ubus -t $UBUS_TIMEOUT call router.system info >/dev/null 2>&1
-	rv=$?
+#	ubus -t $UBUS_TIMEOUT call router.system info >/dev/null 2>&1
+#	rv=$?
 
-	[ "$rv" = "0" ] && return 0
-	return 1
+#	[ "$rv" = "0" ] && return 0
+#	return 1
+
+	uci -q get network.lan >/dev/null || return 0
+	ubus -t 5 call router.network ports '{"network":"lan"}' | grep -q statistics || return 1
+	return 0
 }
 
 
@@ -193,8 +197,9 @@ main()
 			"$restart_mem"   = "1" -o \
 			"$restart_pcpu"  = "1" ]
 		then
-			# check_ubuscall || restart_questd
 			restart_questd
+		else
+			check_ubuscall || restart_questd
 		fi
 
 		if [ "$BSDBIN" ] ; then
