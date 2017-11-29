@@ -44,10 +44,10 @@ ptm_inf_conf() {
 	ret=$?
 
 	if [ "$ret" -eq 0 ]; then
-		xtmctl operate conn --add $dslat.$ptmprio 0 1
-		xtmctl operate conn --addq $dslat.$ptmprio 0 wrr 1 -1 -1 3000 # low  priority queue
-		xtmctl operate conn --addq $dslat.$ptmprio 1 wrr 1 -1 -1 3000 # mid  priority queue upstream ACK's and ping from LAN will use this queue
-		xtmctl operate conn --addq $dslat.$ptmprio 7 wrr 1 -1 -1 3000 # high priority queue, internal traffic dhcp igmp dns and icmp
+		xtmctl operate conn --add $dslat.$ptmprio
+		xtmctl operate conn --addq $dslat.$ptmprio 0 wrr 1 dt -1 -1 3000 # low  priority queue
+		xtmctl operate conn --addq $dslat.$ptmprio 1 wrr 1 dt -1 -1 3000 # mid  priority queue upstream ACK's and ping from LAN will use this queue
+		xtmctl operate conn --addq $dslat.$ptmprio 7 wrr 1 dt -1 -1 3000 # high priority queue, internal traffic dhcp igmp dns and icmp
 		xtmctl operate conn --createnetdev $dslat.$ptmprio ${ifname%%.*}
 		xtmctl operate intf --state 1 enable
 		xtmctl start
@@ -63,7 +63,7 @@ remove_netdevices() {
 	for i in `xtmctl operate conn --show | grep "PTM\|mode"`
 	do
 		if [ $x -eq 1 ]; then
-			delptm=$(echo $i | awk '{if ($1!="ATM") print $2"."$10}')
+			delptm=$(echo $i | awk '{if ($1!="ATM") print $2"."$11}')
 			echo "xtmctl operate conn --delete $delptm"
 			xtmctl operate conn --delete $delptm
 			xtmctl operate conn --deletenetdev $delptm
