@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=3.0-2017-11-24
+PKG_VERSION:=3.0-2017-01-30
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=http://public.inteno.se:/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=d74b88913f676ebf9a210c4674555d080e57ff52
+PKG_SOURCE_VERSION:=3cd337122a6f66355ca973aea2be305db1621bdb
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -30,11 +30,19 @@ CWMP_REVISION=$(shell svnversion ./src/ -n|cut -f2 -d:)
 
 include $(INCLUDE_DIR)/package.mk
 
+define Package/libdatamodel
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE:=Library for broadband-forum data model
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c
+endef
+
+
 define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +libexpat +libstrophe +curl +libtrace
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +libexpat +libstrophe +curl +libtrace +libdatamodel
 endef
 
 define Package/icwmp/description
@@ -56,7 +64,11 @@ define Package/icwmp-zstream
 endef
 
 define Package/icwmp-zstream/config
-	source "$(SOURCE)/Config.in"
+	source "$(SOURCE)/Config_cwmp.in"
+endef
+
+define Package/libdatamodel/config
+	source "$(SOURCE)/Config_datamodel.in"
 endef
 
 USE_LOCAL=$(shell ls ./src/ 2>/dev/null >/dev/null && echo 1)
@@ -89,9 +101,18 @@ CONFIGURE_ARGS += \
 	--with-uci-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubox-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubus-include-path=$(STAGING_DIR)/usr/include
+	
+ifeq ($(CONFIG_UPNP_TR064),y)
+CONFIGURE_ARGS += \
+	--enable-upnptr064
+endif
+	
+ifeq ($(CONFIG_XMPP_ENABLE),y)
+CONFIGURE_ARGS += \
+	--enable-xmpp
+endif
 
 CONFIGURE_ARGS += $(if $(CONFIG_DATAMODEL_TR181),--enable-datamodel=tr181,--enable-datamodel=tr098)
-CONFIGURE_ARGS += $(if $(CONFIG_XMPP_ENABLE),--enable-xmpp=enable,--enable-xmpp=disable)
 
 ifeq ($(BUILD_VARIANT),zstream)
 CONFIGURE_ARGS += \
@@ -124,29 +145,42 @@ CONFIGURE_ARGS += \
 	--enable-devel
 endif
 
+define Package/libdatamodel/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libdatamodel.so* $(1)/lib/
+endef
+
 define Package/icwmp-$(BUILD_VARIANT)/install
 	$(INSTALL_DIR) $(1)/etc/icwmpd
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/icwmpd
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_BUILD_DIR)/bin/icwmpd $(1)/usr/sbin
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/icwmpd $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/icwmpd
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/firewall.cwmp $(1)/etc/firewall.cwmp
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmpd.init $(1)/etc/init.d/icwmpd
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmpd.init $(1)/etc/init.d/icwmpd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uci-defaults/90-cwmpfirewall $(1)/etc/uci-defaults/90-cwmpfirewall
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(CP) ./files/icwmp.hotplug $(1)/etc/hotplug.d/iface/90-icwmp
 ifeq ($(CONFIG_CWMP_SCRIPTS_FULL),y)
 	$(INSTALL_DIR) $(1)/usr/share/icwmp
 	$(CP) $(PKG_BUILD_DIR)/scripts/defaults $(1)/usr/share/icwmp
 	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/icwmp
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/icwmp.sh $(1)/usr/sbin/icwmp
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/iwepkeygen $(1)/usr/sbin/iwepkeygen
 endif
 endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/include/libdatamodel
+	$(CP) $(PKG_BUILD_DIR)/dm/*.h $(1)/usr/include/libdatamodel
+	$(CP) $(PKG_BUILD_DIR)/dm/dmtree/common/root.h $(1)/usr/include/libdatamodel
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libdatamodel.so* $(1)/lib
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libdatamodel.a $(1)/lib
+endef
+
 
 define Package/icwmp-$(BUILD_VARIANT)/postinst
 	#!/bin/sh
@@ -169,4 +203,5 @@ endef
 
 
 $(eval $(call BuildPackage,icwmp-curl))
+$(eval $(call BuildPackage,libdatamodel))
 $(eval $(call BuildPackage,icwmp-zstream))
