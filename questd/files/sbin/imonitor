@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /lib/functions.sh
+. /usr/share/libubox/jshn.sh
 
 # 1. sleep for $SLEEP_LONG seconds
 # 2. run the check_* functions
@@ -31,6 +32,9 @@ PCPU_LIMIT=38
 PCPU_COUNT=4
 PCPU_NFAIL=0
 
+# network call check
+NNET_NFAIL=0
+
 UBUS_TIMEOUT=5
 
 
@@ -39,7 +43,7 @@ ACSDBIN=$(which acsd)
 
 restart_questd()
 {
-	logger -s -t $0[$$] "Restarting questd. $NPROC_NFAIL $MEM_NFAIL $PCPU_NFAIL"
+	logger -s -t $0[$$] "Restarting questd. $NPROC_NFAIL $MEM_NFAIL $PCPU_NFAIL $NNET_NFAIL"
 
 	killall -q -KILL questd
 	/etc/init.d/quest stop
@@ -49,6 +53,7 @@ restart_questd()
 	NPROC_NFAIL=0
 	MEM_NFAIL=0
 	PCPU_NFAIL=0
+	NNET_NFAIL=0
 }
 
 
@@ -110,19 +115,26 @@ check_pcpu()
 
 check_ubuscall()
 {
-#	local rv
+		local rv
 
-#	ubus -t $UBUS_TIMEOUT call router.system info >/dev/null 2>&1
-#	rv=$?
+		ubus -t $UBUS_TIMEOUT call router.system info >/dev/null 2>&1
+		rv=$?
 
-#	[ "$rv" = "0" ] && return 0
-#	return 1
-
-	uci -q get network.lan >/dev/null || return 0
-	ubus -t 5 call router.network ports '{"network":"lan"}' | grep -q statistics || return 1
-	return 0
+		[ "$rv" = "0" ] && return 0
+		return 1
 }
 
+check_ubus_network_call() {
+	[ "$(uci -q get network.lan)" == "interface" ] || return 0
+	json_load "$(ifstatus lan)" || return 0
+	json_get_var up up
+	[ $up -eq 1 ] || return 0
+	ubus -t 5 call router.network ports '{"network":"lan"}' | grep -q statistics || {
+		NNET_NFAIL=1
+		return 1
+	}
+	return 0
+}
 
 restart_bsd()
 {
@@ -200,7 +212,7 @@ main()
 			restart_questd
 		else
 			if [ "$sample" -ge "$SAMPLES" ]; then
-				check_ubuscall || restart_questd
+				check_ubus_network_call || restart_questd
 			fi
 		fi
 
