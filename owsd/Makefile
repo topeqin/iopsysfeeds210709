@@ -13,12 +13,21 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=http://public.inteno.se/owsd.git
-PKG_SOURCE_VERSION:=ab4558b85aa6172cc8c8ac483dcfca3ec5cb2318
+PKG_SOURCE_VERSION:=92fd4b78994c87dac2bd2debf909a9bb3b19f4d6
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
+PKG_CONFIG_DEPENDS:=CONFIG_OWSD_USE_DBUS CONFIG_OWSD_USE_UBUS CONFIG_OWSD_USE_DBUS_UBUS
+
+USE_UBUS-y:=-DWSD_HAVE_UBUS=ON
+USE_DBUS-y:=-DWSD_HAVE_DBUS=ON
+USE_BOTH-y:=${USE_UBUS-y} ${USE_DBUS-y}
+
+CMAKE_OPTIONS:=${USE_UBUS-${CONFIG_OWSD_USE_UBUS}} \
+	${USE_DBUS-${CONFIG_OWSD_USE_DBUS}} \
+	${USE_BOTH-${CONFIG_OWSD_USE_DBUS_UBUS}}
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -26,8 +35,17 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/owsd
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+ubus +ubox +libjson-c +libblobmsg-json +rpcd +libwebsockets +libdbus +libxml2 +dbus
+  DEPENDS:=+libjson-c +libblobmsg-json +libwebsockets +ubox \
+	  +(OWSD_USE_UBUS||OWSD_USE_DBUS_UBUS):ubus \
+	  +(OWSD_USE_DBUS||OWSD_USE_DBUS_UBUS):libdbus \
+	  +(OWSD_USE_DBUS||OWSD_USE_DBUS_UBUS):libxml2 \
+	  +(OWSD_USE_DBUS||OWSD_USE_DBUS_UBUS):dbus
   TITLE:=owsd daemon
+  MENU:=1
+endef
+
+define Package/owsd/config
+       source "$(SOURCE)/Config.in"
 endef
 
 define Package/owsd/install
