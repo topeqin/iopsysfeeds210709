@@ -36,10 +36,14 @@ define Package/owsd
   SECTION:=net
   CATEGORY:=Network
   DEPENDS:=+libjson-c +libblobmsg-json +libwebsockets +ubox \
-	  +(OWSD_USE_UBUS||OWSD_USE_DBUS_UBUS):ubus \
-	  +(OWSD_USE_DBUS||OWSD_USE_DBUS_UBUS):libdbus \
-	  +(OWSD_USE_DBUS||OWSD_USE_DBUS_UBUS):libxml2 \
-	  +(OWSD_USE_DBUS||OWSD_USE_DBUS_UBUS):dbus
+	  +OWSD_USE_UBUS:ubus \
+	  +OWSD_USE_DBUS:libdbus \
+	  +OWSD_USE_DBUS:libxml2 \
+	  +OWSD_USE_DBUS:dbus \
+	  +OWSD_USE_DBUS_UBUS:ubus \
+	  +OWSD_USE_DBUS_UBUS:libdbus \
+	  +OWSD_USE_DBUS_UBUS:libxml2 \
+	  +OWSD_USE_DBUS_UBUS:dbus
   TITLE:=owsd daemon
   MENU:=1
 endef
