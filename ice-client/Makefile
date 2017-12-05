@@ -19,14 +19,14 @@ export PLATFORM_INCLUDE:=platforms/iopsys/build.mk
 
 export DATE:=$(shell date +%Y-%m-%d-%H-%M-%S)
 export LOGIN:=$(shell whoami)
-BASE_PKG_VERSION:=5.0.0
-PKG_RELEASE:=RC8
+BASE_PKG_VERSION:=5.0.1
+PKG_RELEASE:=RC0
 PKG_VERSION:=$(BASE_PKG_VERSION)-$(PKG_RELEASE)_$(DATE)_$(LOGIN)
 export PKG_VERSION
 
 ###########################--RELEASE--################################
 
-PKG_SOURCE_VERSION:=57b19721eb8906cb0c5e34a28eba080bc5b74a26
+PKG_SOURCE_VERSION:=4a0ebce9e55b0bd9b44bfe5e96e820336cc9dc0f
 ifeq ($(CONFIG_ICE_OPEN),y)
 TARGET_PROFILE=$(shell echo $(CONFIG_TARGET_BOARD) | sed s/\"//g)
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
