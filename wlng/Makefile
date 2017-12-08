@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=wlng
 PKG_VERSION:=1.0.1
 
-PKG_SOURCE_VERSION:=8af97fc73650853db433e08767a3470686162ddb
+PKG_SOURCE_VERSION:=e253b080baac1ab0c81f1aa2c8faada254fbe484
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/wlng
 
