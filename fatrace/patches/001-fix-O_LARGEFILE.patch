@@ -1,0 +1,14 @@
+diff --git a/fatrace.c b/fatrace.c
+index 1c0899a..b7d1560 100644
+--- a/fatrace.c
++++ b/fatrace.c
+@@ -44,7 +44,8 @@
+  * http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1e2ee49f7
+  * O_LARGEFILE is usually 0, so hardcode it here
+  */
+-#define KERNEL_O_LARGEFILE 00100000
++//#define KERNEL_O_LARGEFILE 00100000
++#define KERNEL_O_LARGEFILE O_LARGEFILE
+ 
+ /* command line options */
+ static char* option_output = NULL;

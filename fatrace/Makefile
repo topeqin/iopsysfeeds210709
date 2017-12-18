@@ -30,13 +30,15 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 # this way we don't need to pick out the resulting files from the build dir.
 PKG_INSTALL:=1
 
+PKG_CONFIG_DEPENDS := CONFIG_KERNEL_FANOTIFY
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/fatrace
 	CATEGORY:=Utilities
 	TITLE:=Report system wide file access events
 	URL:=
-#	KCONFIG:=CONFIG_FANOTIFY
+	DEPENDS	:= +@KERNEL_FANOTIFY
 endef
 
 define Package/fatrace/description
@@ -52,4 +54,5 @@ define Package/fatrace/install
 endef
 
 $(eval $(call BuildPackage,fatrace))
+
 
