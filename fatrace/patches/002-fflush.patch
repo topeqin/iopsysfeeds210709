@@ -1,0 +1,12 @@
+diff --git a/fatrace.c b/fatrace.c
+index b7d1560..6179272 100644
+--- a/fatrace.c
++++ b/fatrace.c
+@@ -149,6 +149,7 @@ print_event(const struct fanotify_event_metadata *data,
+         printf ("%li.%06li ", event_time->tv_sec, event_time->tv_usec);
+     }
+     printf ("%s(%i): %s %s\n", procname, data->pid, mask2str (data->mask), pathname);
++    fflush(stdout);
+ }
+ 
+ /**
