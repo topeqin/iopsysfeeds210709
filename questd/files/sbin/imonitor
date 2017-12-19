@@ -212,10 +212,10 @@ main()
 			"$restart_pcpu"  = "1" ]
 		then
 			restart_questd
-		else
-			if [ "$sample" -ge "$SAMPLES" ]; then
-				check_ubus_network_call || restart_questd
-			fi
+#		else
+#			if [ "$sample" -ge "$SAMPLES" ]; then
+#				check_ubus_network_call || restart_questd
+#			fi
 		fi
 
 		if [ "$BSDBIN" ] ; then
