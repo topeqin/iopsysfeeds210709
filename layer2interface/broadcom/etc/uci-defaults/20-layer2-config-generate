@@ -113,14 +113,15 @@ EOF
 
 populate_network_config_ifnames() {
 	uci -q get network.lan.ifname >/dev/null || uci -q set network.lan.ifname="$LANPORTS"
-	uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$WANPORTS"
+#	uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$WANPORTS"
+	uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$(db -q get hw.board.ethernetWanPort)"
 	uci commit network
 }
 
 #populate_layer2_interface
 #populate_layer2_interface_vdsl
 #populate_layer2_interface_adsl
-populate_layer2_interface_ethernet
+#populate_layer2_interface_ethernet
 populate_network_config_ifnames
 
 sync

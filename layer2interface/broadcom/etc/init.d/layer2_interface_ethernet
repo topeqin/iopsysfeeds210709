@@ -62,6 +62,9 @@ boot() {
 	local baseifname wanport portnum
 	config_load layer2_interface_ethernet
 	config_get baseifname Wan baseifname
+	config_get ifname Wan ifname
+
+	[ -n "$baseifname" ] || baseifname="$(db -q get hw.board.ethernetWanPort)"
 
 	if [ "$(db get hw.board.hardware)" != "EG300" ]; then
 		get_current_status $baseifname
@@ -87,8 +90,8 @@ boot() {
 				echo "ERROR: porttminit $interf failed!" > /dev/kmsg
 		done
 	fi
-	echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
-	ifconfig $baseifname up
+	[ -n "$ifname" ] && echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
+	[ -n $baseifname ] && ifconfig $baseifname up
 }
 
 start_service() {
