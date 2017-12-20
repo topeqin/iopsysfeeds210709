@@ -1,7 +1,5 @@
 #!/bin/sh
 
-grep -q "Designated" /etc/banner || exit 0
-
 . /lib/functions/network.sh
 
 [ "$ACTION" == "ifup" ] || exit 0
