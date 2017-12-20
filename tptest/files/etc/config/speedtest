@@ -1,8 +1,5 @@
-config testserver '1'
-	option server 'tptest.bredband.net'
-	option port '1640'
 
-config testserver '2'
+config testserver '1'
 	option server 'referens.sth.ip-performance.se'
 	option port '1642'
 
