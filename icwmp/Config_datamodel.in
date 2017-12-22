@@ -1,31 +1,17 @@
-if PACKAGE_icwmp-curl || PACKAGE_icwmp-zstream
-
-config CWMP_SCRIPTS_FULL
-	bool "Install all icwmp scripts"
-	default y
-
+if PACKAGE_libdatamodel
 choice
-	prompt "Select ACS sever"
-	default CWMP_ACS_MULTI
+	prompt "Select Data Model"
+	default tr098
 
-config CWMP_ACS_MULTI
-	bool "No specific ACS, follow standard"
+config DATAMODEL_TR098
+	bool "TR-098"
 
-config CWMP_ACS_HDM
-	bool "HDM"
+config DATAMODEL_TR181
+	bool "TR-181"
 endchoice
 
-config CWMP_DEBUG
-	bool "Compile with debug options"
-	default y
-
-config XMPP_ENABLE
-	bool "enable xmpp feature"
-	default n
-
-config CWMP_DEVEL_DEBUG
-	bool "Compile with development debug options"
+config UPNP_TR064
+	bool "Compile with tr064 features"
 	default n
 
 endif
-
