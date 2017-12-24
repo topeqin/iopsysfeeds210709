@@ -1,47 +1,35 @@
 #!/bin/sh /etc/rc.common
 
 . /lib/functions.sh
-include /lib/network
 
 START=22
 USE_PROCD=1
 
 vlan_inf_conf() {
-	local baseifname
-	local vlan8021p
-	local vlan8021q
-	local routed
+	local name baseifname ifname
+	local vlan8021p vlan8021q
+
+	config_get name $1 name
 	config_get baseifname $1 baseifname
 	config_get ifname $1 ifname
 	config_get vlan8021p $1 vlan8021p
 	config_get vlan8021q $1 vlan8021q
-	config_get bridge $1 bridge
 
-	ifname="${ifname:-$baseifname.$vlan8021q}"
+	[ -n "$name" ] || return
 
-	addbrcmvlan "$baseifname" "$vlan8021p" "$vlan8021q" "$bridge" "$ifname"
+	uci -q set network.$name=device
+	uci -q set network.$name.type=8021q
+	uci -q set network.$name.priority=$vlan8021p
+	uci -q set network.$name.vid="$vlan8021q"
+	uci -q set network.$name.ifname="$baseifname"
+	uci -q set network.$name.name="$baseifname.$vlan8021q"
 }
 
-boot() {
-	echo "VLAN does not run at boot"
-}
 
 start_service() {
-	local vdslstatus
-	echo "Starting VLAN"
-
 	config_load layer2_interface_vlan
 	config_foreach vlan_inf_conf vlan_interface
-}
-
-stop_service() {
-	echo "Stopping VLAN"
-	removeall_vlandevices
-}
-
-reload_service() {
-	stop
-	start
+	ubus call uci commit '{"config":"network"}'
 }
 
 service_triggers() {

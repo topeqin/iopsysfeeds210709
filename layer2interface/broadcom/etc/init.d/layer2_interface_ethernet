@@ -18,46 +18,6 @@ get_current_status() {
 	fi
 }
 
-removeethernet() {
-	config_get baseifname $1 baseifname
-	config_get ifname $1 ifname
-
-	ifname="${ifname:-$baseifname.1}"
-
-	vlanctl --if-delete $ifname
-	config_load layer2_interface_vlan
-	#kill all vlans related to this interface
-	config_foreach removevlan vlan_interface
-}
-
-removevlan() {
-	local baseifname
-	local ifname
-	local wan=`uci -q get layer2_interface_ethernet.Wan.baseifname`
-
-	config_get baseifname $1 baseifname
-	config_get ifname $1 ifname
-
-	ifname="${ifname:-$baseifname.1}"
-
-	if [ "$wan" == "$baseifname" ]; then
-		echo "vlanctl --if-delete $ifname"
-		vlanctl --if-delete $ifname
-	fi
-}
-
-addethernet() {
-	config_get baseifname $1 baseifname
-	config_get ifname $1 ifname
-	config_get bridge $1 bridge
-	config_get mac2 $1 mac2
-	
-	ifname="${ifname:-$baseifname.1}"
-
-	brcm_virtual_interface_rules "$baseifname" "$ifname" "$bridge" "$mac2"
-
-}
-
 boot() {
 	local baseifname wanport portnum
 	config_load layer2_interface_ethernet
@@ -92,28 +52,6 @@ boot() {
 	fi
 	[ -n "$ifname" ] && echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
 	[ -n $baseifname ] && ifconfig $baseifname up
-}
-
-start_service() {
-	local baseifname
-	echo "Setting up Ethernet WAN"
-	config_load layer2_interface_ethernet
-	config_foreach addethernet ethernet_interface
-}
-
-stop_service() {
-	local ifname
-	config_load layer2_interface_ethernet
-	config_foreach removeethernet ethernet_interface
-}
-
-reload_service() {
-	stop
-	start
-}
-
-service_triggers() {
-	procd_add_reload_trigger layer2_interface_ethernet
 }
 
 
