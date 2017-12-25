@@ -6,6 +6,8 @@ include /lib/network
 START=22
 USE_PROCD=1
 
+DEVICE_ADDED=0
+
 get_current_status() {
 	local port="$1"
 	local media="$(ethctl $port media-type 2>&1)"
@@ -16,6 +18,37 @@ get_current_status() {
 	elif echo $media | grep "10" >/dev/null; then
 		return 1
 	fi
+}
+
+untagged_vlan_exists() {
+	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -w "$1" && return 0
+	return 1
+}
+
+configure_ethernet_iface() {
+	local name baseifname ifname
+
+	config_get name $1 name
+	config_get baseifname $1 baseifname
+	config_get ifname $1 ifname
+
+	[ -n "$ifname" -a -n "$name" ] || return
+	untagged_vlan_exists "$ifname" && return
+
+	uci -q set network.$name=device
+	uci -q set network.$name.type=untagged
+	uci -q set network.$name.ifname="$baseifname"
+	uci -q set network.$name.name="$ifname"
+
+	DEVICE_ADDED=1
+}
+
+
+start_service() {
+	config_load layer2_interface_ethernet
+	config_foreach configure_ethernet_iface ethernet_interface
+
+	[ $DEVICE_ADDED -eq 1 ] && ubus call uci commit '{"config":"network"}'
 }
 
 boot() {
@@ -52,6 +85,11 @@ boot() {
 	fi
 	[ -n "$ifname" ] && echo '1' > /proc/sys/net/ipv6/conf/$baseifname/disable_ipv6
 	[ -n $baseifname ] && ifconfig $baseifname up
+
+	start
 }
 
+service_triggers() {
+	procd_add_reload_trigger layer2_interface_ethernet
+}
 
