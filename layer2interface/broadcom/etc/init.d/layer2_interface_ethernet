@@ -21,7 +21,7 @@ get_current_status() {
 }
 
 untagged_vlan_exists() {
-	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -w "$1" && return 0
+	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -qw "$1" && return 0
 	return 1
 }
 
