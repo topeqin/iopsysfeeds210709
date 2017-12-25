@@ -124,8 +124,7 @@ populate_network_config_ifnames() {
 
 	uci -q get network.ethwan >/dev/null || {
 		uci -q set network.ethwan=device
-		uci -q set network.ethwan.type=8021q
-		uci -q set network.ethwan.untagged=1
+		uci -q set network.ethwan.type=untagged
 		uci -q set network.ethwan.ifname="$WANPORT"
 		uci -q set network.ethwan.name="$WANIFACE"
 	}
