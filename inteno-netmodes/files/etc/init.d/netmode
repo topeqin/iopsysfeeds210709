@@ -220,7 +220,7 @@ switch_netmode() {
 
         # if curmode has not changed do not copy configs
         if [ "$curmode" == "$old_mode" ]; then
-                /etc/init.d/enviroment reload
+                /etc/init.d/environment reload
                 return
         fi
 
@@ -233,7 +233,7 @@ switch_netmode() {
 	local reboot=$(uci -q get netmode.$curmode.reboot)
 	local askcred=$(uci -q get netmode.$curmode.askcred)
 	if [ "$reboot" == "0" ]; then
-		/etc/init.d/enviroment reload
+		/etc/init.d/environment reload
 		case "$curmode" in
 			routed*)
 				ubus call uci commit '{"config":"network"}'
