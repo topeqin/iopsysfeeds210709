@@ -123,7 +123,7 @@ configure_atm() {
 		xtmctl operate conn --addq 1.$vpi.$vci 0 wrr 1 dt # low  priority queue
 		xtmctl operate conn --addq 1.$vpi.$vci 1 wrr 1 dt # mid  priority queue upstream ACK's and ping from LAN will use this queue
 		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 dt # high priority queue, internal traffic dhcp igmp dns and icmp
-		xtmctl operate conn --createnetdev 1.$vpi.$vci ${ifname%%.*}
+		xtmctl operate conn --createnetdev 1.$vpi.$vci $baseifname
 		xtmctl operate intf --state 1 enable
 
 		configure_untagged_vlan "$name" "$baseifname" "$ifname"
@@ -149,10 +149,12 @@ remove_adsl_devices() {
 
 create_adsl_devices() {
 	local adslstatus
-	echo "Creating ATM Device(s)"
+
 	config_load layer2_interface
 	config_get adslstatus adsl device
+
 	if [ "$adslstatus" == "up" ]; then
+		echo "Creating ATM Device(s)"
 		config_load layer2_interface_adsl
 		config_foreach configure_atm atm_bridge
 	fi
@@ -201,7 +203,7 @@ configure_ptm() {
 		xtmctl operate conn --addq $dslat.$ptmprio 0 wrr 1 dt -1 -1 3000 # low  priority queue
 		xtmctl operate conn --addq $dslat.$ptmprio 1 wrr 1 dt -1 -1 3000 # mid  priority queue upstream ACK's and ping from LAN will use this queue
 		xtmctl operate conn --addq $dslat.$ptmprio 7 wrr 1 dt -1 -1 3000 # high priority queue, internal traffic dhcp igmp dns and icmp
-		xtmctl operate conn --createnetdev $dslat.$ptmprio ${ifname%%.*}
+		xtmctl operate conn --createnetdev $dslat.$ptmprio $baseifname
 		xtmctl operate intf --state 1 enable
 
 		configure_untagged_vlan "$name" "$baseifname" "$ifname"
@@ -229,11 +231,11 @@ remove_vdsl_devices() {
 
 create_vdsl_devices() {
 	local vdslstatus
-	echo "Creating PTM Device(s)"
 	config_load layer2_interface
 	config_get vdslstatus vdsl device
 
 	if [ "$vdslstatus" == "up" ]; then
+		echo "Creating PTM Device(s)"
 		config_load layer2_interface_vdsl
 		config_foreach configure_ptm vdsl_interface
 	fi
@@ -318,7 +320,7 @@ start_xdsl() {
 		mod="$GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$GFast"
 		profile="$a8a $b8b $c8c $d8d $a12a $b12b $a17a $a30a $b35b $BrcmPriv1"
 		echo xdslctl start --up --mod $mod --profile "$profile" --sra $sra --bitswap $bitswap --us0 $US0
-		xdslctl start --up --mod $mod --profile $profile --sra $sra --bitswap $bitswap --us0 $US0
+		xdslctl start --up --mod $mod --profile "$profile" --sra $sra --bitswap $bitswap --us0 $US0
 	else
 		mod="$GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM"
 		echo "xdslctl start --up --mod $mod --sra $sra --bitswap $bitswap"
@@ -337,12 +339,12 @@ start_service() {
 }
 
 stop_service() {
-	echo "Stopping DSL"
-	# stop causes IRQ issues
-	# xdslctl stop
-
 	remove_vdsl_devices
 	remove_adsl_devices
+
+	# echo "Stopping DSL"
+	# stop causes IRQ issues
+	# xdslctl stop
 }
 
 boot() {
