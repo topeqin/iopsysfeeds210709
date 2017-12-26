@@ -1,0 +1,22 @@
+include /lib/network
+
+
+if [ "ADSL" == "$INTERFACE" -o "VDSL2" == "$INTERFACE" ]; then
+	if [ "ADSL" == "$INTERFACE" ]; then 
+		if [ "$ACTION" == "remove" ]; then
+			uci_toggle_state layer2_interface adsl device down
+		else
+			uci_toggle_state layer2_interface adsl device up
+		fi
+	fi
+	if [ "VDSL2" == "$INTERFACE" ]; then
+		if [ "$ACTION" == "remove" ]; then
+			uci_toggle_state layer2_interface vdsl device down
+		else
+			uci_toggle_state layer2_interface vdsl device up
+		fi
+	fi
+
+	/etc/init.d/dsl reload
+fi  
+
