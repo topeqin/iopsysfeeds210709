@@ -279,31 +279,55 @@ start_xdsl() {
 	config_get b35b capabilities 35b
 	config_get BrcmPriv1 capabilities BrcmPriv1
 
+	# Other
 	config_get US0 capabilities US0
 	config_get bitswap capabilities bitswap
 	config_get sra capabilities sra
 
+	# MOD
 	GDmt=$(echo $GDmt | sed 's/Enabled\|1/d/g')
+	GDmt=$(echo $GDmt | sed '/Disabled\|0/d')
 	Glite=$(echo $Glite | sed 's/Enabled\|1/l/g')
+	Glite=$(echo $Glite | sed '/Disabled\|0/d')
 	T1413=$(echo $T1413 | sed 's/Enabled\|1/t/g')
+	T1413=$(echo $T1413 | sed '/Disabled\|0/d')
 	ADSL2=$(echo $ADSL2 | sed 's/Enabled\|1/2/g')
+	ADSL2=$(echo $ADSL2 | sed '/Disabled\|0/d')
 	AnnexL=$(echo $AnnexL | sed 's/Enabled\|1/e/g')
+	AnnexL=$(echo $AnnexL | sed '/Disabled\|0/d')
 	ADSL2plus=$(echo $ADSL2plus | sed 's/Enabled\|1/p/g')
+	ADSL2plus=$(echo $ADSL2plus | sed '/Disabled\|0/d')
 	AnnexM=$(echo $AnnexM | sed 's/Enabled\|1/m/g')
+	AnnexM=$(echo $AnnexM | sed '/Disabled\|0/d')
 	VDSL2=$(echo $VDSL2 | sed 's/Enabled\|1/v/g')
+	VDSL2=$(echo $VDSL2 | sed '/Disabled\|0/d')
 	GFast=$(echo $GFast | sed 's/Enabled\|1/f/g')
+	GFast=$(echo $GFast | sed '/Disabled\|0/d')
 
+	# Profiles
 	a8a=$(echo $a8a | sed 's/Enabled\|1/8a/g')
+	a8a=$(echo $a8a | sed '/Disabled\|0/d')
 	b8b=$(echo $b8b | sed 's/Enabled\|1/8b/g')
+	b8b=$(echo $b8b | sed '/Disabled\|0/d')
 	c8c=$(echo $c8c | sed 's/Enabled\|1/8c/g')
+	c8c=$(echo $c8c | sed '/Disabled\|0/d')
 	d8d=$(echo $d8d | sed 's/Enabled\|1/8d/g')
+	d8d=$(echo $d8d | sed '/Disabled\|0/d')
 	a12a=$(echo $a12a | sed 's/Enabled\|1/12a/g')
+	a12a=$(echo $a12a | sed '/Disabled\|0/d')
 	b12b=$(echo $b12b | sed 's/Enabled\|1/12b/g')
+	b12b=$(echo $b12b | sed '/Disabled\|0/d')
 	a17a=$(echo $a17a | sed 's/Enabled\|1/17a/g')
+	a17a=$(echo $a17a | sed '/Disabled\|0/d')
 	a30a=$(echo $a30a | sed 's/Enabled\|1/30a/g')
+	a30a=$(echo $a30a | sed '/Disabled\|0/d')
 	b35b=$(echo $b35b | sed 's/Enabled\|1/BrcmPriv1/g')
+	b35b=$(echo $b35b | sed '/Disabled\|0/d')
 	BrcmPriv1=$(echo $BrcmPriv1 | sed 's/Enabled\|1/BrcmPriv1/g')
+	BrcmPriv1=$(echo $BrcmPriv1 | sed '/Disabled\|0/d')
 	[ -n "$b35b" ] && BrcmPriv1=""
+
+	# Other
 	US0=$(echo $US0 | sed 's/1/on/g')
 	US0=$(echo $US0 | sed 's/0/off/g')
 	bitswap=$(echo $bitswap | sed 's/1/on/g')
