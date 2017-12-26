@@ -122,14 +122,19 @@ populate_network_config_ifnames() {
 	WANPORT="$(db -q get hw.board.ethernetWanPort)"
 	WANIFACE="${WANPORT}.1"
 
+	uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$WANIFACE"
+
+	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -qw "$WANIFACE" && {
+		uci -q commit network
+		return
+	}
+
 	uci -q get network.ethwan >/dev/null || {
 		uci -q set network.ethwan=device
 		uci -q set network.ethwan.type=untagged
 		uci -q set network.ethwan.ifname="$WANPORT"
 		uci -q set network.ethwan.name="$WANIFACE"
 	}
-
-	uci -q get network.wan.ifname || uci -q set network.wan.ifname="$WANIFACE"
 
 	uci -q commit network
 }
