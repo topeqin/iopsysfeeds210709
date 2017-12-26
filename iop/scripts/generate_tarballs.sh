@@ -4,10 +4,11 @@
 build_bcmkernel_consumer() {
 	local tarfile bcmkernelcommith sdkversion
 	sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
-	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/$sdkversion.mk | cut -d'=' -f2)
+	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/${sdkversion:0:4}*.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
+	[ -n "$board" -a -n "$bcmkernelcommith" ] || return
 	ssh $SERVER "ls $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
-	cd ./build_dir/target-*_uClibc-0.9.33.*/bcmkernel-3.4-$sdkversion/bcm963xx/release
+	cd ./build_dir/target-*/bcmkernel-*-${sdkversion:0:4}*/bcm963xx/release
 	sh do_consumer_release -p $profile -y
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
 	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
@@ -22,8 +23,9 @@ build_natalie_consumer() {
 	grep -q "CONFIG_TARGET_NO_DECT=y" .config && return
 	natalieversion=$(grep -w "PKG_VERSION:" ./feeds/feed_inteno_packages/natalie-dect/Makefile | cut -d'=' -f2)
 	nataliecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/natalie-dect/Makefile | cut -d'=' -f2)
+	[ -n "$profile" -a -n "$natalieversion" -a -n "$nataliecommith" ] || return
 	ssh $SERVER "ls $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
-	cd ./build_dir/target-*_uClibc-0.9.33.*/natalie-dect-$natalieversion/
+	cd ./build_dir/target-*/natalie-dect-$natalieversion/
 	mkdir natalie-dect-open-$natalieversion
 	cp NatalieFpCvm6362/Src/Projects/NatalieV3/FpCvm/Linux6362/dects.ko natalie-dect-open-$natalieversion/dect.ko
 	tar -czv  natalie-dect-open-$natalieversion/ -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
@@ -40,8 +42,9 @@ build_endptcfg_consumer() {
 	grep -q "CONFIG_TARGET_NO_VOICE=y" .config && return
 	endptversion=$(grep -w "PKG_VERSION:" ./feeds/feed_inteno_packages/endptcfg/Makefile | cut -d'=' -f2)
 	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/endptcfg/Makefile | cut -d'=' -f2)
+	[ -n "$profile" -a -n "$endptversion" -a -n "$endptcommith" ] || return
 	ssh $SERVER "ls $FPATH/endptcfg-$profile-$endptversion-$endptcommith.tar.gz" && return
-	cd ./build_dir/target-*_uClibc-0.9.33.*/endptcfg-$endptversion/
+	cd ./build_dir/target-*/endptcfg-$endptversion/
 	mkdir endptcfg-open-$endptversion
 	cp endptcfg endptcfg-open-$endptversion/
 	tar -czv  endptcfg-open-$endptversion/ -f endptcfg-$profile-$endptversion-$endptcommith.tar.gz
@@ -59,8 +62,9 @@ build_ice_consumer() {
 	icebasever=$(grep -w "BASE_PKG_VERSION:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
 	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
 	iceversion=$icebasever$icerelease
+	[ -n "$target" -a -n "$iceversion" -a -n "$icecommith" ] || return
 	ssh $SERVER "ls $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
-	cd ./build_dir/target-*_uClibc-0.9.33.*/ice-client-$icebasever/ipkg-* || cd ./build_dir/target-mips*musl-*/ice-client-$icebasever/ipkg-*
+	cd ./build_dir/target-*/ice-client-$icebasever/ipkg-* || cd ./build_dir/target-mips*musl-*/ice-client-$icebasever/ipkg-*
 	tar -czv  ice-client -f ice-client-$target-$iceversion-$icecommith.tar.gz
 	scp ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
 	cp ice-client-$target-$iceversion-$icecommith.tar.gz $curdir/
@@ -74,6 +78,7 @@ build_mediatek_kernel() {
 	mediatek_commit=$(grep CONFIG_KERNEL_GIT_COMMIT .config | cut -d '=' -f2 | tr -d '"')
 	kernel_version=$(grep KERNEL_PATCHVER target/linux/iopsys-ramips/Makefile  | cut -d '=' -f2)
 	kernel=linux-${kernel_version}.*
+	[ -n "$mediatek_commit" ] || return
 	ssh $SERVER "ls $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
