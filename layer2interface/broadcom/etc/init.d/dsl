@@ -1,0 +1,364 @@
+#!/bin/sh /etc/rc.common
+
+. /lib/functions.sh
+include /lib/network
+
+START=20
+USE_PROCD=1
+
+HASADSL="$(db -q get hw.board.hasAdsl)"
+HASVDSL="$(db -q get hw.board.hasVdsl)"
+
+DEVICE_ADDED=0
+
+device_config_exists() {
+	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -qw "$1" && return 0
+	return 1
+}
+
+configure_untagged_vlan() {
+	local name="$1"
+	local baseifname="$2"
+	local ifname="$3"
+
+	[ -n "$ifname" -a -n "$name" ] || return
+	device_config_exists "$ifname" && return
+
+	uci -q set network.$name=device
+	uci -q set network.$name.type=untagged
+	uci -q set network.$name.ifname="$baseifname"
+	uci -q set network.$name.name="$ifname"
+
+	DEVICE_ADDED=1
+}
+
+# ADSL #
+checkpvc() {
+	local ret
+	local vpi=$1
+	local vci=$2
+
+	ret=$(xtmctl operate conn --show | awk -v test="$vpi/$vci" '{if ($3 ==test ) print $5 }')
+
+	case $ret in
+		''|*[!0-9]*) return 0 ;;
+		*) return $ret ;;
+	esac
+}
+
+checkxtmlist() {
+	local dtype=$1
+	local pcr scr mbs
+	local ret
+
+	case $# in
+		1)
+			pcr=0
+			scr=0
+			mbs=0
+		;;
+		2)
+			pcr=$2
+			scr=0
+			mbs=0
+		;;
+		4)
+			pcr=$2
+			scr=$3
+			mbs=$4
+		;;
+	esac
+
+	ret=$(xtmctl operate tdte --show | awk -v test="$dtype" -v pcr="$pcr" -v scr="$scr" -v mbs="$mbs" '{if ($2 ==test && $3==pcr && $4==scr && $5==mbs ) print $1 }')
+
+	case $ret in
+		''|*[!0-9]*) return 0 ;;
+		*) return $ret ;;
+	esac
+}
+
+configure_atm() {
+	local vpi vci link_type atmtype pcr scr mbs encaps
+	local ret name baseifname ifname
+
+	config_get atmtype $1 atmtype
+	config_get link_type $1 link_type
+	config_get pcr $1 pcr
+	config_get scr $1 scr
+	config_get mbs $1 mbs
+	config_get vpi $1 vpi
+	config_get vci $1 vci
+
+	config_get ifname $1 ifname
+	config_get baseifname $1 baseifname
+	config_get name $1 name
+
+	checkpvc $vpi $vci
+	ret=$?
+
+	ifname="${ifname:-$baseifname.1}"
+
+	if [ "$ret" -eq 0 ]; then
+		checkxtmlist $atmtype $pcr $scr $mbs
+		ret=$?
+		if [ "$ret" -eq 0 ]; then
+			case $atmtype in
+				ubr) xtmctl operate tdte --add "$atmtype";;
+				ubr_pcr ) xtmctl operate tdte --add "$atmtype" $pcr;;
+				cbr) xtmctl operate tdte --add "$atmtype" $pcr;;
+				nrtvbr)	xtmctl operate tdte --add "$atmtype" $pcr $scr $mbs;;
+				rtvbr)xtmctl operate tdte --add "$atmtype" $pcr $scr $mbs;;
+			esac
+		fi
+
+		case $link_type in
+			EoA)config_get encaps $1 encapseoa;;
+			PPPoA)config_get encaps $1 encapspppoa;;
+			IPoA)config_get encaps $1 encapsipoa;;
+		esac
+
+		checkxtmlist $atmtype $pcr $scr $mbs
+		ret="$?"
+		xtmctl operate conn --add 1.$vpi.$vci aal5 $encaps 0 1 $ret
+		xtmctl operate conn --addq 1.$vpi.$vci 0 wrr 1 dt # low  priority queue
+		xtmctl operate conn --addq 1.$vpi.$vci 1 wrr 1 dt # mid  priority queue upstream ACK's and ping from LAN will use this queue
+		xtmctl operate conn --addq 1.$vpi.$vci 7 wrr 1 dt # high priority queue, internal traffic dhcp igmp dns and icmp
+		xtmctl operate conn --createnetdev 1.$vpi.$vci ${ifname%%.*}
+		xtmctl operate intf --state 1 enable
+
+		configure_untagged_vlan "$name" "$baseifname" "$ifname"
+		[ $DEVICE_ADDED -eq 1 ] && ubus call uci commit '{"config":"network"}'
+	fi
+}
+
+remove_adsl_devices() {
+	local vpi vci rest
+	local vpivci=`xtmctl operate conn --show | grep "ATM\|mode" | awk '{if (NR!=1 && $1!="PTM") {print $3}}'`
+
+	for i in $vpivci
+	do
+		rest=${i#\/}
+		vpi=${rest%%\/*}
+		vci=${rest#*\/}
+		echo "xtmctl operate conn --delete 1.$vpi.$vci"
+		xtmctl operate conn --delete 1.$vpi.$vci
+		echo "xtmctl operate conn --deletenetdev 1.$vpi.$vci"
+		xtmctl operate conn --deletenetdev 1.$vpi.$vci
+	done
+}
+
+create_adsl_devices() {
+	local adslstatus
+	echo "Creating ATM Device(s)"
+	config_load layer2_interface
+	config_get adslstatus adsl device
+	if [ "$adslstatus" == "up" ]; then
+		config_load layer2_interface_adsl
+		config_foreach configure_atm atm_bridge
+	fi
+}
+# ADSL #
+
+
+# VDSL #
+checkptm() {
+	local ret
+	local ptmprio=$1
+	local dslat=$2
+
+	if [ "$ptmprio" -eq 2 ]; then
+		ptmprio="high"
+	else
+		ptmprio="low"
+	fi
+
+	ret=$(xtmctl operate conn --show | awk -v dslat="$dslat" -v ptmprio="$ptmprio" '{if ($2 == dslat && $3 == ptmprio ) print $2 }')
+
+	case $ret in
+		''|*[!0-9]*) return 0 ;;
+		*) return $ret ;;
+	esac
+}
+
+configure_ptm() {
+	local ptmprio dslat
+	local ret ifname name baseifname
+
+	config_get ptmprio $1 ptmprio
+	config_get dslat $1 dslat
+
+	config_get ifname $1 ifname
+	config_get baseifname $1 baseifname
+	config_get name $1 name
+
+	ifname="${ifname:-$baseifname.1}"
+
+	checkptm $ptmprio $dslat
+	ret=$?
+
+	if [ "$ret" -eq 0 ]; then
+		xtmctl operate conn --add $dslat.$ptmprio
+		xtmctl operate conn --addq $dslat.$ptmprio 0 wrr 1 dt -1 -1 3000 # low  priority queue
+		xtmctl operate conn --addq $dslat.$ptmprio 1 wrr 1 dt -1 -1 3000 # mid  priority queue upstream ACK's and ping from LAN will use this queue
+		xtmctl operate conn --addq $dslat.$ptmprio 7 wrr 1 dt -1 -1 3000 # high priority queue, internal traffic dhcp igmp dns and icmp
+		xtmctl operate conn --createnetdev $dslat.$ptmprio ${ifname%%.*}
+		xtmctl operate intf --state 1 enable
+
+		configure_untagged_vlan "$name" "$baseifname" "$ifname"
+		[ $DEVICE_ADDED -eq 1 ] && ubus call uci commit '{"config":"network"}'
+	fi
+}
+
+remove_vdsl_devices() {
+	local delptm
+	local x=0
+
+	IFS=$'\n'
+	for i in `xtmctl operate conn --show | grep "PTM\|mode"`
+	do
+		if [ $x -eq 1 ]; then
+			delptm=$(echo $i | awk '{if ($1!="ATM") print $2"."$11}')
+			echo "xtmctl operate conn --delete $delptm"
+			xtmctl operate conn --delete $delptm
+			xtmctl operate conn --deletenetdev $delptm
+		fi
+		x=1
+	done
+	unset IFS
+}
+
+create_vdsl_devices() {
+	local vdslstatus
+	echo "Creating PTM Device(s)"
+	config_load layer2_interface
+	config_get vdslstatus vdsl device
+
+	if [ "$vdslstatus" == "up" ]; then
+		config_load layer2_interface_vdsl
+		config_foreach configure_ptm vdsl_interface
+	fi
+}
+# VDSL #
+
+prioritize_arp()
+{
+      ebtables -t nat -D POSTROUTING -j mark --mark-or 0x7 -p ARP >/dev/null
+      ebtables -t nat -A POSTROUTING -j mark --mark-or 0x7 -p ARP >/dev/null
+}
+
+start_xdsl() {
+	local AnnexM GDmt Glite T1413 ADSL2 AnnexL VDSL2 GFast
+	local a8a b8b c8c d8d a12a b12b a17a a30a b35b BrcmPriv1 
+	local US0 bitswap sra
+	local mod profiles
+
+	config_load layer2_interface
+
+	# MOD
+	config_get Glite capabilities Glite
+	config_get GDmt capabilities GDmt
+	config_get T1413 capabilities T1413
+	config_get ADSL2 capabilities ADSL2
+	config_get ADSL2plus capabilities ADSL2plus
+	config_get AnnexL capabilities AnnexL
+	config_get VDSL2 capabilities VDSL2
+	config_get GFast capabilities GFast
+	config_get AnnexM capabilities AnnexM
+
+	# Profiles
+	config_get a8a capabilities 8a
+	config_get b8b capabilities 8b
+	config_get c8c capabilities 8c
+	config_get d8d capabilities 8d
+	config_get a12a capabilities 12a
+	config_get b12b capabilities 12b
+	config_get a17a capabilities 17a
+	config_get a30a capabilities 30a
+	config_get b35b capabilities 35b
+	config_get BrcmPriv1 capabilities BrcmPriv1
+
+	config_get US0 capabilities US0
+	config_get bitswap capabilities bitswap
+	config_get sra capabilities sra
+
+	GDmt=$(echo $GDmt | sed 's/Enabled\|1/d/g')
+	Glite=$(echo $Glite | sed 's/Enabled\|1/l/g')
+	T1413=$(echo $T1413 | sed 's/Enabled\|1/t/g')
+	ADSL2=$(echo $ADSL2 | sed 's/Enabled\|1/2/g')
+	AnnexL=$(echo $AnnexL | sed 's/Enabled\|1/e/g')
+	ADSL2plus=$(echo $ADSL2plus | sed 's/Enabled\|1/p/g')
+	AnnexM=$(echo $AnnexM | sed 's/Enabled\|1/m/g')
+	VDSL2=$(echo $VDSL2 | sed 's/Enabled\|1/v/g')
+	GFast=$(echo $GFast | sed 's/Enabled\|1/f/g')
+
+	a8a=$(echo $a8a | sed 's/Enabled\|1/8a/g')
+	b8b=$(echo $b8b | sed 's/Enabled\|1/8b/g')
+	c8c=$(echo $c8c | sed 's/Enabled\|1/8c/g')
+	d8d=$(echo $d8d | sed 's/Enabled\|1/8d/g')
+	a12a=$(echo $a12a | sed 's/Enabled\|1/12a/g')
+	b12b=$(echo $b12b | sed 's/Enabled\|1/12b/g')
+	a17a=$(echo $a17a | sed 's/Enabled\|1/17a/g')
+	a30a=$(echo $a30a | sed 's/Enabled\|1/30a/g')
+	b35b=$(echo $b35b | sed 's/Enabled\|1/BrcmPriv1/g')
+	BrcmPriv1=$(echo $BrcmPriv1 | sed 's/Enabled\|1/BrcmPriv1/g')
+	[ -n "$b35b" ] && BrcmPriv1=""
+	US0=$(echo $US0 | sed 's/1/on/g')
+	US0=$(echo $US0 | sed 's/0/off/g')
+	bitswap=$(echo $bitswap | sed 's/1/on/g')
+	bitswap=$(echo $bitswap | sed 's/0/off/g')
+	sra=$(echo $sra | sed 's/1/on/g')
+	sra=$(echo $sra | sed 's/0/off/g')
+
+	echo "Starting DSL"
+
+	xtmctl start
+	xtmctl operate intf --state 1 enable
+
+	if [ "$(db -q get hw.board.hasVdsl)" == "1" ]; then
+		mod="$GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM$VDSL2$GFast"
+		profile="$a8a $b8b $c8c $d8d $a12a $b12b $a17a $a30a $b35b $BrcmPriv1"
+		echo xdslctl start --up --mod $mod --profile "$profile" --sra $sra --bitswap $bitswap --us0 $US0
+		xdslctl start --up --mod $mod --profile $profile --sra $sra --bitswap $bitswap --us0 $US0
+	else
+		mod="$GDmt$Glite$T1413$ADSL2$AnnexL$ADSL2plus$AnnexM"
+		echo "xdslctl start --up --mod $mod --sra $sra --bitswap $bitswap"
+		xdslctl start --up --mod $mod --sra $sra --bitswap $bitswap
+	fi
+
+	if [ "$GFast" == "f" ]; then
+		# enable V43 tone set for GFAST
+		xdslctl configure1 --phycfg 0 0 0 0 0 0 0 0 0 0 0 0x400000 0x400000
+	fi
+}
+
+start_service() {
+	create_adsl_devices
+	create_vdsl_devices
+}
+
+stop_service() {
+	echo "Stopping DSL"
+	# stop causes IRQ issues
+	# xdslctl stop
+
+	remove_vdsl_devices
+	remove_adsl_devices
+}
+
+boot() {
+	[ "$HASADSL" == "1" -o "$HASVDSL" == "1" ] || return
+	prioritize_arp
+	start_xdsl
+
+	start
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+        procd_add_reload_trigger layer2_interface layer2_interface_adsl layer2_interface_vdsl
+}
+

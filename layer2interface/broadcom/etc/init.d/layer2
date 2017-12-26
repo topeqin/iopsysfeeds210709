@@ -3,7 +3,7 @@
 . /lib/functions.sh
 include /lib/network
 
-START=19
+START=20
 USE_PROCD=1
 
 DEVICE_ADDED=0
@@ -113,6 +113,8 @@ boot() {
 			tmctl porttminit --devtype ETH --if $interf --flag 1 || echo "ERROR: porttminit $interf failed!" > /dev/kmsg
 		done
 	fi
+
+	# vlanctl --if-suffix .
 
 	start
 }
