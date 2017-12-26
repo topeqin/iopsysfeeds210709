@@ -252,7 +252,7 @@ start_xdsl() {
 	local AnnexM GDmt Glite T1413 ADSL2 AnnexL VDSL2 GFast
 	local a8a b8b c8c d8d a12a b12b a17a a30a b35b BrcmPriv1 
 	local US0 bitswap sra
-	local mod profiles
+	local mod profile
 
 	config_load layer2_interface
 
