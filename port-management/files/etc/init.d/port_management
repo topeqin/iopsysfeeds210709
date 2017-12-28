@@ -4,7 +4,7 @@ START=15
 USE_PROCD=1
 
 . /lib/functions.sh
-. /lib/network/config.sh
+include /lib/network
 
 check_for_config(){
 	if [ -s "/etc/config/ports" ]

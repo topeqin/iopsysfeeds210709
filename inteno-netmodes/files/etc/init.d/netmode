@@ -7,7 +7,6 @@ TMPDIR=/var/netmodes
 OLD_MODE_FILE=/var/netmodes/old_mode
 
 . /usr/share/libubox/jshn.sh
-. /lib/network/config.sh
 
 local modedir=$(uci -q get netmode.setup.dir)
 [ -n "$modedir" ] || modedir="/etc/netmodes"

@@ -1,4 +1,4 @@
-. /lib/network/config.sh
+include /lib/network
 
 # true if speed on interface is Gbit
 gigatest() {

@@ -1,4 +1,4 @@
-. /lib/network/config.sh
+include /lib/network
 . /usr/share/libubox/jshn.sh
 
 iface_status() {
