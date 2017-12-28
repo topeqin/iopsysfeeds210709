@@ -122,6 +122,12 @@ populate_network_config_ifnames() {
 	WANPORT="$(db -q get hw.board.ethernetWanPort)"
 	WANIFACE="${WANPORT}.1"
 
+	WANTYPE="$(uci -q get network.wan.type)"
+	[ "$WANTYPE" == "anywan" ] && {
+		uci -q delete network.wan.type
+		uci -q set network.wan.ifname="$WANIFACE"
+	}
+
 	uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$WANIFACE"
 
 	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -qw "$WANIFACE" && {
@@ -139,9 +145,9 @@ populate_network_config_ifnames() {
 	uci -q commit network
 }
 
-#populate_layer2_interface
-#populate_layer2_interface_vdsl
-#populate_layer2_interface_adsl
+populate_layer2_interface
+populate_layer2_interface_vdsl
+populate_layer2_interface_adsl
 populate_layer2_interface_ethernet
 populate_network_config_ifnames
 
