@@ -251,7 +251,7 @@ uci commit wireless
 if [ "$from_gui" == "true" ]; then
 	# check for connectivity
 	wifi reload
-	[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
+	[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 	i=$SLEEPTIME;
 
 	while [ $i -gt 0 ]; do
@@ -283,6 +283,6 @@ else
 		# wifi reload
 		wifi reload
 	fi
-	[ -f /etc/init.d/layer2_interface_ethernet -a -f /etc/config/layer2_interface_ethernet ] && /etc/init.d/layer2_interface_ethernet reload
+	[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 	ubus call leds set '{"state":"normal"}'
 fi

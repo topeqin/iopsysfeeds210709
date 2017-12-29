@@ -235,6 +235,7 @@ switch_netmode() {
 		/etc/init.d/environment reload
 		case "$curmode" in
 			routed*)
+				[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 				ubus call uci commit '{"config":"network"}'
 			;;
 			repeater*)
@@ -242,6 +243,7 @@ switch_netmode() {
 					/etc/init.d/omcproxy stop
 				fi
 				if [ "$netreload" != "0" ]; then
+					[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 					ubus call uci commit '{"config":"network"}'
 				fi
 			;;
