@@ -127,7 +127,7 @@ configure_atm() {
 		xtmctl operate intf --state 1 enable
 
 		configure_untagged_vlan "$name" "$baseifname" "$ifname"
-		[ $DEVICE_ADDED -eq 1 ] && ubus call uci commit '{"config":"network"}'
+		[ $DEVICE_ADDED -eq 1 ] && ubus call network reload
 	fi
 }
 
@@ -207,7 +207,7 @@ configure_ptm() {
 		xtmctl operate intf --state 1 enable
 
 		configure_untagged_vlan "$name" "$baseifname" "$ifname"
-		[ $DEVICE_ADDED -eq 1 ] && ubus call uci commit '{"config":"network"}'
+		[ $DEVICE_ADDED -eq 1 ] && ubus call network reload
 	fi
 }
 

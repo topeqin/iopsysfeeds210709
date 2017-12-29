@@ -73,7 +73,7 @@ start_service() {
 	config_load layer2_interface_vlan
 	config_foreach configure_vlan_iface vlan_interface
 
-	[ $DEVICE_ADDED -eq 1 ] && ubus call uci commit '{"config":"network"}'
+	[ $DEVICE_ADDED -eq 1 ] && ubus call network reload
 }
 
 boot() {
