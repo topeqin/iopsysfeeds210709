@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=questd
 PKG_VERSION:=3.1.40
 
-PKG_SOURCE_VERSION:=f219a7b3292eda7effde0181edbdd9d3784200e4
+PKG_SOURCE_VERSION:=1de0a2df53413a04c2a7f8169f0dcd4fd0722599
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/questd
 
