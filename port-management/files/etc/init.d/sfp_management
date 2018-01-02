@@ -10,15 +10,15 @@ get_current_status() {
 	local port="$1"
 	local flag="$2"
 	local media="$(ethctl $port media-type $flag 2>&1)"
-	if echo $media | grep "Auto-negotiation enabled" >/dev/null; then
+	if echo $media | grep "Auto-Negotiation enabled" >/dev/null; then
 		echo "auto"
-	elif echo $media | grep "100 mbps, full-duplex" >/dev/null; then
+	elif echo $media | grep "100M, duplex: FD" >/dev/null; then
 		echo "100FD"
-	elif echo $media | grep "100 mbps, half-duplex" >/dev/null; then
+	elif echo $media | grep "100M, duplex: HD" >/dev/null; then
 		echo "100HD"
-	elif echo $media | grep "10 mbps, full-duplex" >/dev/null; then
+	elif echo $media | grep "10M, duplex: FD" >/dev/null; then
 		echo "10FD"
-	elif echo $media | grep "10 mbps, half-duplex" >/dev/null; then
+	elif echo $media | grep "10M, duplex: HD" >/dev/null; then
 		echo "10HD"
 	fi
 }
