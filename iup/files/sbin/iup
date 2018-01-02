@@ -23,8 +23,7 @@ export RANGE=10
 export RETRYSTOP=5
 export SLEEP=10
 
-local sysinfo=$(ubus call router.system info)
-json_load "$sysinfo"
+json_load "$(ubus call router.system info)"
 json_select system
 json_get_var MAC basemac
 json_select ..
