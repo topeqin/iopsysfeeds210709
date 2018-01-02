@@ -5,10 +5,9 @@
 . /lib/functions.sh
 . /lib/functions/network.sh
 
-local lockfile="/tmp/70-shiftrange.lock"
-local restricted_nets=""
-local all_nets=""
-
+LOCKFILE="/tmp/70-shiftrange.lock"
+RESTRICTED_NETS=""
+ALL_NETS=""
 
 #####
 ##### initial functions
@@ -30,8 +29,8 @@ initial_check()
 
 finish()
 {
-    lock -u $lockfile
-    rm -f $lockfile
+    lock -u $LOCKFILE
+    rm -f $LOCKFILE
 }
 
 # just one instance of this script at a time
@@ -41,13 +40,13 @@ just_one_instance()
 	local limit=10
 
 	#wait for the lock to become free
-	while [ -e $lockfile ] ; do
+	while [ -e $LOCKFILE ] ; do
 		sleep 1
 		counter=$((counter + 1))
 		[ "$counter" -gt "$limit" ] && exit 1
 	done
 
-	lock $lockfile
+	lock $LOCKFILE
 	trap finish EXIT INT TERM
 }
 
@@ -95,7 +94,7 @@ next_network_address()
 	local ip4=${ip%%/*}
 
 	local ip=$((($ip1 << 24) + ($ip2 << 16) + ($ip3 << 8) + $ip4))
-	local one=$((1 << (32-$prefix)))
+	local one="$((1 << (32-$prefix)))"
 	local new=$(($ip + $one))
 
 	local n1=$((($new & 0xFF000000) >> 24))
@@ -135,7 +134,7 @@ shift_range()
 {
 	local net="$1"
 	while true ; do
-		if [ "$restricted_nets" == "${restricted_nets//$net/}" ] && [ "$all_nets" == "${all_nets//$net/}" ]; then
+		if [ "$RESTRICTED_NETS" == "${RESTRICTED_NETS//$net/}" ] && [ "$ALL_NETS" == "${ALL_NETS//$net/}" ]; then
 			# found a net that is not in restricted nets nor in all nets
 			break
 		fi
@@ -150,8 +149,8 @@ shift_range()
 ##### parse all interfaces section
 #####
 
-# restricted_nets = all the IPs on wan interfaces
-# all_nets = all the IPs on any interface
+# RESTRICTED_NETS = all the IPs on wan interfaces
+# ALL_NETS = all the IPs on any interface
 parse_interface()
 {
 	local interface=$1
@@ -165,13 +164,13 @@ parse_interface()
 		networks="$networks $(get_network_address $n)"
 	done
 
-	[ "$is_lan" != "1" ] && restricted_nets="$restricted_nets $networks"
-	all_nets="$all_nets $networks"
+	[ "$is_lan" != "1" ] && RESTRICTED_NETS="$RESTRICTED_NETS $networks"
+	ALL_NETS="$ALL_NETS $networks"
 }
 
 # parse all the interfaces
 # get all the IPs on wan interfaces and store them in restrict_nets
-# get all the IPs on all interfaces and store them in all_nets
+# get all the IPs on all interfaces and store them in ALL_NETS
 parse_interfaces()
 {
 	config_foreach parse_interface "interface"
@@ -199,14 +198,14 @@ parse_lan()
 	for ip in $ips ; do
 		net="$(get_network_address $ip)"
 
-		if [ "$restricted_nets" == "${restricted_nets//$net/}" ] ; then
+		if [ "$RESTRICTED_NETS" == "${RESTRICTED_NETS//$net/}" ] ; then
 			# net is not in restricted nets
 			# append ip to newips
 			[ -z "$newips" ] && newips="${ip%/*}" ||  newips="$newips ${ip%/*}"
 			continue
 		fi
 
-		#net is in restricted_nets
+		#net is in RESTRICTED_NETS
 		local newnet=$(shift_range $net)
 		local newip="$(first_host_in_network $newnet)"
 		# append newip to newips
@@ -228,7 +227,6 @@ parse_lans()
 {
 	config_foreach parse_lan "interface"
 }
-
 
 #####
 ##### main
