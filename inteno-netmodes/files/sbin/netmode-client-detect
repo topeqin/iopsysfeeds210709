@@ -5,7 +5,10 @@
 
 . /usr/share/libubox/jshn.sh
 
-local action ipaddr macaddr network
+action=
+ipaddr=
+macaddr=
+network=
 
 timed_check() {
 	while true; do

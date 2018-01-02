@@ -8,7 +8,7 @@ OLD_MODE_FILE=/var/netmodes/old_mode
 
 . /usr/share/libubox/jshn.sh
 
-local modedir=$(uci -q get netmode.setup.dir)
+modedir=$(uci -q get netmode.setup.dir)
 [ -n "$modedir" ] || modedir="/etc/netmodes"
 
 get_device() {

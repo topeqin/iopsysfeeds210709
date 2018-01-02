@@ -123,7 +123,8 @@ done
 json_load "`cat $file`"
 json_select "wifi_ifaces"
 
-local curmode repmode
+curmode=""
+repmode=""
 config_load netmode
 config_get curmode setup curmode
 
@@ -138,14 +139,20 @@ case $curmode in
 	;;
 esac
 
-local apcliband="a"
+apcliband="a"
 case $curmode in
 	*_2g_*) apcliband="b";;
 esac
 
 i=1
 
-local dummy band ssid key encryption device iface_num
+dummy=
+band=
+ssid=
+key=
+encryption=
+device=
+iface_num=
 
 while json_get_var dummy $i; do
 	json_select $i
@@ -177,8 +184,8 @@ json_load "`cat $file`"
 json_select "wifi_ifaces"
 
 config_load wireless
-local b_num=0
-local a_num=0
+b_num=0
+a_num=0
 
 i=1
 while json_get_var dummy $i; do

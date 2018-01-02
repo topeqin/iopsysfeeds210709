@@ -1,7 +1,5 @@
 #!/bin/sh
 
-local unlisted mac ipaddr netmask mask
-
 mask_to_cidr() {
     nbits=0
     IFS=.
