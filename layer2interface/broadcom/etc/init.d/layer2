@@ -72,12 +72,12 @@ boot() {
 
 	[ -n "$baseifname" ] || baseifname="$(db -q get hw.board.ethernetWanPort)"
 
-	if [ "$(db get hw.board.hardware)" != "EG300" ]; then
-		if [ "$(get_port_speed $baseifname)" != "1000FD" ]; then
-			ethctl $baseifname phy-power down
-			ethctl $baseifname phy-power up
-		fi
-	fi
+#	if [ "$(db get hw.board.hardware)" != "EG300" ]; then
+#		if [ "$(get_port_speed $baseifname)" != "1000FD" ]; then
+#			ethctl $baseifname phy-power down
+#			ethctl $baseifname phy-power up
+#		fi
+#	fi
 
 	for interf in $(db get hw.board.ethernetPortOrder); do
 		ethswctl -c wan -i $interf -o disable
