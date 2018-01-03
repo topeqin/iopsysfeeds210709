@@ -17,7 +17,7 @@ check_for_config(){
 		fi
 	fi
 	touch /etc/config/ports
-	local fiberorder="$(db get hw.board.fiberPortOrder)"
+
 	local portorder="$(db get hw.board.ethernetPortOrder)"
 	for port in $portorder
 	do
@@ -33,6 +33,8 @@ check_for_config(){
 			uci set ports.@ethport[-1].pause=0
 		fi
 	done
+
+	local fiberorder="$(db get hw.board.fiberPortOrder)"
 	for fiber in $fiberorder; do
 		uci add ports sfpport
 		uci rename ports.@sfpport[-1]="$(fibername $fiber)"
@@ -41,80 +43,10 @@ check_for_config(){
 		uci set ports.@sfpport[-1].speed='auto'
 		uci set ports.@sfpport[-1].pause=1
 	done
+
 	uci commit ports
+
 	[ $DEBUG ] && cat /etc/config/ports
-}
-
-get_current_status() {
-	local port="$1"
-	local flag="$2"
-	local media="$(ethctl $port media-type $flag 2>&1)"
-	if echo $media | grep "Auto-Negotiation enabled" >/dev/null; then
-		echo "auto"
-	elif echo $media | grep "100M, duplex: FD" >/dev/null; then
-		echo "100FD"
-	elif echo $media | grep "100M, duplex: HD" >/dev/null; then
-		echo "100HD"
-	elif echo $media | grep "10M, duplex: FD" >/dev/null; then
-		echo "10FD"
-	elif echo $media | grep "10M, duplex: HD" >/dev/null; then
-		echo "10HD"
-	fi
-}
-
-get_flag(){
-	local port=$1
-	local sfptype=$2
-	local eg300="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
-	local eg400="$(ethctl $port media-type 2>&1 | grep 'Error: Interface eth0 has sub ports, please specified one')"
-	if [ -n "$eg300" ]; then
-		echo "sfp copper"
-	elif [ -n "$eg400" ]; then
-		echo "port 10"
-	else
-		echo ""
-	fi
-}
-
-set_port_status() {
-	local port="$1"
-	local status="$2"
-	local flag=$(get_flag $port)
-	local curstatus=$(get_current_status "$port" "$flag")
-
-	ifconfig $port >/dev/null 2>&1 || return
-
-	case "$status" in
-		disabled)
-			ethctl $port phy-power down
-		;;
-		*)
-			if [ "$status" != "$curstatus" ]; then
-				case "$status" in
-					1000*)
-						local unit=$(echo $(get_port_number $port) | cut -d ' ' -f 1)
-						local port=$(echo $(get_port_number $port) | cut -d ' ' -f 2)
-						case "$status" in
-							1000FD) ethswctl -c phymode -n $unit -p $port -y 1000 -z 1 ;;
-							1000HD) ethswctl -c phymode -n $unit -p $port -y 1000 -z 0 ;;
-						esac
-					;;
-					10*AUTO)
-						ethctl $port media-type advertise $status $flag
-					;;
-					10*)
-						ethctl $port media-type $status $flag
-					;;
-					*)
-						ethctl $port media-type advertise 1000FDAUTO $flag
-						ethctl $port media-type auto $flag
-					;;
-				esac
-			else
-				ethctl $port phy-power up
-			fi
-		;;
-	esac
 }
 
 configure_ethports(){
@@ -123,23 +55,14 @@ configure_ethports(){
 	config_get speed $name speed
 	config_get ifname $name ifname
 	config_get pause $name pause
-	set_port_status $ifname $speed
+	set_port_speed $ifname $speed
 	set_port_pause $ifname $pause
 }
 
-#arg1: ethX
-#arg2: 0 or 1
-set_port_pause() {
-	local pause="$2"
-	unit=$(echo $(get_port_number $1) | cut -d ' ' -f 1)
-	port=$(echo $(get_port_number $1) | cut -d ' ' -f 2)
-	ethswctl -c pause -n $unit -p $port -v $pause
-}
-
 start_service() {
-	[ -f /sbin/db ] && check_for_config
+	[ -f /sbin/db -a -f /lib/db/config/hw ] && check_for_config
 
-	[ -f /usr/sbin/ethswctl -a -f /usr/sbin/ethctl ] || return
+	[ -f /lib/network/port.sh ] || return
 
 	config_load ports
 	config_foreach configure_ethports ethport

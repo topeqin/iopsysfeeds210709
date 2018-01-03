@@ -6,81 +6,14 @@ USE_PROCD=1
 . /lib/functions.sh
 include /lib/network
 
-get_current_status() {
-	local port="$1"
-	local flag="$2"
-	local media="$(ethctl $port media-type $flag 2>&1)"
-	if echo $media | grep "Auto-Negotiation enabled" >/dev/null; then
-		echo "auto"
-	elif echo $media | grep "100M, duplex: FD" >/dev/null; then
-		echo "100FD"
-	elif echo $media | grep "100M, duplex: HD" >/dev/null; then
-		echo "100HD"
-	elif echo $media | grep "10M, duplex: FD" >/dev/null; then
-		echo "10FD"
-	elif echo $media | grep "10M, duplex: HD" >/dev/null; then
-		echo "10HD"
-	fi
-}
-
-get_flag(){
-	local port=$1
-	local eg300="$(ethctl $port media-type 2>&1 | grep 'This is probably wrong')"
-	local eg400="$(ethctl $port media-type 2>&1 | grep 'Error: Interface eth0 has sub ports, please specified one')"
-	if [ -n "$eg300" ]; then
-		echo "sfp fiber"
-	elif [ -n "$eg400" ]; then
-		echo "port 9"
-	else
-		echo ""
-	fi
-}
-
-set_fiber_status() {
-	local port="$1"
-	local status="$2"
-	local flag=$(get_flag $port)
-	local curstatus=$(get_current_status "$port" "$flag")
-
-	case "$status" in
-		disabled)
-			ethctl $port phy-power down
-		;;
-		*)
-			if [ "$status" != "$curstatus" ]; then
-				case "$status" in
-					100*FD|auto)
-						ethctl $port media-type $status $flag
-						ethctl $port phy-power up
-					;;
-					*)
-						ethctl $port media-type advertise 1000FDAUTO $flag
-						ethctl $port media-type auto $flag
-					;;
-				esac
-			fi
-			ethctl $port phy-power up
-		;;
-	esac
-}
-
 configure_sfpports(){
 	local port ifname pause speed
 	name=$1
 	config_get speed $name speed
 	config_get ifname $name ifname
 	config_get pause $name pause
-	set_fiber_status $ifname $speed
+	set_fiber_speed $ifname $speed
 	set_port_pause $ifname $pause
-}
-
-#arg1: ethX
-#arg2: 0 or 1
-set_port_pause() {
-	local pause="$2"
-	unit=$(echo $(get_port_number $1) | cut -d ' ' -f 1)
-	port=$(echo $(get_port_number $1) | cut -d ' ' -f 2)
-	ethswctl -c pause -n $unit -p $port -v $pause
 }
 
 start_service() {
