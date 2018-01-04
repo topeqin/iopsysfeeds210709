@@ -152,7 +152,7 @@ create_adsl_devices() {
 	local adslstatus
 
 	config_load layer2_interface
-	config_get adslstatus adsl device
+	config_get adslstatus adsl status
 
 	if [ "$adslstatus" == "up" ]; then
 		echo "Creating ATM Device(s)"
@@ -233,7 +233,7 @@ remove_vdsl_devices() {
 create_vdsl_devices() {
 	local vdslstatus
 	config_load layer2_interface
-	config_get vdslstatus vdsl device
+	config_get vdslstatus vdsl status
 
 	if [ "$vdslstatus" == "up" ]; then
 		echo "Creating PTM Device(s)"

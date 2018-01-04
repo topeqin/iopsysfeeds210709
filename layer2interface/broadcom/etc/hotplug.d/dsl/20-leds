@@ -1,0 +1,8 @@
+if [ "$STATUS" == "up" ]; then
+	ubus call led.dsl set '{"state":"ok"}'
+elif [ "$STATUS" == "down" ]; then
+	ubus call led.dsl set '{"state":"off"}'
+elif [ "$STATUS" == "training" ]; then
+	ubus call led.dsl set '{"state":"alert"}'
+fi
+

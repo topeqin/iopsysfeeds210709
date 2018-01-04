@@ -1,0 +1,20 @@
+
+if [ "$STATUS" == "up" -o "$STATUS" == "down" ]; then
+	uci_toggle_state layer2_interface adsl status down
+	uci_toggle_state layer2_interface vdsl status down
+
+	if [ "ADSL" == "$MODE" ]; then 
+		if [ "$STATUS" == "up" ]; then
+			uci_toggle_state layer2_interface adsl status up
+		fi
+	fi
+
+	if [ "VDSL2" == "$MODE" -o "G.fast" == "$MODE" ]; then
+		if [ "$STATUS" == "up" ]; then
+			uci_toggle_state layer2_interface vdsl status up
+		fi
+	fi
+
+	/etc/init.d/dsl reload
+fi  
+
