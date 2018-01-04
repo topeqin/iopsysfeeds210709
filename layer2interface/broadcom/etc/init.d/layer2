@@ -50,6 +50,7 @@ configure_vlan_iface() {
 	uci -q set network.$name.vid="$vlan8021q"
 	uci -q set network.$name.ifname="$baseifname"
 	uci -q set network.$name.name="$ifname"
+	uci -q commit network
 
 	DEVICE_ADDED=1
 }

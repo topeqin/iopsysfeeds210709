@@ -28,6 +28,7 @@ configure_untagged_vlan() {
 	uci -q set network.$name.type=untagged
 	uci -q set network.$name.ifname="$baseifname"
 	uci -q set network.$name.name="$ifname"
+	uci -q commit network
 
 	DEVICE_ADDED=1
 }
