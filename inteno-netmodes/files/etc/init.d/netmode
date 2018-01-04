@@ -301,7 +301,7 @@ start_netmode_discover() {
 
 start_service() {
 	populate_netmodes
-	start_client_listener
+#	start_client_listener
 	start_netmode_discover
 }
 
@@ -312,12 +312,12 @@ reload_service() {
 	uci -q set juci.juci.homepage="overview"
 	uci commit juci
 
-	start_client_listener
+#	start_client_listener
 	start_netmode_discover
 }
 
 stop_service() {
-	killall -SIGKILL netmode-client-detect >/dev/null 2>&1
+#	killall -SIGKILL netmode-client-detect >/dev/null 2>&1
 	killall -9 netmode-discover >/dev/null 2>&1
 }
 
