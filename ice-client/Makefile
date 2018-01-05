@@ -31,8 +31,9 @@ ifeq ($(CONFIG_ICE_OPEN),y)
 TARGET_PROFILE=$(shell echo $(CONFIG_TARGET_BOARD) | sed s/\"//g)
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_SOURCE:=$(PKG_NAME)-$(TARGET_PROFILE)-$(BASE_PKG_VERSION)$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
-
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+SKIPHASH=1
+export SKIPHASH
 else
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@private.inteno.se:ice-client.git
