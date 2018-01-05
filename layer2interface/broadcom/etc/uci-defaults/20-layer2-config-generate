@@ -6,121 +6,145 @@ hasAdsl="$(db -q get hw.board.hasAdsl)"
 hasVdsl="$(db -q get hw.board.hasVdsl)"
 
 LANPORTS="$(db -q get hw.board.ethernetLanPorts)"
-WANPORTS=""
 
-populate_layer2_interface() {
-	if [ "$hasAdsl" == "1" ]; then
-		if [ ! -f /etc/config/layer2_interface -o -z "$(uci -q get layer2_interface.capabilities)" ]; then
-			cat > /etc/config/layer2_interface <<EOF
-config dsltype 'vdsl'
-	option 'enabled' 'on'
+ETHDEV=""
+PTMDEV=""
+ATMDEV=""
+WANIFACE=""
 
-config dsltype 'adsl'
-	option 'enabled' 'on'
-
-config dslsettings 'capabilities'
-	option 'GDmt' 'Enabled'
-	option 'Glite' 'Enabled'
-	option 'T1413' 'Enabled'
-	option 'ADSL2' 'Enabled'
-	option 'AnnexL' 'Enabled'
-	option 'ADSL2plus' 'Enabled'
-	option 'VDSL2' 'Enabled'
-	option '8a' 'Enabled'
-	option '8b' 'Enabled'
-	option '8c' 'Enabled'
-	option '8d' 'Enabled'
-	option '12a' 'Enabled'
-	option '12b' 'Enabled'
-	option '17a' 'Enabled'
-	option '30a' 'Enabled'
-	option 'US0' 'on'
-	option 'bitswap' 'on'
-	option 'sra' 'on'
-EOF
-		fi
-	elif [ "$hasAdsl" == "0" -a "$hasVdsl" == "0" ]; then
-		echo "" > /etc/config/layer2_interface
-	fi
+device_config_exists() {
+	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -qw "$1" && return 0
+	return 1
 }
 
-populate_layer2_interface_vdsl() {
-	if [ "$hasVdsl" == "1" ]; then
-		local wanVdslPort=$(db -q get hw.board.vdslWanPort)
-		wanVdslPort="${wanVdslPort:-ptm0}"
-		if [ ! -f /etc/config/layer2_interface_vdsl -o -z "$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)" ]; then
-			cat > /etc/config/layer2_interface_vdsl <<EOF
-config vdsl_interface
-	option 'unit' '0'
-	option 'ifname' '${wanVdslPort}.1'
-	option 'baseifname' '${wanVdslPort}'
-	option 'name' 'VDSL2'
-	option 'dslat' '1'
-	option 'ptmprio' '1'
-	option 'ipqos' '1'
-EOF
-		fi
-		local ifname="$(uci -q get layer2_interface_vdsl.@vdsl_interface[0].ifname)"
-		[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
-	elif [ "$hasVdsl" == "0" ]; then
-		echo "" > /etc/config/layer2_interface_vdsl
+
+populate_dsl_settings() {
+	if [ "$hasAdsl" == "0" -a "$hasVdsl" == "0" ]; then
+		rm -f /etc/config/dsl
+		return
+	else
+		touch /etc/config/dsl
 	fi
+
+	# Mode
+	if ! uci -q get dsl.mode >/dev/null; then
+		uci -q set dsl.mode="dsl-mod"
+		uci -q set dsl.mode.gdmt=$hasAdsl
+		uci -q set dsl.mode.glite=$hasAdsl
+		uci -q set dsl.mode.t1413=$hasAdsl
+		uci -q set dsl.mode.adsl2=$hasAdsl
+		uci -q set dsl.mode.adsl2p=$hasAdsl
+		uci -q set dsl.mode.annexl=$hasAdsl
+		uci -q set dsl.mode.annexm=$hasAdsl
+		uci -q set dsl.mode.vdsl2=$hasVdsl
+		uci -q set dsl.mode.gfast=0
+	fi
+
+	# Profile
+	if ! uci -q get dsl.profile >/dev/null; then
+		uci -q set dsl.profile="vdsl-profile"
+		uci -q set dsl.profile.8a=$hasVdsl
+		uci -q set dsl.profile.8b=$hasVdsl
+		uci -q set dsl.profile.8c=$hasVdsl
+		uci -q set dsl.profile.8d=$hasVdsl
+		uci -q set dsl.profile.12a=$hasVdsl
+		uci -q set dsl.profile.12b=$hasVdsl
+		uci -q set dsl.profile.17a=$hasVdsl
+		uci -q set dsl.profile.30a=$hasVdsl
+		uci -q set dsl.profile.35b=0
+	fi
+
+	# Capability
+	if ! uci -q get dsl.profile >/dev/null; then
+		uci -q set dsl.capability="dsl-cap"
+		uci -q set dsl.capability.us0=$hasVdsl
+		uci -q set dsl.capability.bitswap=1
+		uci -q set dsl.capability.sra=1
+	fi
+
+	uci -q commit dsl
 }
 
-populate_layer2_interface_adsl() {
-	if [ "$hasAdsl" == "1" ]; then
-		local wanAdslPort=$(db -q get hw.board.adslWanPort)
-		wanAdslPort="${wanAdslPort:-atm0}"
-		if [ ! -f /etc/config/layer2_interface_adsl -o -z "$(uci -q get layer2_interface_adsl.@atm_bridge[0].ifname)" ]; then
-			cat > /etc/config/layer2_interface_adsl <<EOF
-config atm_bridge
-	option 'link_type' 'EoA'
-	option 'encapseoa' 'llcsnap_eth'
-	option 'unit' '0'
-	option 'ifname' '${wanAdslPort}.1'
-	option 'baseifname' '${wanAdslPort}'
-	option 'vpi' '8'
-	option 'vci' '35'
-	option 'name' 'DSL8_35'
-	option 'atmtype' 'ubr'
-EOF
-		fi
-		local ifname="$(uci -q get layer2_interface_adsl.@atm_bridge[0].ifname)"
-		[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
-	elif [ "$hasAdsl" == "0" ]; then
-		echo "" > /etc/config/layer2_interface_adsl
+populate_atm_device() {
+	[ "$hasAdsl" == "0" ] && return
+
+	# ATM Device
+	if ! uci -q get dsl.@atm-device[0] >/dev/null; then
+		uci -q set dsl.atm0=atm-device
+		uci -q set dsl.atm0.name="ATM835"
+		uci -q set dsl.atm0.device="atm0"
+		uci -q set dsl.atm0.vpi="8"
+		uci -q set dsl.atm0.vci="35"
+		uci -q set dsl.atm0.qos_class="ubr"
+		uci -q set dsl.atm0.link_type="eoa"
+		uci -q set dsl.atm0.encapsulation="llc"
+		uci -q commit dsl
+	else
+		ATMDEV="$(uci -q get dsl.@atm-device[0].device)"
 	fi
+
+	ATMDEV="${ATMDEV:-atm0}"
+
+	WANIFACE="$ATMDEV.1"
+
+	device_config_exists "$WANIFACE" && return
+
+	uci -q set network.atmwan=device
+	uci -q set network.atmwan.type=untagged
+	uci -q set network.atmwan.ifname="$ATMDEV"
+	uci -q set network.atmwan.name="$WANIFACE"
 }
 
-populate_layer2_interface_ethernet() {
-	if [ "$hasEthWan" == "1" ]; then
-		local wanEthernetPort="$(db -q get hw.board.ethernetWanPort)"
-		wanEthernetPort="${wanEthernetPort:-eth0}"
-		if [ ! -f /etc/config/layer2_interface_ethernet -o -z "$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)" ]; then
-			cat > /etc/config/layer2_interface_ethernet <<EOF
-config ethernet_interface 'Wan'
-	option name 'WAN'
-	option baseifname '${wanEthernetPort}'
-	option ifname '${wanEthernetPort}.1'
-EOF
-		fi
-		local ifname="$(uci -q get layer2_interface_ethernet.@ethernet_interface[0].ifname)"
-		[ -n "$WANPORTS" ] && WANPORTS="$WANPORTS $ifname" || WANPORTS="$ifname"
-	elif [ "$hasEthWan" == "0" ]; then
-		echo "" > /etc/config/layer2_interface_ethernet
+populate_ptm_device() {
+	[ "$hasVdsl" == "0" ] && return
+
+	# PTM Device
+	if ! uci -q get dsl.@ptm-device[0] >/dev/null; then
+		uci -q set dsl.ptm0=atm-device
+		uci -q set dsl.ptm0.name="PTM"
+		uci -q set dsl.ptm0.device="ptm0"
+		uci -q set dsl.ptm0.priority="1"
+		uci -q set dsl.ptm0.portid="1"
+		uci -q commit dsl
+	else
+		PTMDEV="$(uci -q get dsl.@ptm-device[0].device)"
 	fi
+
+	PTMDEV="${PTMDEV:-ptm0}"
+
+	WANIFACE="$PTMDEV.1"
+
+	device_config_exists "$PTMDEV" && return
+
+	uci -q set network.ptmwan=device
+	uci -q set network.ptmwan.type=untagged
+	uci -q set network.ptmwan.ifname="$PTMDEV"
+	uci -q set network.ptmwan.name="$WANIFACE"
+}
+
+populate_eth_device() {
+	[ "$hasEthWan" == "0" ] && return
+
+	ETHDEV="$(db -q get hw.board.ethernetWanPort)"
+
+	WANIFACE="$ETHDEV.1"
+
+	device_config_exists "$WANIFACE" && return
+
+	uci -q set network.ethwan=device
+	uci -q set network.ethwan.type=untagged
+	uci -q set network.ethwan.ifname="$ETHDEV"
+	uci -q set network.ethwan.name="$WANIFACE"
 }
 
 populate_network_config_ifnames() {
+	# LAN ports
 	uci -q get network.lan.ifname >/dev/null || uci -q set network.lan.ifname="$LANPORTS"
 
-	[ "$hasEthWan" == "0" ] && {
+	[ $((hasEthWan+hasAdsl+hasVdsl)) -eq 0 ] && {
 		uci -q commit network
 		return
 	}
-
-	WANPORT="$(db -q get hw.board.ethernetWanPort)"
-	WANIFACE="${WANPORT}.1"
 
 	WANTYPE="$(uci -q get network.wan.type)"
 	[ "$WANTYPE" == "anywan" ] && {
@@ -130,25 +154,11 @@ populate_network_config_ifnames() {
 
 	uci -q get network.wan.ifname >/dev/null || uci -q set network.wan.ifname="$WANIFACE"
 
-	ubus call uci get '{"config":"network","type":"device"}' | grep -w name | grep -qw "$WANIFACE" && {
-		uci -q commit network
-		return
-	}
-
-	uci -q get network.ethwan >/dev/null || {
-		uci -q set network.ethwan=device
-		uci -q set network.ethwan.type=untagged
-		uci -q set network.ethwan.ifname="$WANPORT"
-		uci -q set network.ethwan.name="$WANIFACE"
-	}
-
 	uci -q commit network
 }
 
-populate_layer2_interface
-populate_layer2_interface_vdsl
-populate_layer2_interface_adsl
-populate_layer2_interface_ethernet
+populate_dsl_settings
+populate_atm_device
+populate_ptm_device
+populate_eth_device
 populate_network_config_ifnames
-
-sync

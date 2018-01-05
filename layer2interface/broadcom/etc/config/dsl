@@ -36,7 +36,7 @@ config dsl-cap capability
 	option sos '1'
 
 config atm-device atm0
-	option name 'ATM835'
+	option name 'ATM'
 	option vpi '8'
 	option vci '35'
 	option device atm0
