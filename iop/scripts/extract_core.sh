@@ -11,6 +11,7 @@ function extract_core {
 	paths+='package/network/config/firewall '
 	paths+='package/network/config/netifd '
 	paths+='package/network/config/qos-scripts '
+	paths+='package/system/rpcd '
 	paths+='package/system/procd '
 	paths+='package/utils/busybox '
 
