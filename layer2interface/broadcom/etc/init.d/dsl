@@ -423,8 +423,6 @@ convert_old_dsl() {
 
 	sed -i 's/Enabled/1/g' /etc/config/layer2_interface
 	sed -i 's/Disabled/0/g' /etc/config/layer2_interface
-	sed -i 's/on/1/g' /etc/config/layer2_interface
-	sed -i 's/off/0/g' /etc/config/layer2_interface
 
 	config_load layer2_interface
 

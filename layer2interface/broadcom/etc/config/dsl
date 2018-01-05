@@ -1,32 +1,3 @@
-# DSL Line Settings
-#config dsl-line line0
-#	list mode 'gdmt'
-#	list mode 'glite'
-#	list mode 't1413'
-#	list mode 'adsl2'
-#	list mode 'adsl2p'
-#	list mode 'annexl'
-#	list mode 'annexm'
-#	list mode 'vdsl2'
-#	list mode 'gfast'
-#	list profile '8a'
-#	list profile '8b'
-#	list profile '8c'
-#	list profile '8d'
-#	list profile '12a'
-#	list profile '12b'
-#	list profile '17a'
-#	list profile '30a'
-#	list profile '35b'
-#	list capability 'bitswap'
-#	list capability 'sra'
-#	list capability 'trellis'
-#	list capability 'sesdrop'
-#	list capability 'us0'
-#	list capability 'dynamicd'
-#	list capability 'dynamicf'
-#	list capability 'sos'
-
 # DSL Modes
 config dsl-mod mode
 	option any '0'
