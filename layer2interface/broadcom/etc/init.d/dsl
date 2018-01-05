@@ -206,11 +206,12 @@ configure_ptm_device() {
 	ret=$?
 
 	if [ "$ret" -eq 0 ]; then
-		xtmctl operate conn --add $portid.$portid
-		xtmctl operate conn --addq $portid.$portid 0 wrr 1 dt -1 -1 3000 # low  priority queue
-		xtmctl operate conn --addq $portid.$portid 1 wrr 1 dt -1 -1 3000 # mid  priority queue upstream ACK's and ping from LAN will use this queue
-		xtmctl operate conn --addq $portid.$portid 7 wrr 1 dt -1 -1 3000 # high priority queue, internal traffic dhcp igmp dns and icmp
-		xtmctl operate conn --createnetdev $portid.$ptmprio $device
+		xtmctl operate conn --add $portid.$priority
+		xtmctl operate conn --addq $portid.$priority 0 wrr 1 dt -1 -1 3000 # low  priority queue
+		xtmctl operate conn --addq $portid.$priority 1 wrr 1 dt -1 -1 3000 # mid  priority queue upstream ACK's and ping from LAN will use this queue
+		xtmctl operate conn --addq $portid.$priority 7 wrr 1 dt -1 -1 3000 # high priority queue, internal traffic dhcp igmp dns and icmp
+		echo "xtmctl operate conn --createnetdev $portid.$priority $device"
+		xtmctl operate conn --createnetdev $portid.$priority $device
 		xtmctl operate intf --state 1 enable
 
 		configure_untagged_vlan "$name" "$device" "$ifname"
