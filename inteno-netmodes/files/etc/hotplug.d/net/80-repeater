@@ -8,7 +8,7 @@ ps | grep hotplug | grep button && exit
 MTK=0
 [ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
 
-WANDEV="$(uci get layer2_interface_ethernet.Wan.ifname)"
+WANDEV="$(db -q get hw.board.ethernetWanPort).1"
 [ $MTK -eq 1 ] && WANDEV="eth0.2"
 
 [ "$INTERFACE" != "$WANDEV" ] && exit
