@@ -24,7 +24,7 @@ toggle_firewall() {
 	fi
 }
 
-set_disabled() {
+disable_firewall() {
 	config_load firewall
 	config_foreach toggle_firewall zone $1
 	/etc/init.d/firewall reload
@@ -61,18 +61,20 @@ switch_mode() {
 
 	ubus call leds set  '{"state" : "allflash"}'
 
-	local ret=0
-	# let netmode-conf up to 20 seconds before switching mode
-	for tm in 2 4 6 8; do
-		if [ -f /tmp/wificontrol.txt ]; then
-			ret=1
-			break
-		fi
-		sleep $tm
-	done
+	if pidof wificontrol >/dev/null; then
+		local ret=0
+		# let netmode-conf up to 20 seconds before switching mode
+		for tm in 2 4 6 8; do
+			if [ -f /tmp/wificontrol.txt ]; then
+				ret=1
+				break
+			fi
+			sleep $tm
+		done
 
-	# let netmode-conf take over
-	[ $ret -eq 1 ] && return
+		# let netmode-conf take over
+		[ $ret -eq 1 ] && return
+	fi
 
 	# go head with switching mode
 	touch -f /tmp/switching_mode
@@ -80,8 +82,9 @@ switch_mode() {
 	uci -q set netmode.setup.curmode='repeater'
 	uci set netmode.setup.repeaterready=0
 	uci commit netmode
-	/etc/init.d/netmode reload
+	/etc/init.d/netmode reload 0
 	echo "Restarting network services" > /dev/console
+	[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 	ubus call network reload
 	wifi reload nodat
 	ubus call router.network reload
@@ -93,10 +96,10 @@ test_ip() {
 	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
 		# private IP
 		switch_mode
-		set_disabled 1
+		disable_firewall 1
 	else
 		# public IP
-		set_disabled 0
+		disable_firewall 0
 		[ "$1" -eq "1" ] && {
 			uci set netmode.setup.repeaterready=0
 			uci commit netmode
