@@ -7,13 +7,21 @@ if [ $MTK -eq 1 ]; then
 	WANDEV="eth0.2"
 	link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
 else
-	WANDEV="$(uci get layer2_interface_ethernet.Wan.ifname)"
+	WANDEV="$(db -q get hw.board.ethernetWanPort)"
 	link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
 fi
 
 [ "$link" == "up" ] && action=add
 [ "$link" == "down" ] && action=remove
 [ -z "$action" ] && exit
+
+wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
+
+if uci -q get network.wan.ifname | grep -wq "$wetif"; then
+	[ "$link" == "down" ] && return
+else
+	[ "$link" == "up" ] && return
+fi
 
 # trigger a fake hotplug net event
 INTERFACE=$WANDEV ACTION=$action /sbin/hotplug-call net
