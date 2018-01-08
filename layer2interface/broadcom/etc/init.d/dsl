@@ -366,13 +366,11 @@ convert_old_atm() {
 	config_get encapspppoa $1 encapspppoa
 	config_get encapsipoa $1 encapsipoa
 	config_get baseifname $1 baseifname "atm0"
-	config_get ifname $1 ifname "$baseifname.1"
-	config_get name $1 name "DSL8_35"
+	config_get name $1 name "ATM$vpi$vci"
 
 	uci -q set dsl.$baseifname=atm-device
 	uci -q set dsl.$baseifname.name="$name"
 	uci -q set dsl.$baseifname.device="$baseifname"
-	uci -q set dsl.$baseifname.ifname="$ifname"
 	uci -q set dsl.$baseifname.qos_class="$atmtype"
 	uci -q set dsl.$baseifname.vpi="$vpi"
 	uci -q set dsl.$baseifname.vci="$vci"
@@ -403,16 +401,14 @@ convert_old_ptm() {
 	local name ifname baseifname
 	local dslat ptmprio
 
-	config_get name $1 name "VDSL2"
+	config_get name $1 name "PTM"
 	config_get baseifname $1 baseifname "ptm0"
-	config_get ifname $1 ifname "$baseifname.1"
 	config_get dslat $1 dslat
 	config_get ptmprio $1 ptmprio
 
 	uci -q set dsl.$baseifname=ptm-device
 	uci -q set dsl.$baseifname.name="$name"
 	uci -q set dsl.$baseifname.device="$baseifname"
-	uci -q set dsl.$baseifname.ifname="$ifname"
 	uci -q set dsl.$baseifname.priority="$ptmprio"
 	uci -q set dsl.$baseifname.portid="$dslat"
 }
