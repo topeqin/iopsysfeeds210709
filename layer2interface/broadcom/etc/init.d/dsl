@@ -88,8 +88,6 @@ configure_atm_device() {
 	config_get pcr $1 pcr
 	config_get mbs $1 mbs
 	config_get scr $1 scr
-	config_get ifname $1 ifname "$device.1" # for backwards compatibility
-	uci -q delete dsl.$1.ifname # delete it; it will be added to network config as untagged device
 
 	check_pvc $vpi $vci
 	ret=$?
@@ -146,7 +144,7 @@ configure_atm_device() {
 		xtmctl operate conn --createnetdev 1.$vpi.$vci $device
 		xtmctl operate intf --state 1 enable
 
-		configure_untagged_vlan "$name" "$device" "$ifname"
+		configure_untagged_vlan "$name" "$device" "$device.1"
 		[ $DEVICE_ADDED -eq 1 ] && ubus call network reload
 	fi
 }
@@ -201,8 +199,6 @@ configure_ptm_device() {
 	config_get device $1 device "ptm0"
 	config_get priority $1 priority 1
 	config_get portid $1 portid 1
-	config_get ifname $1 ifname "$device.1" # for backwards compatibility
-	uci -q delete dsl.$1.ifname # delete it; it will be added to network config as untagged device
 
 	check_ptm $priority $portid
 	ret=$?
@@ -216,7 +212,7 @@ configure_ptm_device() {
 		xtmctl operate conn --createnetdev $portid.$priority $device
 		xtmctl operate intf --state 1 enable
 
-		configure_untagged_vlan "$name" "$device" "$ifname"
+		configure_untagged_vlan "$name" "$device" "$device.1"
 		[ $DEVICE_ADDED -eq 1 ] && ubus call network reload
 	fi
 }
@@ -264,7 +260,6 @@ create_devices() {
 	elif echo "$tpstc" | grep -q "PTM Mode"; then
 		create_ptm_devices
 	fi
-	uci -q commit dsl # in case ifname is deleted
 }
 
 start_dsl() {
