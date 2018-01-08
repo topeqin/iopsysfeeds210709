@@ -384,19 +384,19 @@ convert_old_atm() {
 
 	case $link_type in
 		EoA)
-			uci -q set dsl.atm0.link_type="eoa"
+			uci -q set dsl.$baseifname.link_type="eoa"
 			[ "$encapseoa" == "vcmux_eth" ] && encapsulation="vcmux" || encapsulation="llc"
-			uci -q set dsl.atm0.encapsulation="$encapsulation"
+			uci -q set dsl.$baseifname.encapsulation="$encapsulation"
 		;;
 		PPPoA)
-			uci -q set dsl.atm0.link_type="pppoa"
+			uci -q set dsl.$baseifname.link_type="pppoa"
 			[ "$encapspppoa" == "vcmux_pppoa" ] && encapsulation="vcmux" || encapsulation="llc"
-			uci -q set dsl.atm0.encapsulation="$encapsulation"
+			uci -q set dsl.$baseifname.encapsulation="$encapsulation"
 		;;
 		IPoA)
-			uci -q set dsl.atm0.link_type="ipoa"
+			uci -q set dsl.$baseifname.link_type="ipoa"
 			[ "$encapsipoa" == "vcmux_ipoa" ] && encapsulation="vcmux" || encapsulation="llc"
-			uci -q set dsl.atm0.encapsulation="$encapsulation"
+			uci -q set dsl.$baseifname.encapsulation="$encapsulation"
 		;;
 	esac
 }
