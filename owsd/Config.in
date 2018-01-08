@@ -1,0 +1,17 @@
+choice
+	prompt "Select Bus"
+	default OWSD_USE_UBUS
+	depends on PACKAGE_owsd
+	help
+		Select which bus to compile owsd for
+
+config OWSD_USE_DBUS
+	bool "Use DBUS"
+
+config OWSD_USE_UBUS
+	bool "Use UBUS"
+
+config OWSD_USE_DBUS_UBUS
+	bool "Use UBUS and DBUS"
+
+endchoice

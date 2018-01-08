@@ -1,0 +1,303 @@
+#!/bin/sh /etc/rc.common
+
+. /lib/functions/network.sh
+
+START=90
+STOP=10
+
+USE_PROCD=1
+PROG=/usr/bin/owsd
+CONFIGFILE="/etc/config/owsd"
+
+DHCP_DOMAINS=""
+
+USERS=""
+OWLNUM=0
+
+owsd_acl() {
+	local section=$1
+	local username=$2
+	local user=""
+
+	acl_add_user() {
+		local user=$1
+		if [ "$user" == "$username" ]; then
+			json_add_string "" $section
+		fi
+	}
+
+	config_get user $section user
+	if [ -n "$user" ]; then
+		config_list_foreach "$section" "user" acl_add_user
+	else
+		for usr in $USERS; do
+			acl_add_user $usr
+		done
+	fi
+
+	OWLNUM=$((OWLNUM+1))
+}
+
+append_users() {
+	local section=$1
+
+	config_get username $section username
+	USERS="$USERS $username"
+}
+
+rpcd_acl() {
+	local section=$1
+	local owl=""
+	local _i=1
+
+	config_get username $section username
+
+	json_select $username
+	uci -q delete rpcd.$section.owsd_listen
+	while json_get_var owl $_i; do
+		uci -q add_list rpcd.$section.owsd_listen="$owl"
+		_i=$((_i+1))
+	done
+
+	[ $((OWLNUM+1)) -eq $_i ] && uci -q delete rpcd.$section.owsd_listen
+
+	json_select ..
+}
+
+handle_owsd_acl() {
+	config_load rpcd
+	config_foreach append_users "login"
+
+	config_load owsd
+	json_init
+	for USR in $USERS; do
+		json_add_array "$USR"
+		OWLNUM=0
+		config_foreach owsd_acl "owsd-listen" "$USR"
+		json_close_array
+	done
+	json_dump > /tmp/owsd_acl
+
+	json_load "$(cat /tmp/owsd_acl)"
+	config_load rpcd
+	config_foreach rpcd_acl "login"
+	uci commit rpcd
+
+	/etc/init.d/rpcd reload
+}
+
+load_dhcp_domains() {
+
+	append_domain() {
+		local domain=$1
+		DHCP_DOMAINS="$DHCP_DOMAINS $domain"
+	}
+
+	dhcp_domain_section() {
+		local section=$1
+		local ip
+		config_get ip "$section" ip
+		[ -z "$ip" ] && config_list_foreach "$section" "name" append_domain
+	}
+
+	config_load dhcp # note: do not overload a config while parsing it
+	config_foreach dhcp_domain_section "domain"
+}
+
+validate_owsd_ubusproxy() {
+	uci_validate_section "owsd" "ubusproxy" "ubusproxy" \
+		'enable:bool:1' \
+		'peer:list(string)' \
+		'object:list(string)' \
+		'peer_key:file' \
+		'peer_cert:file' \
+		'peer_ca:file' \
+
+}
+
+validate_owsd_global() {
+	uci_validate_section "owsd" "owsd" "global" \
+		'sock:string' \
+		'redirect:string' \
+		'www:string' \
+		'www_maxage:integer' \
+
+}
+
+append_origin() {
+	procd_append_param command -o"$1"
+}
+
+append_origin_parts() {
+	local proto host port
+	proto="$1"
+	host="$2"
+	port="$3"
+
+	if [ "${proto}" = "https" -a "${port}" -eq 443 -o "${proto}" = "http" -a "${port}" -eq 80 ]; then
+		append_origin "${proto}://${host}"
+	else
+		append_origin "${proto}://${host}:${port}"
+	fi
+}
+
+validate_owsd_iface() {
+	uci_validate_section "owsd" "owsd-listen" "$1" \
+		'port:port' \
+		'interface:network' \
+		'origin:list(string)' \
+		'whitelist_interface_as_origin:bool:0' \
+		'whitelist_dhcp_domains:bool:0' \
+		'ipv6:bool:1' \
+		'ipv6only:bool:0' \
+		'cert:file' \
+		'key:file' \
+		'ca:file' \
+		'restrict_to_user:list(string)' \
+		&&
+	[ -n "${port}" ]
+}
+
+parse_owsd_iface() {
+	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only
+	local cert key ca
+	local restrict_to_user
+
+	validate_owsd_iface "$1" || {
+		echo "Validation failed"
+		return 1
+	}
+
+	# utility function
+	new_listen_socket() {
+		procd_append_param command -p "${port}"
+
+		procd_append_param command -L"$1"
+
+		[ -n "${cert}"      ] && procd_append_param command -c"${cert}"
+		[ -n "${key}"       ] && procd_append_param command -k"${key}"
+		[ -n "${ca}"        ] && procd_append_param command -a"${ca}"
+
+		[ -n "${restrict_to_user}" ] && procd_append_param command -u"${restrict_to_user}"
+
+		[ -n "$2" ] && procd_append_param command -i"$2"
+	}
+
+	append_whitelists () {
+		config_list_foreach "$1" "origin" append_origin
+
+		if [ "$whitelist_dhcp_domains" -eq 1 ]; then
+			for domain in $DHCP_DOMAINS; do
+				append_origin_parts "${http}" "${domain}" "${port}"
+			done
+		fi
+
+		if [ -n "${interface}" -a -n "${addr}" -a "${whitelist_interface_as_origin}" -eq 1 ]; then
+			append_origin_parts "${http}" "${addr}" "${port}"
+		fi
+	}
+
+	local http="http${cert:+s}"
+	local ip4addrs ip6addrs
+
+	# bind to some network
+	if [ -n "${interface}" ]; then
+		# 1 listen-socket (vhost) for each IP address on that network's iface
+
+		# ipv4 addresses
+		if [ "${ipv6only}" -eq 0 ]; then
+			network_get_ipaddrs ip4addrs "${interface}";
+		fi
+		for addr in ${ip4addrs}; do
+			new_listen_socket "$1" "${addr}"
+			append_whitelists "$1"
+		done
+
+		# ipv6 addresses
+		if [ "${ipv6}" -eq 1 ]; then
+			network_get_ipaddrs6 ip6addrs "${interface}"
+		fi
+		for addr in ${ip6addrs}; do
+			new_listen_socket "$1" "${addr}"
+			addr="\\[${addr}]"
+			append_whitelists "$1"
+			procd_append_param command -66
+		done
+	else
+		new_listen_socket "$1"
+		if [ "${ipv6}" -eq 1 ]; then procd_append_param command -6; fi
+		if [ "${ipv6}" -eq 1 -a "${ipv6only}" -eq 1 ]; then procd_append_param command -6; fi
+
+		append_whitelists "$1"
+	fi
+}
+
+start_service() {
+	# update rpcd config according to owsd acl
+	handle_owsd_acl
+
+	# preload dhcp domains list, in case any interface config requires it
+	load_dhcp_domains
+
+	config_load owsd # note: do not overload a config while parsing it
+	procd_open_instance
+	procd_set_param command $PROG
+
+	local sock www redirect www_maxage
+	local enable peer_cert peer_key peer_ca
+
+	validate_owsd_global || {
+		echo "Global validation failed"
+		return 1
+	}
+
+	[ -n "${sock}"      ] && procd_append_param command -s"${sock}"
+	[ -n "${www}"       ] && procd_append_param command -w"${www}"
+	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
+	[ -n "${www_maxage}" ] && procd_append_param command -t"${www_maxage}"
+
+	validate_owsd_ubusproxy || {
+		echo "Ubusproxy validation failed"
+		return 1
+	}
+
+	if [ "${enable}" -eq 1 ]; then
+		procd_append_param command -U
+
+		[ -n "${peer_cert}" ] && procd_append_param command -C"${peer_cert}"
+		[ -n "${peer_key}"  ] && procd_append_param command -K"${peer_key}"
+		[ -n "${peer_ca}"   ] && procd_append_param command -A"${peer_ca}"
+
+		append_peer () {
+			[ -n "$1"   ] && procd_append_param command -P"$1"
+		}
+
+		append_object () {
+			[ -n "$1"   ] && procd_append_param command -U"$1"
+		}
+
+		config_list_foreach "ubusproxy" "peer" append_peer
+		config_list_foreach "ubusproxy" "object" append_object
+	fi
+
+	config_foreach parse_owsd_iface "owsd-listen"
+
+#	procd_set_param stderr 1
+	procd_set_param respawn
+
+	procd_close_instance
+}
+
+stop_service()
+{
+	service_stop ${PROG}
+}
+
+reload_service() {
+        stop
+        start
+}
+
+service_triggers() {
+        procd_add_reload_trigger owsd
+}

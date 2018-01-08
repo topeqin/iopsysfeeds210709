@@ -1,0 +1,87 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+MGMT_INTERFACES=""
+OWSD_INTERFACES=""
+NOT_DEFAULT=0
+
+mgmt_interfaces() {
+	local interface=$1
+	[ "$interface" == "loopback" ] && return
+	[ "$interface" == "lan" ] && return
+	[ "$interface" == "wan" ] && return
+	[ "$interface" == "wan6" ] && return
+
+	local type proto
+	config_get type $interface type
+	config_get proto $interface proto "none"
+	[ "$type" == "bridge" -a "$proto" == "none" ] && return
+
+	local is_lan
+	config_get is_lan $interface is_lan
+	[ "$is_lan" == "1" ] && return
+
+	local ifname
+	config_get ifname $interface ifname
+	[ "${ifname:0:1}" == "@" ] && return
+
+	MGMT_INTERFACES="$MGMT_INTERFACES $interface"
+}
+
+owsd_interfaces() {
+	local config=$1
+	local interface
+	config_get interface $config interface
+	[ "$interface" == "loopback" ] && return
+	[ "$interface" == "lan" ] && return
+	[ "$interface" == "wan" ] && return
+	[ "$interface" == "wan6" ] && return
+
+	OWSD_INTERFACES="$OWSD_INTERFACES $interface"	
+
+	NOT_DEFAULT=1
+}
+
+not_owsd() {
+	local interface=$1
+	local there=0
+	for owsd in $OWSD_INTERFACES; do
+		if [ "$interface" == "$owsd" ]; then
+			there=1
+			break
+		fi
+	done
+	return $there
+}
+
+config_load network
+config_foreach mgmt_interfaces interface
+
+config_load owsd
+config_foreach owsd_interfaces owsd-listen
+
+if [ $NOT_DEFAULT -eq 0 ]; then
+	for mgmt in $MGMT_INTERFACES; do
+		if $(not_owsd $mgmt); then
+			uci -q set owsd.$mgmt=owsd-listen
+			uci -q set owsd.$mgmt.port=80
+			uci -q set owsd.$mgmt.interface="$mgmt"
+			uci -q set owsd.$mgmt.ipv6="on"
+			uci -q set owsd.$mgmt.whitelist_interface_as_origin="1"
+			uci -q set owsd.$mgmt.origin="*"
+
+			uci -q set owsd.$mgmt"_8080"=owsd-listen
+			uci -q set owsd.$mgmt"_8080".port=8080
+			uci -q set owsd.$mgmt"_8080".interface="$mgmt"
+			uci -q set owsd.$mgmt"_8080".ipv6="on"
+			uci -q set owsd.$mgmt"_8080".whitelist_interface_as_origin="1"
+			uci -q set owsd.$mgmt"_8080".origin="*"
+
+			uci commit owsd
+		fi
+	done
+fi
+
+exit 0
+
