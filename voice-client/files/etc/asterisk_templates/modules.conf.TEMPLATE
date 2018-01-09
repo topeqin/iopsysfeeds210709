@@ -1,36 +1,45 @@
+;
+; Asterisk configuration file
+;
+; Module Loader configuration file
+;
+
 [modules]
 autoload=yes
-load => chan_brcm.so
-load => res_jabber.so ; Used for Gtalk
-load => res_clioriginate.so ; originate calls from commandline
-load => res_rtp_asterisk.so ; rtp "engine" is now a loadable module in asterisk 1.8
-load => pbx_config.so ; Text Extension Configuration Requires N/A
-load => func_callerid.so ; Gets or sets Caller*ID data on the channel. - Requires ?
-load => func_channel.so
-load => func_logic.so ; Logic functions (if, etc.)
-load => func_strings.so ; string manipulation functions
-load => cdr_manager.so ; Asterisk Call Manager CDR Backend - Requires N/A
-load => chan_local.so ; Show status of local channels- Requires N/A
-load => chan_gtalk.so ; Use gtalk
-load => chan_sip.so ; Session Initiation Protocol (SIP) - Requires res_features.so
-load => codec_alaw.so ; A-law Coder/Decoder - Requires N/A
-load => codec_a_mu.so ; A-law and Mulaw direct Coder/Decoder - Requires N/A
-load => codec_gsm.so ; GSM/PCM16 (signed linear) Codec Translat - Requires N/A
-load => codec_ulaw.so ; Mu-law Coder/Decoder - Requires N/A
-load => format_gsm.so ; Raw GSM data - Requires N/A
-load => format_pcm.so ; Raw uLaw 8khz Audio support (PCM) - Requires N/A
-load => app_dial.so ; Dialing Application - Requires res_features.so, res_musiconhold.so
-load => app_parkandannounce.so ; Call Parking and Announce Application - Requires res_features.so
-load => app_playback.so ; Sound File Playback Application - Requires N/A
-load => app_system.so ; Execute a system command - Requires N/A
-load => app_disa.so ; Direct Inward System Access
-load => app_authenticate.so ; Authenticate via pin
-load => app_senddtmf.so ; Ability to send DTMF tones on the line.
-load => func_cut.so ; To manipulate strings
-load => res_musiconhold.so
-load => func_db.so
+;
+; Any modules that need to be loaded before the Asterisk core has been
+; initialized (just after the logger has been initialized) can be loaded
+; using 'preload'. This will frequently be needed if you wish to map all
+; module configuration files into Realtime storage, since the Realtime
+; driver will need to be loaded before the modules using those configuration
+; files are initialized.
+;
+; An example of loading ODBC support would be:
+;preload => res_odbc.so
+;preload => res_config_odbc.so
+;
+; Uncomment the following if you wish to use the Speech Recognition API
+;preload => res_speech.so
+;
+; If you want Asterisk to fail if a module does not load, then use
+; the "require" keyword. Asterisk will exit with a status code of 2
+; if a required module does not load.
+;
+; require = chan_sip.so
+; If you want you can combine with preload
+; preload-require = res_odbc.so
+;
+; If you want, load the GTK console right away.
+;
 noload => pbx_gtkconsole.so
+;load => pbx_gtkconsole.so
+;
+load => res_musiconhold.so
+;
+; Load one of: chan_oss, alsa, or console (portaudio).
+; By default, load chan_oss only (automatically).
+;
 noload => chan_alsa.so
+;noload => chan_oss.so
 noload => chan_console.so
-[global]
-chan_modem.so=no
+;
