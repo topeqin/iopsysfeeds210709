@@ -29,6 +29,8 @@ endef
 
 define Package/inteno-netmodes/install
 	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netmoded $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,inteno-netmodes))
