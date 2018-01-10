@@ -19,7 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/inteno-netmodes
 	CATEGORY:=Base system
-	DEPENDS:=+fping +ubus +libubox
+	DEPENDS:=+fping +ubus +libubox +libuci
 	TITLE:=Predefined Network Modes
 endef
 
