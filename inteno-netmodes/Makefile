@@ -5,31 +5,32 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=inteno-netmodes
-PKG_RELEASE:=1
-PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+PKG_VERSION:=0.2.0
+
+PKG_SOURCE_VERSION:=9c980333f940aef9e9c5c83e361f59f33fa0ce7b
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=http://public.inteno.se:/netmoded
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/inteno-netmodes
-  CATEGORY:=Base system
-  DEPENDS:=+fping
-  TITLE:=Predefined Network Modes
+	CATEGORY:=Base system
+	DEPENDS:=+fping +ubus +libubox +libuci
+	TITLE:=Predefined Network Modes
 endef
 
 define Package/inteno-netmodes/description
 	Predefined Network Modes
 endef
 
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	$(CP) ./files/* $(PKG_BUILD_DIR)/
-endef
-
-define Build/Compile
-endef
-
 define Package/inteno-netmodes/install
 	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netmoded $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,inteno-netmodes))
