@@ -5,9 +5,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=inteno-netmodes
-PKG_VERSION:=0.1.0
+PKG_VERSION:=0.2.0
 
-PKG_SOURCE_VERSION:=2253c46a614cde9e61d08883ae4c50f0e1aa6fbe
+PKG_SOURCE_VERSION:=9c980333f940aef9e9c5c83e361f59f33fa0ce7b
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://public.inteno.se:/netmoded
 
