@@ -105,8 +105,8 @@ test_ip() {
 			uci commit netmode
 			local pid="$(ps | grep wificontro[l] | awk '/repeater/ {print $1}')"
 			[ "$pid" != "" ] && kill -9 $pid
-			pid="$(pidof netmode-client-detect)"
-			[ "$pid" == "" ] && /sbin/netmode-client-detect &
+			#pid="$(pidof netmode-client-detect)"
+			#[ "$pid" == "" ] && /sbin/netmode-client-detect &
 
 			# set default JUCI page to overview
 			uci -q set juci.juci.homepage="overview"
