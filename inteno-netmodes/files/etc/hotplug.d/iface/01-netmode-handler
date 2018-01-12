@@ -2,6 +2,7 @@
 
 [ "$INTERFACE" != "wan" ] && exit
 
+. /lib/functions.sh
 . /lib/functions/network.sh
 
 network_get_ipaddr ip $INTERFACE
@@ -47,6 +48,18 @@ is_inteno_macaddr()
 	false
 }
 
+get_wifi_wet_interface() {
+	handle_interface() {
+		config_get mode "$1" mode
+		if [ "$mode" == "sta" -o "$mode" == "wet" ] ; then
+			config_get ifname "$1" ifname
+			echo "$ifname"
+		fi
+	}
+	config_load wireless
+	config_foreach handle_interface wifi-iface
+}
+
 switch_mode() {
 	[ "$repeaterready" == "1" ] || return
 
@@ -88,6 +101,27 @@ switch_mode() {
 	ubus call network reload
 	wifi reload nodat
 	ubus call router.network reload
+
+	MTK=0
+	[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
+
+	WANDEV="$(db -q get hw.board.ethernetWanPort).1"
+	[ $MTK -eq 1 ] && WANDEV="eth0.2"
+
+	link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
+	[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
+
+	wetif="$(get_wifi_wet_interface)"
+
+	if [ "$link" == "up" ]; then
+		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
+		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
+	else
+		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":false}"
+		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
+		ubus call led.internet  set '{"state" : "notice"}'
+	fi
+
 	ubus call leds set  '{"state" : "normal"}'
 	rm -f /tmp/switching_mode
 }
