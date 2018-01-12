@@ -47,6 +47,7 @@ ping_uplink()
 		[ $? -eq 1 ] && rv=0 || rv=1
 	else
 		SLEEP_TIME=5
+		ubus call led.internet  set '{"state" : "off"}'
 		return
 	fi
 
@@ -58,18 +59,17 @@ ping_uplink()
 		SLEEP_TIME=10
 
 		wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
-		enableCounter=$((enableCounter+1))
 		# If there is an uplink IP address but no connection for 5 minutes, reboot
 		if [ $enableCounter -gt 32 ]; then
 			reboot &
-		elif [ $enableCounter -ge 4 -a $((enableCounter % 4)) -eq 0 ]; then
+		elif [ $enableCounter -ge 2 -a $((enableCounter % 2)) -eq 0 ]; then
 			ps | grep -v grep | grep -q 'wifi reload\|wifi.credentials\|iwpriv' && return
 
 			if [ -f /usr/sbin/wlctl ]; then
 				assoclist="$(wlctl -i $wetif assoclist | head -1 | awk '{print$2}')"
 				wlctl -i $wetif reassoc $assoclsit
 			elif [ -f /usr/sbin/iwpriv ]; then
-				wetcfg="$(get_wifi_iface_cfgstr apclii0)"
+				wetcfg="$(get_wifi_iface_cfgstr $wetif)"
 				wetssid="$(uci -q get $wetcfg.ssid)"
 				wetkey="$(uci -q get $wetcfg.key)"
 				if [ -n "$wetkey" ]; then
@@ -89,6 +89,8 @@ ping_uplink()
 			fi
 			ubus call led.internet  set '{"state" : "notice"}'
 		fi
+
+		enableCounter=$((enableCounter+1))
 
 		if [ $AccessPolicy -eq 1 ]; then
 			return
@@ -198,6 +200,9 @@ iptvtest() {
 netmode_check() {
 	local curmode="$(uci -q get netmode.setup.curmode)"
 	local uplinkband="$(uci -q get netmode.$curmode.uplink_band)"
+	local rready="$(uci -q get netmode.setup.repeaterready)"
+
+	[ "$rready" == "1" ] && uplinkband="a"
 
 	echo "$uplinkband"
 }
