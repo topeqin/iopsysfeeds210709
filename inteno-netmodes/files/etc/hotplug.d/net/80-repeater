@@ -52,51 +52,18 @@ link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
 case "$ACTION" in
 	add|register)
 		[ "$link" == "down" ] && return
-		ubus call leds set  '{"state" : "allflash"}'
 		echo "Autoswitch to Extender mode" > /dev/console
-		sleep 2
 		wetif="$(get_wifi_wet_interface)"
-		# remove wifi client interface
-		case "$(uci get netmode.setup.curmode)" in
-			repeater*)
-				uci -q set $(get_wifi_iface_cfgstr $wetif).disabled=1
-			;;
-		esac
-		uci commit wireless
-		#add wan ethernet port
-		uci set network.wan.ifname="$(echo $WANDEV $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$wetif //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
-		uci commit network
-		ubus call network reload
-		[ -f /usr/sbin/wlctl ] && wlctl -i $wetif bss down 2>/dev/null
-		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
-		ubus call router.network reload
-		ubus call leds set  '{"state" : "normal"}'
+		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
+		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
 	;;
 	remove|unregister)
 		[ "$link" == "up" ] && return
-		ubus call leds set  '{"state" : "allflash"}'
 		echo "Autoswitch to Repeater mode" > /dev/console
-		sleep 2
 		wetif="$(get_wifi_wet_interface)"
-		# add wifi client interface
-		case "$(uci get netmode.setup.curmode)" in
-			repeater*)
-				uci -q set $(get_wifi_iface_cfgstr $wetif).disabled=0
-			;;
-		esac
-		uci commit wireless
-		#remove wan ethernet port
-		uci set network.wan.ifname="$(echo $wetif $(uci get network.wan.ifname) | sed 's/$/ /' | sed -r "s/$WANDEV //g" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
-		uci commit network
-		ubus call network reload
-		[ -f /usr/sbin/wlctl ] && wlctl -i $wetif bss up 2>/dev/null
-		ping -c 1 -w 10 $defroute >/dev/null 2>&1 || {
-			killall -9 wifi
-			wifi reload nodat
-			killall -USR1 udhcpc
-		}
-		ubus call router.network reload
-		ubus call leds set  '{"state" : "normal"}'
+		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":false}"
+		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
+		ubus call led.internet  set '{"state" : "notice"}'
 	;;
 esac
 
