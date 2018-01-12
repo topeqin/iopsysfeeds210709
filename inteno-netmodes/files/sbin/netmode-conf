@@ -292,4 +292,5 @@ else
 	fi
 	[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 	ubus call leds set '{"state":"normal"}'
+	ubus call led.internet set '{"state":"notice"}'
 fi
