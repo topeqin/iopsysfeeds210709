@@ -1,0 +1,236 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+NETCON=0
+TVCON=0
+WANIP=0
+LASTSTATUS=""
+CURSTATUS=""
+
+SLEEP_TIME=30
+enableCounter=0
+
+get_wifi_iface_cfgstr() {
+	get_cfgno() {
+		config_get ifname "$1" ifname
+		[ "$ifname" == "$2" ] && echo "wireless.$1"
+	}
+	config_load wireless
+	config_foreach get_cfgno wifi-iface $1
+}
+
+ping_uplink()
+{
+	local hasip hasdev hasmode
+	local ipaddr=""
+	local device=""
+	local rready=""
+	local wetif=""
+	local assoclist=""
+	local AccessPolicy=0
+	local rv=0
+
+	ipaddr="$(ip r | grep default | awk '{print$3}')"
+	[ -n "$ipaddr" ] && hasip=1 || hasip=0
+
+	device="$(ip r | grep default | awk '{print$5}')"
+	[ -n "$device" ] && hasdev=1 || hasdev=0
+		
+	rready="$(uci -q get netmode.setup.repeaterready)"
+	[ "$rready" == "1" ] && hasmode=0 || hasmode=1
+	
+	if [ "$hasmode" == "1" ] && [ "$hasip" == "0" -o "$hasdev" == "0" ]; then
+		rv=0
+	elif [ "$hasmode" == "1" ]; then
+		ping $ipaddr -I $device -W 1 -c 1 -q >/dev/null 2>&1
+		[ $? -eq 1 ] && rv=0 || rv=1
+	else
+		SLEEP_TIME=5
+		return
+	fi
+
+	if [ $rv -eq 0 ]; then
+
+		echo "{ \"online\" : false }" > /tmp/internet_connection_status
+		ubus call led.internet  set '{"state" : "error"}'
+
+		SLEEP_TIME=10
+
+		wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
+		enableCounter=$((enableCounter+1))
+		# If there is an uplink IP address but no connection for 5 minutes, reboot
+		if [ $enableCounter -gt 32 ]; then
+			reboot &
+		elif [ $enableCounter -ge 4 -a $((enableCounter % 4)) -eq 0 ]; then
+			ps | grep -v grep | grep -q 'wifi reload\|wifi.credentials\|iwpriv' && return
+
+			if [ -f /usr/sbin/wlctl ]; then
+				assoclist="$(wlctl -i $wetif assoclist | head -1 | awk '{print$2}')"
+				wlctl -i $wetif reassoc $assoclsit
+			elif [ -f /usr/sbin/iwpriv ]; then
+				wetcfg="$(get_wifi_iface_cfgstr apclii0)"
+				wetssid="$(uci -q get $wetcfg.ssid)"
+				wetkey="$(uci -q get $wetcfg.key)"
+				if [ -n "$wetkey" ]; then
+					wetauth="WPA2PSK"
+					wetenc="AES"
+				else
+					wetauth="OPEN"
+					wetenc="NONE"
+				fi
+				iwpriv $wetif set ApCliEnable=0
+				iwpriv $wetif set ApCliSsid="$wetssid"
+				iwpriv $wetif set ApCliAuthMode="$wetauth"
+				iwpriv $wetif set ApCliEncrypType="$wetenc"
+				iwpriv $wetif set ApCliWPAPSK="$wetkey"
+				iwpriv $wetif set ApCliEnable=1
+				iwpriv $wetif set ApCliAutoConnect=1
+			fi
+			ubus call led.internet  set '{"state" : "notice"}'
+		fi
+
+		if [ $AccessPolicy -eq 1 ]; then
+			return
+		fi
+
+		AccessPolicy=1
+		if [ -f /usr/sbin/iwpriv ]; then
+			# Do not allow clients to connect on 2.4GHz radio
+			iwpriv ra0 set AccessPolicy=$AccessPolicy
+			# Do not allow clients to connect on 5GHz radio
+			iwpriv rai0 set AccessPolicy=$AccessPolicy
+			# Disconnect clients on 2.4GHz radio
+			iwpriv ra0 set DisConnectAllSta=2
+			# Disconnect clients on 5GHz radio
+			iwpriv rai0 set DisConnectAllSta=2
+		fi
+	else 
+		echo "{ \"online\" : true }" > /tmp/internet_connection_status
+		ubus call led.internet  set '{"state" : "eok"}'
+
+		SLEEP_TIME=5
+
+		enableCounter=0
+		if [ $AccessPolicy -eq 0 ]; then
+			return
+		fi
+		# Uplink working, allow clients to connect
+		AccessPolicy=0
+
+		if [ -f /usr/sbin/iwpriv ]; then
+			iwpriv ra0 set AccessPolicy=$AccessPolicy
+			iwpriv rai0 set AccessPolicy=$AccessPolicy
+		fi
+
+	fi
+}
+
+test_connection() {
+	local addr="$1"
+	local defroute="$(ip r | grep default | awk '{print$3}' | head -1)"
+	local def6route="$(ip -f inet6 r | grep default | awk '{print$3}')"
+	local ping6dev="$(ip -f inet6 r | grep default | awk '{print$5}')"
+
+	if [ -n "$addr" ]; then
+		ping -q -w 5 -c 1 $addr >/dev/null 2>&1 && return 0
+	elif [ -n "$defroute" ]; then
+		ping -q -w 5 -c 1 $defroute >/dev/null 2>&1 && return 0
+		for nmsrv in $(grep nameserver /var/resolv.conf.auto | awk '{print$2}'); do
+			ping -q -w 5 -c 1 $nmsrv >/dev/null 2>&1 && return 0
+		done
+	elif [ -n "$def6route" ] && [ -n "$ping6dev" ]; then
+		ndisc6 -w 5 -1 $def6route $ping6dev >/dev/null 2>&1 && return 0
+	fi
+	return 1
+}
+
+wan_have_ip() {
+	[ -d /sys/class/net/$port ] || return
+	ubus list led.wan >/dev/null 2>&1 || return
+
+	local port="$(db -q get hw.board.ethernetWanPort)"
+	local addr=$(ip a show dev $port | grep "inet "| awk '{print $2}')
+
+	if [ -n "$addr" ]; then
+		WANIP=1
+		ubus call led.wan  set '{"state" : "ok"}'
+	else
+		WANIP=0
+	fi
+	# don't set wan here status is set from hotplug, only set when ip is detected.
+}
+
+internet_test() {
+	local link dest
+
+	dest="$(uci -q get system.@system[0].netping_addr)"
+
+	test_connection $dest
+
+	if [ "$?" -eq 0 ]; then
+		NETCON=1
+		ubus call led.internet  set '{"state" : "ok"}'
+		echo "{ \"online\" : true }" > /tmp/internet_connection_status
+	else
+		NETCON=0
+		ubus call led.internet  set '{"state" : "error"}'
+		echo "{ \"online\" : false }" > /tmp/internet_connection_status
+	fi
+}
+
+iptvtest() {
+	ubus list led.ext >/dev/null 2>&1 && TVCON=1 || return
+
+	local dest="$(uci -q get system.@system[0].tvping_addr)"
+
+	test_connection $dest
+
+	if [ "$?" -eq 0 ]; then
+		TVCON=1
+		[ -n "$dest" ] && ubus call led.ext  set '{"state" : "ok"}'
+	else
+		TVCON=0
+		[ -n "$dest" ] && ubus call led.ext  set '{"state" : "off"}'
+	fi
+}
+
+netmode_check() {
+	local curmode="$(uci -q get netmode.setup.curmode)"
+	local uplinkband="$(uci -q get netmode.$curmode.uplink_band)"
+
+	echo "$uplinkband"
+}
+
+connectivity_test() {
+	if [ "$(netmode_check)" != "" ]; then
+		ping_uplink
+		return
+	fi
+
+	SLEEP_TIME=30
+
+	internet_test
+
+	if [ $NETCON -eq 1 ]; then
+		CURSTATUS=1
+		[ "$CURSTATUS" == "$LASTSTATUS" ] || ubus send internet '{"status" : "online"}'
+		LASTSTATUS=1
+	else
+		CURSTATUS=0
+		[ "$CURSTATUS" == "$LASTSTATUS" ] || ubus send internet '{"status" : "offline"}'
+		LASTSTATUS=0
+	fi
+}
+
+if [ "$1" == "once" ]; then
+	connectivity_test
+	exit 0
+fi
+
+ubus call led.internet  set '{"enable" : 1}'
+
+while true; do
+	connectivity_test
+	sleep $SLEEP_TIME
+done

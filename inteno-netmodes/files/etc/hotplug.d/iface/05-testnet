@@ -1,0 +1,22 @@
+#!/bin/sh
+
+[ "$ACTION" == "ifup" -o "$ACTION" == "ifdown" ] || exit 0
+
+interface_check() {
+	local islan="$(uci -q get network.$INTERFACE.is_lan)"
+	[ "$islan" == "1" ] && exit 0
+
+	local proto="$(uci -q get network.$INTERFACE.proto)"
+	[ "$proto" == "none" ] && exit 0
+
+	local defroute="$(uci -q get network.$INTERFACE.defaultroute)"
+	[ "$defroute" == "0" ] && exit 0
+}
+
+interface_check
+if [ -n "$(pidof testnet)" ]; then
+	testnet once
+else
+	testnet &
+fi
+
