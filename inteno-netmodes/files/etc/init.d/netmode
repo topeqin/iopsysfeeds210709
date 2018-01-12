@@ -255,17 +255,17 @@ switch_netmode() {
 	fi
 }
 
-start_client_listener() {
-	local curmode repeaterready ulcpid
+start_repeater_tools() {
+	local curmode repeaterready
+
+	killall -9 wificontrol >/dev/null 2>&1
+	killall -9 netmode-discover >/dev/null 2>&1
 
 	config_load netmode
-	config_get repeaterready setup repeaterready 0
-
-	ulcpid=$(ps | grep "ubus listen client" | grep -v grep | awk '{print$1}')
+	config_get_bool repeaterready setup repeaterready 0
 
 	[ $repeaterready -eq 1 ] && {
-		killall -SIGKILL netmode-client-detect >/dev/null 2>&1
-		kill -9 $ulcpid >/dev/null 2>&1
+		/sbin/wificontrol --repeater &
 		return
 	}
 
@@ -273,30 +273,8 @@ start_client_listener() {
 
 	case "$curmode" in
 		repeater*)
-			killall -SIGKILL netmode-client-detect >/dev/null 2>&1
-			kill -9 $ulcpid >/dev/null 2>&1
-		;;
-		*)
-			pidof netmode-client-detect || /sbin/netmode-client-detect &
-		;;
-	esac
-}
-
-start_netmode_discover() {
-	local curmode repeaterready
-
-	killall -9 netmode-discover >/dev/null 2>&1
-
-	config_load netmode
-	config_get repeaterready setup repeaterready 0
-
-	[ $repeaterready -eq 1 ] && return
-
-	config_get curmode setup curmode
-
-	case "$curmode" in
-		repeater*)
 			/sbin/netmode-discover &
+			/sbin/wificontrol --repeater &
 		;;
 	esac
 }
@@ -315,9 +293,8 @@ start_netmoded() {
 
 start_service() {
 	populate_netmodes
-#	start_client_listener
 	start_netmoded
-	start_netmode_discover
+	start_repeater_tools
 }
 
 reload_service() {
@@ -327,14 +304,13 @@ reload_service() {
 	uci -q set juci.juci.homepage="overview"
 	uci commit juci
 
-#	start_client_listener
 	start_netmoded
-	start_netmode_discover
+	start_repeater_tools
 }
 
 stop_service() {
-#	killall -SIGKILL netmode-client-detect >/dev/null 2>&1
 	killall -9 netmode-discover >/dev/null 2>&1
+	killall -9 wificontrol >/dev/null 2>&1
 }
 
 service_triggers()
