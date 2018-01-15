@@ -5,19 +5,12 @@ include /lib/network
 
 ps | grep hotplug | grep button && exit
 
-MTK=0
-[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
-
-WANDEV="$(db -q get hw.board.ethernetWanPort).1"
-[ $MTK -eq 1 ] && WANDEV="eth0.2"
-
-[ "$INTERFACE" != "$WANDEV" ] && exit
+[ -z "$INTERFACE" ] && exit
 
 defroute=$(ip route | grep default | awk '{print$3}')
 
 case "$(uci get netmode.setup.curmode)" in
 		repeater*)
-			echo "Preparing to switch mode"
 		;;
 		*)
 			ping -c 1 -w 5 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
@@ -25,45 +18,7 @@ case "$(uci get netmode.setup.curmode)" in
 		;;
 esac
 
-get_wifi_wet_interface() {
-	handle_interface() {
-		config_get mode "$1" mode
-		if [ "$mode" == "sta" -o "$mode" == "wet" ] ; then
-			config_get ifname "$1" ifname
-			echo "$ifname"
-		fi
-	}
-	config_load wireless
-	config_foreach handle_interface wifi-iface
-}
-
-get_wifi_iface_cfgstr() {
-	get_cfgno() {
-		config_get ifname "$1" ifname
-		[ "$ifname" == "$2" ] && echo "wireless.$1"
-	}
-	config_load wireless
-	config_foreach get_cfgno wifi-iface $1
-}
-
-link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
-[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
-
 case "$ACTION" in
-	add|register)
-		[ "$link" == "down" ] && return
-		echo "Autoswitch to Extender mode" > /dev/console
-		wetif="$(get_wifi_wet_interface)"
-		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
-		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
-	;;
-	remove|unregister)
-		[ "$link" == "up" ] && return
-		echo "Autoswitch to Repeater mode" > /dev/console
-		wetif="$(get_wifi_wet_interface)"
-		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":false}"
-		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
-		ubus call led.internet  set '{"state" : "notice"}'
-	;;
+	add|register|remove|unregister) correct_uplink $INTERFACE;;
 esac
 

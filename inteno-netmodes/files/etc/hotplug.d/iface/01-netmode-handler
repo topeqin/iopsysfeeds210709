@@ -3,66 +3,15 @@
 [ "$INTERFACE" != "wan" ] && exit
 
 . /lib/functions.sh
-. /lib/functions/network.sh
+include /lib/network
 
-network_get_ipaddr ip $INTERFACE
+network_get_ipaddr ipaddr $INTERFACE
+[ -z "$ipaddr" ] && exit
+
 repeaterready="$(uci -q get netmode.setup.repeaterready)"
+curmode="$(uci -q get netmode.setup.curmode)"
 
-[ -z "$ip" ] && exit
-
-toggle_firewall() {
-	local section=$1
-	local disable=$2
-	config_get name "$1" name
-	if [ "$name" == "wan" ]; then
-		uci -q set firewall.settings.disabled=$disable
-		if [ "$disable" == "1" ]; then
-			uci -q set firewall.$section.input="ACCEPT"
-		else
-			uci -q set firewall.$section.input="REJECT"
-		fi
-		uci -q commit firewall
-	fi
-}
-
-disable_firewall() {
-	config_load firewall
-	config_foreach toggle_firewall zone $1
-	/etc/init.d/firewall reload
-}
-
-is_inteno_macaddr()
-{
-	macaddr=$1
-
-	echo $macaddr | grep -i -e "^00:22:07" \
-				-e "^02:22:07" \
-				-e "^44:D4:37" \
-				-e "^00:0C:07" \
-				-e "^02:0C:07" \
-				-e "^06:0C:07" \
-				-e "^00:0C:43" \
-				-e "^02:0C:43" \
-				-e "^06:0C:43" \
-	&& return
-	false
-}
-
-get_wifi_wet_interface() {
-	handle_interface() {
-		config_get mode "$1" mode
-		if [ "$mode" == "sta" -o "$mode" == "wet" ] ; then
-			config_get ifname "$1" ifname
-			echo "$ifname"
-		fi
-	}
-	config_load wireless
-	config_foreach handle_interface wifi-iface
-}
-
-switch_mode() {
-	[ "$repeaterready" == "1" ] || return
-
+if [ "$(get_ip_type $ipaddr)" == "private" ]; then
 	# flush the ip on br-lan; br-lan will anyhow be deleted.
 	# this is needed if the ip received on the wan is also from the same net
 	ip addr flush dev br-lan
@@ -72,85 +21,17 @@ switch_mode() {
 	# firewall is disabled the proper way
 	iptables -F
 
-	ubus call leds set  '{"state" : "allflash"}'
+	disable_firewall 1
+else
+	disable_firewall 0
+fi
 
-	if pidof wificontrol >/dev/null; then
-		local ret=0
-		# let netmode-conf up to 20 seconds before switching mode
-		for tm in 2 4 6 8; do
-			if [ -f /tmp/wificontrol.txt ]; then
-				ret=1
-				break
-			fi
-			sleep $tm
-		done
-
-		# let netmode-conf take over
-		[ $ret -eq 1 ] && return
-	fi
-
-	# go head with switching mode
-	touch -f /tmp/switching_mode
-	echo "Switching to 'extender' mode" > /dev/console
-	uci -q set netmode.setup.curmode='repeater'
-	uci set netmode.setup.repeaterready=0
-	uci commit netmode
-	/etc/init.d/netmode reload 0
-	echo "Restarting network services" > /dev/console
-	[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
-	ubus call network reload
-	wifi reload nodat
-	ubus call router.network reload
-
-	MTK=0
-	[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
-
-	WANDEV="$(db -q get hw.board.ethernetWanPort).1"
-	[ $MTK -eq 1 ] && WANDEV="eth0.2"
-
-	link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
-	[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
-
-	wetif="$(get_wifi_wet_interface)"
-
-	if [ "$link" == "up" ]; then
-		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
-		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
-	else
-		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":false}"
-		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
-		ubus call led.internet  set '{"state" : "notice"}'
-	fi
-
-	ubus call leds set  '{"state" : "normal"}'
-	rm -f /tmp/switching_mode
-}
-
-test_ip() {
-	if [ -n "$(echo $ip | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ]; then
-		# private IP
-		switch_mode
-		disable_firewall 1
-	else
-		# public IP
-		disable_firewall 0
-		[ "$1" -eq "1" ] && {
-			uci set netmode.setup.repeaterready=0
-			uci commit netmode
-			local pid="$(ps | grep wificontro[l] | awk '/repeater/ {print $1}')"
-			[ "$pid" != "" ] && kill -9 $pid
-			#pid="$(pidof netmode-client-detect)"
-			#[ "$pid" == "" ] && /sbin/netmode-client-detect &
-
-			# set default JUCI page to overview
-			uci -q set juci.juci.homepage="overview"
-			uci commit juci
-		}
-	fi
-}
-
-case "$(uci -q get netmode.setup.curmode)" in
-		repeater*) test_ip ;;
-		*) [ "$repeaterready" == "1" ] && test_ip 1;;
+case "$curmode" in
+		repeater*)
+		;;
+		*)
+			[ "$repeaterready" == "1" ] || return
+			[ "$(get_ip_type $ipaddr)" == "private" ] && switch_netmode repeater || switch_netmode router
+		;;
 esac
 

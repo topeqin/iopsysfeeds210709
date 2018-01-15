@@ -1,0 +1,382 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /lib/functions/network.sh
+. /usr/share/libubox/jshn.sh
+
+TMPDIR=/var/netmodes
+OLD_MODE_FILE=/var/netmodes/old_mode
+MODEDIR=$(uci -q get netmode.setup.dir)
+[ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
+
+network_get_ipaddr ip $INTERFACE
+repeaterready="$(uci -q get netmode.setup.repeaterready)"
+
+toggle_firewall() {
+	local section=$1
+	local disable=$2
+	config_get name "$1" name
+	if [ "$name" == "wan" ]; then
+		uci -q set firewall.settings.disabled=$disable
+		if [ "$disable" == "1" ]; then
+			uci -q set firewall.$section.input="ACCEPT"
+		else
+			uci -q set firewall.$section.input="REJECT"
+		fi
+		uci -q commit firewall
+	fi
+}
+
+disable_firewall() {
+	config_load firewall
+	config_foreach toggle_firewall zone $1
+	/etc/init.d/firewall reload
+}
+
+is_inteno_macaddr()
+{
+	macaddr=$1
+
+	echo $macaddr | grep -i -e "^00:22:07" \
+				-e "^02:22:07" \
+				-e "^44:D4:37" \
+				-e "^00:0C:07" \
+				-e "^02:0C:07" \
+				-e "^06:0C:07" \
+				-e "^00:0C:43" \
+				-e "^02:0C:43" \
+				-e "^06:0C:43" \
+	&& return
+	false
+}
+
+get_wifi_wet_interface() {
+	handle_interface() {
+		config_get mode "$1" mode
+		if [ "$mode" == "sta" -o "$mode" == "wet" ] ; then
+			config_get ifname "$1" ifname
+			echo "$ifname"
+		fi
+	}
+	config_load wireless
+	config_foreach handle_interface wifi-iface
+}
+
+get_wifi_iface_cfgstr() {
+	get_cfgno() {
+		config_get ifname "$1" ifname
+		[ "$ifname" == "$2" ] && echo "wireless.$1"
+	}
+	config_load wireless
+	config_foreach get_cfgno wifi-iface $1
+}
+
+correct_uplink() {
+	local IFACE="$1"
+	local MTK=0
+	local WANDEV="$(db -q get hw.board.ethernetWanPort).1"
+	local link wetif
+
+	[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
+	[ $MTK -eq 1 ] && WANDEV="eth0.2"
+
+	[ -n "$IFACE" -a "$IFACE" != "$WANDEV" ] && return
+
+	link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
+	[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
+
+	wetif="$(get_wifi_wet_interface)"
+
+	if [ "$link" == "up" ]; then
+		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
+		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
+	else
+		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":false}"
+		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
+		ubus call led.internet  set '{"state" : "notice"}'
+	fi
+}
+
+switch_netmode() {
+	local newmode="$1"
+
+	[ -f /etc/config/netmode -a -d $MODEDIR ] || return
+
+	[ -n "$newmode" ] && uci -q set netmode.setup.curmode="$newmode"
+
+	local curmode conf repeaterready old_mode
+
+	# NETMODE CONFIG #
+	config_load netmode
+	config_get curmode setup curmode
+	uci -q set netmode.setup.repeaterready="0"
+	uci -q set netmode.setup.curmode='repeater'
+	if [ "$curmode" == "repeater" ]; then
+		local hw="$(db -q get hw.board.hardware)"
+		if [ "$hw" == "EX400" ]; then
+			curmode="repeater_mtk_5g_up_dual_down"
+		else
+			curmode="repeater_brcm_2g_up_dual_down"
+		fi
+		uci set netmode.setup.curmode="$curmode"
+	fi
+	if [ "$curmode" == "routed" ]; then
+		local hw="$(db -q get hw.board.hardware)"
+		if [ "$hw" == "EX400" ]; then
+			curmode="routed_mtk"
+		else
+			curmode="routed_brcm"
+		fi
+		uci set netmode.setup.curmode="$curmode"
+	fi
+	uci commit netmode
+	# NETMODE CONFIG #
+
+	old_mode="$(cat $OLD_MODE_FILE 2>/dev/null)"
+
+        # if curmode has not changed do not copy configs
+        if [ "$curmode" == "$old_mode" ]; then
+                /etc/init.d/environment reload
+                return
+        fi
+
+        echo $curmode >$OLD_MODE_FILE
+
+	[ -d "/etc/netmodes/$curmode" ] || return
+	cp /etc/netmodes/$curmode/* /etc/config/
+	rm -f /etc/config/DETAILS
+	sync
+
+	local reboot=$(uci -q get netmode.$curmode.reboot)
+
+	if [ "$reboot" == "1" ]; then
+		reboot &
+		exit
+	fi
+
+	/etc/init.d/environment reload
+	case "$curmode" in
+		routed*)
+			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
+			ubus call uci commit '{"config":"network"}'
+		;;
+		repeater*)
+			touch /tmp/switching_mode
+			echo "Switching to $curmode mode" > /dev/console
+			ubus call leds set  '{"state" : "allflash"}'
+			[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
+			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
+			ubus call network reload
+			wifi reload nodat
+			ubus call router.network reload
+			correct_uplink
+			ubus call leds set  '{"state" : "normal"}'
+			rm -f /tmp/switching_mode
+		;;
+	esac
+
+	# set default JUCI page to overview
+	uci -q set juci.juci.homepage="overview"
+	uci commit juci
+}
+
+get_ip_type() {
+	[ -n "$(echo $1 | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ] && echo "private" || echo "public"
+}
+
+get_device() {
+	local PORT_NAMES=$(db get hw.board.ethernetPortNames)
+	local PORT_ORDER=$(db get hw.board.ethernetPortOrder)
+        local cnt=1
+        local idx=0
+
+	local pnum=$(echo $PORT_NAMES | wc -w)
+
+	if [ $pnum -le 2 ]; then
+		PORT_NAMES=$(echo $PORT_NAMES | sed 's/LAN/LAN1/g')
+	fi
+
+	# get index of interface name
+	for i in $PORT_NAMES; do
+		if [ "$i" == "$1" ]; then
+			idx=$cnt
+		fi
+		cnt=$((cnt+1))
+	done
+
+        # get port name from index
+	cnt=1
+	for i in $PORT_ORDER; do
+		if [ "$cnt" == "$idx" ]; then
+			echo $i
+		fi
+		cnt=$((cnt+1))
+	done
+}
+
+populate_netmodes() {
+	[ -f /etc/config/netmode -a -d $MODEDIR ] || return
+	local curmode
+
+	config_load netmode
+
+	config_get curmode setup curmode
+
+	mkdir -p $TMPDIR
+
+	if [ "$curmode" == "routed" ]; then
+		local hw="$(db -q get hw.board.hardware)"
+		if [ "$hw" == "EX400" ]; then
+			curmode="routed_mtk"
+		else
+			curmode="routed_brcm"
+		fi
+	fi
+
+	echo $curmode > $OLD_MODE_FILE
+
+	delete_netmode() {
+		uci delete netmode.$1
+	}
+
+	config_foreach delete_netmode netmode
+	uci commit netmode
+
+	wan=$(get_device WAN)
+	lan1=$(get_device LAN1)
+	lan2=$(get_device LAN2)
+	lan3=$(get_device LAN3)
+	lan4=$(get_device LAN4)
+	lan5=$(get_device LAN5)
+
+	for file in $(find $MODEDIR -type f); do
+		conf="$(echo $file | cut -d'/' -f5)"
+		if [ "$conf" == "layer2_interface_ethernet" ]; then
+			grep -q "\$WAN" $file && sed -i "s/\$WAN/$wan/g" $file
+		fi
+		if [ "$conf" == "network" ]; then
+			grep -q "\$WAN" $file && sed -i "s/\$WAN/$wan/g" $file
+			grep -q "\$LAN1" $file && sed -i "s/\$LAN1/$lan1/g" $file
+			grep -q "\$LAN2" $file && sed -i "s/\$LAN2/$lan2/g" $file
+			grep -q "\$LAN3" $file && sed -i "s/\$LAN3/$lan3/g" $file
+			grep -q "\$LAN4" $file && sed -i "s/\$LAN4/$lan4/g" $file
+
+			ifname="$(uci -q get $file.wan.ifname | sed 's/[ \t]*$//')"
+			uci -q set $file.wan.ifname="$ifname"
+			uci -q commit $file
+		fi
+	done
+
+	local hardware=$(db get hw.board.hardware)
+	local keys lang desc exp exclude
+	for mode in $(ls $MODEDIR); do
+
+			case "$mode" in
+				repeater*)
+					wlctl -i wl1 ap >/dev/null 2>&1 || ifconfig rai0 2>/dev/null | grep -q rai0 || continue
+				;;
+			esac
+
+			lang=""
+			desc=""
+			exp=""
+			uci -q set netmode.$mode=netmode
+			json_load "$(cat $MODEDIR/$mode/DETAILS)"
+
+			if json_select excluded_boards; then
+				exclude=0
+				_i=1
+				while json_get_var board $_i; do
+					case "$hardware" in
+						$board)
+							uci -q delete netmode.$mode
+							exclude=1
+							break
+						;;
+					esac
+					_i=$((_i+1))
+				done
+				json_select ..
+				[ $exclude -eq 1 ] && continue
+			fi
+
+			if json_select acl; then
+				_i=1
+				while json_get_var user $_i; do
+					uci add_list netmode.$mode._access_r="$user"
+					_i=$((_i+1))
+				done
+				json_select ..
+			fi
+
+			json_select description
+			json_get_keys keys
+			for k in $keys; do
+				json_get_keys lang $k
+				lang=$(echo $lang | sed 's/^[ \t]*//;s/[ \t]*$//')
+				json_select $k
+				json_get_var desc $lang
+				uci -q set netmode.$mode."desc_$lang"="$desc"
+				[ "$lang" == "en" ] && uci -q set netmode.$mode."desc"="$desc"
+				json_select ..
+			done
+			json_select ..
+
+			json_select explanation
+			json_get_keys keys
+			for k in $keys; do
+				json_get_keys lang $k
+				lang=$(echo $lang | sed 's/^[ \t]*//;s/[ \t]*$//')
+				json_select $k
+				json_get_var exp $lang
+				uci -q set netmode.$mode."exp_$lang"="$exp"
+				[ "$lang" == "en" ] && uci -q set netmode.$mode."exp"="$exp"
+				json_select ..
+			done
+			json_select ..
+
+			json_get_var cred credentials
+			uci -q set netmode.$mode.askcred="$cred"
+			json_get_var ulb uplink_band
+			uci -q set netmode.$mode.uplink_band="$ulb"
+			json_get_var reboot reboot
+			uci -q set netmode.$mode.reboot="$reboot"
+	done
+
+	config_get curmode setup curmode
+	[ -d /etc/netmodes/$curmode ] || {
+		[ "$(db -q get hw.board.hardware)" == "EX400" ] && uci -q set netmode.setup.curmode="routed_mtk" || uci -q set netmode.setup.curmode="routed_brcm"
+	}
+
+	uci commit netmode
+}
+
+start_netmode_tools() {
+	local curmode repeaterready
+
+	killall -9 wificontrol >/dev/null 2>&1
+	killall -9 netmode-discover >/dev/null 2>&1
+
+	config_load netmode
+	config_get_bool repeaterready setup repeaterready 0
+
+	[ $repeaterready -eq 1 ] && {
+		/sbin/wificontrol --repeater &
+		return
+	}
+
+	config_get curmode setup curmode
+
+	case "$curmode" in
+		repeater*)
+			/sbin/netmode-discover &
+			/sbin/wificontrol --repeater &
+		;;
+	esac
+}
+
+stop_netmode_tools() {
+	killall -9 netmode-discover >/dev/null 2>&1
+	killall -9 wificontrol >/dev/null 2>&1
+}
+
