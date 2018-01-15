@@ -31,7 +31,10 @@ ping_uplink()
 	local AccessPolicy=0
 	local rv=0
 
-	[ -f /tmp/wps_client_mode_active ] && return
+	[ -f /tmp/wps_client_mode_active ] && {
+		ubus call led.internet  set '{"state" : "off"}'
+		return
+	}
 
 	ipaddr="$(ip r | grep default | awk '{print$3}')"
 	[ -n "$ipaddr" ] && hasip=1 || hasip=0
@@ -56,15 +59,15 @@ ping_uplink()
 	if [ $rv -eq 0 ]; then
 
 		echo "{ \"online\" : false }" > /tmp/internet_connection_status
-		ubus call led.internet  set '{"state" : "error"}'
 
 		SLEEP_TIME=10
 
 		wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
 		# If there is an uplink IP address but no connection for 5 minutes, reboot
 		if [ $enableCounter -gt 32 ]; then
+			ubus call led.internet  set '{"state" : "error"}'
 			reboot &
-		elif [ $enableCounter -ge 2 -a $((enableCounter % 2)) -eq 0 ]; then
+		elif [ $((enableCounter % 2)) -eq 0 -a $enableCounter -ge 2 -o $enableCounter -eq 0 ]; then
 			ps | grep -v grep | grep -q 'wifi reload\|wifi.credentials\|iwpriv' && return
 
 			if [ -f /usr/sbin/wlctl ]; then
@@ -90,6 +93,13 @@ ping_uplink()
 				iwpriv $wetif set ApCliAutoConnect=1
 			fi
 			ubus call led.internet  set '{"state" : "notice"}'
+			touch /tmp/netmodes/repeater_trying_to_connect
+		else
+			if [ -f /tmp/netmodes/repeater_trying_to_connect ]; then
+				rm -f /tmp/netmodes/repeater_trying_to_connect
+			else
+				ubus call led.internet  set '{"state" : "error"}'
+			fi
 		fi
 
 		enableCounter=$((enableCounter+1))
