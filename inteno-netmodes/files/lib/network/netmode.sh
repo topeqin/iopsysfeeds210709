@@ -6,6 +6,7 @@
 
 TMPDIR=/var/netmodes
 OLD_MODE_FILE=/var/netmodes/old_mode
+SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
 [ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
 
@@ -161,7 +162,7 @@ switch_netmode() {
 			ubus call uci commit '{"config":"network"}'
 		;;
 		repeater*)
-			touch /tmp/switching_mode
+			touch $SWITCHMODELOCK
 			echo "Switching to $curmode mode" > /dev/console
 			ubus call leds set  '{"state" : "allflash"}'
 			[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
@@ -171,7 +172,7 @@ switch_netmode() {
 			ubus call router.network reload
 			correct_uplink
 			ubus call leds set  '{"state" : "normal"}'
-			rm -f /tmp/switching_mode
+			rm -f $SWITCHMODELOCK
 		;;
 	esac
 
@@ -180,6 +181,37 @@ switch_netmode() {
 	uci commit juci
 }
 
+wificontrol_takes_over() {
+	local ret
+	[ -f /sbin/wificontrol ] || return
+
+	ubus call leds set  '{"state" : "allflash"}'
+
+	if pidof wificontrol >/dev/null; then
+		ret=0
+		# let netmode-conf up to 20 seconds before switching mode
+		for tm in 2 4 6 8; do
+			if [ -f /tmp/wificontrol.txt ]; then
+				ret=1
+				break
+			fi
+			sleep $tm
+		done
+		# let netmode-conf take over
+		[ $ret -eq 1 ] && return 0
+	fi
+
+	return 1
+}
+
+wait_for_netmode_handler() {
+	for tm in 2 4 6 8; do
+		if [ ! -f $SWITCHMODELOCK ]; then
+			break
+		fi
+		sleep $tm
+	done
+}
 get_ip_type() {
 	[ -n "$(echo $1 | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ] && echo "private" || echo "public"
 }

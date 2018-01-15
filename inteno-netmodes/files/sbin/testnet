@@ -31,6 +31,8 @@ ping_uplink()
 	local AccessPolicy=0
 	local rv=0
 
+	[ -f /tmp/wps_client_mode_active ] && return
+
 	ipaddr="$(ip r | grep default | awk '{print$3}')"
 	[ -n "$ipaddr" ] && hasip=1 || hasip=0
 
