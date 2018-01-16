@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /lib/functions/network.sh
 . /usr/share/libubox/jshn.sh
 
 TMPDIR=/var/netmodes
@@ -10,7 +9,6 @@ SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
 [ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
 
-network_get_ipaddr ip $INTERFACE
 repeaterready="$(uci -q get netmode.setup.repeaterready)"
 
 toggle_firewall() {
