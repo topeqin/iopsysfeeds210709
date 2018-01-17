@@ -32,6 +32,8 @@ endef
 
 define Package/libpicoevent/install
 	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(STAGING_DIR)/usr/lib
+	$(INSTALL_DIR) $(STAGING_DIR)/usr/include
 	$(CP) $(PKG_BUILD_DIR)/libpicoevent.h $(STAGING_DIR)/usr/include
 	$(CP) $(PKG_BUILD_DIR)/libpicoevent.so $(STAGING_DIR)/usr/lib
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libpicoevent.so $(1)/usr/lib
