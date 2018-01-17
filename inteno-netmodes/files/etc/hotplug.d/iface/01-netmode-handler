@@ -3,6 +3,7 @@
 [ "$INTERFACE" != "wan" ] && exit
 
 . /lib/functions.sh
+. /lib/functions/network.sh
 include /lib/network
 
 network_get_ipaddr ipaddr $INTERFACE
