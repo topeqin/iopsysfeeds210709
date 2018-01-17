@@ -214,7 +214,7 @@ get_ip_type() {
 	[ -n "$(echo $1 | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ] && echo "private" || echo "public"
 }
 
-get_device() {
+get_device_of() {
 	local PORT_NAMES=$(db get hw.board.ethernetPortNames)
 	local PORT_ORDER=$(db get hw.board.ethernetPortOrder)
         local cnt=1
@@ -272,12 +272,12 @@ populate_netmodes() {
 	config_foreach delete_netmode netmode
 	uci commit netmode
 
-	wan=$(get_device WAN)
-	lan1=$(get_device LAN1)
-	lan2=$(get_device LAN2)
-	lan3=$(get_device LAN3)
-	lan4=$(get_device LAN4)
-	lan5=$(get_device LAN5)
+	wan=$(get_device_of WAN)
+	lan1=$(get_device_of LAN1)
+	lan2=$(get_device_of LAN2)
+	lan3=$(get_device_of LAN3)
+	lan4=$(get_device_of LAN4)
+	lan5=$(get_device_of LAN5)
 
 	for file in $(find $MODEDIR -type f); do
 		conf="$(echo $file | cut -d'/' -f5)"
