@@ -26,40 +26,43 @@ populate_dsl_settings() {
 		touch /etc/config/dsl
 	fi
 
-	# Mode
-	if ! uci -q get dsl.mode >/dev/null; then
-		uci -q set dsl.mode="dsl-mod"
-		uci -q set dsl.mode.gdmt=$hasAdsl
-		uci -q set dsl.mode.glite=$hasAdsl
-		uci -q set dsl.mode.t1413=$hasAdsl
-		uci -q set dsl.mode.adsl2=$hasAdsl
-		uci -q set dsl.mode.adsl2p=$hasAdsl
-		uci -q set dsl.mode.annexl=$hasAdsl
-		uci -q set dsl.mode.annexm=$hasAdsl
-		uci -q set dsl.mode.vdsl2=$hasVdsl
-		uci -q set dsl.mode.gfast=0
-	fi
+	if ! uci -q get dsl.line >/dev/null; then
+		uci -q set dsl.line="dsl-line"
+		if [ "$hasAdsl" == "1" ]; then
+			# Mode
+			uci -q add_list dsl.line.mode=gdmt
+			uci -q add_list dsl.line.mode=glite
+			uci -q add_list dsl.line.mode=t1413
+			uci -q add_list dsl.line.mode=adsl2
+			uci -q add_list dsl.line.mode=adsl2p
+			uci -q add_list dsl.line.mode=annexl
+			uci -q add_list dsl.line.mode=annexm
+			uci -q add_list dsl.line.mode=vdsl2
+			#uci -q add_list dsl.line.mode=gfast
+		fi
 
-	# Profile
-	if ! uci -q get dsl.profile >/dev/null; then
-		uci -q set dsl.profile="vdsl-profile"
-		uci -q set dsl.profile.8a=$hasVdsl
-		uci -q set dsl.profile.8b=$hasVdsl
-		uci -q set dsl.profile.8c=$hasVdsl
-		uci -q set dsl.profile.8d=$hasVdsl
-		uci -q set dsl.profile.12a=$hasVdsl
-		uci -q set dsl.profile.12b=$hasVdsl
-		uci -q set dsl.profile.17a=$hasVdsl
-		uci -q set dsl.profile.30a=$hasVdsl
-		uci -q set dsl.profile.35b=0
-	fi
+		if [ "$hasVdsl" == "1" ]; then
+			# Mode
+			uci -q add_list dsl.line.mode=vdsl2
 
-	# Capability
-	if ! uci -q get dsl.profile >/dev/null; then
-		uci -q set dsl.capability="dsl-cap"
-		uci -q set dsl.capability.us0=$hasVdsl
-		uci -q set dsl.capability.bitswap=1
-		uci -q set dsl.capability.sra=1
+			# Profile
+			uci -q add_list dsl.line.profile=8a
+			uci -q add_list dsl.line.profile=8b
+			uci -q add_list dsl.line.profile=8c
+			uci -q add_list dsl.line.profile=8d
+			uci -q add_list dsl.line.profile=12a
+			uci -q add_list dsl.line.profile=12b
+			uci -q add_list dsl.line.profile=17a
+			uci -q add_list dsl.line.profile=30a
+			#uci -q add_list dsl.line.profile=35b
+
+			# Capability
+			uci -q set dsl.line.us0=1
+		fi
+
+		# Capability
+		uci -q set dsl.line.bitswap=1
+		uci -q set dsl.line.sra=1
 	fi
 
 	uci -q commit dsl

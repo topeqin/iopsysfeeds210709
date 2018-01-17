@@ -265,68 +265,43 @@ create_devices() {
 start_dsl() {
 	local VDSL=0
 	local GFAST=0
-	local mod=0
-	local prof=0
+	local mod=""
 	local modes=""
-	local profiles=""
+	local profile=""
 
 	config_load dsl
 
-	# MODES
-	config_get_bool mod mode gdmt 1
-	[ $mod -eq 1 ] && modes="${modes}d"
-	config_get_bool mode mode glite 1
-	[ $mod -eq 1 ] && modes="${modes}l"
-	config_get_bool mod mode t1413 1
-	[ $mod -eq 1 ] && modes="${modes}t"
-	config_get_bool mod mode adsl2 1
-	[ $mod -eq 1 ] && modes="${modes}2"
-	config_get_bool mod mode adsl2p 1
-	[ $mod -eq 1 ] && modes="${modes}p"
-	config_get_bool mod mode annexl 1
-	[ $mod -eq 1 ] && modes="${modes}e"
-	config_get_bool mod mode annexm 1
-	[ $mod -eq 1 ] && modes="${modes}m"
-	config_get_bool mod mode vdsl2 1
-	[ $mod -eq 1 ] && modes="${modes}v" && VDSL=1
-	config_get_bool mod mode gfast 1
-	[ $mod -eq 1 ] && modes="${modes}f" && GFAST=1
-	config_get_bool mod mode any 0
-	[ $mod -eq 1 ] && modes="a" && VDSL=1 && GFAST=1
+	# Modes
+	config_get mode line mode
+	for mod in $mode; do
+		[ $mod == "gdmt" ] && "${modes}d"
+		[ $mod == "glite" ] && modes="${modes}l"
+		[ $mod == "t1413" ] && modes="${modes}t"
+		[ $mod == "adsl2" ] && modes="${modes}2"
+		[ $mod == "adsl2p" ] && modes="${modes}p"
+		[ $mod == "annexl" ] && modes="${modes}e"
+		[ $mod == "annexm" ] && modes="${modes}m"
+		[ $mod == "vdsl2" ] && modes="${modes}v" && VDSL=1
+		[ $mod == "gfast" ] && modes="${modes}f" && GFAST=1
+	done
 
-	# Profiles
-	config_get_bool prof profile 8a 1
-	[ $prof -eq 1 ] && profiles="$profiles 8a"
-	config_get_bool prof profile 8b 1
-	[ $prof -eq 1 ] && profiles="$profiles 8b"
-	config_get_bool prof profile 8c 1
-	[ $prof -eq 1 ] && profiles="$profiles 8c"
-	config_get_bool prof profile 8d 1
-	[ $prof -eq 1 ] && profiles="$profiles 8d"
-	config_get_bool prof profile 12a 1
-	[ $prof -eq 1 ] && profiles="$profiles 12a"
-	config_get_bool prof profile 12b 1
-	[ $prof -eq 1 ] && profiles="$profiles 12b"
-	config_get_bool prof profile 17a 1
-	[ $prof -eq 1 ] && profiles="$profiles 17a"
-	config_get_bool prof profile 30a 1
-	[ $prof -eq 1 ] && profiles="$profiles 30a"
-	config_get_bool prof profile 35b 1
-	[ $prof -eq 1 ] && profiles="$profiles BrcmPriv1"
+	# VDSL Profiles
+	config_get profile line profile
+	profile="$(echo $profile | sed 's/35b/BrcmPriv1/g')"
 
 	# Capabilities
-	config_get_bool bitswap capability bitswap 1
+	config_get_bool bitswap line bitswap 1
 	[ $bitswap -eq 1 ] && bitswap="on" || bitswap="off"
-	config_get_bool sra capability sra 1
+	config_get_bool sra line sra 1
 	[ $sra -eq 1 ] && sra="on" || sra="off"
-#	config_get_bool trellis capability trellis 1
-#	config_get_bool sesdrop capability sesdrop 1
+#	config_get_bool trellis line trellis 1
+#	config_get_bool sesdrop line sesdrop 1
 	# VDSL2 only
-	config_get_bool us0 capability us0 1
+	config_get_bool us0 line us0 1
 	[ $us0 -eq 1 ] && us0="on" || us0="off"
-#	config_get_bool dynamicd capability dynamicd 1
-#	config_get_bool dynamicf capability dynamicf 1
-#	config_get_bool sos capability sos 1
+#	config_get_bool dynamicd line dynamicd 1
+#	config_get_bool dynamicf line dynamicf 1
+#	config_get_bool sos line sos 1
 
 
 	echo "Starting DSL"
@@ -335,8 +310,8 @@ start_dsl() {
 	xtmctl operate intf --state 1 enable
 
 	if [ $VDSL -eq 1 -o $GFAST -eq 1 ]; then
-		echo "xdslctl start --up --mod $modes --profile "$profiles" --sra $sra --bitswap $bitswap --us0 $us0"
-		xdslctl start --up --mod $modes --profile "$profiles" --sra $sra --bitswap $bitswap --us0 $us0
+		echo "xdslctl start --up --mod $modes --profile "$profile" --sra $sra --bitswap $bitswap --us0 $us0"
+		xdslctl start --up --mod $modes --profile "$profile" --sra $sra --bitswap $bitswap --us0 $us0
 	else
 		echo "xdslctl start --up --mod $modes --sra $sra --bitswap $bitswap"
 		xdslctl start --up --mod $modes --sra $sra --bitswap $bitswap
@@ -419,58 +394,61 @@ convert_old_dsl() {
 	sed -i 's/Enabled/1/g' /etc/config/layer2_interface
 	sed -i 's/Disabled/0/g' /etc/config/layer2_interface
 
-	config_load layer2_interface
 
+	uci -q delete dsl.line.mode
+	uci -q delete dsl.line.profile
+	uci -q delete dsl.line.us0
+	uci -q delete dsl.line.sra
+	uci -q delete dsl.line.bitswap
+
+	config_load layer2_interface
 	# Mode
-	uci -q set dsl.mode="dsl-mod"
 	config_get_bool cap capabilities GDmt 1
-	uci -q set dsl.mode.gdmt=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=gdmt
 	config_get_bool cap capabilities Glite 1
-	uci -q set dsl.mode.glite=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=glite
 	config_get_bool cap capabilities T1413 1
-	uci -q set dsl.mode.t1413=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=t1413
 	config_get_bool cap capabilities ADSL2 1
-	uci -q set dsl.mode.adsl2=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=adsl2
 	config_get_bool cap capabilities ADSL2plus 1
-	uci -q set dsl.mode.adsl2p=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=adsl2p
 	config_get_bool cap capabilities AnnexL 1
-	uci -q set dsl.mode.annexl=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=annexl
 	config_get_bool cap capabilities AnnexM 1
-	uci -q set dsl.mode.annexm=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=annexm
 	config_get_bool cap capabilities VDSL2 1
-	uci -q set dsl.mode.vdsl2=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=vdsl2
 	config_get_bool cap capabilities GFast 0
-	uci -q set dsl.mode.gfast=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.mode=gfast
 
 	# Profile
-	uci -q set dsl.profile="vdsl-profile"
 	config_get_bool cap capabilities 8a 1
-	uci -q set dsl.profile.8a=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=8a
 	config_get_bool cap capabilities 8b 1
-	uci -q set dsl.profile.8b=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=8b
 	config_get_bool cap capabilities 8c 1
-	uci -q set dsl.profile.8c=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=8c
 	config_get_bool cap capabilities 8d 1
-	uci -q set dsl.profile.8d=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=8d
 	config_get_bool cap capabilities 12a 1
-	uci -q set dsl.profile.12a=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=12a
 	config_get_bool cap capabilities 12b 1
-	uci -q set dsl.profile.12b=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=12b
 	config_get_bool cap capabilities 17a 1
-	uci -q set dsl.profile.17a=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=17a
 	config_get_bool cap capabilities 30a 1
-	uci -q set dsl.profile.30a=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=30a
 	config_get_bool cap capabilities 35b 0
-	uci -q set dsl.profile.35b=$cap
+	[ $cap -eq 1 ] && uci -q add_list dsl.line.profile=35b
 
 	# Capability
-	uci -q set dsl.capability="dsl-cap"
 	config_get_bool cap capabilities US0 1
-	uci -q set dsl.capability.us0=$cap
+	uci -q add_list dsl.line.us0=$cap
 	config_get_bool cap capabilities bitswap 1
-	uci -q set dsl.capability.bitswap=$cap
+	uci -q add_list dsl.line.bitswap=$cap
 	config_get_bool cap capabilities sra 1
-	uci -q set dsl.capability.sra=$cap
+	uci -q add_list dsl.line.sra=$cap
 }
 
 convert_old_config() {

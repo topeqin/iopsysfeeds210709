@@ -1,39 +1,32 @@
 # DSL Modes
-config dsl-mod mode
-	option any '0'
-	option gdmt '1'
-	option glite '1'
-	option t1413 '1'
-	option adsl2 '1'
-	option adsl2p '1'
-	option annexl '1'
-	option annexm '1'
-	option vdsl2 '1'
-	option gfast '0'
-
-# VDSL2 Profiles
-config vdsl-profile profile
-	option 8a '1'
-	option 8b '1'
-	option 8c '1'
-	option 8d '1'
-	option 12a '1'
-	option 12b '1'
-	option 17a '1'
-	option 30a '1'
-	option 35b '0'
-
-# DSL Capabilities
-config dsl-cap capability
-	option bitswap '1'
-	option sra '1'
-	option trellis '1'
-	option sesdrop '1'
+config dsl-line line
+	list mode gdmt
+	list mode glite
+	list mode t1413
+	list mode adsl2
+	list mode adsl2p
+	list mode annexl
+	list mode annexm
+	list mode vdsl2
+	list mode gfast
+	list profile 8a
+	list profile 8b
+	list profile 8c
+	list profile 8d
+	list profile 12a
+	list profile 12b
+	list profile 17a
+	list profile 30a
+	list profile 35b
+	option bitswap 1
+	option sra 1
+	option trellis
+	option sesdrop
 	# VDSL2 only
-	option us0 '1'
-	option dynamicd '1'
-	option dynamicf '1'
-	option sos '1'
+	option us0
+	option dynamicd
+	option dynamicf
+	option sos
 
 config atm-device atm0
 	option name 'ATM'
@@ -43,9 +36,9 @@ config atm-device atm0
 	option link_type 'eoa' # EoA, IPoA, PPPoA, CIP
 	option encapsulation 'llc' # llc, vcmux
 	option qos_class 'ubr' # ubr, cbr, gfr, vbr-nrt, vbr-rt, ubr+, abr
-	option pcr '1'
-	option mbs '1'
-	option scr '1'
+#	option pcr '512'
+#	option scr '256'
+#	option mbs '1024'
 
 config ptm-device ptm0
 	option name 'PTM'
