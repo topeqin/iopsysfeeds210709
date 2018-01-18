@@ -4,7 +4,7 @@
 
 . /lib/functions.sh
 . /lib/functions/network.sh
-include /lib/network
+. /lib/functions/netmode.sh
 
 network_get_ipaddr ipaddr $INTERFACE
 [ -z "$ipaddr" ] && exit

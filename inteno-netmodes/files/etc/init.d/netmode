@@ -6,7 +6,7 @@ USE_PROCD=1
 NETMODED="/sbin/netmoded"
 
 . /lib/functions.sh
-include /lib/network
+. /lib/functions/netmode.sh
 
 start_netmoded() {
 	procd_open_instance

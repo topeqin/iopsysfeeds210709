@@ -2,7 +2,7 @@
 
 . /usr/share/libubox/jshn.sh
 . /lib/functions.sh
-include /lib/network
+. /lib/functions/netmode.sh
 
 state="exit"
 TMPPATH="/tmp/netmode_config_backup"
