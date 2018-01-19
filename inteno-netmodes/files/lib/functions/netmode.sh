@@ -176,6 +176,7 @@ switch_netmode() {
 			ubus call network reload
 			wifi reload nodat
 			ubus call router.network reload
+			rm -f /tmp/netmodes/uplink-macaddr-corrected
 			correct_uplink
 			ubus call leds set  '{"state" : "normal"}'
 			rm -f $SWITCHMODELOCK
