@@ -74,7 +74,7 @@ correct_uplink() {
 	local IFACE="$1"
 	local MTK=0
 	local WANDEV="$(db -q get hw.board.ethernetWanPort).1"
-	local link wetif
+	local link wetif wetcfg wetnet wetmac
 
 	[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
 	[ $MTK -eq 1 ] && WANDEV="eth0.2"
@@ -85,6 +85,15 @@ correct_uplink() {
 	[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
 
 	wetif="$(get_wifi_wet_interface)"
+	if [ ! -f /tmp/netmodes/uplink-macaddr-corrected ]; then
+		wetcfg="$(get_wifi_iface_cfgstr $wetif)"
+		wetnet="$(uci -q get $wetcfg.network)"
+		wetmac="$(ifconfig $wetif | grep HWaddr | awk '{print$NF}')"
+		if [ -d /sys/class/net/br-$wetnet ]; then
+			ifconfig br-$wetnet hw ether $wetmac
+			touch -f /tmp/netmodes/uplink-macaddr-corrected
+		fi
+	fi
 
 	if [ "$link" == "up" ]; then
 		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
