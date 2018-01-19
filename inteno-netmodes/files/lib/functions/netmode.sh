@@ -118,7 +118,6 @@ switch_netmode() {
 	config_load netmode
 	config_get curmode setup curmode
 	uci -q set netmode.setup.repeaterready="0"
-	uci -q set netmode.setup.curmode='repeater'
 	if [ "$curmode" == "repeater" ]; then
 		local hw="$(db -q get hw.board.hardware)"
 		if [ "$hw" == "EX400" ]; then
