@@ -50,15 +50,17 @@ is_inteno_macaddr()
 }
 
 get_wifi_wet_interface() {
+	local ifname=""
 	handle_interface() {
+		[ -n "$ifname" ] && return
 		config_get mode "$1" mode
-		if [ "$mode" == "sta" -o "$mode" == "wet" ] ; then
+		if [ "$mode" == "sta" -o "$mode" == "wet" ]; then
 			config_get ifname "$1" ifname
-			echo "$ifname"
 		fi
 	}
 	config_load wireless
 	config_foreach handle_interface wifi-iface
+	echo "$ifname"
 }
 
 get_wifi_iface_cfgstr() {
@@ -74,32 +76,32 @@ correct_uplink() {
 	local IFACE="$1"
 	local MTK=0
 	local WANDEV="$(db -q get hw.board.ethernetWanPort).1"
-	local link wetif wetcfg wetnet wetmac
+	local WETIF="$(get_wifi_wet_interface)"
+	local link wetcfg wetnet wetmac
 
 	[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
 	[ $MTK -eq 1 ] && WANDEV="eth0.2"
 
-	[ -n "$IFACE" -a "$IFACE" != "$WANDEV" ] && return
+	[ -n "$IFACE" -a "$IFACE" != "$WANDEV" -a "$IFACE" != "$WETIF" ] && return
 
 	link=$(cat /sys/class/net/${WANDEV:0:4}/operstate)
 	[ $MTK -eq 1 ] && link=$(swconfig dev switch0 port 0 get link | awk '{print$2}' | cut -d':' -f2)
 
-	wetif="$(get_wifi_wet_interface)"
 	if [ ! -f /tmp/netmodes/uplink-macaddr-corrected ]; then
-		wetcfg="$(get_wifi_iface_cfgstr $wetif)"
+		wetcfg="$(get_wifi_iface_cfgstr $WETIF)"
 		wetnet="$(uci -q get $wetcfg.network)"
-		wetmac="$(ifconfig $wetif | grep HWaddr | awk '{print$NF}')"
+		wetmac="$(ifconfig $WETIF | grep HWaddr | awk '{print$NF}')"
 		if [ -d /sys/class/net/br-$wetnet ]; then
 			ifconfig br-$wetnet hw ether $wetmac
-			touch -f /tmp/netmodes/uplink-macaddr-corrected
+			#touch -f /tmp/netmodes/uplink-macaddr-corrected
 		fi
 	fi
 
 	if [ "$link" == "up" ]; then
-		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":true}"
+		ubus call network.device set_state "{\"name\":\"$WETIF\", \"defer\":true}"
 		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
 	else
-		ubus call network.device set_state "{\"name\":\"$wetif\", \"defer\":false}"
+		ubus call network.device set_state "{\"name\":\"$WETIF\", \"defer\":false}"
 		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
 		ubus call led.internet  set '{"state" : "notice"}'
 	fi
