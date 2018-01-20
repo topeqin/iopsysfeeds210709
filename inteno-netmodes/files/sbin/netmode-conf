@@ -87,6 +87,7 @@ restore() {
 		uci set juci.juci.homepage='netmode-wizard'
 		uci commit juci
 		cp $TMPPATH/* /etc/config/
+		sync
 		uci set netmode.setup.curmode=$CURMODE
 		uci commit netmode
 		ubus call network reload
