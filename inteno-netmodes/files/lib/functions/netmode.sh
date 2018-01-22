@@ -144,7 +144,7 @@ switch_netmode() {
 		uci set netmode.setup.curmode="$curmode"
 	fi
 	uci commit netmode
-	# NETMODE CONFIG #
+	# end of NETMODE CONFIG #
 
 	old_mode="$(cat $OLD_MODE_FILE 2>/dev/null)"
 
