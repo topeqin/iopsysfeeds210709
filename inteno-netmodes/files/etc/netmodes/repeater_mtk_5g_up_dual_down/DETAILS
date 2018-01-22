@@ -12,6 +12,7 @@
 		"F*"
 	],
 	"uplink_band" : 'a',
+	"downlink_band" : 'a b',
 	"credentials" : 1,
 	"reboot" : 0
 }

@@ -32,7 +32,7 @@ case "$curmode" in
 		;;
 		*)
 			[ "$repeaterready" == "1" ] || return
-			if [ "$(get_ip_type $ipaddr)" == "private" ]; then
+			if [ "$(netmode_get_ip_type $ipaddr)" == "private" ]; then
 				wificontrol_takes_over || switch_netmode repeater
 			else
 				switch_netmode router
