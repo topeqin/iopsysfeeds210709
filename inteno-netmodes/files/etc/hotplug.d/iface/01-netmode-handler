@@ -12,7 +12,7 @@ network_get_ipaddr ipaddr $INTERFACE
 repeaterready="$(uci -q get netmode.setup.repeaterready)"
 curmode="$(uci -q get netmode.setup.curmode)"
 
-if [ "$(get_ip_type $ipaddr)" == "private" ]; then
+if [ "$(netmode_get_ip_type $ipaddr)" == "private" ]; then
 	# flush the ip on br-lan; br-lan will anyhow be deleted.
 	# this is needed if the ip received on the wan is also from the same net
 	ip addr flush dev br-lan
