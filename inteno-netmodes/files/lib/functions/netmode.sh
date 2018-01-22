@@ -120,6 +120,11 @@ switch_netmode() {
 	config_load netmode
 	config_get curmode setup curmode
 	uci -q set netmode.setup.repeaterready="0"
+
+	# set default JUCI page to overview
+	uci -q set juci.juci.homepage="overview"
+	uci commit juci
+
 	if [ "$curmode" == "repeater" ]; then
 		local hw="$(db -q get hw.board.hardware)"
 		if [ "$hw" == "EX400" ]; then
@@ -184,10 +189,6 @@ switch_netmode() {
 			rm -f $SWITCHMODELOCK
 		;;
 	esac
-
-	# set default JUCI page to overview
-	uci -q set juci.juci.homepage="overview"
-	uci commit juci
 }
 
 wificontrol_takes_over() {
