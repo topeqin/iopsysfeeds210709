@@ -10,6 +10,7 @@ CURSTATUS=""
 
 SLEEP_TIME=30
 enableCounter=0
+AccessPolicy=0
 
 get_wifi_iface_cfgstr() {
 	get_cfgno() {
@@ -28,7 +29,6 @@ ping_uplink()
 	local rready=""
 	local wetif=""
 	local assoclist=""
-	local AccessPolicy=0
 	local rv=0
 
 	[ -f /tmp/wps_client_mode_active ] && {
