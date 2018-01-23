@@ -3,13 +3,11 @@
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
-TMPDIR=/var/netmodes
+NMTMPDIR=/var/netmodes
 OLD_MODE_FILE=/var/netmodes/old_mode
 SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
 [ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
-
-repeaterready="$(uci -q get netmode.setup.repeaterready)"
 
 toggle_firewall() {
 	local section=$1
@@ -114,7 +112,7 @@ switch_netmode() {
 
 	[ -n "$newmode" ] && uci -q set netmode.setup.curmode="$newmode"
 
-	local curmode conf repeaterready old_mode
+	local curmode conf old_mode
 
 	# NETMODE CONFIG #
 	config_load netmode
@@ -265,7 +263,7 @@ populate_netmodes() {
 
 	config_get curmode setup curmode
 
-	mkdir -p $TMPDIR
+	mkdir -p $NMTMPDIR
 
 	if [ "$curmode" == "routed" ]; then
 		local hw="$(db -q get hw.board.hardware)"
