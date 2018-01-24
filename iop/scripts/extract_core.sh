@@ -6,14 +6,15 @@ function extract_core {
 	topdir=$(pwd)
 
 	# Paths to packages that should be exported.
-	paths+='package/network/services/base-files '
 	paths+='package/network/services/dnsmasq '
 	paths+='package/network/config/firewall '
 	paths+='package/network/config/netifd '
 	paths+='package/network/config/qos-scripts '
-	paths+='package/system/rpcd '
-	paths+='package/system/procd '
 	paths+='package/utils/busybox '
+	paths+='package/base-files '
+	paths+='package/system/procd '
+	paths+='package/system/rpcd '
+	paths+='package/network/services/openvpn '
 
 	function print_usage {
 		echo "Usage: $0 extract_core"
