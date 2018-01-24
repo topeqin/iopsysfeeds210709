@@ -4,17 +4,15 @@ function extract_top {
 	tmp_dir=extract_top_tmp
 
 	# Paths to packages that should be ignored.
-	paths+='package/network/services/samba36 '
 	paths+='package/network/services/dnsmasq '
-	paths+='package/network/services/dropbear '
-	paths+='package/network/services/odhcpd '
 	paths+='package/network/config/firewall '
 	paths+='package/network/config/netifd '
 	paths+='package/network/config/qos-scripts '
-	paths+='package/network/utils/iproute2 '
-	paths+='package/network/utils/curl '
 	paths+='package/utils/busybox '
 	paths+='package/base-files '
+	paths+='package/system/procd '
+	paths+='package/system/rpcd '
+	paths+='package/network/services/openvpn '
 
 	function extract {
 
