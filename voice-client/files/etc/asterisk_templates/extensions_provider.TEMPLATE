@@ -6,7 +6,9 @@
 include => clir
 include => local_extensions
 include => |PROVIDER|-callforwarding
+include => |PROVIDER|-callwaiting
 include => |PROVIDER|-outgoing
+include => |PROVIDER|-direct
 
 [|PROVIDER|-transfer]
 ; Context used for call transfer for this Provider

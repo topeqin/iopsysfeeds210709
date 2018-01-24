@@ -42,6 +42,41 @@ exten => s,n,		Playback(beep)
 exten => s,n,		Playback(beep)
 exten => s,n,		Hangup()
 
+[macro-create_cw]
+;
+; ${ARG1} - Associated SIP peer
+;
+exten => s,1,		System(/lib/cw.sh ${ARG1} 1)
+exten => s,n,		System(asterisk -rx 'brcm reload')
+exten => s,n,		Playback(beep)
+exten => s,n,		Hangup()
+
+[macro-delete_cw]
+;
+; ${ARG1} - Associated SIP peer
+;
+exten => s,1,		System(/lib/cw.sh ${ARG1} 0)
+exten => s,n,		System(asterisk -rx 'brcm reload')
+exten => s,n,		Playback(beep)
+exten => s,n,		Playback(beep)
+exten => s,n,		Hangup()
+
+[macro-status_cw]
+;
+; ${ARG1} - Associated SIP peer
+;
+exten => s,1,		Set(result=${SHELL(/lib/cw.sh ${ARG1} ?)})
+exten => s,n,		GotoIf(${result}?cwon:cwoff)
+;If call waiting on play beep and hang up
+exten => s,n(cwon),	Playback(beep)
+exten => s,n,		Hangup()
+exten => s,n,		MacroExit()
+;If call waiting off play two beep and hang up
+exten => s,n(cwoff),	Playback(beep)
+exten => s,n,		Playback(beep)
+exten => s,n,		Hangup()
+exten => s,n,		MacroExit()
+
 [macro-call_return]
 ;
 ; Return call to last incoming caller

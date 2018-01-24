@@ -1479,8 +1479,12 @@ configure_extensions_provider()
 	local incoming_lines
 	local direct_dial
 	local congestiontone
+	local cw_on
+	local cw_off
+	local cw_status
 
 	local callforward_enabled
+	local callwaiting_enabled
 	local cbbs_enabled
 	local callreturn_enabled
 	local redial_enabled
@@ -1489,6 +1493,7 @@ configure_extensions_provider()
 	# load general settings
 	config_get callforward_enabled "features" callforward_enabled
 	config_get cbbs_enabled "features" cbbs_enabled
+	config_get callwaiting_enabled "features" callwaiting_enabled
 	config_get callreturn_enabled "features" callreturn_enabled
 	config_get redial_enabled "features" redial_enabled
 
@@ -1555,16 +1560,23 @@ configure_extensions_provider()
 	config_get cfim_on $1 cfim_on
 	config_get cfim_off $1 cfim_off
 	config_get cfbs_on $1 cfbs_on
+	config_get cw_off $1 cw_off
+	config_get cw_on $1 cw_on
+	config_get cw_status $1 cw_status
 	config_get cfbs_off $1 cfbs_off
 	config_get call_return $1 call_return
 	config_get redial $1 redial
 
 	local cfim_on_len=${#cfim_on}
 	local cfbs_on_len=${#cfbs_on}
+	local cw_on_len=${#cw_on}
 	[ -z "$cfim_on" ] && cfim_on="cfimon"
 	[ -z "$cfim_off" ] && cfim_off="cfimoff"
 	[ -z "$cfbs_on" ] && cfbs_on="cfbson"
 	[ -z "$cfbs_off" ] && cfbs_off="cfbsoff"
+	[ -z "$cw_on" ] && cw_on="cwon"
+	[ -z "$cw_off" ] && cw_off="cwoff"
+	[ -z "$cw_status" ] && cw_status="cwstatus"
 	[ -z "$call_return" ] && call_return="callreturn"
 	[ -z "$redial" ] && redial="redial"
 
@@ -1603,6 +1615,16 @@ configure_extensions_provider()
 	fi
 	echo "" >>					$WORKDIR/extensions_provider.tmp
 
+	# Configure call waiting if enabled
+	if [ -n "$callwaiting_enabled" -a "$callwaiting_enabled" = "1" ] ; then
+	        echo "[$1-callwaiting]" >>					$WORKDIR/extensions_provider.tmp
+		echo "exten => $cw_off,1, Macro(delete_cw,$1)" >>					$WORKDIR/extensions_provider.tmp
+		echo "exten => ${cw_on},1, Macro(create_cw,$1)" >>	$WORKDIR/extensions_provider.tmp
+		echo "exten => ${cw_status},1, Macro(status_cw,$1)" >>	$WORKDIR/extensions_provider.tmp
+
+	        echo "" >>					$WORKDIR/extensions_provider.tmp
+	fi
+	
 	cat $WORKDIR/extensions_provider.tmp >> 		$WORKDIR/extensions.tmp
 	rm -f						$WORKDIR/extensions_provider.tmp
 
@@ -1628,6 +1650,7 @@ configure_extensions_provider()
 			fi
 			echo "exten => $i,1,Goto($1-outgoing,\${EXTEN},1)" >>	$WORKDIR/extensions_direct.tmp
 		done
+
 		echo "" >>							$WORKDIR/extensions_direct.tmp
 		cat $WORKDIR/extensions_direct.tmp >> 				$WORKDIR/extensions.tmp
 		rm -f								$WORKDIR/extensions_direct.tmp
@@ -2273,10 +2296,18 @@ start_service() {
 	pbx_fix_ownership
 	config_unset
 	run_hook postinit
+
+	#/sbin/voice-monitor &
+
 	return
 }
 
+#stop_service() {
+#	killall -9 voice-monitor
+#}
+
 reload_service() {
+	#stop
 	start
 
 	# turn off voice led; asterisk will turn it on
