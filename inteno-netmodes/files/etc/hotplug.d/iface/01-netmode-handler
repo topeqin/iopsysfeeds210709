@@ -13,10 +13,10 @@ repeaterready="$(uci -q get netmode.setup.repeaterready)"
 curmode="$(uci -q get netmode.setup.curmode)"
 
 if [ "$(netmode_get_ip_type $ipaddr)" == "private" ]; then
-	if [ "$repeaterready" == "1" ]; then
+	if [ "$repeaterready" == "1" -o "${curmode:0:8}" == "repeater" ]; then
 		# flush the ip on br-lan; br-lan will anyhow be deleted.
 		# this is needed if the ip received on the wan is also from the same net
-		ip addr flush dev br-lan
+		ip addr flush dev br-lan 2>/dev/null
 
 		# flush iptables in case the MASTER
 		# tries to configure us before
