@@ -27,7 +27,7 @@ else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
 QUESTD_TARGET:=-DIOPSYS_MARVELL
 else ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
 QUESTD_TARGET:=-DIOPSYS_LANTIQ
-else ifeq ($(CONFIG_TARGET_iopsys_ramips_ex400),y)
+else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 QUESTD_TARGET:=-DIOPSYS_MEDIATEK
 QUESTD_CFLAGS:=\
 	-I$(STAGING_DIR)/usr/include \
@@ -43,7 +43,7 @@ export QUESTD_CFLAGS
 
 define Package/questd
 	CATEGORY:=Utilities
-	DEPENDS:=+libuci +libubox +ubus +libpthread +(TARGET_iopsys_ramips_ex400):swconfig +(TARGET_iopsys_ramips_ex400):libnl-tiny +libopenssl
+	DEPENDS:=+libuci +libubox +ubus +libpthread +(TARGET_iopsys_ramips_ex400):swconfig +(TARGET_iopsys_ramips):libnl-tiny +libopenssl
 	TITLE:=router info daemon
 endef
 
