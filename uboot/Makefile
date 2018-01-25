@@ -20,7 +20,10 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 
 PKG_BUILD_PARALLEL:=1
 
+# we currently do not use OpenWRT u_boot make files
+#include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
+
 
 define uboot/Default
   TITLE:=
@@ -32,8 +35,13 @@ define uboot/ex400
   TITLE:=U-Boot for the ex400
 endef
 
+define uboot/sdx_500ap
+  TITLE:=U-Boot for the sdx-500ap
+endef
+
 UBOOTS := \
-	ex400
+	ex400 \
+	sdx_500ap
 
 define Package/uboot/template
 define Package/uboot-$(1)
