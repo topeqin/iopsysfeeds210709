@@ -11,7 +11,8 @@
 	"excluded_boards" : [
 		"CG300",
 		"CG301",
-		"EX400"
+		"EX400",
+		"SDX*"
 	],
 	"acl" : [
 		"admin",
