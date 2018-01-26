@@ -444,11 +444,11 @@ convert_old_dsl() {
 
 	# Capability
 	config_get_bool cap capabilities US0 1
-	uci -q add_list dsl.line.us0=$cap
+	uci -q set dsl.line.us0=$cap
 	config_get_bool cap capabilities bitswap 1
-	uci -q add_list dsl.line.bitswap=$cap
+	uci -q set dsl.line.bitswap=$cap
 	config_get_bool cap capabilities sra 1
-	uci -q add_list dsl.line.sra=$cap
+	uci -q set dsl.line.sra=$cap
 }
 
 convert_old_config() {
