@@ -18,7 +18,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-ifeq ($(CONFIG_TARGET_iopsys_ramips_ex400),y)
+ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 WLNG_TARGET:=IOPSYS_MEDIATEK
 else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
 WLNG_TARGET:=IOPSYS_BROADCOM
@@ -35,7 +35,7 @@ export KERNEL_DIR
 define Package/wlng
 	CATEGORY:=Utilities
 	DEPENDS:=+libuci +libubox +ubus
-	TITLE:=Wifilife NextGen (802.11 kvr based client steering)
+	TITLE:=WiFiLife NextGen (802.11 kvr based client steering)
 endef
 
 define Package/wlng/description
