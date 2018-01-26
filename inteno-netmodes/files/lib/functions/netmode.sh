@@ -7,6 +7,11 @@ NMTMPDIR=/var/netmodes
 OLD_MODE_FILE=/var/netmodes/old_mode
 SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
+MTK=0
+case "$(db -q get hw.board.hardware)" in
+	EX400|SDX_500AP) MTK=1 ;;
+esac
+
 [ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
 
 toggle_firewall() {
@@ -72,13 +77,11 @@ get_wifi_iface_cfgstr() {
 
 correct_uplink() {
 	local IFACE="$1"
-	local MTK=0
-	local WANDEV="$(db -q get hw.board.ethernetWanPort).1"
+	local WANDEV="$(db -q get hw.board.ethernetWanPort)"
 	local WETIF="$(get_wifi_wet_interface)"
 	local link wetcfg wetnet wetmac
 
-	[ "$(db -q get hw.board.hardware)" == "EX400" ] && MTK=1
-	[ $MTK -eq 1 ] && WANDEV="eth0.2"
+	[ $MTK -eq 1 ] || WANDEV="$WANDEV.1"
 
 	[ -n "$IFACE" -a "$IFACE" != "$WANDEV" -a "$IFACE" != "$WETIF" ] && return
 
@@ -124,8 +127,7 @@ switch_netmode() {
 	uci commit juci
 
 	if [ "$curmode" == "repeater" ]; then
-		local hw="$(db -q get hw.board.hardware)"
-		if [ "$hw" == "EX400" ]; then
+		if [ $MTK -eq 1 ]; then
 			curmode="repeater_mtk_5g_up_dual_down"
 		else
 			curmode="repeater_brcm_2g_up_dual_down"
@@ -133,8 +135,7 @@ switch_netmode() {
 		uci set netmode.setup.curmode="$curmode"
 	fi
 	if [ "$curmode" == "routed" ]; then
-		local hw="$(db -q get hw.board.hardware)"
-		if [ "$hw" == "EX400" ]; then
+		if [ $MTK -eq 1 ]; then
 			curmode="routed_mtk"
 		else
 			curmode="routed_brcm"
@@ -266,8 +267,7 @@ populate_netmodes() {
 	mkdir -p $NMTMPDIR
 
 	if [ "$curmode" == "routed" ]; then
-		local hw="$(db -q get hw.board.hardware)"
-		if [ "$hw" == "EX400" ]; then
+		if [ $MTK -eq 1 ]; then
 			curmode="routed_mtk"
 		else
 			curmode="routed_brcm"
@@ -386,7 +386,7 @@ populate_netmodes() {
 
 	config_get curmode setup curmode
 	[ -d /etc/netmodes/$curmode ] || {
-		[ "$(db -q get hw.board.hardware)" == "EX400" ] && uci -q set netmode.setup.curmode="routed_mtk" || uci -q set netmode.setup.curmode="routed_brcm"
+		[ $MTK -eq 1 ] && uci -q set netmode.setup.curmode="routed_mtk" || uci -q set netmode.setup.curmode="routed_brcm"
 	}
 
 	uci commit netmode
