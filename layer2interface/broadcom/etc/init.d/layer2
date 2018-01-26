@@ -66,12 +66,21 @@ start_service() {
 }
 
 boot() {
-	local baseifname port unit
+	local baseifname port unit uplinkport
 
 	config_load layer2_interface_ethernet
 	config_get baseifname Wan baseifname
 
 	[ -n "$baseifname" ] || baseifname="$(db -q get hw.board.ethernetWanPort)"
+
+	uplinkport=$(uci show ports | grep "uplink='1'" | cut -d'.' -f2)
+
+	if [ -n "$uplinkport" ]; then
+		baseifname="$(uci -q get ports.$uplinkport.ifname)"
+	else
+		uplinkport=$(uci show ports | grep "ifname='$baseifname'" | cut -d'.' -f2)
+		[ -n "$uplinkport" ] && uci -q set ports.$uplinkport.uplink=1 && uci commit ports
+	fi
 
 #	if [ "$(db get hw.board.hardware)" != "EG300" ]; then
 #		if [ "$(get_port_speed $baseifname)" != "1000FD" ]; then
