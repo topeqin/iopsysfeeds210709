@@ -78,7 +78,7 @@ define Build/Prepare
 endef
 endif
 
-ifeq ($(CONFIG_TARGET_IBOARDID),"EX400")
+ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 TARGET_CFLAGS += -DEX400
 endif
 
