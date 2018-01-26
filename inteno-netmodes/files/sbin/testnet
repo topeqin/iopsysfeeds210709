@@ -68,7 +68,7 @@ ping_uplink()
 			ubus call led.internet  set '{"state" : "error"}'
 			reboot &
 		elif [ $((enableCounter % 2)) -eq 0 -a $enableCounter -ge 2 -o $enableCounter -eq 0 ]; then
-			ps | grep -v grep | grep -q 'wifi reload\|wifi.credentials\|iwpriv' && return
+			ps | grep -v grep | grep -q 'wifi reload\|wifi import\|wifi.credentials\|iwpriv' && return
 
 			if [ -f /usr/sbin/wlctl ]; then
 				assoclist="$(wlctl -i $wetif assoclist | head -1 | awk '{print$2}')"
