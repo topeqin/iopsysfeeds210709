@@ -120,6 +120,7 @@ CONFIG_PACKAGE_peripheral_manager=y
 CONFIG_PACKAGE_port-management=y
 CONFIG_PACKAGE_power-management=y
 CONFIG_PACKAGE_ppp-mod-pppoa=y
+# CONFIG_PACKAGE_ppp-mod-pppoe is not set
 CONFIG_PACKAGE_ppp-mod-pppol2tp=y
 CONFIG_PACKAGE_ppp-mod-pptp=y
 CONFIG_PACKAGE_ppp-multilink=y
