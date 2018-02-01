@@ -245,8 +245,6 @@ if [ "$1" == "once" ]; then
 	exit 0
 fi
 
-ubus call led.internet  set '{"enable" : 1}'
-
 while true; do
 	connectivity_test
 	sleep $SLEEP_TIME
