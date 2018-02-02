@@ -1,0 +1,7 @@
+config rule
+    option event 'wifi.radio.channel_changed'
+    list event_data "{'radio': 0, 'reason': 1}"
+    list event_data "{'channels': [1, 2, 3]}"
+    option method 'file->write'
+    list method_data "{'path': '/tmp/test_file.txt'}"
+    list method_data "{'data': 'channel changed!'}"
