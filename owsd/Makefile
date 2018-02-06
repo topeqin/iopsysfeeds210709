@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=http://public.inteno.se/owsd.git
-PKG_SOURCE_VERSION:=1a815efff25ae4d52bfee67cc4642eb4627f1388
+PKG_SOURCE_VERSION:=fa25ad0b5af3c9a5c16124a9f699dae3be7b68dd
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
 PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
