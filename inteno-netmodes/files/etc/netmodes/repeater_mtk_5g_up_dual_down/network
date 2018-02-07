@@ -7,6 +7,7 @@ config interface 'loopback'
 config device 'lan_dev'
 	option name 'eth0.1'
 	option macaddr '$MACLAN'
+	option vid 1
 
 config interface 'wan'
 	option type 'bridge'
@@ -19,6 +20,7 @@ config interface 'wan'
 config device 'wan_dev'
 	option name 'eth0.2'
 	option macaddr '$MACWAN'
+	option vid 2
 
 config interface 'wan6'
 	option ifname '@wan'
