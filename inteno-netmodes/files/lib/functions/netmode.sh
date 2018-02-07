@@ -8,9 +8,8 @@ OLD_MODE_FILE=/var/netmodes/old_mode
 SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
 MTK=0
-case "$(db -q get hw.board.hardware)" in
-	EX400|SDX_500AP) MTK=1 ;;
-esac
+
+opkg find kmod-mt*mtk >/dev/null && MTK=1
 
 [ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
 
