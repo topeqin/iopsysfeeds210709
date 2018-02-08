@@ -9,7 +9,7 @@ SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
 MTK=0
 
-opkg find kmod-mt*mtk >/dev/null && MTK=1
+opkg list-installed | grep -q kmod-mt.*mtk && MTK=1
 
 [ -n "$MODEDIR" ] || MODEDIR="/etc/netmodes"
 
