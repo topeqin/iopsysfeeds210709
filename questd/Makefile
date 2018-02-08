@@ -43,7 +43,7 @@ export QUESTD_CFLAGS
 
 define Package/questd
 	CATEGORY:=Utilities
-	DEPENDS:=+libuci +libubox +ubus +libpthread +(TARGET_iopsys_ramips):swconfig +(TARGET_iopsys_ramips):libnl-tiny +libopenssl
+	DEPENDS:=+libuci +libubox +ubus +libpthread +TARGET_iopsys_ramips:swconfig +TARGET_iopsys_ramips:libnl-tiny +libopenssl
 	TITLE:=router info daemon
 endef
 
