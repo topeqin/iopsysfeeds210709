@@ -35,13 +35,13 @@ define uboot/ex400
   TITLE:=U-Boot for the ex400
 endef
 
-define uboot/sdx_500ap
+define uboot/sdx810_ap
   TITLE:=U-Boot for the sdx-500ap
 endef
 
 UBOOTS := \
 	ex400 \
-	sdx_500ap
+	sdx810_ap
 
 define Package/uboot/template
 define Package/uboot-$(1)
