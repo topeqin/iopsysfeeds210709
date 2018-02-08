@@ -12,7 +12,7 @@ PKG_VERSION:=2016.08
 PKG_RELEASE:=4
 PKG_SOURCE_URL:=http://public.inteno.se:/uboot
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=b0a0b127f0848e191b80979ad7de5f10c3e01a1b
+PKG_SOURCE_VERSION:=e6465d2ad8ac159ada0051d8f30385d9d7d3ba86
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -36,7 +36,7 @@ define uboot/ex400
 endef
 
 define uboot/sdx810_ap
-  TITLE:=U-Boot for the sdx-500ap
+  TITLE:=U-Boot for the sdx810_ap
 endef
 
 UBOOTS := \
