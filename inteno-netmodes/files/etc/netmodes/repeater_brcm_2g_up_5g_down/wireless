@@ -51,7 +51,7 @@ config wifi-iface
 	option wps_pbc '1'
 	option wmf_bss_enable '1'
 	option bss_max '32'
-	option autoconf '1'
+	option ifname 'wl0'
 
 config wifi-device 'wl1'
 	option type 'broadcom'
@@ -89,5 +89,5 @@ config wifi-iface
 	option cipher 'auto'
 	option wps_pbc '0'
 	option wmf_bss_enable '1'
-	option autoconf '1'
+	option ifname 'wl1'
 
