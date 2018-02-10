@@ -26,7 +26,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/rulengd
 	CATEGORY:=Utilities
 	TITLE:=RuleEngine daemon
-	DEPENDS:=+ubox +uci +ubus +json-c +libjson-c
+	DEPENDS:=+ubox +uci +ubus +libjson-c
 	MENU:=1
 endef
 
