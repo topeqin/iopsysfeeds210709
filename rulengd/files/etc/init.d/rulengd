@@ -3,18 +3,30 @@
 # Start the rulengd
 #
 
-START=100
-PID_FILE=/var/state/rulengd.pid
+START=99
+STOP=01
 
-start() {
-        start-stop-daemon -S -b -m -p $PID_FILE -x /usr/bin/rulengd -- -r ruleng
+USE_PROCD=1
+NAME=rulengd
+
+start_service() {
+	procd_open_instance
+	procd_set_param command "rulengd" -r ruleng
+	procd_set_param respawn
+	procd_close_instance
 }
 
 stop() {
-        start-stop-daemon -K -p $PID_FILE
+	service_stop rulengd
 }
 
-restart() {
-        stop
-        start
+service_triggers()
+{
+	procd_add_reload_trigger ruleng
 }
+
+reload_service() {
+	stop
+	start
+}
+
