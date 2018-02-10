@@ -1,2 +1,0 @@
-[ "$STATUS" == "up" -o "$STATUS" == "down" ] && /etc/init.d/dsl reload
-
