@@ -151,6 +151,7 @@ validate_owsd_iface() {
 		'whitelist_dhcp_domains:bool:0' \
 		'ipv6:bool:1' \
 		'ipv6only:bool:0' \
+		'linklocal:bool:0' \
 		'cert:file' \
 		'key:file' \
 		'ca:file' \
@@ -160,7 +161,7 @@ validate_owsd_iface() {
 }
 
 parse_owsd_iface() {
-	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only
+	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only linklocal
 	local cert key ca
 	local restrict_to_user
 
@@ -199,7 +200,7 @@ parse_owsd_iface() {
 	}
 
 	local http="http${cert:+s}"
-	local ip4addrs ip6addrs
+	local ip4addrs ip6addrs linklocaladdrs
 
 	# bind to some network
 	if [ -n "${interface}" ]; then
@@ -217,6 +218,11 @@ parse_owsd_iface() {
 		# ipv6 addresses
 		if [ "${ipv6}" -eq 1 ]; then
 			network_get_ipaddrs6 ip6addrs "${interface}"
+			if [ "${linklocal}" -eq 1 ]; then
+				network_get_device device "${interface}"
+				[ -n "${device}" ] && linklocaladdrs=$(ifconfig $device | grep inet6 | grep Scope:Link | awk '{print$3}' | cut -d'/' -f1)
+				ip6addrs="${ip6addrs} ${linklocaladdrs}"
+			fi
 		fi
 		for addr in ${ip6addrs}; do
 			new_listen_socket "$1" "${addr}"
