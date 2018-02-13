@@ -1,0 +1,36 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+OFFHOOK=0
+REGISTERED=0
+
+echo $! >/dev/console
+ubus listen asterisk.registry asterisk.endpoint | \
+while read event ; do
+	#echo "voice-monitor got event: $event" >/dev/console
+	json_load "$event"
+	if json_select asterisk.registry; then
+		json_get_var status status
+		if [ "$status" == "Registered" ]; then
+			REGISTERED=1
+			[ $OFFHOOK -eq 1 ] && ubus call led.voice1 set '{"state":"ok"}'
+		else
+			REGISTERED=0
+			[ $OFFHOOK -eq 0 ] && ubus call led.voice1 set '{"state":"error"}'
+		fi
+	elif json_select asterisk.endpoint; then
+		json_get_var event event
+		if [ "$event" == "OFFHOOK" ]; then
+			OFFHOOK=1
+			ubus call led.voice1 set '{"state":"notice"}'
+		else
+			OFFHOOK=0
+			if [ $REGISTERED -eq 1 ]; then
+				ubus call led.voice1 set '{"state":"ok"}'
+			else
+				ubus call led.voice1 set '{"state":"error"}'
+			fi
+		fi
+	fi
+done
