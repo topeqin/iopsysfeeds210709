@@ -21,6 +21,8 @@ mask_to_cidr() {
 }
 
 while true; do
+	[ -e /sys/class/net/br-wan ] || continue
+
 	unlisted=0
 
 	ps | grep -q wifi | grep -q reload || {
@@ -33,10 +35,10 @@ while true; do
 		mask=$(mask_to_cidr $netmask)
 	}
 
-	if [ $unlisted -gt 0 -a -n "$ipaddr" -a -n "$netmask" ]; then
+	if [ $unlisted -gt 0 -a -n "$ipaddr" -a -n "$netmask" -a $mask -le 24 ]; then
 		fping -c 1 -t 1000 -g $ipaddr/$mask -q >/dev/null 2>&1
 	fi
 
-	sleep 20
+	sleep 30
 done
 

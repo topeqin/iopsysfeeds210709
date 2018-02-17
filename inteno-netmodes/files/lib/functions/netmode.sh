@@ -401,6 +401,7 @@ start_netmode_tools() {
 	config_get_bool repeaterready setup repeaterready 0
 
 	[ $repeaterready -eq 1 ] && {
+		/sbin/netmode-discover &
 		/sbin/wificontrol --repeater &
 		return
 	}
