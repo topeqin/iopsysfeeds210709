@@ -216,11 +216,15 @@ function genconfig {
 			cp $CONFIGPATH/config .config
 		fi
 
-		# Add target diff
-		local target_name=$(echo $target | sed 's/_/-/g')
-		local target_conf=target/linux/${target_name}/config
-		if [ -f $target_conf ]; then
-			cat $target_conf >> .config
+		# Add target (soc/board specific )
+		if [ -f $CONFIGPATH/target/config ]; then
+		    cat $CONFIGPATH/target/config >> .config
+		fi
+		if [ -f $CONFIGPATH/target/$target/config ]; then
+		    cat $CONFIGPATH/target/$target/config >> .config
+		fi
+		if [ -f $CONFIGPATH/target/$target/$BOARDTYPE/config ]; then
+		    cat $CONFIGPATH/target/$target/$BOARDTYPE/config >> .config
 		fi
 
 		# Apply profile diff to master config if selected
