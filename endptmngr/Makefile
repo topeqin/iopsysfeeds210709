@@ -27,7 +27,7 @@ define Package/endptmngr
   CATEGORY:=Utilities
   TITLE:=Brcmslic
   URL:=
-  DEPENDS:= +libubox +ubus +libpicoevent
+  DEPENDS:= +libubox +ubus +libpicoevent +PACKAGE_bcmkernel:bcmkernel +PACKAGE_bcmopen:bcmopen
 endef
 
 define Package/endptmngr/description
