@@ -1,0 +1,106 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+case "$1" in
+	list)
+		echo '{ "registry_status" : {}, "status" : {}, "lines" : {}, "codecs" : {} }'
+
+	;;
+	call)
+		case "$2" in
+			registry_status)
+				[ -e /var/run/asterisk/asterisk.ctl ] || {
+					echo "{}"
+					return
+				} 
+
+				asterisk -x 'sip show registry' | tail -n +2 | grep -v "SIP registrations" > /tmp/asterisk.status
+
+                                json_init
+                                json_add_array "registry"
+                                while read -r line                                                                                  
+                                do                                                                                                  
+                                        json_add_object ""                                                                          
+                                        json_add_string name "$(echo $line | cut -d':' -f1)"                                                                         
+                                        json_add_string username "$(echo $line | awk '{print$3}')"
+                                        json_add_string refresh "$(echo $line | awk '{print$4}')"
+                                        json_add_string state  "$(echo $line | grep -q 'Auth' && cat /tmp/sip_reg.status | awk '{print$5" "$6}' || echo $line | awk '{print$5}')"
+					regtime="$(echo $line | grep -q 'Auth' || echo $line | awk '{print$6" "$7" "$8" "$9" "$NF}')"
+                                        json_add_string reg_time "$regtime"
+                                        json_select ..                                                        
+                                done < /tmp/asterisk.status                                                          
+                                rm -f /tmp/asterisk.status
+				json_dump
+
+			;;
+			status)
+				[ -e /var/run/asterisk/asterisk.ctl ] || {
+					echo "{}"
+					return
+				} 
+
+                                json_init
+
+                                json_add_object "sip"
+				for peer in sip0 sip1; do
+					asterisk -x 'sip show registry' | grep $peer: > /tmp/sip_reg.status || continue
+					asterisk -x "sip show peer $peer" > /tmp/sip_peer.status                                   
+                                        json_add_object "$peer"
+					json_add_boolean registered  $(cat /tmp/sip_reg.status | grep -q Registered && echo 1 || echo 0)
+					json_add_boolean registry_request_sent 0
+					addrip="$(cat /tmp/sip_peer.status | grep 'Addr->IP' | awk '{print$NF}')"
+					json_add_string ip "$(echo $addrip | cut -d':' -f1)"
+					json_add_string port "$(echo $addrip | cut -d':' -f2)"
+					json_add_string username "$(cat /tmp/sip_peer.status | grep Username | awk '{print$NF}')"
+					json_add_string domain "$(cat /tmp/sip_peer.status | grep FromDomain | awk '{print$3}')"
+					json_add_string domain_port "$(cat /tmp/sip_peer.status | grep FromDomain | awk '{print$5}')"
+					json_add_string refresh_interval "$(cat /tmp/sip_reg.status | awk '{print$4}')"
+					json_add_string state "$(cat /tmp/sip_reg.status | grep -q 'Auth' && cat /tmp/sip_reg.status | awk '{print$5" "$6}' || cat /tmp/sip_reg.status | awk '{print$5}')"
+					regtime="$(cat /tmp/sip_reg.status | grep -q 'Auth' || cat /tmp/sip_reg.status | awk '{print$6" "$7" "$8" "$9" "$NF}')"
+					json_add_string registration_time "$regtime"
+					json_add_string last_successful_registration "$regtime"
+					rm -f /tmp/sip_peer.status
+					rm -f /tmp/sip_reg.status
+                                        json_select ..
+                                done
+				json_select ..
+
+				json_add_object "brcm"
+				for line in $(uci show voice_client | grep brcm_line | awk -F[.,=] '{print$2}'); do
+					json_add_object "$line"
+					linestate="ONHOOK"
+					ubus call endpt status "{'line':${line:4}}" | grep -q OFFHOOK && linestate="OFFHOOK"
+					json_add_string sub_0_state ONHOOK
+					json_add_string sub_1_state ONHOOK
+					json_select ..
+				done
+				json_select ..
+				json_close_object
+
+				json_dump
+
+			;;
+			lines)
+                                json_init                                                                     
+                                json_add_int num_subchannels 2
+                                json_add_int num_lines $(db -q get hw.board.VoicePorts)
+				json_dump
+
+			;;
+			codecs)
+				json_init
+				for codec in $(uci show voice_codecs | grep supported_codec | awk -F[.,=] '{print$2}'); do
+					json_add_object "$codec"
+					json_add_string name "$(uci -q get voice_codecs.$codec.name)"
+					bitrate=$(uci -q get voice_codecs.$codec.bitrate)
+					[ -n "$bitrate" ] && json_add_int bitrate $bitrate
+					json_select ..
+				done
+				json_dump
+
+			;;
+		esac
+	;;
+esac
+
