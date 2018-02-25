@@ -15,6 +15,13 @@ case "$1" in
 					return
 				} 
 
+				voiceports=$(db -q get hw.board.VoicePorts)
+				json_load "$(ubus call endpt count)"
+				json_get_var num_endpoints num_endpoints
+				#json_get_var num_dect_endpoints num_dect_endpoints
+				json_cleanup
+				pndiff=$((voiceports - num_endpoints))
+
                                 json_init
 
                                 json_add_object "sip"
@@ -45,9 +52,11 @@ case "$1" in
 				for line in $(uci show voice_client | grep brcm_line | awk -F[.,=] '{print$2}'); do
 					json_add_object "$line"
 					linestate="ONHOOK"
-					ubus call endpt status "{'line':${line:4}}" | grep -q OFFHOOK && linestate="OFFHOOK"
-					json_add_string sub_0_state ONHOOK
-					json_add_string sub_1_state ONHOOK
+					linenum=${line:4}
+					linenum=$((linenum - pndiff))
+					[ $linenum -ge 0 ] && ubus call endpt status "{'line':$linenum}" | grep -q OFFHOOK && linestate="OFFHOOK"
+					json_add_string sub_0_state "$linestate"
+					json_add_string sub_1_state "$linestate"
 					json_select ..
 				done
 				json_select ..
@@ -91,7 +100,7 @@ case "$1" in
                                 do
 					json_add_object ""
 				        json_add_string uniqueid "1518532478.0"
-				        json_add_string time "2018-02-13 15:34:38"
+				        json_add_string time "2018-02-25 00:00:00"
 				        json_add_int duration 15
 				        json_add_string disposition "ANSWERED"
 				        json_add_string direction "OUTGOING"
