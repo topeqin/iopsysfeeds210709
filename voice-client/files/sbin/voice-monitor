@@ -5,10 +5,23 @@ if [ -f /tmp/voice-monitor.pid ]; then
 	rm -f /tmp/voice-monitor.pid
 fi
 
+[ "$1" == "stop" ] && exit
+
 . /usr/share/libubox/jshn.sh
 
 OFFHOOK=0
 REGISTERED=0
+
+asterisk -x 'sip show registry' | grep -q "Registered" && REGISTERED=1
+ubus call endpt status | grep -q "OFFHOOK" && OFFHOOK=1
+
+if [ $OFFHOOK -eq 1 ]; then
+	ubus call led.voice1 set '{"state":"notice"}'
+elif [ $REGISTERED -eq 1 ]; then
+	ubus call led.voice1 set '{"state":"ok"}'
+else
+	ubus call led.voice1 set '{"state":"error"}'
+fi
 
 ubus listen asterisk.registry asterisk.endpoint | \
 while read event ; do
@@ -21,7 +34,7 @@ while read event ; do
 			[ $OFFHOOK -eq 0 ] && ubus call led.voice1 set '{"state":"ok"}'
 		else
 			REGISTERED=0
-			[ $OFFHOOK -eq 1 ] && ubus call led.voice1 set '{"state":"error"}'
+			[ $OFFHOOK -eq 0 ] && ubus call led.voice1 set '{"state":"error"}'
 		fi
 	elif json_select asterisk.endpoint >/dev/null; then
 		json_get_var event event

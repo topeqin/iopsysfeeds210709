@@ -2297,14 +2297,14 @@ start_service() {
 	config_unset
 	run_hook postinit
 
-	#/sbin/voice-monitor &
+	/sbin/voice-monitor &
 
 	return
 }
 
-#stop_service() {
-#	killall -9 voice-monitor
-#}
+stop_service() {
+	/sbin/voice-monitor stop
+}
 
 reload_service() {
 	#stop
