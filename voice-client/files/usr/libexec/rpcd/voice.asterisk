@@ -18,8 +18,7 @@ case "$1" in
                                 json_init
 
                                 json_add_object "sip"
-				for peer in sip0 sip1 sip2 sip3; do
-					uci -q get voice_client.$peer >/dev/null || continue
+				for peer in $(uci show voice_client | grep sip_service_provider | awk -F[.,=] '{print$2}'); do
 					asterisk -x 'sip show registry' | grep $peer: > /tmp/sip_reg.status
 					asterisk -x "sip show peer $peer" > /tmp/sip_peer.status                                   
                                         json_add_object "$peer"
