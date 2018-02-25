@@ -2310,10 +2310,6 @@ reload_service() {
 	#stop
 	start
 
-	# turn off voice led; asterisk will turn it on
-	# if there is a registered account
-	ubus call led.voice1 set '{"state":"off"}'
-
 	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
 	sleep 1
 	asterisk -rx "core reload"

@@ -7,6 +7,16 @@ fi
 
 [ "$1" == "stop" ] && exit
 
+ACCOUNTENABLED=0
+for peer in $(uci show voice_client | grep sip_service_provider | awk -F[.,=] '{print$2}'); do
+	[ "$(uci -q get voice_client.$peer.enabled)" == "1" ] && ACCOUNTENABLED=1
+done
+
+if [ $ACCOUNTENABLED -eq 0 ]; then
+	ubus call led.voice1 set '{"state":"off"}'
+	exit
+fi
+
 . /usr/share/libubox/jshn.sh
 
 OFFHOOK=0
