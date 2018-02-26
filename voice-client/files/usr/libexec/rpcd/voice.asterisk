@@ -92,26 +92,43 @@ case "$1" in
 					return
 				}
 
-				asterisk -x 'cdr show active' > /tmp/asterisk.call_log
-
                                 json_init
                                 json_add_array "call_log"
                                 while read -r line
                                 do
 					json_add_object ""
-				        json_add_string uniqueid "1518532478.0"
-				        json_add_string time "2018-02-25 00:00:00"
+				        json_add_string uniqueid "$(echo $line | cut -d',' -f19)"
+				        json_add_string time "$(echo $line | cut -d',' -f16)"
 				        json_add_int duration 15
-				        json_add_string disposition "ANSWERED"
-				        json_add_string direction "OUTGOING"
-				        json_add_string from "0123456789"
-				        json_add_string to "9876543210"
+				        json_add_string disposition "$(echo $line | cut -d',' -f16)"
+				        json_add_string direction "$(echo $line | cut -d',' -f16)"
+				        json_add_string from "$(echo $line | cut -d',' -f16)"
+				        json_add_string to "$(echo $line | cut -d',' -f16)"
 					json_select ..
-                                done < /tmp/asterisk.call_log
-                                rm -f /tmp/asterisk.call_log
+                                done < /var/log/asterisk/cdr-csv
 				json_dump
 			;;
 		esac
 	;;
 esac
+
+                        "uniqueid": "1518532478.0",
+                        "time": "2018-02-13 15:34:38",
+                        "duration": 15,
+                        "disposition": "ANSWERED",
+                        "direction": "OUTGOING",
+                        "from": "u0187001718",
+                        "to": "0046706899045"
+
+"","u0187001718","09","sip0","""u0187001718"" <u0187001718>","BRCM/1/0","SIP/sip0-00000000","Dial","SIP/09@sip0,,gT","2018-02-26 09:51:31",,"2018-02-26 09:51:32",0,0,"NO ANSWER","DOCUMENTATION","15196350"
+"","u0187001718","09","sip0","""u0187001718"" <u0187001718>","BRCM/1/0","","Wait","5","2018-02-26 09:51:32",,"2018-02-26 09:51:37",4,0,"NO ANSWER","DOCUMENTATION","1519635091.0",""
+"","u0187001718","076","sip0","""u0187001718"" <u0187001718>","BRCM/1/1","SIP/sip0-00000001","Dial","SIP/076@sip0,,gT","2018-02-26 09:52:46",,"2018-02-26 09:52:47",0,0,"NO ANSWER","DOCUMENTATION","151963"
+"","u0187001718","076","sip0","""u0187001718"" <u0187001718>","BRCM/1/1","","Congestion","","2018-02-26 09:52:47",,"2018-02-26 09:52:52",5,0,"FAILED","DOCUMENTATION","1519635166.4",""
+"","u0187001718","0706899045","sip0","""u0187001718"" <u0187001718>","BRCM/1/2","SIP/sip0-00000002","Dial","SIP/0706899045@sip0,,gT","2018-02-26 09:53:02","2018-02-26 09:53:11","2018-02-26 09:53:15",12,3"
+"","0706899045","u0187001718","call_line",""""" <0706899045>","SIP/sip0-00000003","BRCM/0/3","Dial","BRCM\/4,,tF(hangup,h,2)","2018-02-26 09:55:11",,"2018-02-26 09:55:18",7,0,"NO ANSWER","DOCUMENTATION","
+"","u0187001718","0706899045","sip0","""u0187001718"" <u0187001718>","BRCM/1/4","SIP/sip0-00000004","Dial","SIP/0706899045@sip0,,gT","2018-02-26 09:55:59",,"2018-02-26 09:56:07",7,0,"BUSY","DOCUMENTATION"
+"","u0187001718","0706899045","sip0","""u0187001718"" <u0187001718>","BRCM/1/4","","Read","DIGIT,Busy,1,in,30","2018-02-26 09:56:07",,"2018-02-26 09:56:10",2,0,"BUSY","DOCUMENTATION","1519635359.14",""
+"","u0187001718","0706899045","sip0","""u0187001718"" <u0187001718>","BRCM/1/5","SIP/sip0-00000005","Dial","SIP/0706899045@sip0,,gT","2018-02-26 09:57:50",,"2018-02-26 09:57:59",8,0,"BUSY","DOCUMENTATION"
+"","u0187001718","0706899045","sip0","""u0187001718"" <u0187001718>","BRCM/1/5","","Read","DIGIT,Busy,1,in,30","2018-02-26 09:57:59",,"2018-02-26 09:58:01",1,0,"BUSY","DOCUMENTATION","1519635470.18",""
+
 
