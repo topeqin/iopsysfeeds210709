@@ -101,20 +101,20 @@ case "$1" in
 					echo $uniqueid | grep "[A-Z,a-z]" && continue
 					from="$(echo $line | cut -d',' -f2)"
 					to="$(echo $line | cut -d',' -f3)"
-					#[ -z "${from:2}" -o -z "${to:2}" ] && continue
 					callok=0
 					uci show voice_client | grep user | grep -wq "$from" && callok=1
 					uci show voice_client | grep user | grep -wq "$to" && callok=1
 					[ $callok -eq 0 ] && continue
 					timestart="$(echo $line | awk -F',' '{print $(NF-8)}')"
 					timend="$(echo $line | awk -F',' '{print $(NF-6)}')"
-					timelen="$(echo $timestart | wc -c)"
-					#[ $timelen -lt 14 ] && continue
+					startdate=$(date -u -d "$timestart" +"%s")
+					enddate=$(date -u -d "$timend" +"%s")
+					#duration="$(date -d@$((startdate - enddate)) -u +%H:%M:%S)"
 					uci show voice_client | grep user | grep -wq "$from" && direction="OUTGOING" || direction="INCOMING"
 					json_add_object ""
 				        json_add_string uniqueid "$uniqueid"
 				        json_add_string time "$timestart"
-				        json_add_string duration "$timend"
+				        json_add_string duration $((startdate - enddate))
 				        json_add_string disposition "$(echo $line | awk -F',' '{print $(NF-3)}')"
 				        json_add_string direction "$direction"
 				        json_add_string from "$from"
@@ -126,12 +126,4 @@ case "$1" in
 		esac
 	;;
 esac
-
-#                        "uniqueid": "1518532478.0",
-#                        "time": "2018-02-13 15:34:38",
-#                        "duration": 15,
-#                        "disposition": "ANSWERED",
-#                        "direction": "OUTGOING",
-#                        "from": "u0187001718",
-#                        "to": "0046706899045"
 
