@@ -101,14 +101,20 @@ case "$1" in
 					echo $uniqueid | grep "[A-Z,a-z]" && continue
 					from="$(echo $line | cut -d',' -f2)"
 					to="$(echo $line | cut -d',' -f3)"
-					time="$(echo $line | cut -d',' -f12)"
-					timelen="$(echo $time | wc -c)"
-					[ $timelen -lt 14 ] && continue
+					#[ -z "${from:2}" -o -z "${to:2}" ] && continue
+					callok=0
+					uci show voice_client | grep user | grep -wq "$from" && callok=1
+					uci show voice_client | grep user | grep -wq "$to" && callok=1
+					[ $callok -eq 0 ] && continue
+					timestart="$(echo $line | awk -F',' '{print $(NF-8)}')"
+					timend="$(echo $line | awk -F',' '{print $(NF-6)}')"
+					timelen="$(echo $timestart | wc -c)"
+					#[ $timelen -lt 14 ] && continue
 					uci show voice_client | grep user | grep -wq "$from" && direction="OUTGOING" || direction="INCOMING"
 					json_add_object ""
 				        json_add_string uniqueid "$uniqueid"
-				        json_add_string time "$time"
-				        json_add_int duration 15
+				        json_add_string time "$timestart"
+				        json_add_string duration "$timend"
 				        json_add_string disposition "$(echo $line | awk -F',' '{print $(NF-3)}')"
 				        json_add_string direction "$direction"
 				        json_add_string from "$from"
