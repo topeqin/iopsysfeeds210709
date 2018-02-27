@@ -35,7 +35,7 @@ while true; do
 		mask=$(mask_to_cidr $netmask)
 	}
 
-	if [ $unlisted -gt 0 -a -n "$ipaddr" -a -n "$netmask" -a $mask -le 24 ]; then
+	if [ $unlisted -gt 0 -a -n "$ipaddr" -a -n "$netmask" -a $mask -ge 24 ]; then
 		fping -c 1 -t 1000 -g $ipaddr/$mask -q >/dev/null 2>&1
 	fi
 
