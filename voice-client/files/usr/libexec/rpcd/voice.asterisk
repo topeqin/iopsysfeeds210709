@@ -54,7 +54,7 @@ case "$1" in
 					linestate="ONHOOK"
 					linenum=${line:4}
 					linenum=$((linenum - pndiff))
-					[ $linenum -ge 0 ] && ubus call endpt status "{'line':$linenum}" | grep -q OFFHOOK && linestate="OFFHOOK"
+					[ $linenum -ge 0 ] && ubus call endpt status "{'line':$linenum}" | grep offhook | grep -q 1 && linestate="OFFHOOK"
 					json_add_string sub_0_state "$linestate"
 					json_add_string sub_1_state "$linestate"
 					json_select ..
