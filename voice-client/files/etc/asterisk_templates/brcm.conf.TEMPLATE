@@ -15,7 +15,7 @@ hangup_xfer=yes
 ; This is a global setting.
 ; Available values are:
 ; AUS, BEL, BRA, CHL, CHN, CZE, DNK, ETS, FIN, FRA, DEU, HUN, IND, ITA, JPN, NLD, NZL, USA, ESP, SWE, CHE, NOR, TWN, GBR, ARE
-country=|COUNTRY|
+;country=|COUNTRY|
 
 ; Enables the use of a jitterbuffer on the receiving side of a SIP channel. [yes/no] (Added in Version 1.4)
 ; This is a global setting.

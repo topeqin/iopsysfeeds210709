@@ -1835,7 +1835,8 @@ configure_brcm()
 	local dialoutmsec
 	local fac
 
-	config_get country BRCM country
+#	config_get country BRCM country
+country=""
 	config_get jbenable BRCM jbenable
 	config_get jbforce BRCM jbforce
 	config_get jbmaxsize BRCM jbmaxsize
