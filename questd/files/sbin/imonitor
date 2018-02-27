@@ -218,13 +218,13 @@ main()
 #			fi
 		fi
 
-		if [ "$BSDBIN" ] ; then
-			config_load wireless
-			config_get_bool bsdenabled bandsteering enabled 0
-			if [ $bsdenabled == "1" -a "$(pidof wifi)" == "" ] ; then
-				check_bsdcall || restart_bsd
-			fi
-		fi
+#		if [ "$BSDBIN" ] ; then
+#			config_load wireless
+#			config_get_bool bsdenabled bandsteering enabled 0
+#			if [ $bsdenabled == "1" -a "$(pidof wifi)" == "" ] ; then
+#				check_bsdcall || restart_bsd
+#			fi
+#		fi
 
 		if [ "$ACSDBIN" ] ; then
 			check_acsd || restart_acsd
