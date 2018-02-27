@@ -114,7 +114,7 @@ case "$1" in
 					json_add_object ""
 				        json_add_string uniqueid "$uniqueid"
 				        json_add_string time "$timestart"
-				        json_add_int duration $((startdate - enddate))
+				        json_add_int duration $((enddate - startdate))
 				        json_add_string disposition "$(echo $line | awk -F',' '{print $(NF-3)}')"
 				        json_add_string direction "$direction"
 				        json_add_string from "$from"
