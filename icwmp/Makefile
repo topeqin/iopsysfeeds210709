@@ -111,9 +111,7 @@ ifeq ($(CONFIG_XMPP_ENABLE),y)
 CONFIGURE_ARGS += \
 	--enable-xmpp
 endif
-
-CONFIGURE_ARGS += $(if $(CONFIG_DATAMODEL_TR181),--enable-datamodel=tr181,--enable-datamodel=tr098)
-
+	
 ifeq ($(BUILD_VARIANT),zstream)
 CONFIGURE_ARGS += \
 	--enable-http=zstream \

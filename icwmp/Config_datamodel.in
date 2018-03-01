@@ -1,14 +1,4 @@
 if PACKAGE_libdatamodel
-choice
-	prompt "Select Data Model"
-	default tr098
-
-config DATAMODEL_TR098
-	bool "TR-098"
-
-config DATAMODEL_TR181
-	bool "TR-181"
-endchoice
 
 config UPNP_TR064
 	bool "Compile with tr064 features"
