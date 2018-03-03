@@ -87,13 +87,14 @@ case "$1" in
 
 			;;
 			call_log)
+                                json_init
+                                json_add_array "call_log"
+
 				[ -f /var/log/asterisk/cdr-csv/Master.csv ] || {
-					echo "{}"
+					json_dump
 					return
 				}
 
-                                json_init
-                                json_add_array "call_log"
                                 while read -r line
                                 do
 					line="$(echo $line | tr -d '\"')"
