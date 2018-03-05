@@ -22,6 +22,8 @@ directmedia=no
 sipdebug=no
 session-timers=refuse
 videosupport=yes
+disallow=all
+allow=alaw
 
 realm=|REALM|
 defaultexpiry=|DEFAULTEXPIRY|
