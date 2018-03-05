@@ -21,7 +21,10 @@ mask_to_cidr() {
 }
 
 while true; do
-	[ -e /sys/class/net/br-wan ] || continue
+	[ -e /sys/class/net/br-wan ] || {
+		sleep 5
+		continue
+	}
 
 	unlisted=0
 
