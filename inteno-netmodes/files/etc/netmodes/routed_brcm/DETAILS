@@ -8,7 +8,8 @@
 		{ "sv" : "" }
 	],
 	"excluded_boards" : [
-		"EX4*"
+		"EX4*",
+		"SDX810-AP"
 	],
 	"credentials" : 0
 }
