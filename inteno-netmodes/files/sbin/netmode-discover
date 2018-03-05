@@ -28,7 +28,7 @@ while true; do
 
 	unlisted=0
 
-	ps | grep -q wifi | grep -q reload || {
+	ps | grep wifi | grep -q reload || {
 		for mac in $(brctl showmacs br-wan 2>/dev/null | tail -n +2 | grep no | awk '{print$2}'); do
 			grep -q "$mac" /proc/net/arp || unlisted=$((unlisted+1))
 		done
