@@ -2081,19 +2081,6 @@ pbx_fix_ownership()
 	chown $ASTUSER:$ASTGROUP -R $ASTDIRSRECURSIVE
 }
 
-#Load brcm line types and counts using the brcminfo util
-lineType=""
-for x in $(brcminfo)
-do
-	case $x in
-		"DECT") lineType="dectCount" ;;
-		"FXS") lineType="fxsCount" ;;
-		"FXO") lineType="fxoCount" ;;
-		"All") lineType="allCount" ;;
-		[0-9]) eval "$lineType=$x" ;;
-	esac
-done
-
 #
 # Calculate a name for each brcm line, depending on port type
 # and number. The name is used to make UI look better.
