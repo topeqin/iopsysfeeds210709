@@ -4,6 +4,8 @@
 
 function build_branch_usage {
 	echo "usage: $0 build_branch <branch> <board> [<customer>]"
+	echo "example: $0 build_branch devel-new ex400 DEV"
+	echo "example: $0 build_branch_sysupgrade devel-new ex400 DEV 192.168.1.1 -n"
 	exit 1
 }
 
