@@ -39,16 +39,18 @@ time {
 }
 
 function build_branch_sysupgrade {
+	set -x
 	local branch=$1 ; shift
-	local board=$2 ; shift
-	local customer=$3 ; shift
-	local ip=$4 ; shift
+	local board=$1 ; shift
+	local customer=$1 ; shift
+	local ip=$1 ; shift
 	local opts=$*
 
 time {
 	./iop build_branch $branch $board $customer
 	./iop ssh_sysupgrade_latest $ip $opts
 }
+	set +x
 }
 
 register_command "build_branch" "<branch> <board> [<customer>]  Build a <branch> for a <board> [with a <customer> profile]"
