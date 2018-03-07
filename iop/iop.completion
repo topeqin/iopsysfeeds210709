@@ -36,7 +36,7 @@ _iop()
              feeds_update genconfig generate_tarballs install_key \
              scp_changes setup_host ssh_install_key ssh_sysupgrade \
              ssh_sysupgrade_latest ssh_sysupgrade_latest_w status \
-             update_package"
+             update_package update_feed_branches"
 
     if [ $COMP_CWORD -eq 1 ] ; then
 
