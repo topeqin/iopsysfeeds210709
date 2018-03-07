@@ -45,25 +45,25 @@ context=default
 context_direct=default-direct
 
 ; Echo Cancellation [off, on]
-;echocancel=on
+echocancel=on
 
 ; Voice Activity Detection
 ; 0 = VAD off
 ; 1 = Transparent VAD
 ; 2 = Conservative VAD
 ; 3 = Aggressive VAD
-;silence=0
+silence=0
 
 ; TX Gain value between -96 and 32 dB
-;txgain=0
+txgain=0
 
 ; RX Gain value between -96 and 32 dB
-;rxgain=0
+rxgain=0
 
 ; Codec settings, can be specified multiple times to allow more codecs
 ; Available values are: alaw, ulaw, g723, g726, g729
-;allow = ulaw
-;allow = alaw
+allow = ulaw
+allow = alaw
 
 ; Enable/Disable ring signal [off, on]
 ringsignal=on
@@ -73,17 +73,17 @@ dialoutmsec=|DIALOUTMSEC|
 
 ; Specify packetization rate
 ; Available values are: 5, 10, 20, 30, 40
-;period=20
+period=20
 
 ; Comfort Noise Generation
 ; 0 = CNG off
 ; 1 = White noise
 ; 2 = Hot noise
 ; 3 = Estimate
-;comfortnoise=0
+comfortnoise=0
 
 ; Maximum delay between on/off hook for detecting hook flash, milliseconds
-;hfmaxdelay=500
+hfmaxdelay=500
 
 ; Feature Access Codes
 ; DTMF tone sequences to be treated as feature access codes
