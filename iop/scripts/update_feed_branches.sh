@@ -2,9 +2,10 @@
 
 # Exported interface
 function update_feed_branches {
-	release="$1"
-	ipath="$(pwd)"
-	branch="$2"
+	local release="$1"
+	local ipath="$(pwd)"
+	local branch="$2"
+	local curbranch
 
 	[ -n "$release" ] || {
 		echo "Usage: ./update_feeds <RELEASE> <BRANCH>"
@@ -16,7 +17,21 @@ function update_feed_branches {
 	}
 
 	if [ -n "$branch" ]; then
-		echo "Updating release branch $release to branch $branch in all feeds repos."
+		echo "Updating release branch $release to specific commit hash given in feeds.conf for each feed repo at branch $branch"
+		if git diff-index --quiet HEAD; then
+			curbranch=`git symbolic-ref HEAD 2>/dev/null`
+			curbranch=${curbranch##refs/heads/}
+			if [ -z $curbranch ]; then
+				curbranch=`git log -1 --pretty=format:"%H"`
+			fi
+			git checkout $branch || {
+				echo "couldn't checkout branch $branch"
+				exit 99
+			}
+		else
+			echo "You have unsaved changes."
+			exit 99
+		fi
 	else
 		echo "Updating release branch $release to specific commit hash given in feeds.conf for each feed repo"
 	fi
@@ -26,26 +41,21 @@ function update_feed_branches {
 	for f in $ifeeds; do
 		commith=$(grep feed_inteno_$f feeds.conf | cut -d'^' -f2)
 		cd $ipath/feeds/feed_inteno_$f
-		git br -D $release 2>/dev/null
-		if [ -n "$branch" ]; then
-			echo "feed_inteno_$f: updating release branch $release to branch $branch"
-			git co $branch
-		else
-			echo "feed_inteno_$f: updating release branch $release to commit $commith"
-			git co $commith
-		fi
+		git branch -D $release 2>/dev/null
+		echo "feed_inteno_$f: updating release branch $release to commit $commith"
+		git checkout $commith
 		git push origin :$release
-		git co -b $release
+		git checkout -b $release
 		git push origin $release
-		[ -n "$branch" ] && git co $branch
 		cd $ipath
 	done
 
 	if [ -n "$branch" ]; then
-		echo "Release branch $release is updated to branch $branch in all feeds repos."
+		echo "Release branch $release is updated to specific commit hash given in feeds.conf in in branch $branch for each feed repo"
+		git checkout $curbranch
 	else
 		echo "Release branch $release is updated to specific commit hash given in feeds.conf for each feed repo"
 	fi
 }
 
-register_command "update_feed_branches" "Update branches in feeds from the current top level commit"
+register_command "update_feed_branches" "<release> [branch] Update branches in feeds from the current top level commit or specified top level branch"
