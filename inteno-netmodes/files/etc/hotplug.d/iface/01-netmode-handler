@@ -6,6 +6,7 @@
 . /lib/functions/network.sh
 . /lib/functions/netmode.sh
 
+network_flush_cache
 network_get_ipaddr ipaddr $INTERFACE
 [ -z "$ipaddr" ] && exit
 
