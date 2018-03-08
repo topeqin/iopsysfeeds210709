@@ -4,7 +4,8 @@
 build_bcmkernel_consumer() {
 	local tarfile bcmkernelcommith sdkversion
 	sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
-	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/${sdkversion:0:4}*.mk | cut -d'=' -f2)
+	sdkversion=${sdkversion:0:4}${sdkversion:(-1)}
+	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/${sdkversion:0:5}*.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
 	[ -n "$board" -a -n "$bcmkernelcommith" ] || return
 	ssh $SERVER "ls $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
