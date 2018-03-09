@@ -37,22 +37,24 @@ build_natalie_consumer() {
 	cd $curdir
 }
 
-build_endptcfg_consumer() {
-	# create endptcfg open version tar file
+build_endptmngr_consumer() {
+	# create endptmngr open version tar file
 	local endptversion endptcommith
 	grep -q "CONFIG_TARGET_NO_VOICE=y" .config && return
-	endptversion=$(grep -w "PKG_VERSION:" ./feeds/feed_inteno_packages/endptcfg/Makefile | cut -d'=' -f2)
-	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/endptcfg/Makefile | cut -d'=' -f2)
+	endptversion=$(grep -w "PKG_VERSION:" ./feeds/feed_inteno_packages/endptmngr/Makefile | cut -d'=' -f2)
+	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/endptmngr/Makefile | cut -d'=' -f2)
 	[ -n "$profile" -a -n "$endptversion" -a -n "$endptcommith" ] || return
-	ssh $SERVER "ls $FPATH/endptcfg-$profile-$endptversion-$endptcommith.tar.gz" && return
-	cd ./build_dir/target-*/endptcfg-$endptversion/
-	mkdir endptcfg-open-$endptversion
-	cp endptcfg endptcfg-open-$endptversion/
-	tar -czv  endptcfg-open-$endptversion/ -f endptcfg-$profile-$endptversion-$endptcommith.tar.gz
-	scp endptcfg-$profile-$endptversion-$endptcommith.tar.gz $SERVER:$FPATH/
-	cp endptcfg-$profile-$endptversion-$endptcommith.tar.gz $curdir/
-	rm -rf endptcfg-open-$endptversion
-	rm -f endptcfg-$profile-$endptversion-$endptcommith.tar.gz
+	ssh $SERVER "ls $FPATH/endptmngr-$profile-$endptversion-$endptcommith.tar.gz" && return
+	cd ./build_dir/target-*/endptmngr-$endptversion/
+	mkdir endptmngr-open-$endptversion
+	mkdir endptmngr-open-$endptversion/src
+	cp ./src/endptmngr endptmngr-open-$endptversion/src
+	cp -r ./files/ endptmngr-open-$endptversion/
+	tar -czv  endptmngr-open-$endptversion/ -f endptmngr-$profile-$endptversion-$endptcommith.tar.gz
+	scp endptmngr-$profile-$endptversion-$endptcommith.tar.gz $SERVER:$FPATH/
+	cp endptmngr-$profile-$endptversion-$endptcommith.tar.gz $curdir/
+	rm -rf endptmngr-open-$endptversion
+	rm -f endptmngr-$profile-$endptversion-$endptcommith.tar.gz
 	cd $curdir
 }
 
@@ -145,7 +147,7 @@ function generate_tarballs {
 	if [ "$stk_target" == "broadcom" ]; then
 		build_bcmkernel_consumer
 		build_natalie_consumer
-		build_endptcfg_consumer
+		build_endptmngr_consumer
 		build_ice_consumer
 	elif [ "$stk_target" == "mediatek" ]; then
 		build_mediatek_kernel

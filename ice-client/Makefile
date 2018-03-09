@@ -132,12 +132,12 @@ endef
 
 ifeq ($(CONFIG_ICE_OPEN),y)
 define Package/ice-client/install
-	$(INSTALL_DIR) $(1)/bin
-	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_DIR) $(1)/usr
-	$(CP) $(PKG_BUILD_DIR)/bin/* $(1)/bin/
-	$(CP) $(PKG_BUILD_DIR)/etc/* $(1)/etc/
-	$(CP) $(PKG_BUILD_DIR)/usr/* $(1)/usr/
+	#$(INSTALL_DIR) $(1)/bin
+	#$(INSTALL_DIR) $(1)/etc
+	#$(INSTALL_DIR) $(1)/usr
+	#$(CP) $(PKG_BUILD_DIR)/bin/* $(1)/bin/
+	#$(CP) $(PKG_BUILD_DIR)/etc/* $(1)/etc/
+	#$(CP) $(PKG_BUILD_DIR)/usr/* $(1)/usr/
 endef
 else
 define Package/ice-client/install

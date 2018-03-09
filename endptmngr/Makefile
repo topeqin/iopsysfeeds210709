@@ -9,19 +9,33 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=0.1
+PKG_SOURCE_VERSION:=719be12028f018e0c1e145082b920e7aefc3c8fa
+
+
+ifeq ($(CONFIG_ENDPT_OPEN),y)
+BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
+PKG_SOURCE:=endptmngr-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_NAME:=endptmngr-open
+else
 PKG_SOURCE_URL:=git@private.inteno.se:endptmngr
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=719be12028f018e0c1e145082b920e7aefc3c8fa
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_NAME:=endptmngr
+endif
 
 RSTRIP:=true
 export BUILD_DIR
 
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+
 
 include $(INCLUDE_DIR)/package.mk
+
+define Package/endptmngr/config
+	source "$(SOURCE)/Config.in"
+endef
 
 define Package/endptmngr
   CATEGORY:=Utilities
@@ -33,6 +47,14 @@ endef
 define Package/endptmngr/description
 	endptmngr
 endef
+
+ifeq ($(CONFIG_ENDPT_OPEN),y)
+
+define Build/Compile
+endef
+
+endif
+
 
 define Package/endptmngr/install
 	$(INSTALL_DIR) $(1)/usr/sbin
