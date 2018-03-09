@@ -1,0 +1,4 @@
+
+config ENDPT_OPEN
+       bool "Use pre-compiled version for Open SDK"
+       default n
