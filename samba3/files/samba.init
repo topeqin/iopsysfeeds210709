@@ -147,7 +147,15 @@ smb_add_share() {
 	[ -n "$browseable" ] && echo -e "\tbrowseable = $browseable" >> /var/etc/smb.conf
 }
 
+
+# this was done in lib/brcmref.sh and run from preinit. Is it still needed or can it be removed ??
+create_dirs() {
+	mkdir -p /var/samba /var/samba/share /var/samba/homes /var/samba/private /var/samba/locks
+}
+
+
 start_service() {
+	create_dirs
 	config_load samba
 	purgepasswd
 	config_foreach useradd sambausers
