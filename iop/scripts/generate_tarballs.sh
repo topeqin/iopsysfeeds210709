@@ -85,7 +85,7 @@ build_mediatek_kernel() {
 	ssh $SERVER "ls $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
-	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips_*/$kernel
+	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/$kernel
 
 	# Save Kconfig files to recreate the same kernel config,
 	# delete everyting else.
