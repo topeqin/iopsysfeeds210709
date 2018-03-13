@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=0.1
-PKG_SOURCE_VERSION:=dea7cf3e0ccb93c0abe7fbdec9f9cecc82075ee5
+PKG_SOURCE_VERSION:=fa9ba5d7c942571ae6e44eb7bb5dae2c9b9e8ca4
 
 
 ifeq ($(CONFIG_ENDPT_OPEN),y)
