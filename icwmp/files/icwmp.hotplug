@@ -18,6 +18,8 @@ handle_icwmp_reload() {
 
 	mkdir -p /tmp/ipv4
 
+	network_flush_cache
+
 	local previpaddr=""
 	local curipaddr=""
 	local ipaddrfile=/tmp/ipv4/$INTERFACE-ipaddr
@@ -39,7 +41,14 @@ handle_icwmp_reload() {
 	network_get_subnets cursubnets $INTERFACE
 	[ -n "$cursubnets" ] && echo $cursubnets > $subnetsfile || rm -f $subnetsfile
 
-	[ "$previpaddr" = "$curipaddr" -a "$prevgateway" = "$curgateway" -a "$prevsubnets" = "$cursubnets" ] && exit 0
+	local prevdnsservers=""
+	local curdnsservers=""
+	local dnsserverfile=/tmp/ipv4/$INTERFACE-dnsservers
+	prevdnsservers=$(cat $dnsserverfile 2>/dev/null)
+	network_get_dnsserver curdnsservers $INTERFACE
+	[ -n "$curdnsservers" ] && echo $curdnsservers > $dnsserverfile || rm -f $dnsserverfile
+
+	[ "$previpaddr" = "$curipaddr" -a "$prevgateway" = "$curgateway" -a "$prevsubnets" = "$cursubnets" -a "$prevdnsservers" = "$curdnsservers" ] && exit 0
 
 	/etc/init.d/icwmpd reload &
 }
