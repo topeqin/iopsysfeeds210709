@@ -18,6 +18,13 @@ handle_icwmp_reload() {
 
 	mkdir -p /tmp/ipv4
 
+	local prevopt43=""
+	local curopt43=""
+	local opt43file=/tmp/ipv4/$INTERFACE-dhcp-option43
+	prevopt43=$(cat $opt43file 2>/dev/null)
+	curopt43="$(uci -P /var/state -q get provisioning.iup.url)"
+	[ -n "$curopt43" ] && echo $curopt43 > $opt43file || rm -f $opt43file
+
 	network_flush_cache
 
 	local previpaddr=""
@@ -48,7 +55,7 @@ handle_icwmp_reload() {
 	network_get_dnsserver curdnsservers $INTERFACE
 	[ -n "$curdnsservers" ] && echo $curdnsservers > $dnsserverfile || rm -f $dnsserverfile
 
-	[ "$previpaddr" = "$curipaddr" -a "$prevgateway" = "$curgateway" -a "$prevsubnets" = "$cursubnets" -a "$prevdnsservers" = "$curdnsservers" ] && exit 0
+	[ "$previpaddr" = "$curipaddr" -a "$prevgateway" = "$curgateway" -a "$prevsubnets" = "$cursubnets" -a "$prevdnsservers" = "$curdnsservers" -a "$prevopt43" = "$curopt43" ] && exit 0
 
 	/etc/init.d/icwmpd reload &
 }
