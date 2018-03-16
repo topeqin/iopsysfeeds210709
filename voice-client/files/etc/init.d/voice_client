@@ -793,11 +793,11 @@ configure_sip_provider()
 	fi
 
 	# Force ulaw/alaw if fax, otherwise read selected codecs
-# 	if [ -z "$is_fax" -o "$is_fax" = "1" ] ; then
-# 		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/sip_provider.tmp
-# 	else
-# 		sed -i "s/|ALLOW|/$(read_codecs_ptime $1)/"		$WORKDIR/sip_provider.tmp
-# 	fi
+	if [ -z "$is_fax" -o "$is_fax" = "1" ] ; then
+		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/sip_provider.tmp
+	else
+		sed -i "s/|ALLOW|/$(read_codecs_ptime $1)/"		$WORKDIR/sip_provider.tmp
+	fi
 
 	# Autoframing
 	if [ -z "$autoframing" ] ; then
