@@ -1,0 +1,44 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+set_cwmp_reqopts() {
+	### Ask for DHCP Option 43 only if CWMP is enabled ###
+	local wan=$(uci -q get cwmp.cpe.default_wan_interface)
+	local dhcp_discovery=$(uci -q get cwmp.acs.dhcp_discovery)
+	local discovery=0
+	case $dhcp_discovery in
+		enable|1) discovery=1 ;;
+	esac
+
+	local newreqopts=
+	local baseopts=
+	local reqopts="$(uci -q get network.$wan.reqopts)"
+	local proto="$(uci -q get network.$wan.proto)"
+	local tropts="43"
+	local oldreqopts="$reqopts"
+	local ropt iopt
+	for ropt in $reqopts; do
+		case $ropt in
+			43) ;;
+			*) baseopts="$baseopts $ropt" ;;
+		esac
+	done
+	ropt=""
+	reqopts="$baseopts $tropts"
+	for ropt in $reqopts; do
+		case $ropt in
+			43) [ $discovery -eq 1 ] && newreqopts="$newreqopts $ropt" ;;
+			*) newreqopts="$newreqopts $ropt" ;;
+		esac
+	done
+	if [ "$proto" == "dhcp" ]; then
+		newreqopts="$(echo $newreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
+		oldreqopts="$(echo $oldreqopts | tr ' ' '\n' | sort -n | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')"
+		[ "$newreqopts" == "$oldreqopts" ] && return
+		uci -q set network.$wan.reqopts="$newreqopts"
+		uci commit network
+	fi
+}
+
+set_cwmp_reqopts
