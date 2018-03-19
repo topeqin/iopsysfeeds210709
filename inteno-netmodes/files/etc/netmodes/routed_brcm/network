@@ -27,3 +27,18 @@ config interface 'wan6'
 	option proto 'dhcpv6'
 	option ifname '@wan'
 
+config device 'atmwan'
+	option type 'untagged'
+	option ifname 'atm0'
+	option name 'atm0.1'
+
+config device 'ptmwan'
+	option type 'untagged'
+	option ifname 'ptm0'
+	option name 'ptm0.1'
+
+config device 'ethwan'
+	option type 'untagged'
+	option ifname '$WAN'
+	option name '$WAN.1'
+

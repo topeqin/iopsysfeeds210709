@@ -13,3 +13,8 @@ config interface 'wan'
 	option ifname '$WAN.1 $LAN1 $LAN2 $LAN3 $LAN4'
 	option reqopts '43'
 
+config device 'ethwan'
+	option type 'untagged'
+	option ifname '$WAN'
+	option name '$WAN.1'
+
