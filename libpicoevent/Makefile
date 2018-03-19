@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=0.1
-PKG_SOURCE_URL:=git@public.inteno.se:libpicoevent.git
+PKG_SOURCE_URL:=http://public.inteno.se/libpicoevent
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=c96770b32f66c6e799f8430d8e85d94780358135
 PKG_NAME:=libpicoevent
