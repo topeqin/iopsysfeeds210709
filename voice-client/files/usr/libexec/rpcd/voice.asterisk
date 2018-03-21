@@ -106,11 +106,12 @@ case "$1" in
 					uci show voice_client | grep user | grep -wq "$from" && callok=1
 					uci show voice_client | grep user | grep -wq "$to" && callok=1
 					[ $callok -eq 0 ] && continue
+					account="$(echo $line | cut -d',' -f4)"
+					uci show voice_client  | grep sip_service_provider | grep -wq "$account" || continue
 					timestart="$(echo $line | awk -F',' '{print $(NF-8)}')"
 					timend="$(echo $line | awk -F',' '{print $(NF-6)}')"
 					startdate=$(date -u -d "$timestart" +"%s")
 					enddate=$(date -u -d "$timend" +"%s")
-					#duration="$(date -d@$((startdate - enddate)) -u +%H:%M:%S)"
 					uci show voice_client | grep user | grep -wq "$from" && direction="OUTGOING" || direction="INCOMING"
 					json_add_object ""
 				        json_add_string uniqueid "$uniqueid"
