@@ -7,6 +7,7 @@ TVCON=0
 WANIP=0
 LASTSTATUS=""
 CURSTATUS=""
+ETHWAN="$(db -q get hw.board.ethernetWanPort)"
 
 SLEEP_TIME=30
 enableCounter=0
@@ -109,15 +110,17 @@ ping_uplink()
 		fi
 
 		AccessPolicy=1
-		if [ -f /usr/sbin/iwpriv ]; then
-			# Do not allow clients to connect on 2.4GHz radio
-			iwpriv ra0 set AccessPolicy=$AccessPolicy
-			# Do not allow clients to connect on 5GHz radio
-			iwpriv rai0 set AccessPolicy=$AccessPolicy
-			# Disconnect clients on 2.4GHz radio
-			iwpriv ra0 set DisConnectAllSta=2
-			# Disconnect clients on 5GHz radio
-			iwpriv rai0 set DisConnectAllSta=2
+		if [ -f /usr/sbin/iwpriv]; then
+			grep -q up /sys/class/net/$ETHWAN/operstate || {
+				# Do not allow clients to connect on 2.4GHz radio
+				iwpriv ra0 set AccessPolicy=$AccessPolicy
+				# Do not allow clients to connect on 5GHz radio
+				iwpriv rai0 set AccessPolicy=$AccessPolicy
+				# Disconnect clients on 2.4GHz radio
+				iwpriv ra0 set DisConnectAllSta=2
+				# Disconnect clients on 5GHz radio
+				iwpriv rai0 set DisConnectAllSta=2
+			}
 		fi
 	else 
 		echo "{ \"online\" : true }" > /tmp/internet_connection_status
@@ -160,11 +163,10 @@ test_connection() {
 }
 
 wan_have_ip() {
-	[ -d /sys/class/net/$port ] || return
+	[ -d /sys/class/net/$ETHWAN ] || return
 	ubus list led.wan >/dev/null 2>&1 || return
 
-	local port="$(db -q get hw.board.ethernetWanPort)"
-	local addr=$(ip a show dev $port | grep "inet "| awk '{print $2}')
+	local addr=$(ip a show dev $ETHWAN | grep "inet "| awk '{print $2}')
 
 	if [ -n "$addr" ]; then
 		WANIP=1
