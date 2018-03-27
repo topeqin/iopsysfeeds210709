@@ -110,7 +110,7 @@ ping_uplink()
 		fi
 
 		AccessPolicy=1
-		if [ -f /usr/sbin/iwpriv]; then
+		if [ -f /usr/sbin/iwpriv ]; then
 			grep -q up /sys/class/net/$ETHWAN/operstate 2>/dev/null || {
 				# Do not allow clients to connect on 2.4GHz radio
 				iwpriv ra0 set AccessPolicy=$AccessPolicy
