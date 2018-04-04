@@ -48,7 +48,7 @@ function build_branch_sysupgrade {
 
 time {
 	./iop build_branch $branch $board $customer
-	./iop ssh_sysupgrade_latest $ip $opts
+	[ "$?" == "0" ] && ./iop ssh_sysupgrade_latest $ip $opts
 }
 	set +x
 }
