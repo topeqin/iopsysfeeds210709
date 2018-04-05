@@ -161,17 +161,13 @@ switch_netmode() {
 
 	local reboot=$(uci -q get netmode.$curmode.reboot)
 
-	if [ "$reboot" == "1" ]; then
+	if [ "$reboot" != "0" ]; then
 		reboot &
 		exit
 	fi
 
 	/etc/init.d/environment reload
 	case "$curmode" in
-		routed*)
-			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
-			ubus call uci commit '{"config":"network"}'
-		;;
 		repeater*)
 			touch $SWITCHMODELOCK
 			echo "Switching to $curmode mode" > /dev/console
@@ -185,6 +181,10 @@ switch_netmode() {
 			correct_uplink
 			ubus call leds set  '{"state" : "normal"}'
 			rm -f $SWITCHMODELOCK
+		;;
+		*)
+			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
+			ubus call uci commit '{"config":"network"}'
 		;;
 	esac
 }
