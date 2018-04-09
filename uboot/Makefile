@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=u-boot
 PKG_VERSION:=2016.08
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_SOURCE_URL:=http://public.inteno.se:/uboot
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=38f170244c587eb3eec37c4c033bf41c0abb89dc
@@ -23,6 +23,9 @@ PKG_BUILD_PARALLEL:=1
 # we currently do not use OpenWRT u_boot make files
 #include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
+
+# prevent openwrt source date to be used as build date by u-boot
+unexport SOURCE_DATE_EPOCH
 
 
 define uboot/Default
