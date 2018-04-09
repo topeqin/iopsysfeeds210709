@@ -27,10 +27,12 @@ sanity_check_env(){
 }
 
 uboot_upgrade(){
+    local u_ver
     echo "doing upgrade of u-boot old version $cur_Major.$cur_Minor new version $Major.$Minor"
     mtd erase /dev/mtd0
     mtd write /boot/uboot.img /dev/mtd0
-
+    u_ver=$(strings  /dev/mtd0 | grep 938f0820-2ffb-11e7-bbc9-2f21351ee6fb)
+    [ -n "$u_ver" ] && fw_setenv uboot_inteno_version "$u_ver"
     sanity_check_env
 }
 
