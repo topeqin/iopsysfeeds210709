@@ -22,7 +22,7 @@ function ssh_sysupgrade {
 	fi
 	IMAGE=`basename $2`
 	echo "sysupgrade host: $1 with file $IMAGE"
-	[ "$2" ] && [ -e "$2" ] && scp $2 root@$1:/tmp/ && ssh -o ConnectTimeout=60 root@$1 "sysupgrade $3 /tmp/$IMAGE" && echo "sysupgrade done!"
+	[ "$2" ] && [ -e "$2" ] && scp $2 root@$1:/tmp/ && ssh -o ConnectTimeout=60 root@$1 "sysupgrade -v $3 /tmp/$IMAGE" && echo "sysupgrade done!"
 }
 
 register_command "ssh_sysupgrade" "<host> <file> [opts]  Install firmware on remote host with SSH"
