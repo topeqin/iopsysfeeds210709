@@ -58,7 +58,6 @@ ping_uplink()
 	fi
 
 	if [ $rv -eq 0 ]; then
-
 		echo "{ \"online\" : false }" > /tmp/internet_connection_status
 
 		SLEEP_TIME=10
@@ -66,10 +65,13 @@ ping_uplink()
 		wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
 		# If there is an uplink IP address but no connection for 5 minutes, reboot
 		if [ $enableCounter -gt 32 ]; then
+			logger -t "testnet" "No uplink connection; reboot"
 			ubus call led.internet  set '{"state" : "error"}'
 			reboot &
 		elif [ $((enableCounter % 8)) -eq 0 -a $enableCounter -ge 8 -o $enableCounter -eq 0 ]; then
 			ps | grep -v grep | grep -q 'wifi reload\|wifi import\|wifi.credentials\|iwpriv' && return
+
+			logger -t "testnet" "No uplink connection; try to re-connect"
 
 			if [ -f /usr/sbin/wlctl ]; then
 				assoclist="$(wlctl -i $wetif assoclist | head -1 | awk '{print$2}')"
@@ -112,6 +114,7 @@ ping_uplink()
 		AccessPolicy=1
 		if [ -f /usr/sbin/iwpriv ]; then
 			grep -q up /sys/class/net/$ETHWAN/operstate 2>/dev/null || {
+				logger -t "testnet" "Disconnect all stations and disable WiFi access on downlink wireless interfaces"
 				# Do not allow clients to connect on 2.4GHz radio
 				iwpriv ra0 set AccessPolicy=$AccessPolicy
 				# Do not allow clients to connect on 5GHz radio
@@ -122,7 +125,8 @@ ping_uplink()
 				iwpriv rai0 set DisConnectAllSta=2
 			}
 		fi
-	else 
+	else
+		grep -q "true" /tmp/internet_connection_status 2>/dev/null || logger -t "testnet" "Uplink connection is gained"
 		echo "{ \"online\" : true }" > /tmp/internet_connection_status
 		ubus call led.internet  set '{"state" : "eok"}'
 
@@ -136,10 +140,10 @@ ping_uplink()
 		AccessPolicy=0
 
 		if [ -f /usr/sbin/iwpriv ]; then
+			logger -t "testnet" "Enable WiFi access on downlink wireless interfaces"
 			iwpriv ra0 set AccessPolicy=$AccessPolicy
 			iwpriv rai0 set AccessPolicy=$AccessPolicy
 		fi
-
 	fi
 }
 
