@@ -386,7 +386,7 @@ parse_dhcp_options()
 	local the_json="$@"
 
 	# process the dhcp_option_relay sections
-	dhcp_option_relay_parse "$the_json" >/dev/console
+	dhcp_option_relay_parse "$the_json"
 
 	# Process IUP related DHCP options #
 	local privopt224 privopt225 privopt226 vendorspecinf httpurl128

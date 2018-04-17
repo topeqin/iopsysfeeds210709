@@ -34,7 +34,7 @@ newsectionid="0"
 function parse_the_json()
 {
 	local the_json="$@"
-	
+
 	json_load "$the_json"
 	json_get_var interface interface
 	json_get_var opt224 privopt224
