@@ -17,11 +17,13 @@ if [ "$(netmode_get_ip_type $ipaddr)" == "private" ]; then
 	if [ "$repeaterready" == "1" -o "${curmode:0:8}" == "repeater" ]; then
 		# flush the ip on br-lan; br-lan will anyhow be deleted.
 		# this is needed if the ip received on the wan is also from the same net
+		logger -s -p user.info -t $0: [netmode] ip addr flush dev br-lan >/dev/console
 		ip addr flush dev br-lan 2>/dev/null
 
 		# flush iptables in case the MASTER
 		# tries to configure us before
 		# firewall is disabled the proper way
+		logger -s -p user.info -t $0: [netmode] iptables -F >/dev/console
 		iptables -F
 
 		disable_firewall 1

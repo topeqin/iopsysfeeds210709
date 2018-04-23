@@ -51,7 +51,7 @@ while true ; do
 		json_get_var network network "lan"
 
 		if is_inteno_macaddr $macaddr; then
-			echo "netmode-client-detect: a new Inteno device detected on '$network' network (MACAddr:$macaddr IPAddr:$ipaddr)" >/dev/console
+			logger -s -p user.info -t $0 "netmode-client-detect: a new Inteno device detected on '$network' network (MACAddr:$macaddr IPAddr:$ipaddr)" >/dev/console
 			ubus call repeater get_creds '{"network":"'$network'","file":"/tmp/wificontrol.txt"}'
 			/sbin/wificontrol --router --destination $ipaddr
 		fi

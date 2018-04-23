@@ -155,6 +155,7 @@ switch_netmode() {
         echo $curmode >$OLD_MODE_FILE
 
 	[ -d "/etc/netmodes/$curmode" ] || return
+	logger -s -p user.info -t $0 "[netmode] Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
 	cp /etc/netmodes/$curmode/* /etc/config/
 	rm -f /etc/config/DETAILS
 	sync
@@ -170,7 +171,7 @@ switch_netmode() {
 	case "$curmode" in
 		repeater*)
 			touch $SWITCHMODELOCK
-			echo "Switching to $curmode mode" > /dev/console
+			logger -s -p user.info -t $0 "Switching to $curmode mode" > /dev/console
 			ubus call leds set  '{"state" : "allflash"}'
 			[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
 			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
