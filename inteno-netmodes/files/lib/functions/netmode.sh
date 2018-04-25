@@ -223,7 +223,13 @@ wait_for_netmode_handler() {
 }
 
 netmode_get_ip_type() {
-	[ -n "$(echo $1 | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ] && echo "private" || echo "public"
+	[ -n "$(echo $1 | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ] && {
+		logger -t "[netmode]" "netmode_get_ip_type: ip $1 is private"
+		echo "private"
+	} || {
+		logger -t "[netmode]" "netmode_get_ip_type: ip $1 is public"
+		echo "public"
+	}
 }
 
 get_device_of() {
