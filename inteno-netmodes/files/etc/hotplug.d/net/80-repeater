@@ -13,7 +13,10 @@ case "$(uci get netmode.setup.curmode)" in
 		repeater*)
 		;;
 		*)
-			ping -c 1 -w 5 $defroute >/dev/null 2>&1 || killall -USR1 udhcpc
+			ping -c 1 -w 5 $defroute >/dev/null 2>&1 || {
+				logger -s -t "80-repeater" "ping to $defroute failed, sending USR1 to udhcpc" >/dev/console
+				killall -USR1 udhcpc
+			}
 			exit
 		;;
 esac
