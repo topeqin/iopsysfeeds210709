@@ -269,19 +269,20 @@ change_to_vlan() {
 	base_dev=$(echo ${base_dev} | cut -d. -f1)
 
 	# add "VLAN interface" to the "end of the file".
-	uci add layer2_interface_vlan vlan_interface
-	uci set layer2_interface_vlan.@vlan_interface[-1].name=${name}
-	uci set layer2_interface_vlan.@vlan_interface[-1].vlan8021q=${1}
-	uci set layer2_interface_vlan.@vlan_interface[-1].vlan8021p=${2}
-	uci set layer2_interface_vlan.@vlan_interface[-1].ifname="${base_dev}.${1}"
-	uci set layer2_interface_vlan.@vlan_interface[-1].baseifname=${base_dev}
+	uci add network device
+	uci rename network.@device[-1]=${name}
+	uci set network.@device[-1].type=8021q
+	uci set network.@device[-1].ifname=${base_dev}
+	uci set network.@device[-1].name="${base_dev}.${1}"
+	uci set network.@device[-1].vid=${1}
+	uci set network.@device[-1].priority=${2}
 	# and commit the change.
-	uci commit layer2_interface_vlan
-	v "option 132: committed update to file layer2_interface_vlan"
+	uci commit network
+	v "option 132: committed update to file network"
 
 	# reload configuration files.
 	/etc/init.d/layer2_interface_vlan reload
-	v "option 132: reload layer2_interface_vlan config"
+	v "option 132: reload network config"
 
 	# replace old interface (like eth0.1 with new eth0.101).
 	wan_if=$(uci get network.$3.ifname)
@@ -567,7 +568,7 @@ main()
 	        if [ "$filesystem" == "JFFS2" ] ; then
 	                firmware=$firmware.w
 		else
-			firmware=$firmware.y
+			firmware=$firmware.y3
 		fi
 		if [ "$sofwareminuspath" == "${sofwareminuspath/$firmware/}" ] ; then
 			v "Software \"$software\""
