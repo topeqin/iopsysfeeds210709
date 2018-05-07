@@ -6,6 +6,7 @@ function build_branch_usage {
 	echo "usage: $0 build_branch <branch> <board> [<customer>]"
 	echo "example: $0 build_branch devel-new ex400 DEV"
 	echo "example: $0 build_branch_sysupgrade devel-new ex400 DEV 192.168.1.1 -n"
+	set +x
 	exit 1
 }
 
@@ -17,6 +18,7 @@ function branch_exists {
 }
 
 function build_branch {
+	set -x
 	local branch=$1
 	local board=$2
 	local customer=$3
@@ -35,6 +37,7 @@ time {
 	./iop feeds_update || build_branch_usage
 	./iop genconfig -c $board $customer || build_branch_usage
 	make -j 8 || build_branch_usage
+	set +x
 }
 }
 
