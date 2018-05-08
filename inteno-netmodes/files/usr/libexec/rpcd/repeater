@@ -129,12 +129,12 @@ case "$1" in
 				json_load "`cat $file`" || write_error "invalid file content"
 				json_select "wifi_ifaces" || write_error "invalid file content"
 
+				start-netmode-conf "$file" "$from_gui" >/dev/null 2>/dev/null
 
 				json_init
 				json_add_string "status" success
 				json_dump
 
-				netmode-conf "$file" "$from_gui" >/dev/null 2>&1 &
 			;;
 		esac
 	;;
