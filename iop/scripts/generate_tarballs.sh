@@ -14,6 +14,7 @@ build_bcmkernel_consumer() {
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
 	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
 	scp $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
+	ssh $SERVER "ln -s $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz $FPATH/bcmopen-$board-$majver.$minver.tar.gz
 	rm -f $tarfile
 	cd $curdir
 }
@@ -119,6 +120,8 @@ function generate_tarballs {
     target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
     board=$(grep CONFIG_TARGET_IBOARDID .config | cut -d'=' -f2 | tr -d '"')
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
+    majver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f1 -d .)
+    minver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f2 -d .)
     curdir=$(pwd)
 
 
