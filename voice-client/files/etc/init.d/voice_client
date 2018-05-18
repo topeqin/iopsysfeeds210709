@@ -721,6 +721,10 @@ configure_sip_provider()
 	config_get transport $1 transport
 	config_get encryption $1 encryption
 
+	# This is a hack to fix security issue #14962
+	user=${user//"'"/}
+	authuser=${authuser//"'"/}
+
 	if [ -z "$transport" ] ; then 
 		transport="udp" 
 	fi
