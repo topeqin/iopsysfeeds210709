@@ -12,7 +12,7 @@ start_netmoded() {
 	procd_open_instance
 	procd_set_param command $NETMODED
 
-	procd_append_param command --verbose debug
+	procd_append_param command --verbose warning
 	procd_set_param stdout 1
 	procd_set_param stderr 1
 
