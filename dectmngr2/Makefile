@@ -8,10 +8,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
-PKG_VERSION:=1.1.0
+PKG_VERSION:=1.2.0
 PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr2
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=ace6a3dcb6aa463cf5a34ad39ac37a5bc7d4ce5e
+PKG_SOURCE_VERSION:=285878c20b62a1184879bca174365124e1cb8e7d
 PKG_NAME:=dectmngr2
 
 
