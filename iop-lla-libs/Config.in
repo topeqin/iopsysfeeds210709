@@ -1,0 +1,7 @@
+menu "Library options"
+
+config IOP_LLA_LIBS_DEBUG
+	bool "Enable debug support"
+	default n
+
+endmenu
