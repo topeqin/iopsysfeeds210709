@@ -21,6 +21,7 @@ define Package/iop-lla-libs
   SECTION:=libs
   CATEGORY:=Libraries
   SUBMENU:=IOPSYS low level libraries
+  DEPENDS:=+libopenssl
 endef
 
 define Package/libwifi
