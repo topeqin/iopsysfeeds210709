@@ -83,7 +83,6 @@ define Build/InstallDev/libwifi
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifi/wifi.h $(1)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi.so* $(1)/usr/lib/
-	$(LN) libwifi.so.$(PKG_VERSION) $(1)/usr/lib/libwifi.so
 endef
 
 define Build/InstallDev/libdsl
@@ -91,7 +90,6 @@ define Build/InstallDev/libdsl
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libdsl/xdsl.h $(1)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/libdsl/libdsl.so* $(1)/usr/lib/
-	$(LN) libdsl.so.$(PKG_VERSION) $(1)/usr/lib/libdsl.so
 endef
 
 define Build/InstallDev
