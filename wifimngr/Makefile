@@ -1,45 +1,53 @@
 #
-# Copyright (C) 2015 Inteno
+# Copyright (C) 2018 Iopsys
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=wifimngr
-PKG_VERSION:=2016-03-29
+PKG_VERSION:=1.0.0
 
-PKG_SOURCE_VERSION:=9dae4438b781b0abb7ca9e16c37c0344b16ccf2a
 PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=fa0c6298ed8e47ac2979d51e0697e41bcaa3a055
 PKG_SOURCE_URL:=http://public.inteno.se:/wifimngr
+PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-LDFLAGS+= \
-	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-	-Wl,-rpath-link=$(STAGING_DIR)/lib
-
 define Package/wifimngr
-	CATEGORY:=Network
-	DEPENDS:=+libpthread +libstdcpp +librt +libjson +alljoyn +alljoyn-about +ubus +libuci
-	TITLE:=WiFi Manager
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=WiFi status and configration utility
+  DEPENDS:=+libwifi +libuci +libubox +ubus +libpthread +libnl-genl
 endef
 
 define Package/wifimngr/description
-	wifimngr manages wireless driver
+ This package can be used to configure and provide status about
+ the WiFi modules through UBUS.
+ It does this in an implementation agnostic manner through APIs
+ exposed by the libwifi library.
 endef
+
+TARGET_CFLAGS += \
+	-I$(STAGING_DIR)/usr/include \
+	-I$(STAGING_DIR)/usr/include/libnl3 \
+	-D_GNU_SOURCE
+
+#MAKE_FLAGS += \
+	CFLAGS="$(TARGET_CFLAGS)" \
+	LDFLAGS="$(TARGET_LDFLAGS)" \
+	FPIC="$(FPIC)"
+
+#define Build/Compile
+#	+$(MAKE_VARS) $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS)
+#endef
 
 define Package/wifimngr/install
-	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifimngr $(1)/sbin/
-endef
-
-define Package/wifimngr/postinst
-	/etc/init.d/alljoyn restart
-	pidof alljoyn-daemon >/dev/null && wifimngr &
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifimngr $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,wifimngr))
