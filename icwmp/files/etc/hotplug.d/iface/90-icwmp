@@ -6,7 +6,9 @@
 
 [ -f /etc/config/cwmp ] || exit 0
 
-handle_icwmp_reload() {
+handle_icwmp_restart() {
+	[ "$INTERFACE" == "loopback" ] && exit 0
+
 	local islan="$(uci -q get network.$INTERFACE.is_lan)"
 	[ "$islan" == "1" ] && exit 0
 
@@ -48,10 +50,22 @@ handle_icwmp_reload() {
 	network_get_dnsserver curdnsservers $INTERFACE
 	[ -n "$curdnsservers" ] && echo $curdnsservers > $dnsserverfile || rm -f $dnsserverfile
 
-	[ "$previpaddr" = "$curipaddr" -a "$prevgateway" = "$curgateway" -a "$prevsubnets" = "$cursubnets" -a "$prevdnsservers" = "$curdnsservers" ] && exit 0
+	local prevdev=""
+	local curdev=""
+	local devfile=/tmp/ipv4/$INTERFACE-dev
+	prevdev=$(cat $devfile 2>/dev/null)
+	network_get_device curdev $INTERFACE
+	[ -n "$curdev" ] && echo $curdev > $devfile || rm -f $devfile
 
-	/etc/init.d/icwmpd reload &
+	[ \
+		"$prevdev" == "$curdev" -a \
+		"$previpaddr" = "$curipaddr" -a \
+		"$prevgateway" = "$curgateway" -a \
+		"$prevsubnets" = "$cursubnets" -a \
+		"$prevdnsservers" = "$curdnsservers" \
+	] && exit 0
+
+	/etc/init.d/icwmpd restart &
 }
 
-handle_icwmp_reload
-
+handle_icwmp_restart
