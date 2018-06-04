@@ -7,7 +7,14 @@
 [ -f /etc/config/cwmp ] || exit 0
 
 handle_icwmp_restart() {
+	[ -f /tmp/70-shiftrange.lock ] && exit 0
+	[ -f /tmp/switching_mode ] && exit 0
+	[ -f /tmp/wificontrol.txt -a ! -f /tmp/netmode_done ] && exit 0
+
 	[ "$INTERFACE" == "loopback" ] && exit 0
+
+	local defwan=$(uci -q get cwmp.cpe.default_wan_interface)
+	[ -n "$defwan" -a "$(uci -q get network.$defwan)" == "interface" -a "$defwan" != "$INTERFACE" ] && exit 0
 
 	local islan="$(uci -q get network.$INTERFACE.is_lan)"
 	[ "$islan" == "1" ] && exit 0
@@ -65,7 +72,7 @@ handle_icwmp_restart() {
 		"$prevdnsservers" = "$curdnsservers" \
 	] && exit 0
 
-	/etc/init.d/icwmpd restart &
+	/etc/init.d/icwmpd reload &
 }
 
 handle_icwmp_restart

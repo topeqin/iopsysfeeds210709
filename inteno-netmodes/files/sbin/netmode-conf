@@ -109,8 +109,10 @@ backup() {
 
 file="$1"
 from_gui="$2"
+done_file="/tmp/netmode_done"
 
 [ -f "$file" ] || exit
+[ -f "$done_file" ] && rm $done_file
 
 # let netmode-handler up to 20 seconds to finish switching mode
 wait_for_netmode_handler
@@ -161,6 +163,7 @@ done
 
 [ "$apcliband" == "$band" -o "$band" == "" ] || {
 	[ "$from_gui" == "true" ] && restore "back"
+	touch $done_file
 	exit
 }
 
@@ -168,6 +171,7 @@ repeater_iface_num=$(uci -q show wireless | grep -e ".mode='wet'" -e ".mode='sta
 
 [ -z "$repeater_iface_num" ] && {
 	[ "$from_gui" == "true" ] && restore "back"
+	touch $done_file
 	exit
 }
 
@@ -197,6 +201,7 @@ while json_get_var dummy $i; do
 		a_num=$((a_num+1))
 		[ -z $iface_num ] && {
 			[ "$from_gui" == "true" ] && restore "back"
+			touch $done_file
 			exit
 		}
 		set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
@@ -205,6 +210,7 @@ while json_get_var dummy $i; do
                 b_num=$((b_num+1))
                 [ -z $iface_num ] && {
                         [ "$from_gui" == "true" ] && restore "back"
+			touch $done_file
                         exit
                 }
 		set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
@@ -222,6 +228,7 @@ while json_get_var dummy $i; do
 		esac
 		[ -z $iface_num ] && {
 			[ "$from_gui" == "true" ] && restore "back"
+			touch $done_file
 			exit
 		}
 		set_wireless_values "$iface_num" "$ssid" "$key" "$encryption" "$device"
@@ -269,6 +276,7 @@ if [ "$from_gui" == "true" ]; then
 		ping -w1 $ip
 		if [ $? -eq 0 ]; then
 			restore
+			touch $done_file
 			exit
 		else
 			i=$((i-10))
@@ -278,6 +286,7 @@ if [ "$from_gui" == "true" ]; then
 	restore "back"
 else
 	if [ "$state" == "exit" ]; then
+		touch $done_file
 		return
 	fi
 	ubus call leds set '{"state":"allflash"}'
@@ -291,4 +300,5 @@ else
 	[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 	correct_uplink
 	ubus call leds set '{"state":"normal"}'
+	touch $done_file
 fi
