@@ -156,6 +156,7 @@ validate_owsd_iface() {
 		'key:file' \
 		'ca:file' \
 		'restrict_to_user:list(string)' \
+		'ubusx_acl:list(string)' \
 		&&
 	[ -n "${port}" ]
 }
@@ -164,6 +165,7 @@ parse_owsd_iface() {
 	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only linklocal
 	local cert key ca
 	local restrict_to_user
+	local ubusx_acl
 
 	validate_owsd_iface "$1" || {
 		echo "Validation failed"
@@ -183,6 +185,9 @@ parse_owsd_iface() {
 		[ -n "${restrict_to_user}" ] && procd_append_param command -u"${restrict_to_user}"
 
 		[ -n "$2" ] && procd_append_param command -i"$2"
+
+		[ -n "${ubusx_acl}" ] && procd_append_param command -X"${ubusx_acl}"
+
 	}
 
 	append_whitelists () {
