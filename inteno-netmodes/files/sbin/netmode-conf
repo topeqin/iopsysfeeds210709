@@ -301,4 +301,6 @@ else
 	correct_uplink
 	ubus call leds set '{"state":"normal"}'
 	touch $done_file
+	# we need to trigger a reload of icwmp but ONLY if ip or device has changed
+	[ -f "/etc/hotplug.d/iface/90-icwmp" ] && INTERFACE=wan ACTION=ifup sh /etc/hotplug.d/iface/90-icwmp
 fi
