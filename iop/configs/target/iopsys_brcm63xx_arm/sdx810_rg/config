@@ -1,3 +1,6 @@
 CONFIG_BCM_ENDPOINT_MODULE=y
+
+# Disable kernel internal Dect. External Dect can still operate.
 CONFIG_TARGET_NO_DECT=y
+
 CONFIG_TARGET_NO_DSL=y
