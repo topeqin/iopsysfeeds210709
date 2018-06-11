@@ -14,7 +14,7 @@ function genconfig {
 	export DEVELOPER=0
 	LOCAL_MIRROR="http://mirror.inteno.se/mirror"
 
-	iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25 hpc_hu02"
+	iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25 hpc_hu02 eg200"
 	iopsys_brcm63xx_arm="dg400 eg400 sdx810_rg f104w f104 dg400prime dg400primeb 963138REF_P502"
 	iopsys_ramips="ex400 sdx810_ap"
 	ramips="mt7621"
