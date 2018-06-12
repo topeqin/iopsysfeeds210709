@@ -415,6 +415,7 @@ parse_dhcp_options()
 		v "dhcp option 43 tr69 url $vendorspecinf"
 		url=${vendorspecinf%%,*}; rest=${vendorspecinf#*,}
 		provisioningcode=${rest%%,*};
+		[ -f /etc/config/cwmp ] && uci_set_state cwmp acs dhcp_url "$url"
 		uci_set_state provisioning iup urlcwmp "$url"
 		uci_set_state provisioning iup url "$url"
 		uci_set_state provisioning iup provisioningcode "$provisioningcode"
