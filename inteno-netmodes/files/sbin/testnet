@@ -49,7 +49,7 @@ ping_uplink()
 	if [ "$hasmode" == "1" ] && [ "$hasip" == "0" -o "$hasdev" == "0" ]; then
 		rv=0
 	elif [ "$hasmode" == "1" ]; then
-		ping $ipaddr -I $device -W 3 -c 1 -q >/dev/null 2>&1
+		arping -f -q -c1 -w3 -I $device $ipaddr
 		[ $? -eq 1 ] && rv=0 || rv=1
 	else
 		SLEEP_TIME=5
