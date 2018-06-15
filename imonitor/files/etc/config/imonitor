@@ -1,9 +1,9 @@
-#config monitor
-#	option app 'test'
-#	option test 'echo test'
-#	option stream 'stdout'
-#	option string_match 'test'
-#	option execute 'echo executing'
-#	option interval '10'
-#	option nr_tests '2'
+config monitor
+	option app 'test'
+	option test 'echo test'
+	option stream 'stdout'
+	option string_match 'TEST'
+	option execute 'echo executing test'
+	option interval '10'
+	option nr_tests '2'
 
