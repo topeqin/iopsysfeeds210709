@@ -27,5 +27,9 @@ config CWMP_DEVEL_DEBUG
 	bool "Compile with development debug options"
 	default n
 
+config LIBDATAMODEL_VENDOR_PREFIX
+    string "Vendor Prefix"
+    default "X_Inteno_SE_"
+    
 endif
 
