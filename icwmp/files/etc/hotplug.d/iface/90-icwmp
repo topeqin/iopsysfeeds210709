@@ -7,9 +7,8 @@
 [ -f /etc/config/cwmp ] || exit 0
 
 handle_icwmp_restart() {
-	[ -f /tmp/70-shiftrange.lock ] && exit 0
 	[ -f /tmp/switching_mode ] && exit 0
-	[ -f /tmp/wificontrol.txt -a ! -f /tmp/netmode_done ] && exit 0
+	[ -f /tmp/wificontrol.txt -a -f /tmp/netmode-conf.pid ] && exit 0
 
 	[ "$INTERFACE" == "loopback" ] && exit 0
 
