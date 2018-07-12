@@ -8,7 +8,7 @@ PKG_NAME:=iop-lla-libs
 PKG_VERSION:=1.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=1b863569ba4ed64d7fdbc4e05d4abf6597aa257e
+PKG_SOURCE_VERSION:=cf38a6165251709c0d60b33eafd7f32dcc0675d7
 PKG_SOURCE_URL:=http://public.inteno.se:/iop-lla-libs
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
@@ -37,6 +37,7 @@ endef
 define Package/libethernet
   $(call Package/iop-lla-libs)
   TITLE:= Ethernet library (libethernet)
+DEPENDS:=+TARGET_iopsys_ramips:swconfig
 endef
 
 define Package/iop-lla-libs/config
@@ -72,6 +73,10 @@ subdirs := \
 	$(if $(CONFIG_PACKAGE_libdsl),libdsl) \
 	$(if $(CONFIG_PACKAGE_libethernet),libethernet)
 
+TARGET_CFLAGS += \
+	-I$(STAGING_DIR)/usr/include \
+	-I$(STAGING_DIR)/usr/include/libnl3
+
 MAKE_FLAGS += \
 	CFLAGS="$(TARGET_CFLAGS)" \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
@@ -80,6 +85,7 @@ MAKE_FLAGS += \
 	subdirs="$(subdirs)"
 
 define Build/InstallDev/libwifi
+	echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX $(1)"
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifi/wifi.h $(1)/usr/include/
@@ -92,6 +98,14 @@ define Build/InstallDev/libdsl
 	$(CP) $(PKG_BUILD_DIR)/libdsl/xdsl.h $(1)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/libdsl/libdsl.so* $(1)/usr/lib/
 endef
+
+define Build/InstallDev/libethernet
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libethernet/ethernet.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libethernet/libethernet.so $(1)/usr/lib/
+endef
+
 
 define Build/InstallDev
 	$(foreach dir,$(subdirs),$(call Build/InstallDev/$(dir),$(1),$(2));)
