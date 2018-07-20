@@ -37,6 +37,12 @@ define Package/libdatamodel
   DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c
 endef
 
+define Package/icwmp_xmpp
+	SECTION:=utils
+	CATEGORY:=Utilities
+	TITLE:=TR-069 xmpp feature
+	DEPENDS:=+libuci +libubox +libexpat +libstrophe
+endef
 
 define Package/icwmp/Default
   SECTION:=utils
@@ -172,6 +178,15 @@ endif
 	$(CP) ./files/* $(1)/
 endef
 
+define Package/icwmp_xmpp/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_xmppd $(1)/usr/sbin/icwmp_xmppd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_xmppd $(1)/etc/init.d/icwmp_xmppd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_xmpp $(1)/etc/config
+endef
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/include/libdatamodel
@@ -205,4 +220,5 @@ endef
 
 $(eval $(call BuildPackage,icwmp-curl))
 $(eval $(call BuildPackage,libdatamodel))
+$(eval $(call BuildPackage,icwmp_xmpp))
 $(eval $(call BuildPackage,icwmp-zstream))
