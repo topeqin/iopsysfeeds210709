@@ -110,6 +110,7 @@ validate_owsd_ubusproxy() {
 		'enable:bool:1' \
 		'peer:list(string)' \
 		'object:list(string)' \
+		'prefix:string' \
 		'peer_key:file' \
 		'peer_cert:file' \
 		'peer_ca:file' \
@@ -290,6 +291,8 @@ start_service() {
 
 		config_list_foreach "ubusproxy" "peer" append_peer
 		config_list_foreach "ubusproxy" "object" append_object
+
+		[ "${prefix}" == "mac" ] && procd_append_param command -F"mac"
 	fi
 
 	config_foreach parse_owsd_iface "owsd-listen"
