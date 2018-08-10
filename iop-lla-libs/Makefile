@@ -8,7 +8,7 @@ PKG_NAME:=iop-lla-libs
 PKG_VERSION:=1.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=cf38a6165251709c0d60b33eafd7f32dcc0675d7
+PKG_SOURCE_VERSION:=e0eac3f845f78e1e16c14ba597d9232f190e7188
 PKG_SOURCE_URL:=http://public.inteno.se:/iop-lla-libs
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
