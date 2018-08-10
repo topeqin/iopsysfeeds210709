@@ -8,7 +8,7 @@ PKG_NAME:=wifimngr
 PKG_VERSION:=1.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=29ac0e0361e20d21559e0f2f585e5220f048b9e0
+PKG_SOURCE_VERSION:=ae20fe7456ef66d55035efbd0f16bae965371d7e
 PKG_SOURCE_URL:=http://public.inteno.se:/wifimngr
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
