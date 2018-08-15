@@ -8,7 +8,7 @@ PKG_NAME:=wifilife
 PKG_VERSION:=1.0.1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=55b34b4e3ac44b31f758fc8dee6bc2276fdea195
+PKG_SOURCE_VERSION:=010f252203a88187bdaf4e4e381a4f5ae1c4ba83
 PKG_SOURCE_URL:=git@private.inteno.se:wifilife.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
