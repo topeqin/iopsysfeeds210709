@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2018-07-16
+PKG_VERSION:=4.0-2018-08-16
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=http://public.inteno.se:/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=d22821b251277584cfbcce98a98a4261813418ce
+PKG_SOURCE_VERSION:=cc8aa165b1bca70d8a6b82e94ec2e93ec55e50f0
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -35,6 +35,13 @@ define Package/libdatamodel
   CATEGORY:=Libraries
   TITLE:=Library for broadband-forum data model
   DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c
+endef
+
+define Package/icwmp_stun
+	SECTION:=utils
+	CATEGORY:=Utilities
+	TITLE:=TR-069 stun Client
+	DEPENDS:=+libubus +libuci +libubox +libjson-c +libopenssl +libblobmsg-json
 endef
 
 define Package/icwmp_xmpp
@@ -178,6 +185,15 @@ endif
 	$(CP) ./files/* $(1)/
 endef
 
+define Package/icwmp_stun/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_stund $(1)/usr/sbin/icwmp_stund
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_stund $(1)/etc/init.d/icwmp_stund
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/icwmp_stun $(1)/etc/config
+endef
+
 define Package/icwmp_xmpp/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_xmppd $(1)/usr/sbin/icwmp_xmppd
@@ -220,5 +236,6 @@ endef
 
 $(eval $(call BuildPackage,icwmp-curl))
 $(eval $(call BuildPackage,libdatamodel))
+$(eval $(call BuildPackage,icwmp_stun))
 $(eval $(call BuildPackage,icwmp_xmpp))
 $(eval $(call BuildPackage,icwmp-zstream))
