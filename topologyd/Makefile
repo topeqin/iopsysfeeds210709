@@ -28,10 +28,10 @@ define Package/topologyd/description
 	gathers topology information and presents it as json structure
 endef
 
-#define Package/topologyd/install
+define Package/topologyd/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/topologyd $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/topologyd $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,topologyd))
