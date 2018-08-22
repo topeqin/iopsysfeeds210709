@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=topologyd
 PKG_VERSION:=0.1
 
-PKG_SOURCE_VERSION:=066b5ee7e6dfb3618f03680c6dc094f3d97dce3c
+PKG_SOURCE_VERSION:=8f1fb8855eae9b5eb809aaea9c653aa8ef4a9a3d
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@public.inteno.se:topologyd
 
@@ -31,7 +31,7 @@ endef
 define Package/topologyd/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/topologyd $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/topologyd $(1)/sbin/
 endef
 
 $(eval $(call BuildPackage,topologyd))
