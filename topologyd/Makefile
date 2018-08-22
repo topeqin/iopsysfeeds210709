@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=topologyd
 PKG_VERSION:=0.1
 
-PKG_SOURCE_VERSION:=8f1fb8855eae9b5eb809aaea9c653aa8ef4a9a3d
+PKG_SOURCE_VERSION:=21dad000d43c0d339249df7816ad300d0eead563
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@public.inteno.se:topologyd
 
