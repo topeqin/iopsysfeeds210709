@@ -191,7 +191,7 @@ define Package/icwmp_stun/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_stund $(1)/etc/init.d/icwmp_stund
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/icwmp_stun $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_stun $(1)/etc/config
 endef
 
 define Package/icwmp_xmpp/install
