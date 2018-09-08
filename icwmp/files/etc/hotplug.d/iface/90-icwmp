@@ -63,12 +63,20 @@ handle_icwmp_restart() {
 	network_get_device curdev $INTERFACE
 	[ -n "$curdev" ] && echo $curdev > $devfile || rm -f $devfile
 
+	local prevopt43url=""
+	local curopt43url=""
+	local opt43urlfile=/tmp/ipv4/$INTERFACE-opt43url
+	prevopt43url=$(cat $opt43urlfile 2>/dev/null)
+	curopt43url="$(uci -P /var/state -q get cwmp.acs.dhcp_url)"
+	[ -n "$curopt43url" ] && echo $curopt43url > $opt43urlfile || rm -f $opt43urlfile
+
 	[ \
 		"$prevdev" == "$curdev" -a \
 		"$previpaddr" = "$curipaddr" -a \
 		"$prevgateway" = "$curgateway" -a \
 		"$prevsubnets" = "$cursubnets" -a \
-		"$prevdnsservers" = "$curdnsservers" \
+		"$prevdnsservers" = "$curdnsservers" -a \
+		"$prevopt43url" = "$curopt43url" \
 	] && exit 0
 
 	/etc/init.d/icwmpd reload &
