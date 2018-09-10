@@ -441,7 +441,7 @@ check_packages()
 
 feeds_hash()
 {
-    grep -v "^#" feeds.conf | grep " $1" | sed -e "s/.*[;^]\(.*\)/\1/"
+    grep -v "^#" feeds.conf | grep "$1 " | grep "\^" | sed -e "s/.*[;^]\(.*\)/\1/"
 }
 
 insert_feed_hash_in_feeds_config()
@@ -505,6 +505,7 @@ check_feeds()
 	    if [ -z "$name" ]
 	    then
 		echo "Feed feeds/${feed} is at a git commit which is different from feeds.conf"
+		#echo "git id from feeds.conf [$feed_hash] git id from feeds/${feed} [$in_git]"
 		on_a_branch feeds/${feed} feed
 
 		#redo the test here and see if the feeds.conf and git is still different.
@@ -532,6 +533,7 @@ check_feeds()
 	    fi
 
 	    echo "Feed feeds/${feed} is at different commit than what is in feeds.conf"
+	    #echo "git id from feeds.conf [$feed_hash] git id from feeds/${feed} [$in_git]"
 	    echo -n "Should we update feeds.conf to reflect the new version ? [y/N]:"
 	    read answer
 
