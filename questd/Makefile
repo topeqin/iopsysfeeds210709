@@ -25,8 +25,8 @@ else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
 QUESTD_TARGET:=-DIOPSYS_BROADCOM
 else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
 QUESTD_TARGET:=-DIOPSYS_MARVELL
-else ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
-QUESTD_TARGET:=-DIOPSYS_LANTIQ
+else ifeq ($(CONFIG_TARGET_iopsys_grx),y)
+QUESTD_TARGET:=-DIOPSYS_BROADCOM
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 QUESTD_TARGET:=-DIOPSYS_MEDIATEK
 QUESTD_CFLAGS:=\
