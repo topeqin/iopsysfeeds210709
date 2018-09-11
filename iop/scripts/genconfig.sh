@@ -14,45 +14,57 @@ function genconfig {
 	export DEVELOPER=0
 	LOCAL_MIRROR="http://mirror.inteno.se/mirror"
 
-	iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25 hpc_hu02 eg200"
-	iopsys_brcm63xx_arm="dg400 eg400 sdx810_rg f104w f104 dg400prime dg400primeb 963138REF_P502"
-	iopsys_ramips="ex400 sdx810_ap"
-	ramips="mt7621"
 	target="bogus"
 	masterconfig=1
 
-	set_target()
-	{
-	local profile=$1
+	# Takes a board name and returns the target name in global var $target
+	set_target() {
+	    local profile=$1
 
-	for p in $iopsys_brcm63xx_mips; do
-		if [ $p == $profile ]; then
-			target="iopsys_brcm63xx_mips"
-			return
-		fi
-	done
+	    local iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25 hpc_hu02 eg200"
+	    local iopsys_brcm63xx_arm="dg400 eg400 sdx810_rg f104w f104 dg400prime dg400primeb 963138REF_P502"
+	    local iopsys_ramips="ex400 sdx810_ap"
+	    local iopsys_grx="grx500"
+	    local ramips="mt7621"
 
-	for p in $iopsys_brcm63xx_arm; do
-		if [ $p == $profile ]; then
-			target="iopsys_brcm63xx_arm"
-			return
-		fi
-	done
 
-	for p in $iopsys_ramips; do
-		if [ $p == $profile ]; then
-			target="iopsys_ramips"
-			return
-		fi
-	done
+	    local targets
 
-	for p in $ramips; do
+	    for p in $iopsys_brcm63xx_mips; do
 		if [ $p == $profile ]; then
-			target="ramips"
-			masterconfig=0
-			return
+		    target="iopsys_brcm63xx_mips"
+		    return
 		fi
-	done
+	    done
+
+	    for p in $iopsys_brcm63xx_arm; do
+		if [ $p == $profile ]; then
+		    target="iopsys_brcm63xx_arm"
+		    return
+		fi
+	    done
+
+	    for p in $iopsys_ramips; do
+		if [ $p == $profile ]; then
+		    target="iopsys_ramips"
+		    return
+		fi
+	    done
+
+	    for p in $ramips; do
+		if [ $p == $profile ]; then
+		    target="ramips"
+		    masterconfig=0
+		    return
+		fi
+	    done
+
+	    for p in $iopsys_grx; do
+		if [ $p == $profile ]; then
+		    target="iopsys_grx"
+		    return
+		fi
+	    done
 
 	}
 
