@@ -10,9 +10,16 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=u-boot
 PKG_VERSION:=2016.08
 PKG_RELEASE:=5
-PKG_SOURCE_URL:=http://public.inteno.se:/uboot
+
 PKG_SOURCE_PROTO:=git
+
+ifdef CONFIG_TARGET_iopsys_grx
+PKG_SOURCE_URL:=git@private.inteno.se:uboot
+PKG_SOURCE_VERSION:=562baf11e10714d6319b708835a01db9118c59c4
+else
+PKG_SOURCE_URL:=http://public.inteno.se:/uboot
 PKG_SOURCE_VERSION:=38f170244c587eb3eec37c4c033bf41c0abb89dc
+endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -34,6 +41,8 @@ define uboot/Default
   IMAGE:=
 endef
 
+UBOOT_IMG:=uboot.img
+
 define uboot/ex400
   TITLE:=U-Boot for the ex400
 endef
@@ -42,15 +51,21 @@ define uboot/sdx810_ap
   TITLE:=U-Boot for the sdx810_ap
 endef
 
+define uboot/grx500
+  TITLE:=U-Boot for the grx
+  UBOOT_IMG:=u-boot-nand.bin
+endef
+
 UBOOTS := \
 	ex400 \
-	sdx810_ap
+	sdx810_ap \
+	grx500
 
 define Package/uboot/template
 define Package/uboot-$(1)
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=@TARGET_iopsys_ramips
+  DEPENDS:=+@TARGET_iopsys_ramips +@TARGET_iopsys_grx
   TITLE:=$(2)
   URL:=http://www.denx.de/wiki/U-Boot
   VARIANT:=$(1)
@@ -80,7 +95,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+	+$(MAKE) $(PKG_JOrun update_ubootBS) -C $(PKG_BUILD_DIR) \
 		CROSS_COMPILE=$(TARGET_CROSS)
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CROSS_COMPILE=$(TARGET_CROSS) env
@@ -91,11 +106,12 @@ define Package/uboot/install/default
 	$(INSTALL_DIR) $(BIN_DIR)/$(TARGET)
 	$(INSTALL_DIR) $$(1)/boot
 	$(CP) \
-		$(PKG_BUILD_DIR)/uboot.img \
-		$(BIN_DIR)/$(TARGET)/
+		$(PKG_BUILD_DIR)/$(UBOOT_IMG) \
+		$(BIN_DIR)/$(TARGET)/uboot.img
 	$(CP) \
-		$(PKG_BUILD_DIR)/uboot.img \
-		$$(1)/boot
+		$(PKG_BUILD_DIR)/$(UBOOT_IMG) \
+		$$(1)/boot/uboot.img
+
 	$(INSTALL_DIR) $$(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv $$(1)/usr/sbin/
 	ln -s /usr/sbin/fw_printenv $$(1)/usr/sbin/fw_setenv
