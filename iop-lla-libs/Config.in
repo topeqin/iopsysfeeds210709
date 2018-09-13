@@ -1,7 +1,19 @@
-menu "Library options"
+if (PACKAGE_libwifi || PACKAGE_libdsl || PACKAGE_libethernet)
+menu "configurations"
 
 config IOP_LLA_LIBS_DEBUG
-	bool "Enable debug support"
+	bool "Enable debugging support"
+	default n
+
+config LIBWIFI_DEBUG
+	depends on PACKAGE_libwifi
+	bool "Enable wifi debugging"
+	default n
+
+config LIBDSL_DEBUG
+	depends on PACKAGE_libdsl
+	bool "Enable xdsl debugging"
 	default n
 
 endmenu
+endif

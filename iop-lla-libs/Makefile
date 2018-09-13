@@ -6,13 +6,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iop-lla-libs
 PKG_VERSION:=1.0.0
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=9013a57cb78f7346e3636d1ff101a74c321cd4c3
 PKG_SOURCE_URL:=http://public.inteno.se:/iop-lla-libs
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -20,8 +21,13 @@ include $(INCLUDE_DIR)/package.mk
 define Package/iop-lla-libs
   SECTION:=libs
   CATEGORY:=Libraries
+  TITLE:=IOPSYS low level libraries
   SUBMENU:=IOPSYS low level libraries
   DEPENDS:=+libopenssl
+endef
+
+define Package/libwifi/config
+  source "$(SOURCE)/Config.in"
 endef
 
 define Package/libwifi
@@ -37,11 +43,7 @@ endef
 define Package/libethernet
   $(call Package/iop-lla-libs)
   TITLE:= Ethernet library (libethernet)
-DEPENDS:=+TARGET_iopsys_ramips:swconfig
-endef
-
-define Package/iop-lla-libs/config
-  source "$(SOURCE)/Config.in"
+  DEPENDS:=+TARGET_iopsys_ramips:swconfig
 endef
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
@@ -85,7 +87,6 @@ MAKE_FLAGS += \
 	subdirs="$(subdirs)"
 
 define Build/InstallDev/libwifi
-	echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX $(1)"
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifi/wifi.h $(1)/usr/include/
