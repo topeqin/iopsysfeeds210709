@@ -5,14 +5,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifilife
-PKG_VERSION:=1.0.1
+PKG_VERSION:=1.0.2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=78752399841a4309c23d9dbf092857921b97be27
-PKG_SOURCE_URL:=git@private.inteno.se:wifilife.git
-PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
+PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/wifilife.git
+PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -20,13 +20,14 @@ include $(INCLUDE_DIR)/package.mk
 define Package/wifilife
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=IOPSYS WiFi multi-AP Controller/Agent
+  TITLE:=WiFi multi-AP Controller/Agent
   DEPENDS:=+libwifi +libuci +libubox +ubus
 endef
 
 define Package/wifilife/description
  This package manages wifi in multi-AP deployment.
- Supports smart steering of WiFi clients.
+ Supports smart steering of WiFi clients based on
+ 802.11k,v and r.
 endef
 
 TARGET_CFLAGS += \
