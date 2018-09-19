@@ -1680,11 +1680,15 @@ configure_extensions_provider()
 	config_get call_queue $1 call_queue
 	config_get call_ivr $1 call_ivr
 	if [ -n "$incoming_lines" ]; then
-		echo "exten => $user,n,Dial($incoming_lines,$(get_voicemail_timeout),tF(hangup,h,2))" >>		$tmp
-		echo "exten => $user,n,GotoIf($[\"\${DIALSTATUS}\"=\"ANSWER\"]?endcall)" >>		$tmp
-		echo "exten => $user,n,GotoIf($[\"\${DIALSTATUS}\"=\"BUSY\"]?noanswer)" >>		$tmp
-		echo "exten => $user,n,GotoIf($[\"\${DIALSTATUS}\"=\"NOANSWER\"]?noanswer:endcall)" >>	$tmp
-		echo "exten => $user,n(noanswer),Macro(callhandler-noanswer,\${CHANNEL(peername)})" >>	$tmp
+	        echo "exten => $user,n,GotoIf(\${DB_EXISTS(CFBS/$1)}?cfbs)"         >> $tmp
+		echo "exten => $user,n,Dial($incoming_lines,$(get_voicemail_timeout),tF(hangup,h,2))"  >> $tmp
+		echo "exten => $user,n,Goto($user,nocfbs)"                                             >> $tmp
+		echo "exten => $user,n(cfbs),Dial($incoming_lines,20,tF(hangup,h,2))"                  >> $tmp
+		echo "exten => $user,n(nocfbs),NoOp()"                                                 >> $tmp
+		echo "exten => $user,n,GotoIf($[\"\${DIALSTATUS}\"=\"ANSWER\"]?endcall)"               >> $tmp
+		echo "exten => $user,n,GotoIf($[\"\${DIALSTATUS}\"=\"BUSY\"]?noanswer)"                >> $tmp
+		echo "exten => $user,n,GotoIf($[\"\${DIALSTATUS}\"=\"NOANSWER\"]?noanswer:endcall)"    >> $tmp
+		echo "exten => $user,n(noanswer),Macro(callhandler-noanswer,\${CHANNEL(peername)})"    >> $tmp
 		
 		# check for mailbox
 		config_get mailbox $1 mailbox
