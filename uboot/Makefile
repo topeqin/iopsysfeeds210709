@@ -65,7 +65,7 @@ define Package/uboot/template
 define Package/uboot-$(1)
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=+@TARGET_iopsys_ramips +@TARGET_iopsys_grx
+  DEPENDS:=@TARGET_iopsys_ramips @TARGET_iopsys_grx
   TITLE:=$(2)
   URL:=http://www.denx.de/wiki/U-Boot
   VARIANT:=$(1)
@@ -95,7 +95,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	+$(MAKE) $(PKG_JOrun update_ubootBS) -C $(PKG_BUILD_DIR) \
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CROSS_COMPILE=$(TARGET_CROSS)
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CROSS_COMPILE=$(TARGET_CROSS) env
