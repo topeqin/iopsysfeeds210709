@@ -45,15 +45,18 @@ UBOOT_IMG:=uboot.img
 
 define uboot/ex400
   TITLE:=U-Boot for the ex400
+  DEPENDS:=@TARGET_iopsys_ramips
 endef
 
 define uboot/sdx810_ap
   TITLE:=U-Boot for the sdx810_ap
+  DEPENDS:=@TARGET_iopsys_ramips
 endef
 
 define uboot/grx500
   TITLE:=U-Boot for the grx
   UBOOT_IMG:=u-boot-nand.bin
+  DEPENDS:=@TARGET_iopsys_grx
 endef
 
 UBOOTS := \
@@ -65,7 +68,6 @@ define Package/uboot/template
 define Package/uboot-$(1)
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=@TARGET_iopsys_ramips @TARGET_iopsys_grx
   TITLE:=$(2)
   URL:=http://www.denx.de/wiki/U-Boot
   VARIANT:=$(1)
