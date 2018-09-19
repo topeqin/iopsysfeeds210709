@@ -29,7 +29,7 @@ build_natalie_consumer() {
 	ssh $SERVER "ls $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
 	cd ./build_dir/target-*/natalie-dect-$natalieversion/
 	mkdir natalie-dect-open-$natalieversion
-	cp NatalieFpCvm6362/Src/Projects/NatalieV3/FpCvm/Linux6362/dects.ko natalie-dect-open-$natalieversion/dect.ko
+	cp -f ipkg-*/natalie-dect/lib/modules/*/extra/dect.ko natalie-dect-open-$natalieversion/dect.ko
 	tar -czv  natalie-dect-open-$natalieversion/ -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
 	scp natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $SERVER:$FPATH/
 	cp natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $curdir/
