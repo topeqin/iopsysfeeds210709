@@ -20,7 +20,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/topologyd
 	CATEGORY:=Utilities
-	DEPENDS:=+libubox +ubus +libpthread +libopenssl
+	DEPENDS:=+libubox +ubus +libpthread +libopenssl +libnl-genl +libnl +libuci
 	TITLE:=topology daemon
 endef
 
