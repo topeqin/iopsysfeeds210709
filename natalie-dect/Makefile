@@ -18,7 +18,7 @@ PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_NAME:=natalie-dect-open
 else
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=git@private.inteno.se:natalie-dect-12.26
+PKG_SOURCE_URL:=git@dev.iopsys.eu:dialog/natalie-dect-12.26
 PKG_SOURCE_PROTO:=git
 endif
 

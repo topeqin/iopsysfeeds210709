@@ -10,7 +10,7 @@ PKG_VERSION:=3.1.40
 
 PKG_SOURCE_VERSION:=3f6f5e56ebd11862c0255a05e733f7fe08e1ceb0
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://public.inteno.se:/questd
+PKG_SOURCE_URL:=https://dev.iopsys.eu:/iopsys/questd
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

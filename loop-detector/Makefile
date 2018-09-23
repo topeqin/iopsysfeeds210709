@@ -5,7 +5,7 @@ PKG_VERSION:=1.0
 
 PKG_SOURCE_VERSION:=d0fb770eacd6691b98df138b60f5116e02f71a9b
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://public.inteno.se:/loop-detector
+PKG_SOURCE_URL:=https://dev.iopsys.eu:/iopsys/loop-detector
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

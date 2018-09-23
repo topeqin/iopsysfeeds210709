@@ -18,7 +18,7 @@ PKG_SOURCE:=endptmngr-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION
 PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
 PKG_NAME:=endptmngr-open
 else
-PKG_SOURCE_URL:=git@private.inteno.se:endptmngr
+PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/endptmngr
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_NAME:=endptmngr

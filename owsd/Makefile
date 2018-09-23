@@ -9,7 +9,7 @@ PKG_VERSION:=1.1.1
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO=git
-PKG_SOURCE_URL:=http://public.inteno.se/owsd.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/owsd.git
 PKG_SOURCE_VERSION:=aed9de16f49d94bd5abf10a3038fd9a1712cec19
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}

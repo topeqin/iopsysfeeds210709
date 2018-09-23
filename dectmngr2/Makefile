@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=1.2.0
-PKG_SOURCE_URL:=http://public.inteno.se:/dectmngr2
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dectmngr.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=ad9cfdfcd7e63b34905e4c22ae7e22baa44b7b5b
 PKG_NAME:=dectmngr2

@@ -5,7 +5,7 @@ PKG_VERSION:=0.2.0
 
 PKG_SOURCE_VERSION:=fbd7dcfab03df19b3c32675940e0aee708c7cf75
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://public.inteno.se:/netmoded
+PKG_SOURCE_URL:=https://dev.iopsys.eu:/iopsys/netmoded
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

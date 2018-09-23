@@ -5,7 +5,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tr064
 PKG_VERSION:=1.0
-PKG_SOURCE_URL:=git@public.inteno.se:tr064.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/suite/tr-064.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=e53d492a09c433718a520987c419cb6a4d4ae8dc
 PKG_RELEASE=$(PKG_SOURCE_VERSION)

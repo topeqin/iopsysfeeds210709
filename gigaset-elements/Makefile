@@ -5,7 +5,7 @@ PKG_NAME:=gigaset-elements
 PKG_VERSION:=2.4.2
 # PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
-PKG_GIGASET_ELEMENTS_SRC_URL ?= git@public.inteno.se:gigaset-elements.git
+PKG_GIGASET_ELEMENTS_SRC_URL ?= git@dev.iopsys.eu:3rdparty/gigaset-elements.git
 PKG_GIGASET_ELEMENTS_VERSION ?= v$(PKG_VERSION)
 
 PKG_SOURCE_URL:=$(PKG_GIGASET_ELEMENTS_SRC_URL)

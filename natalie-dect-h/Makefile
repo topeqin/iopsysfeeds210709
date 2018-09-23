@@ -11,7 +11,7 @@ PKG_NAME:=natalie-dect-h
 PKG_VERSION:=12.26
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://public.inteno.se:/natalie-dect-h
+PKG_SOURCE_URL:=https://dev.iopsys.eu/dialog/natalie-dect-h.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=9e2236989ff58d0db897f938b6b07b535144e0e2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)

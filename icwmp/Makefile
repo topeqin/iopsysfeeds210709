@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=icwmp
 PKG_VERSION:=4.0-2018-09-18
 PKG_FIXUP:=autoreconf
-PKG_SOURCE_URL:=http://public.inteno.se:/icwmp.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=9f300a44bd848798c3d7cd8fb6ae35cfe4ff4b22
 PKG_RELEASE=$(PKG_SOURCE_VERSION)

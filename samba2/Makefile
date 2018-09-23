@@ -8,10 +8,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=samba2
-PKG_VERSION:=2.2.12.inteno
+PKG_VERSION:=2.2.12
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=http://public.inteno.se:/samba2
+PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/samba2.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=d687d07a137981f4fe78cc289b040e6426c61e29
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)

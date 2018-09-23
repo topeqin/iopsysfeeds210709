@@ -14,10 +14,10 @@ PKG_RELEASE:=5
 PKG_SOURCE_PROTO:=git
 
 ifdef CONFIG_TARGET_iopsys_grx
-PKG_SOURCE_URL:=git@private.inteno.se:uboot
+PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
 PKG_SOURCE_VERSION:=505b9ebb3d3f620e46f16a9b7b364ecc64256c2f
 else
-PKG_SOURCE_URL:=http://public.inteno.se:/uboot
+PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
 PKG_SOURCE_VERSION:=4f8ba5a6dfe419ee243b7cb745e731e0bb0e3ae9
 endif
 

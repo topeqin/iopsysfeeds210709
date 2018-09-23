@@ -6,7 +6,7 @@ PKG_RELEASE:=0
 
 PKG_SOURCE_VERSION:=10685ce4c31a5b6bf582be19f4333aed273a54bf
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://public.inteno.se:/tptest
+PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/tptest.git
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
