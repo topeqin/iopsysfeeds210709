@@ -5,14 +5,14 @@
 
 _iop_get_profiles()
 {
-    find feeds/feed_inteno_targets/iopsys-*/ -name '*.diff' \
+    find feeds/targets/iopsys-*/ -name '*.diff' \
         |awk -F'/' '{print$NF}' \
         |awk -F. '{print$1}'
 }
 
 _iop_get_models()
 {
-    find feeds/feed_inteno_targets/iopsys-*/ -mindepth 1 -maxdepth 1 -type d \
+    find feeds/targets/iopsys-*/ -mindepth 1 -maxdepth 1 -type d \
         |awk -F'/' '{print$NF}' \
         |egrep '^(cg|dg|eg|vg|vox)[0-9]'
 }

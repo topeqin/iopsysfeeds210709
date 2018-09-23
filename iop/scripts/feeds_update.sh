@@ -28,14 +28,13 @@ function feeds_update {
 
     # replace core packages with iopsys versions
     if [ $override == 1 ]; then
-		./scripts/feeds install -f -p feed_inteno_openwrt -a
-		./scripts/feeds install -f -p feed_inteno_lede -a
+		./scripts/feeds install -f -p lede_core -a
     fi
 
     # targets need to be installed explicitly
-    ./scripts/feeds install -p feed_inteno_targets iopsys-brcm63xx-mips
-    ./scripts/feeds install -p feed_inteno_targets iopsys-brcm63xx-arm
-    ./scripts/feeds install -p feed_inteno_targets iopsys-ramips
+    ./scripts/feeds install -p targets iopsys-brcm63xx-mips
+    ./scripts/feeds install -p targets iopsys-brcm63xx-arm
+    ./scripts/feeds install -p targets iopsys-ramips
     ./scripts/feeds install -p feed_inteno_targets_grx iopsys-grx
 
     # install all packages

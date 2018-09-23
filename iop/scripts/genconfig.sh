@@ -7,7 +7,7 @@ function genconfig {
 	export FILEDIR="files/"
 	export THEMEDIR="themes"
 	CURRENT_CONFIG_FILE=".current_config_file"
-	export CONFIGPATH="package/feeds/feed_inteno_packages/iop/configs"
+	export CONFIGPATH="package/feeds/iopsys/iop/configs"
 	CUSTPATH="customerconfigs"
 	export CUSTCONF="customerconfigs/customers"
 	export VERBOSE=0
@@ -311,7 +311,7 @@ function genconfig {
 		fi
 
 		# Force regeneration of themes
-		touch package/feeds/feed_inteno_juci/juci/Makefile
+		touch package/feeds/juci/juci/Makefile
 
 		# Force regeneration of kernel Makefile
 		# Needed to disable kmods for iopsys-brcm targets
