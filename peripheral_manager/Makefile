@@ -14,7 +14,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=fe43108d986a02d3a14f079d58bfa666c1089471
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://dev.iopsys.eu:/iopsys/peripheral-manager
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/peripheral-manager
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
