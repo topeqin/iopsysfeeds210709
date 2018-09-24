@@ -4,7 +4,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=iop-lla-libs
+PKG_NAME:=easy-soc-libs
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
@@ -18,12 +18,13 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/iop-lla-libs
+define Package/easy-soc-libs
   SECTION:=libs
   CATEGORY:=Libraries
-  TITLE:=IOPSYS low level libraries
-  SUBMENU:=IOPSYS low level libraries
+  TITLE:=IOPSYS easy SoC libraries
+  SUBMENU:=IOPSYS easy SoC libraries
   DEPENDS:=+libopenssl
+  MENU:=1
 endef
 
 define Package/libwifi/config
@@ -31,17 +32,17 @@ define Package/libwifi/config
 endef
 
 define Package/libwifi
-  $(call Package/iop-lla-libs)
+  $(call Package/easy-soc-libs)
   TITLE:= WiFi library (libwifi)
 endef
 
 define Package/libdsl
-  $(call Package/iop-lla-libs)
+  $(call Package/easy-soc-libs)
   TITLE:= XDSL library (libdsl)
 endef
 
 define Package/libethernet
-  $(call Package/iop-lla-libs)
+  $(call Package/easy-soc-libs)
   TITLE:= Ethernet library (libethernet)
   DEPENDS:=+TARGET_iopsys_ramips:swconfig
 endef
