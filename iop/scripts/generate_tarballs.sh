@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 build_bcmkernel_consumer() {
@@ -10,7 +10,7 @@ build_bcmkernel_consumer() {
 	[ -n "$board" -a -n "$bcmkernelcommith" ] || return
 	ssh $SERVER "test -f $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
 	cd ./build_dir/target-*/bcmkernel-*-${sdkversion:0:4}*/bcm963xx/release
-	sh do_consumer_release -p $profile -y -F
+	bash do_consumer_release -p $profile -y -F
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
 	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
 	scp $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
