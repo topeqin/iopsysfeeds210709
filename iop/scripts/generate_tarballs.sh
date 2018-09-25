@@ -5,7 +5,7 @@ build_bcmkernel_consumer() {
 	local tarfile bcmkernelcommith sdkversion
 	sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
 	sdkversion=${sdkversion:0:4}${sdkversion:(-1)}
-	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/feed_inteno_broadcom/bcmkernel/${sdkversion:0:5}*.mk | cut -d'=' -f2)
+	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/broadcom/bcmkernel/${sdkversion:0:5}*.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
 	[ -n "$board" -a -n "$bcmkernelcommith" ] || return
 	ssh $SERVER "ls $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
@@ -23,8 +23,8 @@ build_natalie_consumer() {
 	# create natalie-dect open version tar file
 	local natalieversion nataliecommith
 	grep -q "CONFIG_TARGET_NO_DECT=y" .config && return
-	natalieversion=$(grep -w "PKG_VERSION:" ./feeds/feed_inteno_packages/natalie-dect/Makefile | cut -d'=' -f2)
-	nataliecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/natalie-dect/Makefile | cut -d'=' -f2)
+	natalieversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
+	nataliecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
 	[ -n "$profile" -a -n "$natalieversion" -a -n "$nataliecommith" ] || return
 	ssh $SERVER "ls $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
 	cd ./build_dir/target-*/natalie-dect-$natalieversion/
@@ -42,8 +42,8 @@ build_endptmngr_consumer() {
 	# create endptmngr open version tar file
 	local endptversion endptcommith
 	grep -q "CONFIG_TARGET_NO_VOICE=y" .config && return
-	endptversion=$(grep -w "PKG_VERSION:" ./feeds/feed_inteno_packages/endptmngr/Makefile | cut -d'=' -f2)
-	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/endptmngr/Makefile | cut -d'=' -f2)
+	endptversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/endptmngr/Makefile | cut -d'=' -f2)
+	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/endptmngr/Makefile | cut -d'=' -f2)
 	[ -n "$profile" -a -n "$endptversion" -a -n "$endptcommith" ] || return
 	ssh $SERVER "ls $FPATH/endptmngr-$profile-$endptversion-$endptcommith.tar.gz" && return
 	cd ./build_dir/target-*/endptmngr-$endptversion/
@@ -62,9 +62,9 @@ build_endptmngr_consumer() {
 build_ice_consumer() {
 	# create ice-client open version tar file
 	local iceversion icebasever icerelease icecommith
-	icecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/feed_inteno_packages/ice-client/Makefile | head -1 | cut -d'=' -f2)
-	icebasever=$(grep -w "BASE_PKG_VERSION:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
-	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/feed_inteno_packages/ice-client/Makefile | cut -d'=' -f2)
+	icecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/ice-client/Makefile | head -1 | cut -d'=' -f2)
+	icebasever=$(grep -w "BASE_PKG_VERSION:" ./feeds/iopsys/ice-client/Makefile | cut -d'=' -f2)
+	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/iopsys/ice-client/Makefile | cut -d'=' -f2)
 	iceversion=$icebasever$icerelease
 	[ -n "$target" -a -n "$iceversion" -a -n "$icecommith" ] || return
 	ssh $SERVER "ls $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
