@@ -8,7 +8,7 @@ build_bcmkernel_consumer() {
 	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/broadcom/bcmkernel/${sdkversion:0:5}*.mk | cut -d'=' -f2)
 	# do not build bcmopen sdk if it was already built before
 	[ -n "$board" -a -n "$bcmkernelcommith" ] || return
-	ssh $SERVER "ls $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
+	ssh $SERVER "test -f $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
 	cd ./build_dir/target-*/bcmkernel-*-${sdkversion:0:4}*/bcm963xx/release
 	sh do_consumer_release -p $profile -y -F
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
@@ -26,7 +26,7 @@ build_natalie_consumer() {
 	natalieversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
 	nataliecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
 	[ -n "$profile" -a -n "$natalieversion" -a -n "$nataliecommith" ] || return
-	ssh $SERVER "ls $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
+	ssh $SERVER "test -f $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
 	cd ./build_dir/target-*/natalie-dect-$natalieversion/
 	mkdir natalie-dect-open-$natalieversion
 	cp -f ipkg-*/natalie-dect/lib/modules/*/extra/dect.ko natalie-dect-open-$natalieversion/dect.ko
@@ -45,7 +45,7 @@ build_endptmngr_consumer() {
 	endptversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/endptmngr/Makefile | cut -d'=' -f2)
 	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/endptmngr/Makefile | cut -d'=' -f2)
 	[ -n "$profile" -a -n "$endptversion" -a -n "$endptcommith" ] || return
-	ssh $SERVER "ls $FPATH/endptmngr-$profile-$endptversion-$endptcommith.tar.gz" && return
+	ssh $SERVER "test -f $FPATH/endptmngr-$profile-$endptversion-$endptcommith.tar.gz" && return
 	cd ./build_dir/target-*/endptmngr-$endptversion/
 	mkdir endptmngr-open-$endptversion
 	mkdir endptmngr-open-$endptversion/src
@@ -67,7 +67,7 @@ build_ice_consumer() {
 	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/iopsys/ice-client/Makefile | cut -d'=' -f2)
 	iceversion=$icebasever$icerelease
 	[ -n "$target" -a -n "$iceversion" -a -n "$icecommith" ] || return
-	ssh $SERVER "ls $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
+	ssh $SERVER "test -f $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
 	cd ./build_dir/target-*/ice-client-$icebasever/ipkg-* || cd ./build_dir/target-mips*musl-*/ice-client-$icebasever/ipkg-*
 	tar -czv  ice-client -f ice-client-$target-$iceversion-$icecommith.tar.gz
 	scp ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
@@ -83,7 +83,7 @@ build_mediatek_kernel() {
 	kernel_version=$(grep KERNEL_PATCHVER target/linux/iopsys-ramips/Makefile  | cut -d '=' -f2)
 	kernel=linux-${kernel_version}.*
 	[ -n "$mediatek_commit" ] || return
-	ssh $SERVER "ls $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
+	ssh $SERVER "test -f $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
 	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/$kernel
