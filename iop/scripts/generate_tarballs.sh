@@ -115,6 +115,7 @@ function generate_tarballs {
     SERVER="god@software.inteno.se"
     FPATH="/var/www/html/iopsys/consumer"
 
+    set -e
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment
 
     target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
