@@ -16,7 +16,7 @@ build_bcmkernel_consumer() {
 	scp -pv $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
 	ssh $SERVER "ln -s $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz $FPATH/bcmopen-$board-$majver.$minver.tar.gz"
 	rm -f $tarfile
-	cd $curdir
+	cd "$curdir"
 }
 
 build_natalie_consumer() {
@@ -35,7 +35,7 @@ build_natalie_consumer() {
 	cp natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $curdir/
 	rm -rf natalie-dect-open-$natalieversion
 	rm -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
-	cd $curdir
+	cd "$curdir"
 }
 
 build_endptmngr_consumer() {
@@ -56,7 +56,7 @@ build_endptmngr_consumer() {
 	cp endptmngr-$profile-$endptversion-$endptcommith.tar.gz $curdir/
 	rm -rf endptmngr-open-$endptversion
 	rm -f endptmngr-$profile-$endptversion-$endptcommith.tar.gz
-	cd $curdir
+	cd "$curdir"
 }
 
 build_ice_consumer() {
@@ -73,7 +73,7 @@ build_ice_consumer() {
 	scp -pv ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
 	cp ice-client-$target-$iceversion-$icecommith.tar.gz $curdir/
 	rm -f ice-client-$target-$iceversion-$icecommith.tar.gz
-	cd $curdir
+	cd "$curdir"
 }
 
 build_mediatek_kernel() {
@@ -102,7 +102,7 @@ build_mediatek_kernel() {
 
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
 	scp -pv mediatek-kernel-open-$mediatek_commit.tar.gz $SERVER:$FPATH/
-	cd $curdir
+	cd "$curdir"
 }
 
 function print_usage {
@@ -123,7 +123,7 @@ function generate_tarballs {
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
     majver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f1 -d .)
     minver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f2 -d .)
-    curdir=$(pwd)
+    curdir="$PWD"
 
 
 	# Execute user command
