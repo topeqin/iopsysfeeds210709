@@ -13,7 +13,7 @@ build_bcmkernel_consumer() {
 	bash do_consumer_release -p $profile -y -F
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
 	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
-	scp $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
+	scp -pv $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
 	ssh $SERVER "ln -s $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz $FPATH/bcmopen-$board-$majver.$minver.tar.gz"
 	rm -f $tarfile
 	cd $curdir
@@ -31,7 +31,7 @@ build_natalie_consumer() {
 	mkdir natalie-dect-open-$natalieversion
 	cp -f ipkg-*/natalie-dect/lib/modules/*/extra/dect.ko natalie-dect-open-$natalieversion/dect.ko
 	tar -czv  natalie-dect-open-$natalieversion/ -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
-	scp natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $SERVER:$FPATH/
+	scp -pv natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $SERVER:$FPATH/
 	cp natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $curdir/
 	rm -rf natalie-dect-open-$natalieversion
 	rm -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
@@ -52,7 +52,7 @@ build_endptmngr_consumer() {
 	cp ./src/endptmngr endptmngr-open-$endptversion/src
 	cp -r ./files/ endptmngr-open-$endptversion/
 	tar -czv  endptmngr-open-$endptversion/ -f endptmngr-$profile-$endptversion-$endptcommith.tar.gz
-	scp endptmngr-$profile-$endptversion-$endptcommith.tar.gz $SERVER:$FPATH/
+	scp -pv endptmngr-$profile-$endptversion-$endptcommith.tar.gz $SERVER:$FPATH/
 	cp endptmngr-$profile-$endptversion-$endptcommith.tar.gz $curdir/
 	rm -rf endptmngr-open-$endptversion
 	rm -f endptmngr-$profile-$endptversion-$endptcommith.tar.gz
@@ -70,7 +70,7 @@ build_ice_consumer() {
 	ssh $SERVER "test -f $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
 	cd ./build_dir/target-*/ice-client-$icebasever/ipkg-* || cd ./build_dir/target-mips*musl-*/ice-client-$icebasever/ipkg-*
 	tar -czv  ice-client -f ice-client-$target-$iceversion-$icecommith.tar.gz
-	scp ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
+	scp -pv ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
 	cp ice-client-$target-$iceversion-$icecommith.tar.gz $curdir/
 	rm -f ice-client-$target-$iceversion-$icecommith.tar.gz
 	cd $curdir
@@ -101,7 +101,7 @@ build_mediatek_kernel() {
 	cd ..
 
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
-	scp mediatek-kernel-open-$mediatek_commit.tar.gz $SERVER:$FPATH/
+	scp -pv mediatek-kernel-open-$mediatek_commit.tar.gz $SERVER:$FPATH/
 	cd $curdir
 }
 
