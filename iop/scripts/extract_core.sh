@@ -24,7 +24,7 @@ function extract_core {
 		echo ""
 		echo "Example: $0 extract_core"
 		echo "  -p package/utils/busybox"
-		echo "  -r feeds/feed_inteno_openwrt"
+		echo "  -r feeds/lede_core"
 		echo "  -b devel"
 	}
 
