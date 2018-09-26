@@ -76,6 +76,7 @@ function genconfig {
 		endptAllowed=0
 		natalieAllowed=0
 		mediatekAllowed=0
+		wifilifeAllowed=0
 
 		allowedRepos="$(ssh -o ConnectTimeout=5 git@private.inteno.se 2>/dev/null | grep -w 'R\|W' | awk '{print$NF}')"
 		for repo in $allowedRepos; do
@@ -85,6 +86,7 @@ function genconfig {
 			endptcfg) endptAllowed=1 ;;
 			natalie-dect*) natalieAllowed=1 ;;
 			linux) mediatekAllowed=1 ;;
+			wifilife) wifilifeAllowed=1 ;;
 			esac
 		done
 	}
@@ -301,6 +303,7 @@ function genconfig {
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
+			[ $wifilifeAllowed -eq 0 ] && echo "# CONFIG_PACKAGE_wifilife is not set" >> .config #TODO: change to CONFIG_WIFILIFE_OPEN=y when open tarball is available
 		else
 			echo "CONFIG_GITMIRROR_REWRITE=n" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
@@ -308,6 +311,7 @@ function genconfig {
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
 			echo "CONFIG_NATALIE_OPEN=y" >> .config
 			echo "CONFIG_MEDIATEK_OPEN=y" >> .config
+			echo "# CONFIG_PACKAGE_wifilife is not set" >> .config #TODO: change to CONFIG_WIFILIFE_OPEN=y when open tarball is available
 		fi
 
 		# Force regeneration of themes
