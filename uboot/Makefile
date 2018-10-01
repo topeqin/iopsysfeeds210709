@@ -13,7 +13,7 @@ PKG_RELEASE:=5
 
 PKG_SOURCE_PROTO:=git
 
-ifdef CONFIG_TARGET_iopsys_grx
+ifdef CONFIG_TARGET_intel_mips
 PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
 PKG_SOURCE_VERSION:=505b9ebb3d3f620e46f16a9b7b364ecc64256c2f
 else
@@ -56,7 +56,7 @@ endef
 define uboot/grx500
   TITLE:=U-Boot for the grx
   UBOOT_IMG:=u-boot-nand.bin
-  DEPENDS:=@TARGET_iopsys_grx
+  DEPENDS:=@TARGET_intel_mips
 endef
 
 UBOOTS := \

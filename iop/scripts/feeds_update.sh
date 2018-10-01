@@ -35,7 +35,7 @@ function feeds_update {
     ./scripts/feeds install -p targets iopsys-brcm63xx-mips
     ./scripts/feeds install -p targets iopsys-brcm63xx-arm
     ./scripts/feeds install -p targets iopsys-ramips
-    ./scripts/feeds install -p targets_grx iopsys-grx
+    ./scripts/feeds install -p intel_targets intel_mips
 
     # install all packages
     ./scripts/feeds install -a 

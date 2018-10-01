@@ -24,7 +24,7 @@ function genconfig {
 	    local iopsys_brcm63xx_mips="cg300 cg301 dg150 dg150v2 dg150alv2 dg200 dg200al dg301 dg301al eg300 vg50 vox25 hpc_hu02 eg200"
 	    local iopsys_brcm63xx_arm="dg400 eg400 sdx810_rg f104w f104 dg400prime dg400primeb 963138REF_P502"
 	    local iopsys_ramips="ex400 sdx810_ap"
-	    local iopsys_grx="grx500"
+	    local intel_mips="easy550"
 	    local ramips="mt7621"
 
 
@@ -59,9 +59,9 @@ function genconfig {
 		fi
 	    done
 
-	    for p in $iopsys_grx; do
+	    for p in $intel_mips; do
 		if [ $p == $profile ]; then
-		    target="iopsys_grx"
+		    target="intel_mips"
 		    return
 		fi
 	    done
