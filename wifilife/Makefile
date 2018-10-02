@@ -38,10 +38,10 @@ TARGET_CFLAGS += \
 MAKE_PATH:=src
 
 define Package/wifilife/install
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/wifilife.init $(1)/etc/init.d/wifilife
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wifiagent $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/wifiagent.config $(1)/etc/config/wifiagent
 endef
 
 $(eval $(call BuildPackage,wifilife))

@@ -1,0 +1,27 @@
+#!/bin/sh /etc/rc.common
+
+START=96
+STOP=10
+PROG=/usr/sbin/wifiagent
+
+USE_PROCD=1
+
+start_service() {
+	procd_open_instance
+	procd_set_param command ${PROG} -d -l
+	procd_set_param respawn
+	procd_close_instance
+}
+
+stop_service()
+{
+	service_stop ${PROG}
+}
+
+reload_service() {
+	procd_send_signal wifiagent
+}
+
+service_triggers() {
+        procd_add_reload_trigger wifiagent
+}
