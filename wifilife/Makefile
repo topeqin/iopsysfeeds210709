@@ -8,7 +8,7 @@ PKG_NAME:=wifilife
 PKG_VERSION:=1.0.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=bb389d8e19d3f6bfc58727784151b5455de94ce3
+PKG_SOURCE_VERSION:=a9c2106bf53a4e9f5e1a773cbda0af7e54e83a09
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/wifilife.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
