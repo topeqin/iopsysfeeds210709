@@ -11,7 +11,7 @@ PKG_RELEASE:=1
 PKG_VERSION:=1.2.0
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dectmngr.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=ad9cfdfcd7e63b34905e4c22ae7e22baa44b7b5b
+PKG_SOURCE_VERSION:=0c029ed2486342e7e7687631b702d5c743f3c41a
 PKG_NAME:=dectmngr2
 
 
@@ -29,7 +29,7 @@ define Package/dectmngr2
   CATEGORY:=Utilities
   TITLE:=Dectmngr2
   URL:=
-  DEPENDS:= +natalie-dect-h bcmkernel +libubox +ubus
+  DEPENDS:= +natalie-dect-h bcmkernel +libubox +ubus +libpicoevent
 endef
 
 define Package/dectmngr2/description
