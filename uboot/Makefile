@@ -18,7 +18,7 @@ PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
 PKG_SOURCE_VERSION:=505b9ebb3d3f620e46f16a9b7b364ecc64256c2f
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
-PKG_SOURCE_VERSION:=4f8ba5a6dfe419ee243b7cb745e731e0bb0e3ae9
+PKG_SOURCE_VERSION:=a86e52439340d078f8c66a28f01e0575a24bcebd
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
