@@ -1834,7 +1834,6 @@ configure_codecs()
 configure_brcm()
 {
 	echo "Configuring BRCM"
-	local country
 	local jbenable
 	local jbforce
 	local jbmaxsize
@@ -1843,8 +1842,6 @@ configure_brcm()
 	local dialoutmsec
 	local fac
 
-#	config_get country BRCM country
-country=""
 	config_get jbenable BRCM jbenable
 	config_get jbforce BRCM jbforce
 	config_get jbmaxsize BRCM jbmaxsize
@@ -1861,7 +1858,6 @@ country=""
 		dialoutmsec=4000
 	fi
 
-	sed -i "s/|COUNTRY|/$country/"				$WORKDIR/brcm.tmp
 	sed -i "s/|JBENABLE|/$jbenable/"			$WORKDIR/brcm.tmp
 	sed -i "s/|JBFORCE|/$jbforce/"				$WORKDIR/brcm.tmp
 	sed -i "s/|JBMAXSIZE|/$jbmaxsize/"			$WORKDIR/brcm.tmp
@@ -1885,16 +1881,6 @@ configure_brcm_line()
 	echo "Configuring BRCM line $1"
 	local extension
 	local sip_provider
-	local ptime
-	local silence
-	local ecan
-	local noise
-	local jitter_fixed
-	local jitter_min
-	local jitter_max
-	local jitter_target
-	local txgain
-	local rxgain
 	local codecs
 	local is_fax
 	local autodial
@@ -1907,26 +1893,6 @@ configure_brcm_line()
 
 	config_get extension $1 extension
 	config_get sip_provider $1 sip_account
-#	config_get ptime $1 ptime
-ptime=0
-#	config_get silence $1 vad
-vad=0
-#	config_get ecan $1 echo_cancel
-echo_cancel=0
-#	config_get noise $1 noise
-noise=0
-#	config_get jitter_fixed $1 jitter_fixed
-jitter_fixed=0
-#	config_get jitter_min $1 jitter_min
-jitter_min=0
-#	config_get jitter_max $1 jitter_max
-jitter_max=0
-#	config_get jitter_target $1 jitter_target
-jitter_target=0
-#	config_get txgain $1 txgain
-txgain=0
-#	config_get rxgain $1 rxgain
-rxgain=0
 	config_get autodial $1 autodial
 	config_get autodial_timeout $1 autodial_timeout
 	config_get dialtone_timeout $1 dialtone_timeout
@@ -1962,16 +1928,6 @@ rxgain=0
 	sed -i "s/|SECTION|/$1/"				$WORKDIR/brcm_line.tmp
 	sed -i "s/|CALLERID|/$extension/g"			$WORKDIR/brcm_line.tmp
 	sed -i "s/|CONTEXT|/$sip_provider/g"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|PERIOD|/$ptime/"				$WORKDIR/brcm_line.tmp
-	sed -i "s/|SILENCE|/$silence/"				$WORKDIR/brcm_line.tmp
-	sed -i "s/|ECHOCANCEL|/$ecan/"				$WORKDIR/brcm_line.tmp
-	sed -i "s/|COMFORTNOISE|/$noise/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|JITTERFIXED|/$jitter_fixed/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|JITTERMIN|/$jitter_min/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|JITTERMAX|/$jitter_max/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|JITTERTARGET|/$jitter_target/"		$WORKDIR/brcm_line.tmp
-	sed -i "s/|TXGAIN|/$txgain/"				$WORKDIR/brcm_line.tmp
-	sed -i "s/|RXGAIN|/$rxgain/"				$WORKDIR/brcm_line.tmp
 	sed -i "s/|DIALTONE_EXTENSION_HINT|/$1/"		$WORKDIR/brcm_line.tmp
 	sed -i "s/|AUTODIAL|/$autodial/"			$WORKDIR/brcm_line.tmp
 	sed -i "s/|AUTODIAL_TIMEOUT|/$autodial_timeout/"	$WORKDIR/brcm_line.tmp
