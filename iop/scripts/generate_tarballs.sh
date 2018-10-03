@@ -14,7 +14,7 @@ build_bcmkernel_consumer() {
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
 	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
 	scp -pv $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
-	ssh $SERVER "ln -s $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz $FPATH/bcmopen-$board-$majver.$minver.tar.gz"
+	ssh $SERVER "[ -f $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz ] && ln -sf $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz $FPATH/bcmopen-$board-$majver.$minver.tar.gz"
 	rm -f $tarfile
 	cd "$curdir"
 }
