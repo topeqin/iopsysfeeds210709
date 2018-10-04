@@ -25,7 +25,8 @@ else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
 QUESTD_TARGET:=-DIOPSYS_BROADCOM
 else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
 QUESTD_TARGET:=-DIOPSYS_MARVELL
-else ifeq ($(CONFIG_TARGET_iopsys_grx),y)
+else ifeq ($(CONFIG_TARGET_intel_mips),y)
+# BUG FIXME the Intel mips target is not handled in questd this is just to get it to compile
 QUESTD_TARGET:=-DIOPSYS_BROADCOM
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 QUESTD_TARGET:=-DIOPSYS_MEDIATEK

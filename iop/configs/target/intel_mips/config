@@ -12,6 +12,8 @@ CONFIG_GCC_USE_VERSION_6=y
 CONFIG_LIBC_USE_MUSL=y
 
 
+# CONFIG_PACKAGE_ppp-mod-pppoa is not set
+
 # the options below this point is wrong but packages wont compile
 
 # CONFIG_PACKAGE_icwmp-curl is not set
