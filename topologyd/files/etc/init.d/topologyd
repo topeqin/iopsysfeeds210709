@@ -7,9 +7,15 @@ USE_PROCD=1
 
 start_service() {
 	procd_open_instance
-	config_load topologyd 
-	procd_set_param command "/sbin/topologyd"
-	procd_append_param command --root
+	config_load owsd
+	config_get enable ubusproxy enable
+        procd_set_param command "/sbin/topologyd"
+
+	if [ "$enable" ]
+	then
+		procd_append_param command --root
+	fi
+
 	procd_set_param respawn
 	procd_set_param stdout 1
 	procd_set_param stderr 1
