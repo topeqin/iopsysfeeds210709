@@ -76,6 +76,23 @@ build_ice_consumer() {
 	cd "$curdir"
 }
 
+build_wifilife_consumer() {
+	local ver commit
+	ver=$(grep -w "PKG_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
+	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
+	[ -n "$ver" -a -n "$commit" ] || return
+	ssh $SERVER "test -f $FPATH/wifilife-${ver}_${commit}.tar.xz" && return
+	cd ./build_dir/target-*/wifilife-$ver/ipkg-* || cd ./build_dir/target-mips*musl-*/wifilife-$ver/ipkg-*
+	cp -rf wifilife wifilife-open-$ver
+	rm -rf wifilife-open-$ver/CONTROL/
+	tar Jcf wifilife-open-${ver}_${commit}.tar.xz wifilife-open-$ver
+	scp -pv wifilife-open-${ver}_${commit}.tar.xz $SERVER:$FPATH/
+	cp wifilife-open-${ver}_${commit}.tar.xz $curdir/
+	rm -rf wifilife-open-$ver
+	rm -f wifilife-open-${ver}_${commit}.tar.xz
+	cd "$curdir"
+}
+
 build_mediatek_kernel() {
 	local mediatek_commit kernel_version kernel
 
@@ -153,9 +170,11 @@ function generate_tarballs {
 		build_natalie_consumer
 		build_endptmngr_consumer
 		build_ice_consumer
+		build_wifilife_consumer
 	elif [ "$stk_target" == "mediatek" ]; then
 		build_mediatek_kernel
 		build_ice_consumer		
+		build_wifilife_consumer
 	else
 		echo "Invalid target: $stk_target"
 		print_usage
