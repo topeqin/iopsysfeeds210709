@@ -441,7 +441,7 @@ check_packages()
 
 feeds_hash()
 {
-    grep -v "^#" feeds.conf | grep "$1 " | grep "\^" | sed -e "s/.*[;^]\(.*\)/\1/"
+    grep -v "^#" feeds.conf | grep " $1 " | grep "\^" | sed -e "s/.*[;^]\(.*\)/\1/"
 }
 
 insert_feed_hash_in_feeds_config()
