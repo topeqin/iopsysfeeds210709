@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=questd
 PKG_VERSION:=3.1.40
 
-PKG_SOURCE_VERSION:=ce933c4956293d0e65e7fdf471b72896431d2bc5
+PKG_SOURCE_VERSION:=48da42f05c4b8c9d0d5a656932ba77d37bb2e573
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/questd
 
