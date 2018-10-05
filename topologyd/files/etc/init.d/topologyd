@@ -11,7 +11,7 @@ start_service() {
 	config_get enable ubusproxy enable
         procd_set_param command "/sbin/topologyd"
 
-	if [ "$enable" ]
+	if [ "$enable" == "1" ]
 	then
 		procd_append_param command --root
 	fi
