@@ -18,7 +18,6 @@ else
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/wifilife.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(BASE_PKG_VERSION)
 endif
 
 include $(INCLUDE_DIR)/package.mk
@@ -43,9 +42,8 @@ endef
 ifeq ($(CONFIG_WIFILIFE_OPEN),y)
 define Build/Compile
 endef
-define Package/wifilife/install
-endef
-else
+endif
+
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
 	-I$(STAGING_DIR)/usr/include/libnl3 \
@@ -59,6 +57,5 @@ define Package/wifilife/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wifiagent $(1)/usr/sbin/
 endef
-endif
 
 $(eval $(call BuildPackage,wifilife))
