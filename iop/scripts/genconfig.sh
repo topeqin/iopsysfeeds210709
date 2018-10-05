@@ -303,7 +303,7 @@ function genconfig {
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
-			[ $wifilifeAllowed -eq 0 ] && echo "CONFIG_PACKAGE_wifilife=y" >> .config
+			[ $wifilifeAllowed -eq 0 ] && echo "CONFIG_WIFILIFE_OPEN=y" >> .config
 		else
 			echo "CONFIG_GITMIRROR_REWRITE=n" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
@@ -311,7 +311,7 @@ function genconfig {
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
 			echo "CONFIG_NATALIE_OPEN=y" >> .config
 			echo "CONFIG_MEDIATEK_OPEN=y" >> .config
-			echo "CONFIG_PACKAGE_wifilife=y" >> .config
+			echo "CONFIG_WIFILIFE_OPEN=y" >> .config
 		fi
 
 		# Force regeneration of themes
