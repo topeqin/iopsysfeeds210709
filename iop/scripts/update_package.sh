@@ -387,7 +387,7 @@ insert_hash_in_feeds_config()
     local feed=$(get_feed_name ${PKG_DIR})
     local TO=$(cd ${PKG_DIR}; git rev-parse HEAD)
 
-    sed -i feeds.conf -e "/${feed}/ s/\(.*\)[;^].*/\1^${TO}/"
+    sed -i feeds.conf -e "/ ${feed} / s/\(.*\)[;^].*/\1^${TO}/"
     git add feeds.conf
 }
 
