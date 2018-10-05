@@ -36,6 +36,10 @@ define Package/wifilife/description
  802.11k,v and r.
 endef
 
+define Package/wifilife/config
+	source "$(SOURCE)/Config.in"
+endef
+
 ifeq ($(CONFIG_WIFILIFE_OPEN),y)
 define Build/Compile
 endef
