@@ -13,7 +13,7 @@ config interface 'wan'
 	option type 'bridge'
 	option ifname 'eth0.2 eth0.1'
 	option proto 'dhcp'
-	option hostname 'Inteno-$BSSID4'
+	option hostname 'iopsys-$MAC'
 	option reqopts '66 67 128 224'
 	option igmp_snooping '0'
 

@@ -34,7 +34,7 @@ disable_firewall() {
 	/etc/init.d/firewall reload
 }
 
-is_inteno_macaddr()
+is_known_macaddr()
 {
 	macaddr=$1
 

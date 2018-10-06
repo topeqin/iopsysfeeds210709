@@ -23,7 +23,7 @@ config wifi-iface
 	option device   ra0
 	option network  wan
 	option mode     ap
-	option ssid     Inteno-$BSSID4
+	option ssid     iopsys-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
 	option ifname	ra0
@@ -42,7 +42,7 @@ config wifi-iface
 	option device   rai0
 	option network  wan
 	option mode     ap
-	option ssid     Inteno-$BSSID4
+	option ssid     iopsys-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
 	option ifname	rai0
@@ -52,7 +52,7 @@ config wifi-iface
 	option device   rai0
 	option network  wan
 	option mode     wet
-	option ssid     Inteno-$BSSID4
+	option ssid     iopsys-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
 	option ifname	apclii0
