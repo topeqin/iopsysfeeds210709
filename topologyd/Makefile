@@ -10,7 +10,7 @@ PKG_VERSION:=0.1
 
 PKG_SOURCE_VERSION:=7cae7d079eb2d1d990e94274258afe1d36dade19
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/topologyd.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/topologyd.git
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
