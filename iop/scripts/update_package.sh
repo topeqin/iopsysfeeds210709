@@ -495,57 +495,59 @@ check_feeds()
     feeds=$(grep -v "^#" feeds.conf| awk '{print $2}')
     for feed in `echo $feeds`
     do
-	feed_hash=$(feeds_hash $feed)
-	in_git=$(cd feeds/$feed; git rev-parse HEAD)
+		feed_hash=$(feeds_hash $feed)
+		if [ -d feeds/$feed ]; then
+			in_git=$(cd feeds/$feed; git rev-parse HEAD)
 
-	if [ "$feed_hash" != "$in_git" ]
-	then
+			if [ "$feed_hash" != "$in_git" ]
+			then
 
-	    name=$(cd feeds/$feed;git symbolic-ref -q HEAD)
-	    if [ -z "$name" ]
-	    then
-		echo "Feed feeds/${feed} is at a git commit which is different from feeds.conf"
-		#echo "git id from feeds.conf [$feed_hash] git id from feeds/${feed} [$in_git]"
-		on_a_branch feeds/${feed} feed
+				name=$(cd feeds/$feed;git symbolic-ref -q HEAD)
+				if [ -z "$name" ]
+				then
+					echo "Feed feeds/${feed} is at a git commit which is different from feeds.conf"
+					#echo "git id from feeds.conf [$feed_hash] git id from feeds/${feed} [$in_git]"
+					on_a_branch feeds/${feed} feed
 
-		#redo the test here and see if the feeds.conf and git is still different.
-		in_git=$(cd feeds/$feed; git rev-parse HEAD)
-		if [ "$feed_hash" = "$in_git" ]
-		then
-		    continue
+					#redo the test here and see if the feeds.conf and git is still different.
+					in_git=$(cd feeds/$feed; git rev-parse HEAD)
+					if [ "$feed_hash" = "$in_git" ]
+					then
+						continue
+					fi
+				fi
+
+				LOCAL=$(cd feeds/$feed;git rev-parse @)
+				REMOTE=$(cd feeds/$feed;git rev-parse @{u})
+				BASE=$(cd feeds/$feed;git merge-base @ @{u})
+
+				# if we are behind the remote automatically do a pull
+				if [ $LOCAL = $BASE ]; then
+					(cd feeds/$feed ; git pull 1>/dev/null)
+
+					#redo the test here and see if the feeds.conf and git is still different.
+					in_git=$(cd feeds/$feed; git rev-parse HEAD)
+					if [ "$feed_hash" = "$in_git" ]
+					then
+						continue
+					fi
+				fi
+
+				echo "Feed feeds/${feed} is at different commit than what is in feeds.conf"
+				#echo "git id from feeds.conf [$feed_hash] git id from feeds/${feed} [$in_git]"
+				echo -n "Should we update feeds.conf to reflect the new version ? [y/N]:"
+				read answer
+
+				case $answer in
+					n|N|'')
+						continue;;
+				esac
+				branch_uptodate feeds/${feed}
+				create_feed_message ${feed} $feed_hash $in_git  >tmp/msg
+				insert_feed_hash_in_feeds_config ${feed}
+				commit_feeds_config tmp/msg
+			fi
 		fi
-	    fi
-
-	    LOCAL=$(cd feeds/$feed;git rev-parse @)
-	    REMOTE=$(cd feeds/$feed;git rev-parse @{u})
-	    BASE=$(cd feeds/$feed;git merge-base @ @{u})
-
-	    # if we are behind the remote automatically do a pull
-	    if [ $LOCAL = $BASE ]; then
-		(cd feeds/$feed ; git pull 1>/dev/null)
-
-		#redo the test here and see if the feeds.conf and git is still different.
-		in_git=$(cd feeds/$feed; git rev-parse HEAD)
-		if [ "$feed_hash" = "$in_git" ]
-		then
-		    continue
-		fi
-	    fi
-
-	    echo "Feed feeds/${feed} is at different commit than what is in feeds.conf"
-	    #echo "git id from feeds.conf [$feed_hash] git id from feeds/${feed} [$in_git]"
-	    echo -n "Should we update feeds.conf to reflect the new version ? [y/N]:"
-	    read answer
-
-	    case $answer in
-		n|N|'')
-		    continue;;
-	    esac
-	    branch_uptodate feeds/${feed}
-	    create_feed_message ${feed} $feed_hash $in_git  >tmp/msg
-	    insert_feed_hash_in_feeds_config ${feed}
-	    commit_feeds_config tmp/msg
-	fi
     done
 }
 
