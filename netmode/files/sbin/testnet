@@ -51,6 +51,11 @@ ping_uplink()
 	elif [ "$hasmode" == "1" ]; then
 		arping -f -q -c1 -w3 -I $device $ipaddr
 		[ $? -eq 1 ] && rv=0 || rv=1
+
+		if [ "$rv" == "0" ]; then
+			ping -c2 -w5 $ipaddr >/dev/null
+			[ $? -eq 1 ] && rv=0 || rv=1
+		fi
 	else
 		SLEEP_TIME=5
 		ubus call led.internet  set '{"state" : "off"}'
