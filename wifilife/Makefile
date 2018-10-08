@@ -54,6 +54,9 @@ MAKE_PATH:=src
 define Package/wifilife/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/wifilife.init $(1)/etc/init.d/wifilife
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/etc/uci-defaults/997-wifilife-add-owsd-wifi \
+				$(1)/etc/uci-defaults/997-wifilife-add-owsd-wifi
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wifiagent $(1)/usr/sbin/
 endef
