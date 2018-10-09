@@ -83,12 +83,12 @@ build_wifilife_consumer() {
 	[ -n "$ver" -a -n "$commit" ] || return
 	ssh $SERVER "test -f $FPATH/wifilife-$target-${ver}_${commit}.tar.xz" && return
 	cd ./build_dir/target-*/wifilife-$ver/ipkg-* || cd ./build_dir/target-mips*musl-*/wifilife-$ver/ipkg-*
-	mkdir -p wifilife-${target}-$ver/src
-	cp -rf wifilife/usr/sbin/* wifilife-${target}-$ver/src/
-	tar Jcf wifilife-${target}-${ver}_${commit}.tar.xz wifilife-${target}-$ver
+	mkdir -p wifilife-$ver/src
+	cp -rf wifilife/usr/sbin/* wifilife-$ver/src/
+	tar Jcf wifilife-${target}-${ver}_${commit}.tar.xz wifilife-$ver
 	scp -pv wifilife-$target-${ver}_${commit}.tar.xz $SERVER:$FPATH/
 	cp wifilife-${target}-${ver}_${commit}.tar.xz $curdir/
-	rm -rf wifilife-${target}-$ver
+	rm -rf wifilife-$ver
 	rm -f wifilife-${target}-${ver}_${commit}.tar.xz
 	cd "$curdir"
 }
