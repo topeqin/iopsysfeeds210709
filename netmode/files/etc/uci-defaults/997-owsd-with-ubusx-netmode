@@ -1,0 +1,13 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+add_owsd_ubusproxy_object_netmode() {
+	local netmd=$(uci -q get owsd.ubusproxy.object | grep netmode)
+	if [ -z "$netmd" ]; then
+		uci -q add_list owsd.ubusproxy.object="netmode"
+		uci commit owsd
+	fi
+}
+
+add_owsd_ubusproxy_object_netmode
