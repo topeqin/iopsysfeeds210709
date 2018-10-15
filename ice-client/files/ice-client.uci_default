@@ -7,7 +7,8 @@ grep -rq "^ice:" /etc/passwd || {
 uci -q delete passwords.ice
 uci -q set passwords.ice=usertype
 uci -q set passwords.ice.password="\$WPAKEY"
-uci -q add_list passwords.ice._access_r=root
+uci -q del_list passwords.ice._access_w=root
+uci -q add_list passwords.ice._access_w=root
 uci -q commit passwords
 
 uci show rpcd | grep username=.*ice.* >/dev/null || {
@@ -16,7 +17,7 @@ cat >> /etc/config/rpcd << EOF
 config login
 	option username 'ice'
 	option password '\$p\$ice'
-	list _access_r 'none'
+	list _access_w 'none'
 	list write 'user-user'
 	list write 'juci-broadcom-dsl'
 	list write 'juci-broadcom-dsl-admin'
