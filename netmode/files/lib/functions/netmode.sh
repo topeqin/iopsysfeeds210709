@@ -171,8 +171,12 @@ switch_netmode() {
 	run_netmode_scripts $curmode "pre"
 
 	logger -s -p user.info -t $0 "[netmode] Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
-	cp /etc/netmodes/$curmode/* /etc/config/
-	rm -f /etc/config/DETAILS
+	for file in $(ls /etc/netmodes/$curmode/); do
+		case "$file" in
+			DETAILS|scripts) continue ;;
+		esac
+		cp /etc/netmodes/$curmode/$file /etc/config/
+	done
 	sync
 
 	local reboot=$(uci -q get netmode.$curmode.reboot)
