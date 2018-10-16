@@ -107,6 +107,18 @@ correct_uplink() {
 	fi
 }
 
+run_netmode_scripts() {
+	local mode=$1
+	local when=$2
+	local script
+	if [ -d /etc/netmodes/$mode/scripts/$when ]; then
+		logger -s -p user.info -t $0 "[netmode] Executing $when netmode scripts" >/dev/console
+		for script in $(ls /etc/netmodes/$mode/scripts/$when/); do
+			sh /etc/netmodes/$mode/scripts/$when/$script
+		done
+	fi
+}
+
 switch_netmode() {
 	local newmode="$1"
 
@@ -155,6 +167,9 @@ switch_netmode() {
         echo $curmode >$OLD_MODE_FILE
 
 	[ -d "/etc/netmodes/$curmode" ] || return
+
+	run_netmode_scripts $curmode "pre"
+
 	logger -s -p user.info -t $0 "[netmode] Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
 	cp /etc/netmodes/$curmode/* /etc/config/
 	rm -f /etc/config/DETAILS
@@ -163,6 +178,7 @@ switch_netmode() {
 	local reboot=$(uci -q get netmode.$curmode.reboot)
 
 	if [ "$reboot" != "0" ]; then
+		run_netmode_scripts $curmode "post"
 		reboot &
 		exit
 	fi
@@ -188,6 +204,8 @@ switch_netmode() {
 			ubus call uci commit '{"config":"network"}'
 		;;
 	esac
+
+	run_netmode_scripts $curmode "post"
 }
 
 wificontrol_takes_over() {
