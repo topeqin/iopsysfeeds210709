@@ -3,3 +3,7 @@ config mode 'setup'
         option detail ''
         option curmode 'routed'
 
+config tools 'tools'
+	option wificontrol 1
+	option arp_discovery 1
+

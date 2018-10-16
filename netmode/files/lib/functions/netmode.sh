@@ -421,17 +421,19 @@ populate_netmodes() {
 }
 
 start_netmode_tools() {
-	local curmode repeaterready
+	local curmode repeaterready wificontrol discover
 
 	killall -9 wificontrol >/dev/null 2>&1
 	killall -9 netmode-discover >/dev/null 2>&1
 
 	config_load netmode
 	config_get_bool repeaterready setup repeaterready 0
+	config_get_bool wificontrol tools wificontrol 1
+	config_get_bool arp_discovery tools arp_discovery 1
 
 	[ $repeaterready -eq 1 ] && {
-		/sbin/netmode-discover &
-		/sbin/wificontrol --repeater &
+		[ $arp_discovery -eq 1 ] && /sbin/netmode-discover &
+		[ $wificontrol -eq 1 ] && /sbin/wificontrol --repeater &
 		return
 	}
 
@@ -439,8 +441,8 @@ start_netmode_tools() {
 
 	case "$curmode" in
 		repeater*)
-			/sbin/netmode-discover &
-			/sbin/wificontrol --repeater &
+			[ $arp_discovery -eq 1 ] && /sbin/netmode-discover &
+			[ $wificontrol -eq 1 ] && /sbin/wificontrol --repeater &
 		;;
 	esac
 }
