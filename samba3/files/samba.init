@@ -80,6 +80,12 @@ smb_header() {
 	config_get description $1 description "Samba on ${hostname:-OpenWrt}"
 	config_get charset     $1 charset     "UTF-8"
 
+	name=`echo -e "$name" | head -1`
+	workgroup=`echo -e "$workgroup" | head -1`
+	description=`echo -e "$description" | head -1`
+	interfaces=`echo -e "$interfaces" | head -1`
+	charset=`echo -e "$charset" | head -1`
+
 	mkdir -p /var/etc
 	sed -e "s#|NAME|#$name#g" \
 	    -e "s#|WORKGROUP|#$workgroup#g" \
@@ -138,13 +144,13 @@ smb_add_share() {
 	path=$(readlink -f $path)
 	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"
 
-	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/smb.conf
-	[ -n "$users" ] && echo -e "\tvalid users = $users" >> /var/etc/smb.conf
-	[ -n "$read_only" ] && echo -e "\tread only = $read_only" >> /var/etc/smb.conf
-	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" >> /var/etc/smb.conf
-	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" >> /var/etc/smb.conf
-	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" >> /var/etc/smb.conf
-	[ -n "$browseable" ] && echo -e "\tbrowseable = $browseable" >> /var/etc/smb.conf
+	echo -e "\n[$name]\n\tpath = ${path%%\\n*}" >> /var/etc/smb.conf
+	[ -n "$users" ] && echo -e "\tvalid users = $users" | head -1 >> /var/etc/smb.conf
+	[ -n "$read_only" ] && echo -e "\tread only = $read_only" | head -1 >> /var/etc/smb.conf
+	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" | head -1 >> /var/etc/smb.conf
+	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" | head -1 >> /var/etc/smb.conf
+	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" | head -1 >> /var/etc/smb.conf
+	[ -n "$browseable" ] && echo -e "\tbrowseable = $browseable" | head -1 >> /var/etc/smb.conf
 }
 
 start_service() {
