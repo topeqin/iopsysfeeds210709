@@ -91,8 +91,13 @@ correct_uplink() {
 		wetcfg="$(get_wifi_iface_cfgstr $WETIF)"
 		wetnet="$(uci -q get $wetcfg.network)"
 		wetmac="$(ifconfig $WETIF | grep HWaddr | awk '{print$NF}')"
+		ethwanmac="$(ifconfig $WANDEV | grep HWaddr | awk '{print$NF}')"
 		if [ -d /sys/class/net/br-$wetnet ]; then
-			ifconfig br-$wetnet hw ether $wetmac
+			if [ "$link" == "up" ]; then
+				ifconfig br-$wetnet hw ether $ethwanmac
+			else
+				ifconfig br-$wetnet hw ether $wetmac
+			fi
 			#touch -f /tmp/netmodes/uplink-macaddr-corrected
 		fi
 	fi
