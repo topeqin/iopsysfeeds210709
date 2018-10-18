@@ -9,7 +9,7 @@ PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=cdd71af8ae7f8ab1397e6b4c266c23f068d9c96e
+PKG_SOURCE_VERSION:=259178b62ba910f53ec10899ef52bbc670b7aea5
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 
