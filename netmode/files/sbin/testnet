@@ -133,7 +133,8 @@ ping_uplink()
 	else
 		grep -q "true" /tmp/internet_connection_status 2>/dev/null || logger -s -p user.info -t "testnet" "Uplink connection is gained" >/dev/console
 		echo "{ \"online\" : true }" > /tmp/internet_connection_status
-		ubus call led.internet  set '{"state" : "eok"}'
+		leden="$(uci -q get leds.internet.enable)"
+		[ "$leden" == "1" ] && ubus call led.internet  set '{"state" : "eok"}'
 
 		SLEEP_TIME=5
 
