@@ -14,6 +14,22 @@ CONFIG_LIBC_USE_MUSL=y
 
 # CONFIG_PACKAGE_ppp-mod-pppoa is not set
 
+
+#################### DSL related
+CONFIG_PACKAGE_dsl-cpe-control-vrx=y
+CONFIG_dsl-cpe-mei-vrx_DEVICE_VR11=y
+CONFIG_dsl-cpe-mei-vrx_IRQ_POLLING_ACTIVE=y
+CONFIG_PACKAGE_kmod-dsl-cpe-mei-vrx=y
+CONFIG_PACKAGE_ifxos=y
+CONFIG_PACKAGE_kmod-directconnect-dp=y
+CONFIG_PACKAGE_kmod-vrx518_tc_drv=y
+CONFIG_PACKAGE_vrx518_aca_fw=y
+CONFIG_PACKAGE_vrx518_ppe_fw=y
+CONFIG_dsl-cpe-api-vrx_MODEL_DEBUG=y
+CONFIG_dsl-cpe-control-vrx_DTI=y
+CONFIG_dsl-cpe-control-vrx_MODEL_DEBUG=y
+#################### DSL related end
+
 # the options below this point is wrong but packages wont compile
 
 # CONFIG_PACKAGE_icwmp-curl is not set
