@@ -25,7 +25,8 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSI
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 
-PKG_BUILD_PARALLEL:=1
+# u-boot for mips_intel do not build in parallel. 
+#PKG_BUILD_PARALLEL:=1
 
 # we currently do not use OpenWRT u_boot make files
 #include $(INCLUDE_DIR)/u-boot.mk
