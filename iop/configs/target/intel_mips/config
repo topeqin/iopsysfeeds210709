@@ -14,6 +14,8 @@ CONFIG_LIBC_USE_MUSL=y
 
 # CONFIG_PACKAGE_ppp-mod-pppoa is not set
 
+#################### switch related
+CONFIG_PACKAGE_switch_cli_ugw8=y
 
 #################### DSL related
 CONFIG_PACKAGE_dsl-cpe-control-vrx=y
