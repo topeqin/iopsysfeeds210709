@@ -63,5 +63,9 @@ config login
 EOF
 }
 
+uci -q del_list dhcp.@domain[0].name="inteno.lan"
+uci -q add_list dhcp.@domain[0].name="inteno.lan"
+uci -q commit dhcp
+
 exit 0
 
