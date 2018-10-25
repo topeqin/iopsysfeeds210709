@@ -20,9 +20,12 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/topologyd
 	CATEGORY:=Utilities
-	DEPENDS:=+libubox +ubus +libpthread +libopenssl +libnl-genl +libnl +libuci
+	DEPENDS:=+libubox +ubus +libpthread +libopenssl +libnl-genl +libnl +libuci +libwifi
 	TITLE:=topology daemon
 endef
+
+TARGET_CFLAGS += \
+	-I$(STAGING_DIR)/usr/include
 
 define Package/topologyd/description
 	gathers topology information and presents it as json structure
