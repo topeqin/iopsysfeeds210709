@@ -71,7 +71,7 @@ astsbindir => /usr/sbin
 documentation_language = en_US	; Set the language you want documentation
 				; displayed in. Value is in the same format as
 				; locale names.
-;hideconnect = yes		; Hide messages displayed when a remote console
+hideconnect = yes		; Hide messages displayed when a remote console
 				; connects and disconnects.
 ;lockconfdir = no		; Protect the directory containing the
 				; configuration files (/etc/asterisk) with a
