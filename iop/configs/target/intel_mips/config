@@ -17,6 +17,13 @@ CONFIG_LIBC_USE_MUSL=y
 #################### switch related
 CONFIG_PACKAGE_switch_cli_ugw8=y
 
+#################### ppa related
+CONFIG_PACKAGE_ppacmd=y
+# CONFIG_PACKAGE_kmod-ppa-drv-gre is not set
+# CONFIG_PACKAGE_kmod-ppa-drv-grx500-eth-bond is not set
+# CONFIG_PACKAGE_kmod-ppa-drv-grx500-mpe is not set
+# CONFIG_PACKAGE_kmod-ppa-drv-mpe-ip97 is not set
+
 #################### DSL related
 CONFIG_PACKAGE_dsl-cpe-control-vrx=y
 CONFIG_dsl-cpe-mei-vrx_DEVICE_VR11=y
