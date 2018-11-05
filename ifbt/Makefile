@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=ifbt
 PKG_VERSION:=0.1
 
-PKG_SOURCE_VERSION:=92a07d9c46ccda246fc143e7a007f52d05f0ca39
+PKG_SOURCE_VERSION:=18cfe549be80b4f5448a1850e1798e0a899bd28a
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/ifbt.git
 
