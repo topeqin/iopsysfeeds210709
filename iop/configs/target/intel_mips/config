@@ -59,3 +59,6 @@ CONFIG_FEATURE_LTQ_WAVE_500B=y
 # CONFIG_PACKAGE_libcgroup is not set
 # CONFIG_PACKAGE_libcgroup-daemon is not set
 # CONFIG_PACKAGE_libdatamodel is not set
+
+# CONFIG_TARGET_ROOTFS_INITRAMFS is not set
+# CONFIG_TARGET_ROOTFS_SQUASHFS is not set
