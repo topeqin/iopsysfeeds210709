@@ -23,6 +23,7 @@ CONFIG_PACKAGE_ppacmd=y
 # CONFIG_PACKAGE_kmod-ppa-drv-grx500-eth-bond is not set
 # CONFIG_PACKAGE_kmod-ppa-drv-grx500-mpe is not set
 # CONFIG_PACKAGE_kmod-ppa-drv-mpe-ip97 is not set
+CONFIG_PACKAGE_mcast-pa=y
 
 #################### DSL related
 CONFIG_PACKAGE_dsl-cpe-control-vrx=y
