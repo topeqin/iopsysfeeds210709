@@ -8,12 +8,15 @@ PKG_NAME:=easy-soc-libs
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
+LOCAL_DEV=1
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=87ad01a06b7898ae45e94444e0caa7e2cc264cc8
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
-
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
+endif
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -39,6 +42,7 @@ endef
 define Package/libdsl
   $(call Package/easy-soc-libs)
   TITLE:= XDSL library (libdsl)
+  DEPENDS:=+dsl-cpe-api-vrx +dsl-cpe-fapi
 endef
 
 define Package/libethernet
@@ -64,7 +68,7 @@ else ifeq ($(CONFIG_TARGET_intel_mips),y)
   TARGET_PLATFORM=INTEL
   TARGET_CFLAGS +=-DIOPSYS_INTEL
 else
-  $(info (UNEXPECTED CONFIG TARGET))
+  $(info Unexpected CONFIG_TARGET)
 endif
 
 ifdef CONFIG_IOP_LLA_LIBS_DEBUG
@@ -81,11 +85,17 @@ TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include/libnl3
 
 MAKE_FLAGS += \
-	CFLAGS="$(TARGET_CFLAGS)" \
+	CFLAGS="$(TARGET_CFLAGS) -Wall -I./" \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
 	FPIC="$(FPIC)" \
 	PLATFORM="$(TARGET_PLATFORM)" \
 	subdirs="$(subdirs)"
+
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+	rsync -r --exclude=.* ~/git/easy-soc-libs/ $(PKG_BUILD_DIR)/
+endef
+endif
 
 define Build/InstallDev/libwifi
 	$(INSTALL_DIR) $(1)/usr/include

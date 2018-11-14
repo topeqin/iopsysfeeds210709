@@ -10,11 +10,14 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=dslmngr
 PKG_VERSION:=1.0.0
 
+LOCAL_DEV=1
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=4dca0fd11b75debe3661a5a399d198ebef6fcb0e
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dslmngr.git
-
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+endif
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -23,7 +26,7 @@ define Package/dslmngr
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=XDSL status and configration utility
-  DEPENDS:=+libdsl +libuci +libubox +ubus +libpthread +libnl-genl
+  DEPENDS:=+libdsl +libuci +libubox +ubus +libpthread +libnl-genl +dsl-cpe-control-vrx
 endef
 
 define Package/dslmngr/description
@@ -41,6 +44,12 @@ MAKE_FLAGS += \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
 	FPIC="$(FPIC)"
 
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+	rsync -r --exclude=.* ~/git/dslmngr/ $(PKG_BUILD_DIR)/
+endef
+endif
+
 define Build/Compile
 	+$(MAKE_VARS) $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS)
 endef
@@ -48,7 +57,6 @@ endef
 define Package/dslmngr/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dslmngr $(1)/sbin/
-	$(CP) ./files/* $(1)/
 endef
 
 $(eval $(call BuildPackage,dslmngr))
