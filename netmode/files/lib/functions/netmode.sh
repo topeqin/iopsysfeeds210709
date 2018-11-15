@@ -104,9 +104,13 @@ correct_uplink() {
 
 	if [ "$link" == "up" ]; then
 		ubus call network.device set_state "{\"name\":\"$WETIF\", \"defer\":true}"
+		ifconfig $WETIF down
+		echo ethernet > /tmp/netmodes/uplink_type
 		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":false}"
 	else
 		ubus call network.device set_state "{\"name\":\"$WETIF\", \"defer\":false}"
+		ifconfig $WETIF up
+		echo wireless > /tmp/netmodes/uplink_type
 		ubus call network.device set_state "{\"name\":\"$WANDEV\", \"defer\":true}"
 		ubus call led.internet  set '{"state" : "notice"}'
 	fi
