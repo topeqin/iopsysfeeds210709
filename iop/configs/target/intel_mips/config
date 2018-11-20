@@ -38,6 +38,8 @@ CONFIG_PACKAGE_vrx518_ppe_fw=y
 CONFIG_dsl-cpe-api-vrx_MODEL_DEBUG=y
 CONFIG_dsl-cpe-control-vrx_DTI=y
 CONFIG_dsl-cpe-control-vrx_MODEL_DEBUG=y
+# yes intel dsl script need this.
+CONFIG_BUSYBOX_CONFIG_USLEEP=y
 #################### DSL related end
 
 #################### WIFI related
