@@ -27,7 +27,20 @@ function genconfig {
 	    local intel_mips="easy550 easy350 easy550_anywan_smart3board"
 	    local ramips="mt7621"
 
-
+	    if [ "$profile" == "LIST" ]
+	    then
+		for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips intel_mips
+		do
+		    echo "$list based boards:"
+		    for b in ${!list}
+		    do
+			echo -e "\t$b"
+		    done
+		done
+		return
+	    fi
+	    
+	    
 	    local targets
 
 	    for p in $iopsys_brcm63xx_mips; do
@@ -107,6 +120,7 @@ function genconfig {
 		echo -e "  -h|--help\tShow this message"
 		echo -e "  -l|--list [customer]\tList all Customers or all boards for one customer"
 		echo -e "  -a|--list-all\tList all Customers and their board types"
+		echo -e "  -b|--boards\tList all board types"		
 		echo
 		echo "Example ./iop genconfig vg50 TELIA"
 		echo "(if no customerconfig is chosen the Inteno Config will be used)"
@@ -381,6 +395,7 @@ function genconfig {
 			-h|--help) usage;;
 			-l|--list) list_customers 0 $2;;
 			-a|--list-all)list_customers 1;;
+			-b|--boards)set_target LIST;exit 0;;
 			-*)
 				echo "Invalid option: $1 "
 				echo "Try -h or --help for more information."
