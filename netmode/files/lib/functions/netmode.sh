@@ -203,6 +203,7 @@ switch_netmode() {
 			logger -s -p user.info -t $0 "Switching to $curmode mode" > /dev/console
 			ubus call leds set  '{"state" : "allflash"}'
 			[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
+			[ -f /etc/init.d/igmpproxy ] && /etc/init.d/igmpproxy stop
 			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 			ubus call network reload
 			wifi reload nodat
