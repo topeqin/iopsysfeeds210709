@@ -58,5 +58,12 @@ uci -q batch <<-EOT
         commit firewall
 EOT
 
-exit 0
+# If dtmfmode is set to the obsolete compatability change to auto
+sed -i 's/dtmfmode\s*=\s*compatibility/dtmfmode=auto/' /etc/asterisk/sip.conf
 
+if [ $(uci get voice_client.SIP.dtmfmode) == 'compatibility' ]; then
+    uci set voice_client.SIP.dtmfmode='auto'
+    uci commit
+fi
+
+exit 0
