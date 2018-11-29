@@ -205,19 +205,21 @@ internet_test() {
 	fi
 }
 
-iptvtest() {
-	ubus list led.ext >/dev/null 2>&1 && TVCON=1 || return
-
+iptv_test() {
 	local dest="$(uci -q get system.@system[0].tvping_addr)"
+
+	[ -n "$dest" ] || return
+
+	ubus list led.ext >/dev/null 2>&1 || return
 
 	test_connection $dest
 
 	if [ "$?" -eq 0 ]; then
 		TVCON=1
-		[ -n "$dest" ] && ubus call led.ext  set '{"state" : "ok"}'
+		ubus call led.ext set '{"state" : "ok"}'
 	else
 		TVCON=0
-		[ -n "$dest" ] && ubus call led.ext  set '{"state" : "off"}'
+		ubus call led.ext set '{"state" : "off"}'
 	fi
 }
 
@@ -250,6 +252,8 @@ connectivity_test() {
 		[ "$CURSTATUS" == "$LASTSTATUS" ] || ubus send internet '{"status" : "offline"}'
 		LASTSTATUS=0
 	fi
+
+	iptv_test
 }
 
 if [ "$1" == "once" ]; then
