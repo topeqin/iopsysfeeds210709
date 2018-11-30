@@ -60,7 +60,7 @@ define uboot/grx500
   DEPENDS:=@TARGET_intel_mips
 endef
 
-define uboot/grx500_smart3board
+define uboot/grx500_speedport_smart3
   TITLE:=U-Boot for the grx
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
@@ -70,7 +70,7 @@ UBOOTS := \
 	ex400 \
 	sdx810_ap \
 	grx500 \
-	grx500_smart3board
+	grx500_speedport_smart3
 
 define Package/uboot/template
 define Package/uboot-$(1)
