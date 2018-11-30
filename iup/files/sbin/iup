@@ -281,7 +281,7 @@ change_to_vlan() {
 	v "option 132: committed update to file network"
 
 	# reload configuration files.
-	/etc/init.d/layer2_interface_vlan reload
+	ubus call network reload
 	v "option 132: reload network config"
 
 	# replace old interface (like eth0.1 with new eth0.101).
