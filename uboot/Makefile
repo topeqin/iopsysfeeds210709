@@ -15,7 +15,7 @@ PKG_SOURCE_PROTO:=git
 
 ifdef CONFIG_TARGET_intel_mips
 PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
-PKG_SOURCE_VERSION:=26845b29444642dd89f44d4b00893f878873b047
+PKG_SOURCE_VERSION:=b3bc3af5831f14d9cd4d983522bc45a1fd9fa26c
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
 PKG_SOURCE_VERSION:=a86e52439340d078f8c66a28f01e0575a24bcebd
@@ -61,7 +61,7 @@ define uboot/grx500
 endef
 
 define uboot/grx500_speedport_smart3
-  TITLE:=U-Boot for the grx
+  TITLE:=U-Boot for the Speedport Smart3
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
 endef
