@@ -29,7 +29,7 @@ config CWMP_DEVEL_DEBUG
 
 config LIBDATAMODEL_VENDOR_PREFIX
     string "Vendor Prefix"
-    default "X_Inteno_SE_"
+    default "X_IOPSYS_EU_"
     
 endif
 
