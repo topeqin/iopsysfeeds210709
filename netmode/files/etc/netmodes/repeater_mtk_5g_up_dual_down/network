@@ -16,6 +16,7 @@ config interface 'wan'
 	option hostname 'iopsys-$MAC'
 	option reqopts '66 67 128 224'
 	option igmp_snooping '0'
+	option macaddr '$MACWAN'
 
 config device 'wan_dev'
 	option name 'eth0.2'
