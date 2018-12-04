@@ -9,7 +9,6 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=u-boot
 PKG_VERSION:=2016.08
-PKG_RELEASE:=5
 
 PKG_SOURCE_PROTO:=git
 
@@ -18,7 +17,7 @@ PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
 PKG_SOURCE_VERSION:=b3bc3af5831f14d9cd4d983522bc45a1fd9fa26c
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
-PKG_SOURCE_VERSION:=a86e52439340d078f8c66a28f01e0575a24bcebd
+PKG_SOURCE_VERSION:=3ef2ba866a99205496e0ce01935c89a1778d9b85
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -47,23 +46,27 @@ UBOOT_IMG:=uboot.img
 define uboot/ex400
   TITLE:=U-Boot for the ex400
   DEPENDS:=@TARGET_iopsys_ramips
+  PKG_RELEASE:=6
 endef
 
 define uboot/sdx810_ap
   TITLE:=U-Boot for the sdx810_ap
   DEPENDS:=@TARGET_iopsys_ramips
+  PKG_RELEASE:=6
 endef
 
 define uboot/grx500
   TITLE:=U-Boot for the grx
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
+  PKG_RELEASE:=5
 endef
 
 define uboot/grx500_speedport_smart3
   TITLE:=U-Boot for the Speedport Smart3
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
+  PKG_RELEASE:=5
 endef
 
 UBOOTS := \
