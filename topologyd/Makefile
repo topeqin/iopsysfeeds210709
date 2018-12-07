@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=topologyd
 PKG_VERSION:=0.1
 
-PKG_SOURCE_VERSION:=b520fe65d2469ff52cc70328fce753f67cf998e5
+PKG_SOURCE_VERSION:=f73a1b8f00c965a916eae5a5fbfe59bf84ea8204
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/topologyd.git
 
