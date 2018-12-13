@@ -1,3 +1,3 @@
 # temporary solution for kernel
-CONFIG_KERNEL_GIT_BRANCH="easy550_anywan_smart3board"
-CONFIG_KERNEL_GIT_COMMIT="58796d57c6da6bba984c781c05222349f7c2b655"
+CONFIG_KERNEL_GIT_BRANCH="speedport_smart3"
+CONFIG_KERNEL_GIT_COMMIT="fef58dd6628c4b8b9c921fae473874fcda6361bf"
