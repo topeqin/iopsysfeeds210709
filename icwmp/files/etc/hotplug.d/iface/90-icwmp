@@ -75,9 +75,11 @@ handle_icwmp_restart() {
 		"$previpaddr" = "$curipaddr" -a \
 		"$prevgateway" = "$curgateway" -a \
 		"$prevsubnets" = "$cursubnets" -a \
-		"$prevdnsservers" = "$curdnsservers" -a \
-		"$prevopt43url" = "$curopt43url" \
-	] && exit 0
+		"$prevdnsservers" = "$curdnsservers" \
+	] && {
+		[ "$prevopt43url" = "$curopt43url" ] &&	exit 0
+		[ -z "$prevopt43url" ] && exit 0
+	}
 
 	/etc/init.d/icwmpd reload &
 }
