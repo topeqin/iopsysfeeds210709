@@ -52,7 +52,39 @@ CONFIG_FEATURE_LTQ_WAVE_AR10_SUPPORT=y
 # CONFIG_FEATURE_LTQ_WAVE_DEBUG_TFTP_BINS is not set
 # CONFIG_FEATURE_LTQ_WAVE_FGPA_DUMMY_PHY is not set
 CONFIG_FEATURE_LTQ_WAVE_500B=y
+# WifiLife not yet available for Intel
+CONFIG_PACKAGE_juci-wifilife=n
+CONFIG_PACKAGE_wifilife=n
 ####################
+
+#################### VoIP related
+CONFIG_PACKAGE_ltq-voice-tapi=y
+CONFIG_PACKAGE_ltq-voice-vmmc-xrx500=y
+CONFIG_PACKAGE_asterisk13=y
+CONFIG_PACKAGE_asterisk13-app-confbridge=y
+CONFIG_PACKAGE_asterisk13-app-playtones=y
+CONFIG_PACKAGE_asterisk13-app-read=y
+CONFIG_PACKAGE_asterisk13-app-record=y
+CONFIG_PACKAGE_asterisk13-app-system=y
+CONFIG_PACKAGE_asterisk13-bridge-builtin-features=y
+CONFIG_PACKAGE_asterisk13-bridge-simple=y
+CONFIG_PACKAGE_asterisk13-bridge-softmix=y
+CONFIG_PACKAGE_asterisk13-cdr=y
+CONFIG_PACKAGE_asterisk13-cdr-csv=y
+CONFIG_PACKAGE_asterisk13-chan-lantiq=y
+CONFIG_PACKAGE_asterisk13-chan-sip=y
+CONFIG_PACKAGE_asterisk13-format-g726=y
+CONFIG_PACKAGE_asterisk13-format-g729=y
+CONFIG_PACKAGE_asterisk13-format-gsm=y
+CONFIG_PACKAGE_asterisk13-format-sln=y
+CONFIG_PACKAGE_asterisk13-func-channel=y
+CONFIG_PACKAGE_asterisk13-func-db=y
+CONFIG_PACKAGE_asterisk13-func-shell=y
+CONFIG_PACKAGE_asterisk13-pbx-spool=y
+CONFIG_PACKAGE_asterisk13-res-musiconhold=y
+CONFIG_PACKAGE_asterisk13-res-rtp-asterisk=y
+CONFIG_PACKAGE_asterisk13-sounds=y
+#################### VoIP related end
 
 # the options below this point is wrong but packages wont compile
 
