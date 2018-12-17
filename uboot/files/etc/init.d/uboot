@@ -40,6 +40,10 @@ uboot_upgrade(){
 start() {
     iver=$(fw_printenv -n uboot_inteno_version 2>/dev/null)
 
+    # Fixup improper json string for major and minor key.
+    # this adds the missing "
+    iver=$(echo $iver | sed -e 's/{Major:/{"Major":/' | sed -e 's/,Minor:/,"Minor":/')
+    
     if [ -z "$iver" ]
     then
 	# if this variable is not set by u-boot the u-boot version is too old.
