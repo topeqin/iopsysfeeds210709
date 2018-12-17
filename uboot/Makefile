@@ -95,13 +95,14 @@ ifdef BUILD_VARIANT
 $(eval $(call uboot/$(BUILD_VARIANT)))
 UBOOT_CONFIG:=$(if $(CONFIG),$(CONFIG),$(BUILD_VARIANT))
 UBOOT_IMAGE:=$(if $(IMAGE),$(IMAGE),openwrt-$(BOARD)-$(BUILD_VARIANT)-u-boot.bin)
+UBOOT_IOPSYS_VERSION:=$(PKG_RELEASE)
 endif
 
 define Build/Configure
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		$(UBOOT_CONFIG)_config
 
-	$(SED) "s,CONFIG_INTENO_MAJOR=\"0\",CONFIG_INTENO_MAJOR=\"$(PKG_RELEASE)\"," $(PKG_BUILD_DIR)/.config
+	$(SED) "s,CONFIG_INTENO_MAJOR=\"0\",CONFIG_INTENO_MAJOR=\"$(UBOOT_IOPSYS_VERSION)\"," $(PKG_BUILD_DIR)/.config
 
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		oldconfig
