@@ -49,7 +49,6 @@ tos_video=|TOS_VIDEO|		; Sets TOS for RTP video packets. Recommended = af41
 tos_text=|TOS_TEXT|		; Sets TOS for RTP text packets. Recommended = af41
 
 tcpenable=|TCPENABLE|
-tlsbindaddr=0.0.0.0
 
 tlsenable=|TLSENABLE|
 tlsbindaddr=0.0.0.0
