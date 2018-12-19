@@ -89,11 +89,8 @@ CONFIG_PACKAGE_voice-client=y
 
 # the options below this point is wrong but packages wont compile
 
-# CONFIG_PACKAGE_icwmp-curl is not set
-# CONFIG_PACKAGE_juci-icwmp is not set
 # CONFIG_PACKAGE_libcgroup is not set
 # CONFIG_PACKAGE_libcgroup-daemon is not set
-# CONFIG_PACKAGE_libdatamodel is not set
 
 # CONFIG_TARGET_ROOTFS_INITRAMFS is not set
 # CONFIG_TARGET_ROOTFS_SQUASHFS is not set
