@@ -110,7 +110,7 @@ function genconfig {
 
 	usage() {
 		echo
-		echo 1>&2 "Usage: $0 [ OPTIONS ] < Board_Type > [ Customer ]"
+		echo 1>&2 "Usage: $0 [ OPTIONS ] < Board_Type > [ Customer [customer2 ]...]"
 		echo
 		echo -e "  -c|--clean\tRemove all files under ./files and import from config "
 		echo -e "  -v|--verbose\tVerbose"
@@ -214,25 +214,28 @@ function genconfig {
 	create_and_copy_files()
 	{
 		local BOARDTYPE=$1
-		local CUSTOMER=$2
+		shift
+		local CUSTOMERS=$@
 
-		# Validate seleced board and customer
+		# Validate seleced board and customers
 		set_target $BOARDTYPE
 		if [ $target == "bogus" ]; then
 			echo "Hardware profile does not exist"
 			exit 1
-		elif [ -n "$CUSTOMER" ]; then
-			if [ ! -d "$CUSTCONF/$CUSTOMER/" ]; then
-				echo "Customer profile for '$CUSTOMER' does not exist"
-				exit 1
-			elif [ ! -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/" ]; then
-				echo "'$BOARDTYPE' board profile does not exist for customer '$CUSTOMER'"
-				if [ -f "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
-					echo "Common profile configuration will be used"
-				else
+		elif [ -n "$CUSTOMERS" ]; then
+			for CUSTOMER in $CUSTOMERS; do
+				if [ ! -d "$CUSTCONF/$CUSTOMER/" ]; then
+					echo "Customer profile for '$CUSTOMER' does not exist"
 					exit 1
+				elif [ ! -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/" ]; then
+					echo "'$BOARDTYPE' board profile does not exist for customer '$CUSTOMER'"
+					if [ -f "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
+						echo "Common profile configuration will be used"
+					else
+						exit 1
+					fi
 				fi
-			fi
+			done
 		fi
 
 		# Generate base config
@@ -285,31 +288,33 @@ function genconfig {
 			echo "CONFIG_TARGET_${target}_${BOARDTYPE}=y" >> .config
 		fi
 
-		echo "$CUSTOMER $BOARDTYPE" > $CURRENT_CONFIG_FILE
+		echo "$CUSTOMERS $BOARDTYPE" > $CURRENT_CONFIG_FILE
 
 		# Add customerconfig diff if a customer is selected
-		if [ -n "$CUSTOMER" ]; then
-			if [ -d "$CUSTCONF/$CUSTOMER/common/fs" ]; then
-				v "cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR"
-				cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR
-			fi
-			if [ -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/fs" ]; then
-				v "cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR"
-				cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR
-			fi
-			if [ -d "$CUSTCONF/$CUSTOMER/juci-theme" ]; then
-				customer="$(echo $CUSTOMER | tr 'A-Z' 'a-z')"
-				v "cp -ar $CUSTCONF/$CUSTOMER/juci-theme $THEMEDIR/juci-theme-$customer"
-				cp -ar $CUSTCONF/$CUSTOMER/juci-theme $THEMEDIR/juci-theme-$customer
-			fi
-			if [ -e "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
-				v "Apply $CUSTCONF/$CUSTOMER/common/common.diff"
-				cat $CUSTCONF/$CUSTOMER/common/common.diff >> .config
-			fi
-			if [ -e "$CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff" ]; then
-				v "Apply $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff"
-				cat $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff >> .config
-			fi
+		if [ -n "$CUSTOMERS" ]; then
+			for CUSTOMER in $CUSTOMERS; do
+				if [ -d "$CUSTCONF/$CUSTOMER/common/fs" ]; then
+					v "cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR"
+					cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR
+				fi
+				if [ -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/fs" ]; then
+					v "cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR"
+					cp -ar $CUSTCONF/$CUSTOMER/$BOARDTYPE/fs/* $FILEDIR
+				fi
+				if [ -d "$CUSTCONF/$CUSTOMER/juci-theme" ]; then
+					customer="$(echo $CUSTOMER | tr 'A-Z' 'a-z')"
+					v "cp -ar $CUSTCONF/$CUSTOMER/juci-theme $THEMEDIR/juci-theme-$customer"
+					cp -ar $CUSTCONF/$CUSTOMER/juci-theme $THEMEDIR/juci-theme-$customer
+				fi
+				if [ -e "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
+					v "Apply $CUSTCONF/$CUSTOMER/common/common.diff"
+					cat $CUSTCONF/$CUSTOMER/common/common.diff >> .config
+				fi
+				if [ -e "$CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff" ]; then
+					v "Apply $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff"
+					cat $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff >> .config
+				fi
+			done
 		fi
 
 		# Set target version
@@ -409,7 +414,7 @@ function genconfig {
 		CUSTREPO="${CUSTREPO:-git@private.inteno.se:customerconfigs}"
 
 		setup_dirs
-		create_and_copy_files "$1" "$2"
+		create_and_copy_files "$@"
 	fi
 }
 
