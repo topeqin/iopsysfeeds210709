@@ -1,0 +1,89 @@
+#!/bin/sh
+
+source /lib/upgrade/iopsys.sh
+
+bcm_get_chip_id() {
+	local chip_id=$(brcm_fw_tool -k info)
+	case $chip_id in
+		6313?)  echo 63138 ;;
+		*)      echo $chip_id ;;
+	esac
+}
+
+bcm_find_mtd() {
+	local part=$(awk -F: "/\"$1\"/ { print \$1 }" /proc/mtd)
+	echo ${part##mtd}
+}
+
+#find out board name
+board=$(db get hw.board.iopVerBoard)
+
+# find out what rootfs volume is active. 
+cur_vol=$(get_flashbank_current)
+upd_vol=$(get_flashbank_next)
+
+# broadcom cfe
+cfe_mtd_0=$(bcm_find_mtd "nvram")
+cfe_mtd_1=$(bcm_find_mtd "cfe_extend")
+cfe_ver=$(db get hw.board.cfeIopsysVersion)
+
+   # Binary patch next CFE with current nvram0(?)
+case $(bcm_get_chip_id) in
+    63138)
+	cfe_skip=$((65536+1408))
+	;;
+    *)
+	cfe_skip=1408
+	;;
+esac
+
+# broadcom kernel
+kernel_cur_mtd=$(bcm_find_mtd "kernel_$cur_vol")
+kernel_upd_mtd=$(bcm_find_mtd "kernel_$upd_vol")
+
+ # Get sequence number of current kernel
+kernel_seqn=$(brcm_fw_tool -s -1 update /dev/mtd$kernel_cur_mtd | sed -re "s/^0+//")
+
+#./iopupgrade -b $board -c $cfe_mtd_0,$cfe_mtd_1 -N $cfe_skip -k $kernel_upd_mtd -s $kernel_seqn -u ubi0_$upd_vol
+true
+if [ $? -ne 0 ]; then
+    echo "upgrade failed"
+    exit 1
+fi
+
+
+
+mkdir -p /tmp/newroot
+mkdir -p /tmp/newroot_overlay
+
+mount -t ubifs ubi0:rootfs_$upd_vol /tmp/newroot
+
+mount -o noatime,lowerdir=/tmp/newroot,upperdir=/tmp/newroot/overlay,workdir=/tmp/newroot/lib/overlay.tmp -t overlay "overlayfs:/tmp/newroot/overlay" /tmp/newroot_overlay
+mount --bind /tmp/newroot/ /tmp/newroot_overlay/rom
+
+mount --bind /dev /tmp/newroot_overlay/dev
+mount --bind /proc /tmp/newroot_overlay/proc
+mount --bind /sys /tmp/newroot_overlay/sys
+mount -t tmpfs -o noatime,mode=0755 root /tmp/newroot_overlay/tmp
+
+mkdir -p /tmp/newroot_overlay/tmp/oldroot
+mount --bind / /tmp/newroot_overlay/tmp/oldroot
+
+
+chroot /tmp/newroot_overlay /bin/sh
+
+echo "result was $?"
+
+# cleanup
+umount /tmp/newroot_overlay/tmp/oldroot
+umount /tmp/newroot_overlay/tmp
+umount /tmp/newroot_overlay/sys
+umount /tmp/newroot_overlay/proc
+umount /tmp/newroot_overlay/dev
+umount /tmp/newroot_overlay/rom
+umount /tmp/newroot_overlay
+umount /tmp/newroot
+
+
+
+
