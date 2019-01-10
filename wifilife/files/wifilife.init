@@ -30,6 +30,12 @@ reload_service() {
 #	procd_send_signal wifilife # use SIGHUP
 	stop
 	start
+
+	config_load owsd
+	config_get enable ubusproxy enable
+	if [ "$enable" == "1" ]; then
+		ubus call netmode sync_wifilife
+	fi
 }
 
 service_triggers() {
