@@ -1,19 +1,122 @@
 #!/bin/sh
 
+###############################################################################
+# Global variables. can be used directly in any function called.
+cur_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name. eg: rootfs_0 or rootfs_1, currently used
+upd_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name. eg: rootfs_0 or rootfs_1, the one we want to update
+cmdline=""	# optional command line settings. for cfe and kernel that is not on every board.
+
+###############################################################################
+# file local variables. should not be used in imported functions. Can be used by functions declared in this script
+board=""		# string, Board name that is going to be matched against header of firmware image
+upd_ubi_id=""		# num,	UBI volume number for the volume name "rootfs_$upd_vol", use to know what volume to run ubiupdatevol on.
+run_cleanup=0		# if set the cleanup should be run otherwise we skip it.
+run_mount_cleanup=0	# set if we should run umount in cleanup
+upd_kernel=0		# set to 1 if system has the kernel in own mtd partition
+upd_cfe=0		# set to 1 if system is using cfe as bootloader.
+log_stdout=1		# set to 0 to prevent the log to also print to stdout
+
+###############################################################################
+# import external functions
 source /lib/upgrade/iopsys.sh
+[ -f /lib/upgrade/iopupgrade ] && source /lib/upgrade/iopupgrade
 
-bcm_get_chip_id() {
-	local chip_id=$(brcm_fw_tool -k info)
-	case $chip_id in
-		6313?)  echo 63138 ;;
-		*)      echo $chip_id ;;
-	esac
+# only call function if it exists
+function_call() {
+    if type "$1" 2>/dev/null >/dev/null
+    then
+	$1 $@
+    fi
 }
 
-bcm_find_mtd() {
-	local part=$(awk -F: "/\"$1\"/ { print \$1 }" /proc/mtd)
-	echo ${part##mtd}
+###############################################################################
+# Cleanup and error handling functions.
+function log {
+    TIME=$(date)
+    echo "[$TIME] $@" >>/tmp/upd_log
+    [ $log_stdout -eq 1 ] && echo "$@"
 }
+
+# we need to handle ctrl-c, segmentation fault, sigpipe and other abnormal terminations.
+# no printing to stdout/stderr allowed in this function or anyhting it calls as stdout/stderr might no longer exist
+function finish {
+    log_stdout=0
+    
+    if [ "$run_cleanup" == "1" ]
+    then
+
+	function_call upd_cleanup
+	log ""
+    fi
+
+    if [ "$run_mount_cleanup" == "1" ]
+    then
+	log "Cleaning up after mount"
+	umount_newroot
+    fi
+    # always kill the timeout process, will leave the sleep but that is harmless as long as the kill will nerver be run.
+    kill $TIMEOUT_PID 2>/dev/null
+
+    lock -u /tmp/iopu.lock
+}
+
+# if a timout happens terminate
+function timeout {
+    finish
+    exit 1
+}
+
+trap finish EXIT
+trap timeout SIGALRM
+
+# put a timeout on this if it takes longer than 60 seconds we should abort and clean up 
+(
+sleep 120	# if 2 minutes pass
+kill -ALRM $$	2>/dev/null # send it a SIGALRM signal
+)&
+TIMEOUT_PID=$!
+###############################################################################
+
+function mount_newroot {
+    run_mount_cleanup=1
+    mkdir -p /tmp/newroot
+    mkdir -p /tmp/newroot_overlay
+
+    mount -t ubifs ubi0:rootfs_$upd_vol /tmp/newroot
+
+    mount -o noatime,lowerdir=/tmp/newroot,upperdir=/tmp/newroot/overlay,workdir=/tmp/newroot/lib/overlay.tmp -t overlay "overlayfs:/tmp/newroot/overlay" /tmp/newroot_overlay
+    mount --bind /tmp/newroot/ /tmp/newroot_overlay/rom
+
+    mount --bind /dev /tmp/newroot_overlay/dev
+    mount --bind /proc /tmp/newroot_overlay/proc
+    mount --bind /sys /tmp/newroot_overlay/sys
+    mount -t tmpfs -o noatime,mode=0755 root /tmp/newroot_overlay/tmp
+
+    mkdir -p /tmp/newroot_overlay/tmp/oldroot
+    mount --bind / /tmp/newroot_overlay/tmp/oldroot
+}
+
+function umount_newroot {
+    umount /tmp/newroot_overlay/tmp/oldroot
+    umount /tmp/newroot_overlay/tmp
+    umount /tmp/newroot_overlay/sys
+    umount /tmp/newroot_overlay/proc
+    umount /tmp/newroot_overlay/dev
+    umount /tmp/newroot_overlay/rom
+    umount /tmp/newroot_overlay
+    umount /tmp/newroot
+    run_mount_cleanup=0
+}
+
+# just one instance
+if  ! lock -n /tmp/iopu.lock
+then
+    echo "Another instance of iopu already running"
+    echo "If you are sure this is wrong remove file /tmp/iopu.lock"
+    exit 1
+fi
+
+log "Firmware upgrade started"
 
 #find out board name
 board=$(db get hw.board.iopVerBoard)
@@ -21,68 +124,50 @@ board=$(db get hw.board.iopVerBoard)
 # find out what rootfs volume is active. 
 cur_vol=$(get_flashbank_current)
 upd_vol=$(get_flashbank_next)
+# convert volume name "rootfs_$upd_vol" into ubifs volume id
+upd_ubi_id=$(ubinfo -d 0 -N rootfs_$upd_vol | awk "/Volume ID:/ {print \$3}")
+log "installing Root Fileystem into UBI volume rootfs_$upd_vol"
 
-# broadcom cfe
-cfe_mtd_0=$(bcm_find_mtd "nvram")
-cfe_mtd_1=$(bcm_find_mtd "cfe_extend")
-cfe_ver=$(db get hw.board.cfeIopsysVersion)
+# prepare to update CFE if it exists
+function_call upd_conf_cfe
 
-   # Binary patch next CFE with current nvram0(?)
-case $(bcm_get_chip_id) in
-    63138)
-	cfe_skip=$((65536+1408))
-	;;
-    *)
-	cfe_skip=1408
-	;;
-esac
+# prepare to update kernel if it is stored in MTD/JFFS2 
+function_call upd_conf_kernel
 
-# broadcom kernel
-kernel_cur_mtd=$(bcm_find_mtd "kernel_$cur_vol")
-kernel_upd_mtd=$(bcm_find_mtd "kernel_$upd_vol")
+log "now starting writing data to flash with [ iopupgrade -b $board $cmdline -u ubi0_$upd_vol ]"
+run_cleanup=1	# When we start to actually write data there might be some things that need cleanup if we get an error/crash 
+iopupgrade -b $board $cmdline -u ubi0_$upd_vol
 
- # Get sequence number of current kernel
-kernel_seqn=$(brcm_fw_tool -s -1 update /dev/mtd$kernel_cur_mtd | sed -re "s/^0+//")
-
-#./iopupgrade -b $board -c $cfe_mtd_0,$cfe_mtd_1 -N $cfe_skip -k $kernel_upd_mtd -s $kernel_seqn -u ubi0_$upd_vol
-true
+# in case of any error we abort
 if [ $? -ne 0 ]; then
-    echo "upgrade failed"
+    log "iopupgrade program Failed"
     exit 1
 fi
 
+log "Firmware programmed to flash."
 
+mount_newroot
+log "Transfering configuration to new system."
+chroot /tmp/newroot_overlay /bin/true
+umount_newroot
 
-mkdir -p /tmp/newroot
-mkdir -p /tmp/newroot_overlay
+log "Update fully installed."
+run_cleanup=0
 
-mount -t ubifs ubi0:rootfs_$upd_vol /tmp/newroot
+# Now make sure that we actually boot the new system on the next reboot
+upd_finnish
 
-mount -o noatime,lowerdir=/tmp/newroot,upperdir=/tmp/newroot/overlay,workdir=/tmp/newroot/lib/overlay.tmp -t overlay "overlayfs:/tmp/newroot/overlay" /tmp/newroot_overlay
-mount --bind /tmp/newroot/ /tmp/newroot_overlay/rom
+# spawn the reboot to a subshell to allow the main program to quit before reset to avoid any hanged network connection like ssh
+(
+    log_stdout=0
+    sleep 1
+    log "Rebooting NOW!!!"
+    log ""
+    reboot
+)&
 
-mount --bind /dev /tmp/newroot_overlay/dev
-mount --bind /proc /tmp/newroot_overlay/proc
-mount --bind /sys /tmp/newroot_overlay/sys
-mount -t tmpfs -o noatime,mode=0755 root /tmp/newroot_overlay/tmp
+log "Reboot initiated"
 
-mkdir -p /tmp/newroot_overlay/tmp/oldroot
-mount --bind / /tmp/newroot_overlay/tmp/oldroot
-
-
-chroot /tmp/newroot_overlay /bin/sh
-
-echo "result was $?"
-
-# cleanup
-umount /tmp/newroot_overlay/tmp/oldroot
-umount /tmp/newroot_overlay/tmp
-umount /tmp/newroot_overlay/sys
-umount /tmp/newroot_overlay/proc
-umount /tmp/newroot_overlay/dev
-umount /tmp/newroot_overlay/rom
-umount /tmp/newroot_overlay
-umount /tmp/newroot
 
 
 
