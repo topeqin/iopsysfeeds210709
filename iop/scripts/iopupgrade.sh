@@ -50,7 +50,7 @@ function ssh_upgrade {
     upd_fw=""
     upd_host="192.168.1.1"
 
-    while getopts "f:hnxt:" opt; do
+    while getopts "f:hnxt:i" opt; do
 	case $opt in
 	    n)
 		upd_noreboot=1
@@ -74,6 +74,10 @@ function ssh_upgrade {
 	    t)
 		upd_host=$OPTARG
 		;;
+	    i)
+		echo "not supported"
+		return
+		;;
 	    h)
 		upd_usage
 		exit 1
@@ -85,7 +89,7 @@ function ssh_upgrade {
 	esac
     done
 
-    if [ -n "upd_fw" ]
+    if [ -n "$upd_fw" ]
     then
 	upd_fw_base=$(basename $upd_fw);
     else
