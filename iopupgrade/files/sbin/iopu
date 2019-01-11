@@ -164,6 +164,8 @@ upd_finnish
 
 # spawn the reboot to a subshell to allow the main program to quit before reset to avoid any hanged network connection like ssh
 (
+    log_stdout=0  # stdin,stdout,stderr do not exist anymore, we are in a subshell and then the trap is no longer working. 
+
     sleep 1
     log "Rebooting NOW!!!"
     log ""
