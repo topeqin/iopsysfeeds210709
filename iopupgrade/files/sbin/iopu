@@ -33,15 +33,14 @@ function_call() {
 # Cleanup and error handling functions.
 function log {
     TIME=$(date)
-    echo "[$TIME] $@" >>/tmp/upd_log
     [ $log_stdout -eq 1 ] && echo "$@"
+    echo "[$TIME] $@" >>/tmp/upd_log
 }
 
 # we need to handle ctrl-c, segmentation fault, sigpipe and other abnormal terminations.
 # no printing to stdout/stderr allowed in this function or anyhting it calls as stdout/stderr might no longer exist
 function finish {
-    log_stdout=0
-    
+
     if [ "$run_cleanup" == "1" ]
     then
 
@@ -59,6 +58,10 @@ function finish {
 
     lock -u /tmp/iopu.lock
 }
+function sig_pipe {
+    log_stdout=0  # stdin,stdout,stderr do not exist anymore
+    log "Got sigpipe. Turning of log printing to stdout"
+}
 
 # if a timout happens terminate
 function timeout {
@@ -68,6 +71,7 @@ function timeout {
 
 trap finish EXIT
 trap timeout SIGALRM
+trap sig_pipe SIGPIPE
 
 # put a timeout on this if it takes longer than 60 seconds we should abort and clean up 
 (
@@ -146,8 +150,9 @@ fi
 
 log "Firmware programmed to flash."
 
-mount_newroot
+
 log "Transfering configuration to new system."
+mount_newroot
 chroot /tmp/newroot_overlay /bin/true
 umount_newroot
 
@@ -159,7 +164,6 @@ upd_finnish
 
 # spawn the reboot to a subshell to allow the main program to quit before reset to avoid any hanged network connection like ssh
 (
-    log_stdout=0
     sleep 1
     log "Rebooting NOW!!!"
     log ""
