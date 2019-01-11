@@ -76,7 +76,13 @@ _iop()
                 fi
                 return 0
                 ;;
-
+            ssh_upgrade)
+	        if [ "$prev" == "-f" ] ; then
+		    _filedir
+		else
+		    COMPREPLY=( $(compgen -W "-f -t -i -n -x -b" -- ${cur}) )
+		fi
+	         ;;
             *)
                 # No arguments or arguments not supported yet
                 ;;
