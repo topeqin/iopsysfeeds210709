@@ -69,6 +69,16 @@ function timeout {
     exit 1
 }
 
+# just one instance
+# this check has to be done before we install handler to avoid removing the lock even if it was not available.
+if  ! lock -n /tmp/iopu.lock
+then
+    echo "Another instance of iopu already running"
+    echo "If you are sure this is wrong remove file /tmp/iopu.lock"
+    exit 1
+fi
+
+
 trap finish EXIT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
@@ -86,6 +96,9 @@ function mount_newroot {
     mkdir -p /tmp/newroot
     mkdir -p /tmp/newroot_overlay
 
+    # This sync is needed so that the previous write of ubifs volume is completely done.
+    # otherwise we could get a busy error from the mount
+    sync
     mount -t ubifs ubi0:rootfs_$upd_vol /tmp/newroot
 
     mount -o noatime,lowerdir=/tmp/newroot,upperdir=/tmp/newroot/overlay,workdir=/tmp/newroot/lib/overlay.tmp -t overlay "overlayfs:/tmp/newroot/overlay" /tmp/newroot_overlay
@@ -112,14 +125,6 @@ function umount_newroot {
     run_mount_cleanup=0
 }
 
-# just one instance
-if  ! lock -n /tmp/iopu.lock
-then
-    echo "Another instance of iopu already running"
-    echo "If you are sure this is wrong remove file /tmp/iopu.lock"
-    exit 1
-fi
-
 log "Firmware upgrade started"
 
 #find out board name
@@ -128,6 +133,9 @@ board=$(db get hw.board.iopVerBoard)
 # find out what rootfs volume is active. 
 cur_vol=$(get_flashbank_current)
 upd_vol=$(get_flashbank_next)
+
+
+
 # convert volume name "rootfs_$upd_vol" into ubifs volume id
 upd_ubi_id=$(ubinfo -d 0 -N rootfs_$upd_vol | awk "/Volume ID:/ {print \$3}")
 log "installing Root Fileystem into UBI volume rootfs_$upd_vol"
@@ -138,9 +146,9 @@ function_call upd_conf_cfe
 # prepare to update kernel if it is stored in MTD/JFFS2 
 function_call upd_conf_kernel
 
-log "now starting writing data to flash with [ iopupgrade -b $board $cmdline -u ubi0_$upd_vol ]"
+log "now starting writing data to flash with [ iopupgrade -b $board $cmdline -u ubi0_$upd_ubi_id ]"
 run_cleanup=1	# When we start to actually write data there might be some things that need cleanup if we get an error/crash 
-iopupgrade -b $board $cmdline -u ubi0_$upd_vol
+iopupgrade -b $board $cmdline -u ubi0_$upd_ubi_id
 
 # in case of any error we abort
 if [ $? -ne 0 ]; then
