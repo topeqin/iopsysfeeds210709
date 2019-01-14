@@ -13,7 +13,7 @@ function upd_usage {
     echo "	-c	Keep configuration"
     echo "	-x	Force install even if firmware is not for this board"
     echo "	-b	Force install of bootloader regardless of version installed"
-    echo "	-s	Use sysupgade. old upgrade method"
+    echo "	-s	Use sysupgade. old upgrade method, needed for old releases that do not have iopu"
 }
 
 function set_config_string {
@@ -31,6 +31,11 @@ function upd_ask_ok {
     printf "%20s: " "Force image upgrade";  if [ "$upd_forceimage" == "1" ] ;then printf "Yes\n" ;else printf "No\n";fi
     printf "%20s: " "Use sysupgrade";       if [ "$upd_sysupgrade" == "1" ] ;then printf "Yes\n" ;else printf "No\n";fi
     echo "-----------------------------------------"
+
+    if [ "$upd_sysupgrade" == "0" ]
+       then
+	   if [ "$upd_keepconf"   == "1" ] ;then echo "keeping config is just a fantasy it's not yet implemented, try sysupgrade";fi
+    fi
 
     echo -n "Continue? [Y/n/q]:"
     read answer
@@ -228,7 +233,7 @@ function ssh_upgrade {
     upd_sysupgrade=0
     do_dialog=0
 
-    while getopts "f:hnxt:is" opt; do
+    while getopts "f:hnxt:isc" opt; do
 	case $opt in
 	    n)
 		upd_noreboot=1
@@ -241,7 +246,6 @@ function ssh_upgrade {
 		;;
 	    c)
 		upd_keepconf=1
-		upd_keepconf=0 # not yet supported
 		;;
 	    v)
 		verbose=$OPTARG
@@ -300,11 +304,16 @@ function ssh_upgrade {
 	echo "firmware file $firmware do not exist"
 	exit 1
     fi
-    file_size_kb=`du -k "$upd_fw" | cut -f1`
 
-    
-    cat $upd_fw | pv -s ${file_size_kb}k | ssh root@192.168.1.1 iopu
-    exit 0
+    if [ $upd_sysupgrade -eq 0 ]
+    then
+	   file_size_kb=`du -k "$upd_fw" | cut -f1`
+	   cat $upd_fw | pv -s ${file_size_kb}k | ssh root@$upd_host iopu
+    else
+	scp $upd_fw root@$upd_host:/tmp/ &&
+	    ssh -o ConnectTimeout=60 root@$upd_host "sysupgrade -v $3 /tmp/$upd_fw_base" &&
+	    echo "sysupgrade done!"
+    fi
 }
 
 register_command "ssh_upgrade" "-h <host> -f <file> [opts]  Install firmware on remote host with SSH"
