@@ -42,6 +42,7 @@ define Package/dectmngr2/install
 	$(INSTALL_DIR) $(1)/etc/dect/
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_DIR) $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/dectmngr2 $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/target.bin $(1)/etc/dect/
@@ -49,6 +50,7 @@ define Package/dectmngr2/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dect $(1)/etc/init.d/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dectmngr-wrapper.sh $(1)/usr/sbin/
 	$(CP) ./files/dect.config $(1)/etc/config/dect
+	$(CP) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,dectmngr2))

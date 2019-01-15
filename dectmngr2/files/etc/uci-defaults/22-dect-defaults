@@ -1,0 +1,23 @@
+#!/bin/sh
+
+
+# Workaround for product DG400 which has an
+# incorrect value in nvram from factory.
+
+if [ -e "/proc/nvram/BoardId" ]; then
+	boardid=$(cat /proc/nvram/BoardId)
+	ulBoardStuffOption=$(cat /proc/nvram/ulBoardStuffOption)
+
+	if [ "$boardid" = "DG400R0" -a "$ulBoardStuffOption" = "0xffffffff" ]; then
+		echo "0xfffffff2" >/proc/nvram/ulBoardStuffOption
+
+		db -q batch <<-EOT
+			set hw.board.hasDect=1
+			commit hw.board
+		EOT
+	fi
+fi
+
+
+exit 0
+
