@@ -18,6 +18,7 @@ config wifi-device  ra0
 	option hwmode   auto
 	option htmode   HT20
 	option country 'DE'
+	option scantimer '60'
 
 config wifi-iface
 	option device   ra0
@@ -37,6 +38,7 @@ config wifi-device  rai0
 	option htmode   VHT80
 	option country 'DE'
 	option beamforming 1
+	option scantimer '60'
 
 config wifi-iface
 	option device   rai0
