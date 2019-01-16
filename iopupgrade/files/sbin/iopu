@@ -2,20 +2,26 @@
 
 ###############################################################################
 # Global variables. can be used directly in any function called.
-cur_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name. eg: rootfs_0 or rootfs_1, currently used
-upd_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name. eg: rootfs_0 or rootfs_1, the one we want to update
+cur_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name.
+		# eg: rootfs_0 or rootfs_1, currently used
+upd_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name.
+		# eg: rootfs_0 or rootfs_1, the one we want to update
 cmdline=""	# optional command line settings. for cfe and kernel that is not on every board.
 
 ###############################################################################
-# file local variables. should not be used in imported functions. Can be used by functions declared in this script
-board=""		# string, Board name that is going to be matched against header of firmware image
-upd_ubi_id=""		# num,	UBI volume number for the volume name "rootfs_$upd_vol", use to know what volume to run ubiupdatevol on.
+# file local variables. should not be used in imported functions. Can be used
+# by functions declared in this script
+board=""		# string, Board name that is going to be matched
+			# against header of firmware image
+upd_ubi_id=""		# num,	UBI volume number for the volume name
+			# "rootfs_$upd_vol", use to know what volume to run
+			# ubiupdatevol on.
 run_cleanup=0		# if set the cleanup should be run otherwise we skip it.
 run_mount_cleanup=0	# set if we should run umount in cleanup
 upd_kernel=0		# set to 1 if system has the kernel in own mtd partition
 upd_cfe=0		# set to 1 if system is using cfe as bootloader.
 log_stdout=1		# set to 0 to prevent the log to also print to stdout
-
+upd_noreboot=0		# set to 1 if we should not reboot after programming
 ###############################################################################
 # import external functions
 source /lib/upgrade/iopsys.sh
@@ -58,6 +64,7 @@ function finish {
 
     lock -u /tmp/iopu.lock
 }
+
 function sig_pipe {
     log_stdout=0  # stdin,stdout,stderr do not exist anymore
     log "Got sigpipe. Turning of log printing to stdout"
@@ -68,28 +75,6 @@ function timeout {
     finish
     exit 1
 }
-
-# just one instance
-# this check has to be done before we install handler to avoid removing the lock even if it was not available.
-if  ! lock -n /tmp/iopu.lock
-then
-    echo "Another instance of iopu already running"
-    echo "If you are sure this is wrong remove file /tmp/iopu.lock"
-    exit 1
-fi
-
-
-trap finish EXIT
-trap timeout SIGALRM
-trap sig_pipe SIGPIPE
-
-# put a timeout on this if it takes longer than 60 seconds we should abort and clean up 
-(
-sleep 120	# if 2 minutes pass
-kill -ALRM $$	2>/dev/null # send it a SIGALRM signal
-)&
-TIMEOUT_PID=$!
-###############################################################################
 
 function mount_newroot {
     run_mount_cleanup=1
@@ -124,6 +109,38 @@ function umount_newroot {
     umount /tmp/newroot
     run_mount_cleanup=0
 }
+###############################################################################
+
+# just one instance
+# this check has to be done before we install handler to avoid removing the lock even if it was not available.
+if  ! lock -n /tmp/iopu.lock
+then
+    echo "Another instance of iopu already running"
+    echo "If you are sure this is wrong remove file /tmp/iopu.lock"
+    exit 1
+fi
+
+trap finish EXIT
+trap timeout SIGALRM
+trap sig_pipe SIGPIPE
+
+# put a timeout on this if it takes longer than 120 seconds we should abort and clean up
+(
+sleep 120	# if 2 minutes pass
+kill -ALRM $$	2>/dev/null # send it a SIGALRM signal
+)&
+TIMEOUT_PID=$!
+
+
+while getopts "n" opt; do
+    case $opt in
+	n)
+	    upd_noreboot=1
+	    ;;
+    esac
+done
+
+
 
 log "Firmware upgrade started"
 
@@ -133,8 +150,6 @@ board=$(db get hw.board.iopVerBoard)
 # find out what rootfs volume is active. 
 cur_vol=$(get_flashbank_current)
 upd_vol=$(get_flashbank_next)
-
-
 
 # convert volume name "rootfs_$upd_vol" into ubifs volume id
 upd_ubi_id=$(ubinfo -d 0 -N rootfs_$upd_vol | awk "/Volume ID:/ {print \$3}")
@@ -161,7 +176,7 @@ log "Firmware programmed to flash."
 
 log "Transfering configuration to new system."
 mount_newroot
-chroot /tmp/newroot_overlay /bin/true
+chroot /tmp/newroot_overlay /sbin/iopu_chroot
 umount_newroot
 
 log "Update fully installed."
@@ -171,16 +186,22 @@ run_cleanup=0
 upd_finnish
 
 # spawn the reboot to a subshell to allow the main program to quit before reset to avoid any hanged network connection like ssh
-(
-    log_stdout=0  # stdin,stdout,stderr do not exist anymore, we are in a subshell and then the trap is no longer working. 
+if [ $upd_noreboot -eq 0 ]
+then
+    (
+	log_stdout=0	# stdin,stdout,stderr do not exist anymore, we are in a
+			# subshell and then the trap is no longer working.
+	sleep 1
+	log "Rebooting NOW!!!"
+	log ""
+	reboot
+    )&
+    log "Reboot initiated"
+else
+    log "Skipping reboot"
+fi
 
-    sleep 1
-    log "Rebooting NOW!!!"
-    log ""
-    reboot
-)&
 
-log "Reboot initiated"
 
 
 
