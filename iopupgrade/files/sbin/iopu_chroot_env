@@ -1,0 +1,18 @@
+#!/bin/sh
+# this is run when "iopr -r" is executed.
+# intended to just show what environment is actually started.
+
+cat /etc/banner
+
+echo "/tmp/oldroot:"
+echo "	Contains the running root filesystem. It is live so files are in use"
+echo "	Anything copying/reading files from there needs to make sure it is done safely."
+echo ""
+
+Color_Off='\033[0m'       # Text Reset
+Red='\033[0;31m'          # Red
+
+PS1="${Red}chroot_new${Color_Off}:\w\#"
+export PS1
+export Red
+export Color_Off

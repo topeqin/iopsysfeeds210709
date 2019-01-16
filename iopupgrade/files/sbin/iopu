@@ -109,6 +109,19 @@ function umount_newroot {
     umount /tmp/newroot
     run_mount_cleanup=0
 }
+
+function usage {
+    echo "usage: $0 iopu [opts] "
+    echo ""
+    echo "opts:"
+    echo ""
+    echo "	-n	Do not do the final reboot of the target board"
+    echo "	-c	Keep configuration"
+    echo "	-x	Force install even if firmware is not for this board"
+    echo "	-b	Force install of bootloader regardless of version installed"
+    echo "	-r	Jump into chroot env of other system"
+}
+
 ###############################################################################
 
 # just one instance
@@ -124,23 +137,32 @@ trap finish EXIT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
+while getopts "nr" opt; do
+    case $opt in
+	n)
+	    upd_noreboot=1
+	    ;;
+	r)
+	    upd_vol=$(get_flashbank_next)
+	    mount_newroot
+	    (ENV=/sbin/iopu_chroot_env chroot /tmp/newroot_overlay /bin/sh)
+	    echo ""
+	    umount_newroot
+	    exit 0
+	    ;;
+	h)
+	    upd_usage
+	    exit 1
+	    ;;
+    esac
+done
+
 # put a timeout on this if it takes longer than 120 seconds we should abort and clean up
 (
 sleep 120	# if 2 minutes pass
 kill -ALRM $$	2>/dev/null # send it a SIGALRM signal
 )&
 TIMEOUT_PID=$!
-
-
-while getopts "n" opt; do
-    case $opt in
-	n)
-	    upd_noreboot=1
-	    ;;
-    esac
-done
-
-
 
 log "Firmware upgrade started"
 
