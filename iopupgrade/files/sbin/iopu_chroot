@@ -1,3 +1,61 @@
 #!/bin/sh
+#
+# This program is intended to be run in a chroot environment where the old system
+# is mounted in /tmp/oldroot
+#
 
-echo "now we run in chroot"
+
+###############################################################################
+# Global variables. can be used directly in any function called.
+
+
+###############################################################################
+# file local variables. should not be used in imported functions. Can be used
+# by functions declared in this script
+upd_forceboot=0
+log_stdout=1		# set to 0 to prevent the log to also print to stdout
+
+###############################################################################
+# import external functions
+
+source /lib/upgrade/iopsys.sh
+[ -f /lib/upgrade/iopupgrade ] && source /lib/upgrade/iopupgrade
+
+
+# only call function if it exists
+function_call() {
+    if type "$1" 2>/dev/null >/dev/null
+    then
+	$1 $@
+    fi
+}
+# Cleanup and error handling functions.
+function log {
+    TIME=$(date)
+    [ $log_stdout -eq 1 ] && echo "$@"
+    echo "[$TIME] $@" >>/root/upd_log
+}
+
+
+while getopts "hb" opt; do
+    case $opt in
+	h)
+	    upd_usage
+	    exit 1
+	    ;;
+	b)
+	    upd_forceboot=1
+	    ;;
+	\?)
+	    echo "Invalid option: -$OPTARG" >&2
+	    exit 1
+	    ;;
+    esac
+done
+
+# copy old install log over
+cp /tmp/oldroot/tmp/upd_log /root/upd_log
+
+# Upgrade boot loader if needed.
+function_call upd_program_boot
+

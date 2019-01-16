@@ -11,6 +11,7 @@ cmdline=""	# command line settings.
 ###############################################################################
 # file local variables. should not be used in imported functions. Can be used
 # by functions declared in this script
+chroot_cmdline=""	# command line for the iop_chroot command.
 board=""		# string, Board name that is going to be matched
 			# against header of firmware image
 upd_ubi_id=""		# num,	UBI volume number for the volume name
@@ -23,6 +24,7 @@ upd_cfe=0		# set to 1 if system is using cfe as bootloader.
 log_stdout=1		# set to 0 to prevent the log to also print to stdout
 upd_noreboot=0		# set to 1 if we should not reboot after programming
 upd_forceimage=0	# set this to force upgrade even if image is for wrong board.
+upd_forceboot=0		# set this to force upgrade of boot loader
 ###############################################################################
 # import external functions
 source /lib/upgrade/iopsys.sh
@@ -97,9 +99,11 @@ function mount_newroot {
 
     mkdir -p /tmp/newroot_overlay/tmp/oldroot
     mount --bind / /tmp/newroot_overlay/tmp/oldroot
+    mount --bind /tmp /tmp/newroot_overlay/tmp/oldroot/tmp
 }
 
 function umount_newroot {
+    umount /tmp/newroot_overlay/tmp/oldroot/tmp
     umount /tmp/newroot_overlay/tmp/oldroot
     umount /tmp/newroot_overlay/tmp
     umount /tmp/newroot_overlay/sys
@@ -138,13 +142,16 @@ trap finish EXIT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
-while getopts "nrx" opt; do
+while getopts "nrxb" opt; do
     case $opt in
 	n)
 	    upd_noreboot=1
 	    ;;
 	x)
 	    upd_forceimage=1
+	    ;;
+	b)
+	    upd_forceboot=1
 	    ;;
 	r)
 	    upd_vol=$(get_flashbank_next)
@@ -207,8 +214,12 @@ log "Firmware programmed to flash."
 
 
 log "Transfering configuration to new system."
+
+# Force upgrade of boot loader
+[ $upd_forceboot -eq 1 ] && chroot_cmdline="$chroot_cmdline -b"
+
 mount_newroot
-chroot /tmp/newroot_overlay /sbin/iopu_chroot
+chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline
 umount_newroot
 
 log "Update fully installed."

@@ -233,7 +233,7 @@ function ssh_upgrade {
     upd_sysupgrade=0
     do_dialog=0
 
-    while getopts "f:hnxt:isc" opt; do
+    while getopts "f:hnxt:iscb" opt; do
 	case $opt in
 	    n)
 		upd_noreboot=1
@@ -308,8 +308,9 @@ function ssh_upgrade {
     if [ $upd_sysupgrade -eq 0 ]
     then
 	extra_args=""
-	[ $upd_noreboot -eq 1 ] && extra_args="$extra_args -n"
+	[ $upd_noreboot   -eq 1 ] && extra_args="$extra_args -n"
 	[ $upd_forceimage -eq 1 ] && extra_args="$extra_args -x"
+	[ $upd_forceboot  -eq 1 ] && extra_args="$extra_args -b"
 
 	file_size_kb=`du -k "$upd_fw" | cut -f1`
 	cat $upd_fw | pv -s ${file_size_kb}k | ssh root@$upd_host "iopu $extra_args"
