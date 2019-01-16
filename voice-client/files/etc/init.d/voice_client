@@ -67,6 +67,7 @@ TMPL_QUEUE=$TEMPLATEDIR/queue.TEMPLATE
 TMPL_ASTERISK=$TEMPLATEDIR/asterisk.conf.TEMPLATE
 TMPL_CDR=$TEMPLATEDIR/cdr.conf.TEMPLATE
 TMPL_CDR_SYSLOG=$TEMPLATEDIR/cdr_syslog.conf.TEMPLATE
+TMPL_CDR_CUSTOM=$TEMPLATEDIR/cdr_custom.conf.TEMPLATE
 TMPL_INDICATIONS=$TEMPLATEDIR/indications.conf.TEMPLATE
 TMPL_CEL=$TEMPLATEDIR/cel.conf.TEMPLATE
 TMPL_LOGGER=$TEMPLATEDIR/logger.conf.TEMPLATE
@@ -75,6 +76,9 @@ TMPL_MODULES=$TEMPLATEDIR/modules.conf.TEMPLATE
 TMPL_FEATURES=$TEMPLATEDIR/features.conf.TEMPLATE
 TMPL_CODECS=$TEMPLATEDIR/codecs.conf.TEMPLATE
 TMPL_MUSICONHOLD=$TEMPLATEDIR/musiconhold.conf.TEMPLATE
+TMPL_ACL=$TEMPLATEDIR/acl.conf.TEMPLATE
+TMPL_CONFBRIDGE=$TEMPLATEDIR/confbridge.conf.TEMPLATE
+TMPL_UDPTL=$TEMPLATEDIR/udptl.conf.TEMPLATE
 
 TMPL_BRCM=$TEMPLATEDIR/brcm.conf.TEMPLATE
 TMPL_BRCM_LINE=$TEMPLATEDIR/brcm_line.TEMPLATE
@@ -150,6 +154,11 @@ assemble_and_copy_config()
 	[ -f $TMPL_MODULES ]		&& cp $TMPL_MODULES		$WORKDIR/modules.conf
 	[ -f $TMPL_EXTENSIONS_MACRO ]	&& cp $TMPL_EXTENSIONS_MACRO	$WORKDIR/extensions_macro.conf
 	[ -f $TMPL_MUSICONHOLD ]	&& cp $TMPL_MUSICONHOLD		$WORKDIR/musiconhold.conf
+	[ -f $TMPL_ACL ]	        && cp $TMPL_ACL		        $WORKDIR/acl.conf
+	[ -f $TMPL_CDR_CUSTOM ]	        && cp $TMPL_CDR_CUSTOM	        $WORKDIR/cdr_custom.conf
+	[ -f $TMPL_CDR_SYSLOG ]	        && cp $TMPL_CDR_SYSLOG	        $WORKDIR/cdr_syslog.conf
+	[ -f $TMPL_CONFBRIDGE ]	        && cp $TMPL_CONFBRIDGE	        $WORKDIR/confbridge.conf
+	[ -f $TMPL_UDPTL ]	        && cp $TMPL_UDPTL	        $WORKDIR/udptl.conf
 	[ -f $SPECRATECFG ]		&& cp $SPECRATECFG		$WORKDIR/special_rate_nr.cfg
 	
 	test -e $TMPL_MEETME && cp $TMPL_MEETME $WORKDIR/meetme.conf
