@@ -309,6 +309,7 @@ function ssh_upgrade {
     then
 	extra_args=""
 	[ $upd_noreboot -eq 1 ] && extra_args="$extra_args -n"
+	[ $upd_forceimage -eq 1 ] && extra_args="$extra_args -x"
 
 	file_size_kb=`du -k "$upd_fw" | cut -f1`
 	cat $upd_fw | pv -s ${file_size_kb}k | ssh root@$upd_host "iopu $extra_args"

@@ -6,7 +6,7 @@ cur_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name.
 		# eg: rootfs_0 or rootfs_1, currently used
 upd_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name.
 		# eg: rootfs_0 or rootfs_1, the one we want to update
-cmdline=""	# optional command line settings. for cfe and kernel that is not on every board.
+cmdline=""	# command line settings.
 
 ###############################################################################
 # file local variables. should not be used in imported functions. Can be used
@@ -22,6 +22,7 @@ upd_kernel=0		# set to 1 if system has the kernel in own mtd partition
 upd_cfe=0		# set to 1 if system is using cfe as bootloader.
 log_stdout=1		# set to 0 to prevent the log to also print to stdout
 upd_noreboot=0		# set to 1 if we should not reboot after programming
+upd_forceimage=0	# set this to force upgrade even if image is for wrong board.
 ###############################################################################
 # import external functions
 source /lib/upgrade/iopsys.sh
@@ -137,10 +138,13 @@ trap finish EXIT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
-while getopts "nr" opt; do
+while getopts "nrx" opt; do
     case $opt in
 	n)
 	    upd_noreboot=1
+	    ;;
+	x)
+	    upd_forceimage=1
 	    ;;
 	r)
 	    upd_vol=$(get_flashbank_next)
@@ -166,8 +170,14 @@ TIMEOUT_PID=$!
 
 log "Firmware upgrade started"
 
-#find out board name
-board=$(db get hw.board.iopVerBoard)
+# Should board name be checked
+if [ $upd_forceimage -eq 0 ]
+then
+   board=$(db get hw.board.iopVerBoard)
+   cmdline="$cmdline -b $board"
+else
+    cmdline="$cmdline -q"
+fi
 
 # find out what rootfs volume is active. 
 cur_vol=$(get_flashbank_current)
@@ -183,9 +193,9 @@ function_call upd_conf_cfe
 # prepare to update kernel if it is stored in MTD/JFFS2 
 function_call upd_conf_kernel
 
-log "now starting writing data to flash with [ iopupgrade -b $board $cmdline -u ubi0_$upd_ubi_id ]"
+log "now starting writing data to flash with [ iopupgrade $cmdline -u ubi0_$upd_ubi_id ]"
 run_cleanup=1	# When we start to actually write data there might be some things that need cleanup if we get an error/crash 
-iopupgrade -b $board $cmdline -u ubi0_$upd_ubi_id
+iopupgrade $cmdline -u ubi0_$upd_ubi_id
 
 # in case of any error we abort
 if [ $? -ne 0 ]; then
