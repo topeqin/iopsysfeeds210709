@@ -18,7 +18,7 @@ CONFIG_LIBC_USE_MUSL=y
 CONFIG_PACKAGE_switch_cli_ugw8=y
 
 #################### ppa related
-CONFIG_PACKAGE_ppacmd=y
+#CONFIG_PACKAGE_ppacmd=y
 # CONFIG_PACKAGE_kmod-ppa-drv-gre is not set
 # CONFIG_PACKAGE_kmod-ppa-drv-grx500-eth-bond is not set
 # CONFIG_PACKAGE_kmod-ppa-drv-grx500-mpe is not set
