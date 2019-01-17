@@ -46,8 +46,9 @@ function log {
     echo "[$TIME] $@" >>/tmp/upd_log
 }
 
-# we need to handle ctrl-c, segmentation fault, sigpipe and other abnormal terminations.
-# no printing to stdout/stderr allowed in this function or anyhting it calls as stdout/stderr might no longer exist
+# we need to handle ctrl-c, segmentation fault, sigpipe and other abnormal
+# terminations. no printing to stdout/stderr allowed in this function or
+# anyhting it calls as stdout/stderr might no longer exist
 function finish {
 
     if [ "$run_cleanup" == "1" ]
@@ -62,7 +63,8 @@ function finish {
 	log "Cleaning up after mount"
 	umount_newroot
     fi
-    # always kill the timeout process, will leave the sleep but that is harmless as long as the kill will nerver be run.
+    # always kill the timeout process, will leave the sleep but that is harmless
+    # as long as the kill will nerver be run.
     kill $TIMEOUT_PID 2>/dev/null
 
     lock -u /tmp/iopu.lock
@@ -149,7 +151,8 @@ function usage {
 ###############################################################################
 
 # just one instance
-# this check has to be done before we install handler to avoid removing the lock even if it was not available.
+# this check has to be done before we install handler to avoid removing the
+# lock even if it was not available.
 if  ! lock -n /tmp/iopu.lock
 then
     echo "Another instance of iopu already running"
@@ -187,7 +190,8 @@ while getopts "nrxb" opt; do
     esac
 done
 
-# put a timeout on this if it takes longer than 120 seconds we should abort and clean up
+# put a timeout on this if it takes longer than 120 seconds we should abort
+# and clean up
 (
 sleep 120	# if 2 minutes pass
 kill -ALRM $$	2>/dev/null # send it a SIGALRM signal
@@ -220,7 +224,8 @@ function_call upd_conf_cfe
 function_call upd_conf_kernel
 
 log "now starting writing data to flash with [ iopupgrade $cmdline -u ubi0_$upd_ubi_id ]"
-run_cleanup=1	# When we start to actually write data there might be some things that need cleanup if we get an error/crash 
+run_cleanup=1	# When we start to actually write data there might be some
+		# things that need cleanup if we get an error/crash
 iopupgrade $cmdline -u ubi0_$upd_ubi_id
 
 # in case of any error we abort
@@ -247,7 +252,8 @@ run_cleanup=0
 # Now make sure that we actually boot the new system on the next reboot
 upd_finnish
 
-# spawn the reboot to a subshell to allow the main program to quit before reset to avoid any hanged network connection like ssh
+# spawn the reboot to a subshell to allow the main program to quit before reset
+# to avoid any hanged network connection like ssh
 if [ $upd_noreboot -eq 0 ]
 then
     (
