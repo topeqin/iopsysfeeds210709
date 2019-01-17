@@ -79,27 +79,46 @@ function timeout {
     exit 1
 }
 
+# Not much that can be done if the mount fails but to try again.
+# if after 10 seconds there still is errors abort program.
+# UBIFS has some wierd time intervall after ubiupdatevol where
+# a mount of the newly written data results in a busy error.
+function mount_retry {
+    local tries=0
+
+    while [ $tries -lt 10 ]
+    do
+	if mount $@ 2>/dev/null
+	then
+	    return
+	fi
+	tries=$((tries + 1))
+	sleep 1
+    done
+
+    log "mount failed for command [mount $@] so upgrade failed."
+
+    exit 1
+}
+
 function mount_newroot {
     run_mount_cleanup=1
     mkdir -p /tmp/newroot
     mkdir -p /tmp/newroot_overlay
 
-    # This sync is needed so that the previous write of ubifs volume is completely done.
-    # otherwise we could get a busy error from the mount
-    sync
-    mount -t ubifs ubi0:rootfs_$upd_vol /tmp/newroot
+    mount_retry -t ubifs ubi0:rootfs_$upd_vol /tmp/newroot
 
-    mount -o noatime,lowerdir=/tmp/newroot,upperdir=/tmp/newroot/overlay,workdir=/tmp/newroot/lib/overlay.tmp -t overlay "overlayfs:/tmp/newroot/overlay" /tmp/newroot_overlay
-    mount --bind /tmp/newroot/ /tmp/newroot_overlay/rom
+    mount_retry -o noatime,lowerdir=/tmp/newroot,upperdir=/tmp/newroot/overlay,workdir=/tmp/newroot/lib/overlay.tmp -t overlay "overlayfs:/tmp/newroot/overlay" /tmp/newroot_overlay
+    mount_retry --bind /tmp/newroot/ /tmp/newroot_overlay/rom
 
-    mount --bind /dev /tmp/newroot_overlay/dev
-    mount --bind /proc /tmp/newroot_overlay/proc
-    mount --bind /sys /tmp/newroot_overlay/sys
-    mount -t tmpfs -o noatime,mode=0755 root /tmp/newroot_overlay/tmp
+    mount_retry --bind /dev /tmp/newroot_overlay/dev
+    mount_retry --bind /proc /tmp/newroot_overlay/proc
+    mount_retry --bind /sys /tmp/newroot_overlay/sys
+    mount_retry -t tmpfs -o noatime,mode=0755 root /tmp/newroot_overlay/tmp
 
     mkdir -p /tmp/newroot_overlay/tmp/oldroot
-    mount --bind / /tmp/newroot_overlay/tmp/oldroot
-    mount --bind /tmp /tmp/newroot_overlay/tmp/oldroot/tmp
+    mount_retry --bind / /tmp/newroot_overlay/tmp/oldroot
+    mount_retry --bind /tmp /tmp/newroot_overlay/tmp/oldroot/tmp
 }
 
 function umount_newroot {
