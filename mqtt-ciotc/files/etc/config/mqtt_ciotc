@@ -1,0 +1,3 @@
+config certs 'certs'
+	option private '/etc/mqtt-ciotc/rsa_private.pem'
+	option root '/etc/mqtt-ciotc/roots.pem'
