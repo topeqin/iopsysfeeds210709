@@ -15,5 +15,9 @@ config LIBDSL_DEBUG
 	bool "Enable xdsl debugging"
 	default n
 
+config LIBDSL_TEST
+	depends on PACKAGE_libdsl
+	bool "Libdsl test program"
+	default n
 endmenu
 endif

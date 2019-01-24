@@ -118,6 +118,12 @@ define Build/InstallDev/libethernet
 	$(CP) $(PKG_BUILD_DIR)/libethernet/libethernet.so $(1)/usr/lib/
 endef
 
+define Build/Compile
+	$(call Build/Compile/Default)
+ifeq ($(CONFIG_LIBDSL_TEST),y)
+	$(MAKE) -C "$(PKG_BUILD_DIR)/libdsl/test" $(MAKE_FLAGS)
+endif
+endef
 
 define Build/InstallDev
 	$(foreach dir,$(subdirs),$(call Build/InstallDev/$(dir),$(1),$(2));)
@@ -135,7 +141,11 @@ endef
 
 define Package/libdsl/install
 	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_BUILD_DIR)/libdsl/libdsl.so* $(1)/usr/lib/
+ifeq ($(CONFIG_LIBDSL_TEST),y)
+	$(CP) $(PKG_BUILD_DIR)/libdsl/test/libdsl_test $(1)/usr/bin/
+endif
 endef
 
 $(eval $(call BuildPackage,libwifi))
