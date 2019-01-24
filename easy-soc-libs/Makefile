@@ -60,9 +60,9 @@ else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
   TARGET_PLATFORM=MARVELL
   TARGET_CFLAGS +=-DIOPSYS_MARVELL
-else ifeq ($(CONFIG_TARGET_lantiq_xrx500),y)
-  TARGET_PLATFORM=LANTIQ
-  TARGET_CFLAGS +=-DIOPSYS_LANTIQ
+else ifeq ($(CONFIG_TARGET_intel_mips),y)
+  TARGET_PLATFORM=INTEL
+  TARGET_CFLAGS +=-DIOPSYS_INTEL
 else
   $(info (UNEXPECTED CONFIG TARGET))
 endif
