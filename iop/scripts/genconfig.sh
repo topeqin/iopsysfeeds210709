@@ -15,6 +15,7 @@ function genconfig {
 	LOCAL_MIRROR="http://mirror.inteno.se/mirror"
 
 	target="bogus"
+	config_path=""
 
 	# Takes a board name and returns the target name in global var $target
 	set_target() {
@@ -43,6 +44,7 @@ function genconfig {
 	    for p in $iopsys_brcm63xx_mips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_brcm63xx_mips"
+			config_path="target/linux/iopsys-brcm63xx-mips/config"
 		    return
 		fi
 	    done
@@ -50,6 +52,7 @@ function genconfig {
 	    for p in $iopsys_brcm63xx_arm; do
 		if [ $p == $profile ]; then
 		    target="iopsys_brcm63xx_arm"
+			config_path="target/linux/iopsys-brcm63xx-arm/config"
 		    return
 		fi
 	    done
@@ -57,6 +60,7 @@ function genconfig {
 	    for p in $iopsys_ramips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_ramips"
+			config_path="target/linux/iopsys-ramips/config"
 		    return
 		fi
 	    done
@@ -64,6 +68,7 @@ function genconfig {
 	    for p in $intel_mips; do
 		if [ $p == $profile ]; then
 		    target="intel_mips"
+			config_path="target/linux/iopsys_ramips/config"
 		    return
 		fi
 	    done
@@ -109,7 +114,7 @@ function genconfig {
 		echo -e "  -h|--help\tShow this message"
 		echo -e "  -l|--list [customer]\tList all Customers or all boards for one customer"
 		echo -e "  -a|--list-all\tList all Customers and their board types"
-		echo -e "  -b|--boards\tList all board types"		
+		echo -e "  -b|--boards\tList all board types"
 		echo
 		echo "Example ./iop genconfig vg50 TELIA"
 		echo "(if no customerconfig is chosen the Inteno Config will be used)"
@@ -233,15 +238,11 @@ function genconfig {
 		v "cp $CONFIGPATH/config .config"
 		cp $CONFIGPATH/config .config
 
-		# Add target (soc/board specific )
-		if [ -f $CONFIGPATH/target/config ]; then
-		    cat $CONFIGPATH/target/config >> .config
+		if [ -f $config_path/config ]; then
+		    cat $config_path/config >> .config
 		fi
-		if [ -f $CONFIGPATH/target/$target/config ]; then
-		    cat $CONFIGPATH/target/$target/config >> .config
-		fi
-		if [ -f $CONFIGPATH/target/$target/$BOARDTYPE/config ]; then
-		    cat $CONFIGPATH/target/$target/$BOARDTYPE/config >> .config
+		if [ -f $config_path/$BOARDTYPE/config ]; then
+		    cat $config_path/$BOARDTYPE/config >> .config
 		fi
 
 		# Apply profile diff to master config if selected
