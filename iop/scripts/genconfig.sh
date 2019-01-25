@@ -109,7 +109,6 @@ function genconfig {
 		echo -e "  -c|--clean\tRemove all files under ./files and import from config "
 		echo -e "  -v|--verbose\tVerbose"
 		echo -e "  -n|--no-update\tDo NOT! Update customer config before applying"
-		echo -e "  -p|--profile\tSet profile (if exists) default juci"
 		echo -e "  -s|--override\tEnable 'Package source tree override'"
 		echo -e "  -h|--help\tShow this message"
 		echo -e "  -l|--list [customer]\tList all Customers or all boards for one customer"
@@ -245,22 +244,6 @@ function genconfig {
 		    cat $config_path/$BOARDTYPE/config >> .config
 		fi
 
-		# Apply profile diff to master config if selected
-		if [ -n "$PROFILE" ]; then
-			if [ -e "$CONFIGPATH/$PROFILE.diff" ]; then
-				cat $CONFIGPATH/$PROFILE.diff >> .config
-			elif [ "$PROFILE" == "juci" ]; then
-				v "Default profile (juci) is selected."
-			else
-				echo "ERROR: profile $PROFILE does not exist!"
-				exit 1
-			fi
-		else
-			v "No profile selected! Using default."
-		fi
-
-		# Set target and profile
-
 		#special handling for intel_mips which use TARGET_DEVICES
 		if [ "$target" = "intel_mips" ]; then
 			subtarget="xrx500"
@@ -346,13 +329,6 @@ function genconfig {
 
 		# Set default values based on selected parameters
 		v "$(make defconfig 2>&1)"
-
-		# Temporary fixup for juci/luci profile
-		if [ "$PROFILE" == "luci" ]; then
-			sed -i '/CONFIG_DEFAULT_juci/d' .config
-			sed -i '/CONFIG_PACKAGE_juci/d' .config
-			sed -i '/CONFIG_PACKAGE_uhttpd/d' .config
-		fi
 
 		echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
 
