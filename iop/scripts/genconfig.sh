@@ -68,7 +68,7 @@ function genconfig {
 	    for p in $intel_mips; do
 		if [ $p == $profile ]; then
 		    target="intel_mips"
-			config_path="target/linux/iopsys_ramips/config"
+			config_path="target/linux/intel_mips/config"
 		    return
 		fi
 	    done
