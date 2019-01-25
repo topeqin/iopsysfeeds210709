@@ -1,3 +1,0 @@
-# temporary solution for kernel
-CONFIG_KERNEL_GIT_BRANCH="speedport_smart3"
-CONFIG_KERNEL_GIT_COMMIT="fef58dd6628c4b8b9c921fae473874fcda6361bf"

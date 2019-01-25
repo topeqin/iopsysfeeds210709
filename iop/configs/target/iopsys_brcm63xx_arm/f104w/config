@@ -1,6 +1,0 @@
-
-# Disable kernel internal Dect. External Dect can still operate.
-CONFIG_TARGET_NO_DECT=y
-
-CONFIG_USE_DSL=y
-CONFIG_TARGET_DSL_GFAST=y
