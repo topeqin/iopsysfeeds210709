@@ -7,7 +7,7 @@ function genconfig {
 	export FILEDIR="files/"
 	export THEMEDIR="themes"
 	CURRENT_CONFIG_FILE=".current_config_file"
-	export CONFIGPATH="package/feeds/iopsys/iop/configs"
+	export CONFIGPATH="package/feeds/iopsys/iop"
 	CUSTPATH="customerconfigs"
 	export CUSTCONF="customerconfigs/customers"
 	export VERBOSE=0
