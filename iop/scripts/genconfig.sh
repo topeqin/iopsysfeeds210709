@@ -15,7 +15,6 @@ function genconfig {
 	LOCAL_MIRROR="http://mirror.inteno.se/mirror"
 
 	target="bogus"
-	masterconfig=1
 
 	# Takes a board name and returns the target name in global var $target
 	set_target() {
@@ -58,14 +57,6 @@ function genconfig {
 	    for p in $iopsys_ramips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_ramips"
-		    return
-		fi
-	    done
-
-	    for p in $ramips; do
-		if [ $p == $profile ]; then
-		    target="ramips"
-		    masterconfig=0
 		    return
 		fi
 	    done
@@ -237,13 +228,10 @@ function genconfig {
 		fi
 
 		# Generate base config
-		# Used only for iopsys targets, not openwrt targets
 		rm -f .config
-		if [ $masterconfig -eq 1 ]; then
-			v "Config $BOARDTYPE selected"
-			v "cp $CONFIGPATH/config .config"
-			cp $CONFIGPATH/config .config
-		fi
+		v "Config $BOARDTYPE selected"
+		v "cp $CONFIGPATH/config .config"
+		cp $CONFIGPATH/config .config
 
 		# Add target (soc/board specific )
 		if [ -f $CONFIGPATH/target/config ]; then
@@ -354,7 +342,7 @@ function genconfig {
 		# currently boardparms.c and boardparms_voice.c is the only place that is depending on inteno boardid name
 		# so just touch that file.
 		[ -d ./build_dir ] && find build_dir/ -name "boardparms*c" -print0 2>/dev/null | xargs -0 touch 2>/dev/null
-				
+
 		# Set default values based on selected parameters
 		v "$(make defconfig 2>&1)"
 
@@ -365,9 +353,7 @@ function genconfig {
 			sed -i '/CONFIG_PACKAGE_uhttpd/d' .config
 		fi
 
-		if [ $masterconfig -eq 1 ]; then
-			echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
-		fi
+		echo Set version to $(grep -w CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"')
 
 		# Clean base-file package to force rebuild when changing profile
 		v "$(make package/base-files/clean 2>&1)"
