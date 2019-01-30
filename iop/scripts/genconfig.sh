@@ -21,10 +21,10 @@ function genconfig {
 	set_target() {
 	    local profile=$1
 
-	    local iopsys_brcm63xx_mips=$(cd target/linux/iopsys-brcm63xx-mips; ./genconfig)
-	    local iopsys_brcm63xx_arm=$(cd target/linux/iopsys-brcm63xx-arm; ./genconfig)
-	    local iopsys_ramips=$(cd target/linux/iopsys-ramips; ./genconfig)
-	    local intel_mips=$(cd target/linux/intel_mips; ./genconfig)
+	    local iopsys_brcm63xx_mips=$([ -d target/linux/iopsys_brcm63xx_mips ] && cd target/linux/iopsys-brcm63xx-mips; ./genconfig)
+	    local iopsys_brcm63xx_arm=$([ -d target/linux/iopsys_brcm63xx_arm ] && cd target/linux/iopsys-brcm63xx-arm; ./genconfig)
+	    local iopsys_ramips=$([ -d target/linux/iopsys_ramips ] && cd target/linux/iopsys-ramips; ./genconfig)
+	    local intel_mips=$([ -d target/linux/intel_mips ] && cd target/linux/intel_mips; ./genconfig)
 
 	    if [ "$profile" == "LIST" ]
 	    then
