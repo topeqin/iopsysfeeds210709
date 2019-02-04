@@ -36,13 +36,13 @@ function update_feed_branches {
 		echo "Updating release branch $release to specific commit hash given in feeds.conf for each feed repo"
 	fi
 
-	ifeeds="$(grep -r feed_inteno feeds.conf  | awk '{print$2}' | cut -d'_' -f3 | tr '\n' ' ')"
+	ifeeds="$(grep -r 'dev.iopsys.eu' feeds.conf | awk '{print$2}' | tr '\n' ' ')"
 
 	for f in $ifeeds; do
-		commith=$(grep feed_inteno_$f feeds.conf | cut -d'^' -f2)
-		cd $ipath/feeds/feed_inteno_$f
+		commith=$(grep $f feeds.conf | cut -d'^' -f2)
+		cd $ipath/feeds/$f
 		git branch -D $release 2>/dev/null
-		echo "feed_inteno_$f: updating release branch $release to commit $commith"
+		echo "$f: updating release branch $release to commit $commith"
 		git checkout $commith
 		git push origin :$release
 		git checkout -b $release
