@@ -10,10 +10,10 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=dslmngr
 PKG_VERSION:=1.0.0
 
-LOCAL_DEV=1
+LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=4dca0fd11b75debe3661a5a399d198ebef6fcb0e
+PKG_SOURCE_VERSION:=266a037a7b8c1f9c61a5fc51f9c31ff7ee6e4d93
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dslmngr.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 endif

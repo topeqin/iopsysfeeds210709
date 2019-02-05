@@ -8,10 +8,10 @@ PKG_NAME:=easy-soc-libs
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-LOCAL_DEV=1
+LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=87ad01a06b7898ae45e94444e0caa7e2cc264cc8
+PKG_SOURCE_VERSION:=794b958cda049aa0bfb6ea6827e4b489e23600d7
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
