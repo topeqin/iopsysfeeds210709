@@ -6,6 +6,8 @@
 START=99
 USE_PROCD=1
 
+CLIENT_LIST="/tmp/easy_qos_client.list"
+
 log() {
 	echo "${@}"|logger -t easy_qos -p debug
 }
@@ -39,10 +41,31 @@ get_priority() {
 	esac
 }
 
+clean_client_entries() {
+	[ -f ${CLIENT_LIST} ] && rm ${CLIENT_LIST}
+}
+
+map_client_entries() {
+	json_load "$(ubus call router.network 'clients')"
+	json_get_keys keys
+
+	echo "macaddr ipaddr hostname">${CLIENT_LIST}
+	for key in ${keys};
+	do
+		json_select ${key}
+		json_get_vars ipaddr macaddr hostname
+		echo "${macaddr} ${ipaddr} ${hostname}">>${CLIENT_LIST}
+		json_select ..
+	done
+	json_cleanup
+}
+
 # Find the IP of a corresponding mac from arp table
 get_ipaddress() {
 	local mac=${1};
-	local ip=$(grep -i "${mac}" /proc/net/arp |awk '{ print $1}');
+	local ip="";
+	
+	ip=$(grep -i "${mac}" ${CLIENT_LIST}|awk '{print $2}')
 	if [ -z "${ip}" ]; then
 		log "Failed to get IP for ${mac}";
 	fi
@@ -92,6 +115,8 @@ create_rule() {
 	
 	if [ "${proto}" == "icmp" ]; then
 		cmd="-p icmp -m icmp --icmp-type 8 $cmd"
+	elif [ "${proto}" == "all" ]; then
+		cmd="-p all $cmd"
 	else
 		cmd="-p ${proto} -m ${proto} $cmd"
 	fi
@@ -124,8 +149,10 @@ manage_rule() {
 
 reload_service() {
 	clear_existing_rules
+	map_client_entries
 	config_load easy_qos
 	config_foreach manage_rule rule
+	clean_client_entries
 }
 
 start_service() {
