@@ -26,7 +26,7 @@ define Package/dslmngr
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=XDSL status and configration utility
-  DEPENDS:=+libdsl +libuci +libubox +ubus +libpthread +libnl-genl +dsl-cpe-control-vrx
+  DEPENDS:=+libdsl +libuci +libubox +ubus +libpthread +libnl-genl
 endef
 
 define Package/dslmngr/description
