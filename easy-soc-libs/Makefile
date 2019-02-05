@@ -39,12 +39,6 @@ define Package/libwifi
   TITLE:= WiFi library (libwifi)
 endef
 
-define Package/libdsl
-  $(call Package/easy-soc-libs)
-  TITLE:= XDSL library (libdsl)
-  DEPENDS:=+dsl-cpe-api-vrx +dsl-cpe-fapi
-endef
-
 define Package/libethernet
   $(call Package/easy-soc-libs)
   TITLE:= Ethernet library (libethernet)
@@ -71,9 +65,19 @@ else
   $(info Unexpected CONFIG_TARGET)
 endif
 
+export TARGET_PLATFORM
+
 ifdef CONFIG_IOP_LLA_LIBS_DEBUG
   TARGET_CFLAGS += -DIOP_LLA_LIBS_DEBUG
 endif
+
+define Package/libdsl
+  $(call Package/easy-soc-libs)
+  TITLE:= XDSL library (libdsl)
+ifeq ($(TARGET_PLATFORM),INTEL)
+  DEPENDS:=+dsl-cpe-api-vrx +dsl-cpe-fapi
+endif
+endef
 
 subdirs := \
 	$(if $(CONFIG_PACKAGE_libwifi),libwifi) \
