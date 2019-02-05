@@ -46,7 +46,7 @@ function update_feed_branches {
 		git checkout $commith
 		git push origin :$release
 		git checkout -b $release
-		git push origin $release
+		git push --set-upstream origin $release
 		cd $ipath
 	done
 
