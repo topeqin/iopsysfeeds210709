@@ -74,7 +74,7 @@ endif
 define Package/libdsl
   $(call Package/easy-soc-libs)
   TITLE:= XDSL library (libdsl)
-  DEPENDS:=@TARGET_intel_mips +dsl-cpe-api-vrx +dsl-cpe-fapi
+  DEPENDS:=+TARGET_intel_mips:dsl-cpe-api-vrx +TARGET_intel_mips:dsl-cpe-fapi
 endef
 
 subdirs := \
