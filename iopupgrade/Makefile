@@ -12,7 +12,7 @@ PKG_NAME:=iopupgrade
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=9b5ed4bc9f7ac5064414cf5feb510ffd95df6ec4
+PKG_SOURCE_VERSION:=de678c5eb156a49de30ca6d2ce769f3b76124c10
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/iopupgrade
 

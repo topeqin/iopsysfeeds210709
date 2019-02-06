@@ -7,6 +7,7 @@ cur_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name.
 upd_vol=""	# num,[0/1]	Number used for ubifs root filesystem volume name.
 		# eg: rootfs_0 or rootfs_1, the one we want to update
 cmdline=""	# command line settings.
+cmdline_match="" # Headers to match to the image
 
 ###############################################################################
 # file local variables. should not be used in imported functions. Can be used
@@ -204,9 +205,7 @@ log "Firmware upgrade started"
 if [ $upd_forceimage -eq 0 ]
 then
    board=$(db get hw.board.iopVerBoard)
-   cmdline="$cmdline -b $board"
-else
-    cmdline="$cmdline -q"
+   cmdline_match="board=$board"
 fi
 
 # find out what rootfs volume is active. 
@@ -217,16 +216,19 @@ upd_vol=$(get_flashbank_next)
 upd_ubi_id=$(ubinfo -d 0 -N rootfs_$upd_vol | awk "/Volume ID:/ {print \$3}")
 log "installing Root Fileystem into UBI volume rootfs_$upd_vol"
 
+# prepare to match dsl.
+function_call upd_conf_dsl
+
 # prepare to update CFE if it exists
 function_call upd_conf_cfe
 
 # prepare to update kernel if it is stored in MTD/JFFS2 
 function_call upd_conf_kernel
 
-log "now starting writing data to flash with [ iopupgrade $cmdline -u ubi0_$upd_ubi_id ]"
+log "now starting writing data to flash with [ iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id ]"
 run_cleanup=1	# When we start to actually write data there might be some
 		# things that need cleanup if we get an error/crash
-iopupgrade $cmdline -u ubi0_$upd_ubi_id
+iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id
 
 # in case of any error we abort
 if [ $? -ne 0 ]; then
