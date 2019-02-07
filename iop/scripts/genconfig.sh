@@ -85,17 +85,12 @@ function genconfig {
 		mediatekAllowed=0
 		wifilifeAllowed=0
 
-		allowedRepos="$(ssh -o ConnectTimeout=5 git@private.inteno.se 2>/dev/null | grep -w 'R\|W' | awk '{print$NF}')"
-		for repo in $allowedRepos; do
-			case $repo in
-			bcmkernel) bcmAllowed=1 ;;
-			ice-client) iceAllowed=1 ;;
-			endptcfg) endptAllowed=1 ;;
-			natalie-dect*) natalieAllowed=1 ;;
-			linux) mediatekAllowed=1 ;;
-			wifilife) wifilifeAllowed=1 ;;
-			esac
-		done
+		git ls-remote git@dev.iopsys.eu:broadcom/bcmcreator.git -q 2>/dev/null && bcmAllowed=1
+		git ls-remote git@dev.iopsys.eu:mediatek/linux.git -q 2>/dev/null && mediatekAllowed=1
+		git ls-remote git@dev.iopsys.eu:dialog/natalie-dect-12.26.git -q 2>/dev/null && natalieAllowed=1
+		git ls-remote git@dev.iopsys.eu:iopsys/endptmngr.git -q 2>/dev/null && endptAllowed=1
+		git ls-remote git@dev.iopsys.eu:iopsys/wifilife.git -q 2>/dev/null && wifilifeAllowed=1
+		git ls-remote git@private.inteno.se:ice-client.git -q -q 2>/dev/null && iceAllowed=1
 	}
 
 	v() {
@@ -176,7 +171,7 @@ function genconfig {
 
 	setup_dirs()
 	{
-		if ssh -o ConnectTimeout=5 git@private.inteno.se 2>/dev/null  | grep -qw ${CUSTREPO:22}; then
+		if git ls-remote $CUSTREPO -q 2>/dev/null; then
 			if [ ! -d "$CUSTPATH" ]; then
 				git clone "$CUSTREPO" "$CUSTPATH"
 			elif [ $IMPORT -eq 1 ]; then
