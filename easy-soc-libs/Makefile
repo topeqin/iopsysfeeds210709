@@ -48,13 +48,11 @@ endef
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
   TARGET_PLATFORM=BROADCOM
   TARGET_CFLAGS +=-DIOPSYS_BROADCOM -DCONFIG_BCM963138 \
-	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/broadcom/include/bcm963xx \
 	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx
   KERNEL_DIR:=$(BUILD_DIR)/bcmkernel/bcm963xx
 else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
   TARGET_PLATFORM=BROADCOM
   TARGET_CFLAGS +=-DIOPSYS_BROADCOM -DCONFIG_BCM963138 \
-	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/broadcom/include/bcm963xx \
 	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
   TARGET_PLATFORM=MEDIATEK
