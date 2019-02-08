@@ -257,7 +257,7 @@ read_lines()
 {
 	local lines=""
 	local call_lines
-	local fsxIdx fsxEpt dectIdx dectEpt
+	local fxsIdx fxsEpt dectIdx dectEpt
 
 	# Are lines already set by user conf?
 	config_get call_lines $1 call_lines
@@ -276,19 +276,19 @@ read_lines()
 		if test $(db get hw.board.hasVoice) = "1"; then
 			# Get the first FSX voice endpoint index by
 			# searching for the name usually used.
-			fsxIdx=$(echo $voiceNames | \
+			fxsIdx=$(echo $voiceNames | \
 				awk -e '{
 					i = 1;
 					while(i <= NF && tolower($i) !~ /^tel.*$/) {
 						i++;
 					}
 					print i;
-				}
-			')
+				}'
+			)
 	
 			# Convert index to endpoint ID
-			if test $fsxIdx -gt 0; then
-				fsxEpt=$(echo $voicePorts | awk '{ print $'$fsxIdx' }')
+			if test $fxsIdx -gt 0; then
+				fxsEpt=$(echo $voicePorts | awk '{ print $'$fxsIdx' }')
 			fi
 
 			hasVoice=1
@@ -315,7 +315,9 @@ read_lines()
 		fi
 
 		if test $hasVoice -eq 1; then
-			call_lines="$dectEpt $fsxEpt"
+		        call_lines="$dectEpt $fxsEpt"
+		        # Remove leading/trailing spaces
+			call_lines=$(echo $call_lines | xargs echo -n)
 
 			# If we didn't find any endpoint ID we
 			# fallback to activate them all.
@@ -2062,9 +2064,10 @@ set_line_name()
 {
 	local maxlinenum=$2
 	local curname name_ix ix item lnum
+	local brcm_line=$1
 
 	# delete non-existing lines from config #
-	case $1 in
+	case $brcm_line in
 		brcm[0-9])
 			lnum=${1:4:1}
 			[ $((lnum+1)) -gt $maxlinenum ] && uci -q delete voice_client.$1
@@ -2072,13 +2075,13 @@ set_line_name()
 	esac
 	#########################################
 
-	config_get curname $1 name
+	config_get curname $brcm_line name
 	[ -n "$curname" ] && return
 
 	name_ix=""
 	ix=0
 	for item in $(db get hw.board.VoicePortOrder); do
-		if [ "$item" == "$1" ]; then
+		if [ "$item" == "$brcm_line" ]; then
 			name_ix=$ix
 			break
 		fi
@@ -2089,7 +2092,7 @@ set_line_name()
 	if [ -n "$name_ix" ]; then
 		for item in $(db get hw.board.VoicePortNames); do
 			if [ $ix -eq $name_ix ]; then
-				uci_set voice_client $1 name \
+				uci_set voice_client $brcm_line name \
 					"$(echo "$item" |tr "[_]" "[ ]")"
 				return
 			fi
@@ -2097,7 +2100,7 @@ set_line_name()
 		done
 	fi
 
-	uci_set voice_client $1 name $1
+	uci_set voice_client $brcm_line name $brcm_line
 }
 
 #
@@ -2278,8 +2281,11 @@ stop_service() {
 }
 
 reload_service() {
-	#stop
 	start
+	#stop
+	# turn off voice led; asterisk will turn it on
+	# if there is a registered account
+	ubus call led.voice1 set '{"state":"off"}'
 
 	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
 	sleep 1
