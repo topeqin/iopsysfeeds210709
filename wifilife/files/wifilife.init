@@ -24,10 +24,10 @@ start_service() {
 	procd_close_instance
 }
 
-stop_service()
-{
-	service_stop ${PROG}
-}
+#stop_service()
+#{
+#	service_stop ${PROG}
+#}
 
 reload_service() {
 #	procd_send_signal wifilife # use SIGHUP
