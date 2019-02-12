@@ -3,8 +3,10 @@
 START=96
 STOP=10
 PROG=/usr/sbin/wifiagent
-
+ENABLE=/tmp/owsd_enable
 USE_PROCD=1
+EXTRA_COMMANDS="enable_check"
+
 
 start_service() {
 	procd_open_instance
@@ -16,6 +18,7 @@ start_service() {
 	config_load owsd
 	config_get enable ubusproxy enable
 	if [ "$enable" == "1" ]; then
+		echo $enable > $ENABLE
 		procd_set_param command ${PROG} -c -d -l -f -o /tmp/wificntlr.log
 	fi
 	procd_close_instance
@@ -38,6 +41,19 @@ reload_service() {
 	fi
 }
 
+enable_check() {
+	config_load owsd
+	config_get enable ubusproxy enable
+
+	prev=$(cat $ENABLE)
+
+	if [ "$enable" != "$prev" ]; then
+		echo $enable > $ENABLE
+		reload
+	fi
+}
+
 service_triggers() {
-        procd_add_reload_trigger "wifilife"
+	procd_add_config_trigger "config.change" "wifilife" /etc/init.d/wifilife reload
+	procd_add_config_trigger "config.change" "owsd" /etc/init.d/wifilife enable_check
 }
