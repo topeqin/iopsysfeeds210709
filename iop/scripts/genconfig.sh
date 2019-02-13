@@ -13,38 +13,41 @@ function genconfig {
 	export VERBOSE=0
 	export DEVELOPER=0
 	LOCAL_MIRROR="http://mirror.inteno.se/mirror"
-
 	target="bogus"
 	config_path=""
+	brcm63xx_mips="target/linux/iopsys-brcm63xx-mips"
+	brcm63xx_arm="target/linux/iopsys-brcm63xx-arm"
+	ramips="target/linux/iopsys-ramips"
+	intel_mips="target/linux/intel_mips"
 
 	# Takes a board name and returns the target name in global var $target
 	set_target() {
 	    local profile=$1
 
-	    local iopsys_brcm63xx_mips=$(cd target/linux/iopsys-brcm63xx-mips; ./genconfig)
-	    local iopsys_brcm63xx_arm=$(cd target/linux/iopsys-brcm63xx-arm; ./genconfig)
-	    local iopsys_ramips=$(cd target/linux/iopsys-ramips; ./genconfig)
-	    local intel_mips=$(cd target/linux/intel_mips; ./genconfig)
 
-	    if [ "$profile" == "LIST" ]
-	    then
-		for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips intel_mips
-		do
-		    echo "$list based boards:"
-		    for b in ${!list}
-		    do
-			echo -e "\t$b"
-		    done
-		done
-		return
+		[ -e $brcm63xx_mips/genconfig ] &&
+			iopsys_brcm63xx_mips=$(cd $brcm63xx_mips; ./genconfig)
+		[ -e $brcm63xx_arm/genconfig ] &&
+			iopsys_brcm63xx_arm=$(cd $brcm63xx_arm; ./genconfig)
+		[ -e $ramips/genconfig ] &&
+			iopsys_ramips=$(cd $ramips; ./genconfig)
+		[ -e $intel_mips/genconfig ] &&
+			iopsys_intel_mips=$(cd $intel_mips; ./genconfig)
+
+	    if [ "$profile" == "LIST" ]; then
+			for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips; do
+				echo "$list based boards:"
+				for b in ${!list}; do
+					echo -e "\t$b"
+				done
+			done
+			return
 	    fi
-
-	    local targets
 
 	    for p in $iopsys_brcm63xx_mips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_brcm63xx_mips"
-			config_path="target/linux/iopsys-brcm63xx-mips/config"
+			config_path="$brcm63xx_mips/config"
 		    return
 		fi
 	    done
@@ -52,7 +55,7 @@ function genconfig {
 	    for p in $iopsys_brcm63xx_arm; do
 		if [ $p == $profile ]; then
 		    target="iopsys_brcm63xx_arm"
-			config_path="target/linux/iopsys-brcm63xx-arm/config"
+			config_path="$brcm63xx_arm/config"
 		    return
 		fi
 	    done
@@ -60,15 +63,15 @@ function genconfig {
 	    for p in $iopsys_ramips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_ramips"
-			config_path="target/linux/iopsys-ramips/config"
+			config_path="$ramips/config"
 		    return
 		fi
 	    done
 
-	    for p in $intel_mips; do
+	    for p in $iopsys_intel_mips; do
 		if [ $p == $profile ]; then
 		    target="intel_mips"
-			config_path="target/linux/intel_mips/config"
+			config_path="$intel_mips/config"
 		    return
 		fi
 	    done
