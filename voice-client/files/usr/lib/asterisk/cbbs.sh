@@ -23,6 +23,16 @@
 # ./cbbs.sh BRCM 0 4444 BRCM/4 5 300 45
 #####################################################
 
+if [ -e /proc/nvram ]; then
+    . /lib/voice/broadcom.sh
+elif [ -n $(which fw_printenv) ] && [ $(fw_printenv -n uboot_version | sed 's/..*\(INTEL\)..*/\1/') = 'INTEL' ]; then
+    . /lib/voice/intel.sh
+else
+    echo 'Warning: Could not detect platform'
+    echo 'Defaulting to Broadcom'
+    . /lib/voice/broadcom.sh
+fi
+
 #Create temporary file
 tempfile=$(mktemp)
 
@@ -31,7 +41,7 @@ echo "Channel: $1/$2/$3" >> $tempfile
 echo "MaxRetries: $5" >> $tempfile
 echo "RetryTime: $6" >> $tempfile
 echo "WaitTime: $7" >> $tempfile
-echo "Set: BRCMLINE=$4" >> $tempfile
+echo "Set: $(getChannelName)LINE=$4" >> $tempfile
 
 #On answer
 echo "Context: cbbs" >> $tempfile

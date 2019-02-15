@@ -6,6 +6,17 @@
 #
 . /lib/functions.sh
 . /lib/functions/network.sh
+
+if [ -e /proc/nvram ]; then
+    . /lib/voice/broadcom.sh
+elif [ -n $(which fw_printenv) ] && [ $(fw_printenv -n uboot_version | sed 's/..*\(INTEL\)..*/\1/') = 'INTEL' ]; then
+    . /lib/voice/intel.sh
+else
+    echo 'Warning: Could not detect platform'
+    echo 'Defaulting to Broadcom'
+    . /lib/voice/broadcom.sh
+fi
+
 HOOKS=/usr/lib/inithooks/voice_client
 if [ -f "$HOOKS" ] ; then
 	. $HOOKS
@@ -15,8 +26,8 @@ START=60
 USE_PROCD=1
 
 # Some global variables
-SERIAL=$(cat /proc/nvram/SerialNumber)
-BASEMAC=$(cat /proc/nvram/BaseMacAddr | sed 's/ //g')
+SERIAL=$(getSerial)
+BASEMAC=$(getBaseMAC)
 MODULENAME=voice
 USERAGENT="Inteno_${SERIAL}_${BASEMAC}"
 
@@ -30,8 +41,8 @@ ASTERISKDIR=/etc/asterisk
 WORKDIR=/tmp/$MODULENAME.$$
 MD5SUMSFILE=/tmp/$MODULENAME-sums.$$
 
-# Whitespace separated list of BRCM feature access codes
-BRCM_FAC=
+# Whitespace separated list of $(getChannelName) feature access codes
+CHANNEL_FAC=
 
 #TODO: go through templates, check usage
 
@@ -80,8 +91,8 @@ TMPL_ACL=$TEMPLATEDIR/acl.conf.TEMPLATE
 TMPL_CONFBRIDGE=$TEMPLATEDIR/confbridge.conf.TEMPLATE
 TMPL_UDPTL=$TEMPLATEDIR/udptl.conf.TEMPLATE
 
-TMPL_BRCM=$TEMPLATEDIR/brcm.conf.TEMPLATE
-TMPL_BRCM_LINE=$TEMPLATEDIR/brcm_line.TEMPLATE
+TMPL_CHANNEL=$TEMPLATEDIR/$(getLineName).conf.TEMPLATE
+TMPL_CHANNEL_LINE=$TEMPLATEDIR/$(getLineName)_line.TEMPLATE
 
 TMPL_MEETME=$TEMPLATEDIR/meetme.conf.TEMPLATE
 
@@ -180,7 +191,7 @@ assemble_and_copy_config()
 	mv $WORKDIR/sip_registrations.tmp	$WORKDIR/sip_registrations.conf
 	mv $WORKDIR/sip_providers.tmp		$WORKDIR/sip_providers.conf
 	mv $WORKDIR/sip_users.tmp		$WORKDIR/sip_users.conf
-	mv $WORKDIR/brcm.tmp			$WORKDIR/brcm.conf
+	mv $WORKDIR/$(getLineName).tmp		$WORKDIR/$(getLineName).conf
 	mv $WORKDIR/extensions.tmp		$WORKDIR/extensions.conf
 	mv $WORKDIR/codecs.tmp			$WORKDIR/codecs.conf
 	mv $WORKDIR/rtp.tmp			$WORKDIR/rtp.conf
@@ -251,7 +262,7 @@ read_codecs_ptime()
 # in a Dial() command
 #
 # For backwards compatibility, if i is only a number (not prefixed by
-#	"SIP/" or "BRCM/") then add "BRCM/"
+#	"SIP/" or "CHANNEL/") then add "CHANNEL/"
 #
 read_lines()
 {
@@ -335,7 +346,7 @@ read_lines()
 	for i in $call_lines ; do
 		case $i in
 			''|*[!0-9]*)	lines=$lines"$i&" ;;
-			*) 				lines=$lines"BRCM/$i&" ;;
+			*) 				lines=$lines"$(getChannelName)/$i&" ;;
 		esac
 		
 	done
@@ -1030,9 +1041,9 @@ configure_queue()
 	do
 		local out=""
 		re='^[0-9]+$'
-		num=${member#brcm}
+		num=${member#$(getLineName)}
 		if [ -z "${num##[0-9]*}" ] ; then
-			out="BRCM/$num"
+			out="$(getChannelName)/$num"
 		else
 			local sip_user
 			config_get sip_user $member user
@@ -1159,7 +1170,7 @@ configure_cdr()
 configure_call_filters()
 {
 	local country
-	config_get country BRCM country
+	config_get country $(getChannelName) country
 	# Read the International Dialing Code and the Country Code from config
 
 	echo "Looking up IDC and CC for country $country"
@@ -1437,7 +1448,7 @@ configure_extensions()
 	fi
 
 	if [ -n "$extension_all_ports" ] ; then
-		local all_lines="BRCM/0&BRCM/1&BRCM/2&BRCM/3&BRCM/4&BRCM/5&BRCM/6"
+		local all_lines=$(getAllLines)
 		echo "exten => $extension_all_ports,1,Dial($all_lines,,t)"	>> $WORKDIR/extensions_local.tmp
 		echo "exten => $extension_all_ports,n,Hangup()"			>> $WORKDIR/extensions_local.tmp
 	fi
@@ -1465,7 +1476,7 @@ configure_extensions()
 		sed -i "s/|CLIR_FAC_SET|//"		$WORKDIR/extensions.tmp
 		sed -i "s/|CLIR|/$clir/"		$WORKDIR/extensions.tmp
 		sed -i "s/|CLIR_FAC_LEN|/${#clir}/"     $WORKDIR/extensions.tmp
-		BRCM_FAC="$BRCM_FAC $clir."
+		CHANNEL_FAC="$CHANNEL_FAC $clir."
 	else
 		sed -i "s/|CLIR_FAC_SET|/;/"		$WORKDIR/extensions.tmp
 	fi
@@ -1724,9 +1735,9 @@ configure_extensions_provider()
 }
 
 #
-# Create a local extension for a BRCM Line
+# Create a local extension for a CHANNEL Line
 #
-configure_brcm_line_extension()
+configure_tel_line_extension()
 {
 	local line
 	local extension
@@ -1736,8 +1747,9 @@ configure_brcm_line_extension()
 	local cbbs_retrytime
 	local cbbs_waittime
 	local mailbox
+	local line_name=$(getLineName)
 	
-	line=${1:4}
+	line=${1:${#line_name}}
 	config_get extension $1 extension
 
 	if [ -z "$line" ] ; then
@@ -1762,7 +1774,7 @@ configure_brcm_line_extension()
 	
 		cp $TMPL_EXTENSIONS_LOCAL_LINE			$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|EXTEN|/$extension/g"			$WORKDIR/extensions_local_line.tmp
-		sed -i "s/|LINE|/$line/g"			$WORKDIR/extensions_local_line.tmp
+		sed -i "s/|LINE|/$(getLineIdx $line)/g"		$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|TIMEOUT|/$(get_voicemail_timeout)/g"	$WORKDIR/extensions_local_line.tmp
 
 		#cbbs settings
@@ -1835,16 +1847,16 @@ configure_codecs()
 {
 	echo "Configuring codecs"
 	local genericplc
-	config_get genericplc BRCM genericplc
+	config_get genericplc $(getChannelName) genericplc
 	sed -i "s/|PLC|/$genericplc/"			$WORKDIR/codecs.tmp
 }
 
 #
-# Configure default settings for brcm.conf
+# Configure default settings for $(getLineName).conf
 #
-configure_brcm()
+configure_tel()
 {
-	echo "Configuring BRCM"
+	echo "Configuring $(getChannelName)"
 	local jbenable
 	local jbforce
 	local jbmaxsize
@@ -1853,43 +1865,44 @@ configure_brcm()
 	local dialoutmsec
 	local fac
 
-	config_get jbenable BRCM jbenable
-	config_get jbforce BRCM jbforce
-	config_get jbmaxsize BRCM jbmaxsize
-	config_get jbimpl BRCM jbimpl
+	config_get jbenable $(getChannelName) jbenable
+	config_get jbforce $(getChannelName) jbforce
+	config_get jbmaxsize $(getChannelName) jbmaxsize
+	config_get jbimpl $(getChannelName) jbimpl
 	config_get dtmfmode SIP dtmfmode
-	config_get dialoutmsec BRCM dialoutmsec
-	config_get fac BRCM fac
+	config_get dialoutmsec $(getChannelName) dialoutmsec
+	config_get fac $(getChannelName) fac
 
-	BRCM_FAC="$BRCM_FAC $fac"
+	CHANNEL_FAC="$CHANNEL_FAC $fac"
 	# Convert whitespace to commas
-	BRCM_FAC=$(echo $BRCM_FAC | sed -e 's/^ *//' -e 's/ *$//' | tr -s ' ' | tr ' ' ',')
+	CHANNEL_FAC=$(echo $CHANNEL_FAC | sed -e 's/^ *//' -e 's/ *$//' | tr -s ' ' | tr ' ' ',')
 
 	if [ -z "$dialoutmsec" ] ; then
 		dialoutmsec=4000
 	fi
 
-	sed -i "s/|JBENABLE|/$jbenable/"			$WORKDIR/brcm.tmp
-	sed -i "s/|JBFORCE|/$jbforce/"				$WORKDIR/brcm.tmp
-	sed -i "s/|JBMAXSIZE|/$jbmaxsize/"			$WORKDIR/brcm.tmp
-	sed -i "s/|JBIMPL|/$jbimpl/"				$WORKDIR/brcm.tmp
-	sed -i "s/|DIALOUTMSEC|/$dialoutmsec/"			$WORKDIR/brcm.tmp
-	sed -i "s/|FAC|/$BRCM_FAC/"				$WORKDIR/brcm.tmp
+	sed -i "s/|JBENABLE|/$jbenable/"			$WORKDIR/$(getLineName).tmp
+	sed -i "s/|JBFORCE|/$jbforce/"				$WORKDIR/$(getLineName).tmp
+	sed -i "s/|JBMAXSIZE|/$jbmaxsize/"			$WORKDIR/$(getLineName).tmp
+	sed -i "s/|JBIMPL|/$jbimpl/"				$WORKDIR/$(getLineName).tmp
+	sed -i "s/|DIALOUTMSEC|/$dialoutmsec/"			$WORKDIR/$(getLineName).tmp
+	sed -i "s/|FAC|/$CHANNEL_FAC/"				$WORKDIR/$(getLineName).tmp
+	sed -i "s/|CHANNELS|/$(db get hw.board.VoicePorts)/"	$WORKDIR/$(getLineName).tmp
 
 	if [ "$dtmfmode" == "compatibility" ] ; then
 		dtmfcompatibility="1"
 	else
 		dtmfcompatibility="0"
 	fi
-	sed -i "s/|DTMFCOMPATIBILITY|/$dtmfcompatibility/"      $WORKDIR/brcm.tmp
+	sed -i "s/|DTMFCOMPATIBILITY|/$dtmfcompatibility/"      $WORKDIR/$(getLineName).tmp
 }
 
 #
-# Configure settings for individual line in brcm.conf
+# Configure settings for individual line in $(getLineName).conf
 #
-configure_brcm_line()
+configure_tel_line()
 {
-	echo "Configuring BRCM line $1"
+	echo "Configuring $(getChannelName) line $1"
 	local extension
 	local sip_provider
 	local codecs
@@ -1935,30 +1948,30 @@ configure_brcm_line()
 		clir=0
 	fi
 
-	cp $TMPL_BRCM_LINE $WORKDIR/brcm_line.tmp
-	sed -i "s/|SECTION|/$1/"				$WORKDIR/brcm_line.tmp
-	sed -i "s/|CALLERID|/$extension/g"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|CONTEXT|/$sip_provider/g"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|DIALTONE_EXTENSION_HINT|/$1/"		$WORKDIR/brcm_line.tmp
-	sed -i "s/|AUTODIAL|/$autodial/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|AUTODIAL_TIMEOUT|/$autodial_timeout/"	$WORKDIR/brcm_line.tmp
-	sed -i "s/|DIALTONE_TIMEOUT|/$dialtone_timeout/"	$WORKDIR/brcm_line.tmp
-	sed -i "s/|DTMFRELAY|/$dtmfmode/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|CALLWAITING|/$callwaiting/"			$WORKDIR/brcm_line.tmp
-	sed -i "s/|CLIR|/$clir/"				$WORKDIR/brcm_line.tmp
+	cp $TMPL_CHANNEL_LINE $WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|SECTION|/$1/"				$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|CALLERID|/$extension/g"			$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|CONTEXT|/$sip_provider/g"			$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|DIALTONE_EXTENSION_HINT|/$1/"		$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|AUTODIAL|/$autodial/"			$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|AUTODIAL_TIMEOUT|/$autodial_timeout/"	$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|DIALTONE_TIMEOUT|/$dialtone_timeout/"	$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|DTMFRELAY|/$dtmfmode/"			$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|CALLWAITING|/$callwaiting/"			$WORKDIR/$(getLineName)_line.tmp
+	sed -i "s/|CLIR|/$clir/"				$WORKDIR/$(getLineName)_line.tmp
 
 
-	#Configure BRCM line with codecs according to the SIP line settings
+	#Configure CHANNEL line with codecs according to the SIP line settings
 #	local is_fax
 #	config_get is_fax $sip_provider is_fax
 # 	if [ -z "$is_fax" -o "$is_fax" = "1" ] ; then
-# 		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/brcm_line.tmp
+# 		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/$(getLineName)_line.tmp
 # 	else
-# 		sed -i "s/|ALLOW|/$(read_codecs $sip_provider)/"	$WORKDIR/brcm_line.tmp
+# 		sed -i "s/|ALLOW|/$(read_codecs $sip_provider)/"	$WORKDIR/$(getLineName)_line.tmp
 # 	fi
 
-	cat $WORKDIR/brcm_line.tmp >>				$WORKDIR/brcm.tmp
-	rm -f							$WORKDIR/brcm_line.tmp
+	cat $WORKDIR/$(getLineName)_line.tmp >>				$WORKDIR/$(getLineName).tmp
+	rm -f							$WORKDIR/$(getLineName)_line.tmp
 }
 
 #
@@ -2057,14 +2070,16 @@ pbx_fix_ownership()
 }
 
 #
-# Calculate a name for each brcm line, depending on port type
+# Calculate a name for each $(getLineName) line, depending on port type
 # and number. The name is used to make UI look better.
 #
 set_line_name()
 {
 	local maxlinenum=$2
 	local curname name_ix ix item lnum
-	local brcm_line=$1
+	local line_name=$(getLineName)
+	
+	line=${1:${#line_name}}
 
 	# delete non-existing lines from config #
 	case $brcm_line in
@@ -2150,11 +2165,11 @@ start_service() {
 	config_load voice_client
 
 	########################################################
-	# Set line names according to whats reported by brcminfo
+	# Set line names according to board parameters
 	# and delete non-existing lines from voice_client config
 	########################################################
 	local maxlinenum=$(db get hw.board.VoicePorts)
-	config_foreach set_line_name brcm_line $maxlinenum
+	config_foreach set_line_name $(getLineName)_line $maxlinenum
 	uci_commit voice_client
 
 	#######################################
@@ -2167,7 +2182,7 @@ start_service() {
 	cp $TMPL_SIP			$WORKDIR/sip.tmp
 	cp $TMPL_RTP			$WORKDIR/rtp.tmp
 	cp $TMPL_STUN			$WORKDIR/res_stun_monitor.tmp
-	cp $TMPL_BRCM			$WORKDIR/brcm.tmp
+	cp $TMPL_CHANNEL		$WORKDIR/$(getLineName).tmp
 	cp $TMPL_CODECS			$WORKDIR/codecs.tmp
 	cp $TMPL_VOICEMAIL		$WORKDIR/voicemail.tmp
 	cp $TMPL_DNSMGR			$WORKDIR/dnsmgr.tmp
@@ -2211,12 +2226,12 @@ start_service() {
 	config_foreach configure_sip_user_extension sip_user
 
 	#####################
-	# BRCM configuration
+	# CHANNEL configuration
 	#####################
-	configure_brcm
-	config_foreach configure_brcm_line brcm_line
-	config_foreach configure_brcm_line_extension brcm_line
-	config_foreach create_extensions_dialtone brcm_line
+	configure_tel
+	config_foreach configure_tel_line $(getLineName)_line
+	config_foreach configure_tel_line_extension $(getLineName)_line
+	config_foreach create_extensions_dialtone $(getLineName)_line
 	configure_codecs
 
 	###########################
@@ -2291,7 +2306,7 @@ reload_service() {
 	sleep 1
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
-	asterisk -rx "brcm reload"
+	asterisk -rx "$(getLineName) reload"
 }
 
 service_triggers() {

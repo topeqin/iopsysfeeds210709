@@ -2,6 +2,16 @@
 
 . /usr/share/libubox/jshn.sh
 
+if [ -e /proc/nvram ]; then
+    . /lib/voice/broadcom.sh
+elif [ -n $(which fw_printenv) ] && [ $(fw_printenv -n uboot_version | sed 's/..*\(INTEL\)..*/\1/') = 'INTEL' ]; then
+    . /lib/voice/intel.sh
+else
+    echo 'Warning: Could not detect platform'
+    echo 'Defaulting to Broadcom'
+    . /lib/voice/broadcom.sh
+fi
+
 case "$1" in
 	list)
 		echo '{ "status" : {}, "lines" : {}, "codecs" : {}, "call_log" : {} }'
@@ -48,8 +58,8 @@ case "$1" in
                                 done
 				json_select ..
 
-				json_add_object "brcm"
-				for line in $(uci show voice_client | grep brcm_line | awk -F[.,=] '{print$2}'); do
+				json_add_object "$(getLineName)"
+				for line in $(uci show voice_client | grep $(getLineName)_line | awk -F[.,=] '{print$2}'); do
 					json_add_object "$line"
 					linestate="ONHOOK"
 					linenum=${line:4}
@@ -66,7 +76,7 @@ case "$1" in
 
 			;;
 			lines)
-				subchannels=$(asterisk -x 'brcm show status' 2>/dev/null | grep Subchannel | sort -u | wc -l)
+				subchannels=$(asterisk -x "$(getLineName) show status" 2>/dev/null | grep Subchannel | sort -u | wc -l)
 				[ $subchannels -eq 0 ] && subchannels=2
                                 json_init
                                 json_add_int num_subchannels $subchannels
