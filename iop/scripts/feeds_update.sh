@@ -32,10 +32,12 @@ function feeds_update {
     fi
 
     # targets need to be installed explicitly
-    ./scripts/feeds install -p targets iopsys-brcm63xx-mips
-    ./scripts/feeds install -p targets iopsys-brcm63xx-arm
-    ./scripts/feeds install -p targets iopsys-ramips
-    ./scripts/feeds install -p intel_targets intel_mips
+    targets="iopsys-brcm63xx-mips iopsys-brcm63xx-arm iopsys-ramips intel_mips"
+    for target in $targets
+    do
+	rm target/linux/$target
+	./scripts/feeds install targets $target
+    done
 
     # install all packages
     ./scripts/feeds install -a 
