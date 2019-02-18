@@ -35,12 +35,12 @@ function feeds_update {
     targets="iopsys-brcm63xx-mips iopsys-brcm63xx-arm iopsys-ramips intel_mips"
     for target in $targets
     do
-	rm target/linux/$target
-	./scripts/feeds install targets $target
+	rm -f target/linux/$target
+	./scripts/feeds install -p targets $target
     done
 
     # install all packages
-    ./scripts/feeds install -a 
+    ./scripts/feeds install -a
 
     # remove broken symlinks ( for packages that are no longer in the feed )
     find -L package/feeds -maxdepth 2 -type l -delete
@@ -49,7 +49,7 @@ function feeds_update {
     make defconfig
 
     # record when we last run this script
-    touch tmp/.iop_bootstrap 
+    touch tmp/.iop_bootstrap
 
     # always return true
     exit 0
