@@ -1,4 +1,5 @@
 #! /bin/sh
+# Voice library for Broadcom boards
 
 getChipVendor() {
     echo broadcom

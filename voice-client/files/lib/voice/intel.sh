@@ -1,4 +1,5 @@
 #! /bin/sh
+# Voice library for Intel boards
 
 getChipVendor() {
     echo intel
@@ -9,11 +10,11 @@ getChannelName() {
 }
 
 getLineName() {
-    echo intel
+    echo tapi
 }
 
 getSerial() {
-    sernum=$(fw_printenv -n serial_number)
+    sernum=$(fw_printenv -n serial_number) 2> /dev/null
 
     if [ $? ]; then
 	echo 0
@@ -33,9 +34,3 @@ getAllLines() {
 getLineIdx() {
     echo $((1+1))
 }
-
-sed -i \
-    -e 's/brcm/lantiq/g' \
-    -e 's/BRCM/TAPI/g' \
-    -e 's/broadcom/lantiq/g' \
-    /etc/config/voice_client
