@@ -6,16 +6,7 @@
 #
 . /lib/functions.sh
 . /lib/functions/network.sh
-
-if [ -e /proc/nvram ]; then
-    . /lib/voice/broadcom.sh
-elif [ -n $(which fw_printenv) ] && [ $(fw_printenv -n uboot_version | sed 's/..*\(INTEL\)..*/\1/') = 'INTEL' ]; then
-    . /lib/voice/intel.sh
-else
-    echo 'Warning: Could not detect platform'
-    echo 'Defaulting to Broadcom'
-    . /lib/voice/broadcom.sh
-fi
+. /lib/voice/voicelib.sh
 
 HOOKS=/usr/lib/inithooks/voice_client
 if [ -f "$HOOKS" ] ; then
@@ -1462,7 +1453,6 @@ configure_extensions()
 		echo "exten => $test_echo_extension,1,Echo()"			>> $WORKDIR/extensions_local.tmp
 		echo "exten => $test_echo_extension,n,Hangup()"			>> $WORKDIR/extensions_local.tmp
 	fi
-
 	
 	if [ -n "$record_message_extension" ] ; then
 		echo "exten => $record_message_extension,1,Playback(beep)"		>> $WORKDIR/extensions_local.tmp
@@ -1774,7 +1764,7 @@ configure_tel_line_extension()
 	
 		cp $TMPL_EXTENSIONS_LOCAL_LINE			$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|EXTEN|/$extension/g"			$WORKDIR/extensions_local_line.tmp
-		sed -i "s/|LINE|/$(getLineIdx $line)/g"		$WORKDIR/extensions_local_line.tmp
+		sed -i "s/|LINE|/$line)/g"			$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|TIMEOUT|/$(get_voicemail_timeout)/g"	$WORKDIR/extensions_local_line.tmp
 
 		#cbbs settings
