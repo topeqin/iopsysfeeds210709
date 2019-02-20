@@ -37,12 +37,13 @@ endef
 define Package/libwifi
   $(call Package/easy-soc-libs)
   TITLE:= WiFi library (libwifi)
+  DEPENDS+=+TARGET_intel_mips:libnl +TARGET_intel_mips:libnl-route
 endef
 
 define Package/libethernet
   $(call Package/easy-soc-libs)
   TITLE:= Ethernet library (libethernet)
-  DEPENDS:=+TARGET_iopsys_ramips:swconfig
+  DEPENDS+=+TARGET_iopsys_ramips:swconfig
 endef
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
@@ -76,7 +77,7 @@ endif
 define Package/libdsl
   $(call Package/easy-soc-libs)
   TITLE:= XDSL library (libdsl)
-  DEPENDS:=+TARGET_intel_mips:dsl-cpe-api-vrx +TARGET_intel_mips:dsl-cpe-fapi
+  DEPENDS+=+TARGET_intel_mips:dsl-cpe-api-vrx +TARGET_intel_mips:dsl-cpe-fapi
 endef
 
 subdirs := \
@@ -86,6 +87,7 @@ subdirs := \
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
+	-I$(STAGING_DIR)/usr/include/openssl \
 	-I$(STAGING_DIR)/usr/include/libnl3
 
 MAKE_FLAGS += \
