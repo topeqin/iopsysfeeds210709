@@ -1764,7 +1764,7 @@ configure_tel_line_extension()
 	
 		cp $TMPL_EXTENSIONS_LOCAL_LINE			$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|EXTEN|/$extension/g"			$WORKDIR/extensions_local_line.tmp
-		sed -i "s/|LINE|/$line)/g"			$WORKDIR/extensions_local_line.tmp
+		sed -i "s/|LINE|/$(getLineIdx $line)/g"		$WORKDIR/extensions_local_line.tmp
 		sed -i "s/|TIMEOUT|/$(get_voicemail_timeout)/g"	$WORKDIR/extensions_local_line.tmp
 
 		#cbbs settings
