@@ -32,5 +32,6 @@ getAllLines() {
 }
 
 getLineIdx() {
-    echo $((1+1))
+    i=$1
+    echo $((i+1))
 }

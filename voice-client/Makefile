@@ -53,7 +53,6 @@ define Package/voice-client/install
 	$(CP) ./files/lib/voice/$(VOICE_LIB) $(1)/lib/voice/voicelib.sh
 
 ifeq ($(CONFIG_TARGET_intel_mips),y)
-	sed -i -r 's/(.*)(brcm)(_line)(.*)(brcm)([0-9])(.*)/echo "\1tapi\3\4tapi$$$$((\6+1))\7"/ge' $(1)/etc/config/voice_client
 	sed -i \
 	-e 's/brcm/tapi/g' \
 	-e 's/BRCM/TAPI/g' \
