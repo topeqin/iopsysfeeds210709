@@ -51,6 +51,30 @@ purgepasswd()
 	done
 }
 
+hex_filter() {
+	local string=$1
+	local hex_chars=$2
+	local wc_max=$3
+	local wc_tot=0
+
+	if [ -z "$string" -o -z "$hex_chars" -o -z "$wc_max" ]
+	then
+		return;
+	fi
+
+	dump=$(echo "$string" | hexdump -v -e '32/1 "%02X ""\n"')
+
+	IFS=';'
+	for i in $hex_chars;
+	do
+		local wc
+		wc=$(echo "$dump" | grep -o "$i" | wc -w)
+		wc_tot=$((wc_tot+wc))
+	done
+
+	[ $wc_tot -gt $wc_max ] && echo "corrupt"
+}
+
 smb_header() {
 	local interface
 	config_get interface $1 interface
@@ -79,6 +103,13 @@ smb_header() {
 	config_get workgroup   $1 workgroup   "${hostname:-OpenWrt}"
 	config_get description $1 description "Samba on ${hostname:-OpenWrt}"
 	config_get charset     $1 charset     "UTF-8"
+
+	filter="0A;5C 6E"
+	[ "$(hex_filter "$name" "$filter" 1)" = "" ] || exit
+	[ "$(hex_filter "$workgroup" "$filter" 1)" = "" ] || exit
+	[ "$(hex_filter "$description" "$filter" 1)" = "" ] || exit
+	[ "$(hex_filter "$interfaces" "$filter" 1)" = "" ] || exit
+	[ "$(hex_filter "$charset" "$filter" 1)" = "" ] || exit
 
 	mkdir -p /var/etc
 	sed -e "s#|NAME|#$name#g" \
@@ -137,6 +168,15 @@ smb_add_share() {
 	# (very unlikely case, but possible). increases security
 	path=$(readlink -f $path)
 	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"
+
+	filter="0A;5C 6E"
+	[ "$(hex_filter "$name" "$filter" 1)" = "" ] || return
+	[ "$(hex_filter "$users" "$filter" 1)" = "" ] || return
+	[ "$(hex_filter "$read_only" "$filter" 1)" = "" ] || return
+	[ "$(hex_filter "$guest_ok" "$filter" 1)" = "" ] || return
+	[ "$(hex_filter "$create_mask" "$filter" 1)" = "" ] || return
+	[ "$(hex_filter "$dir_mask" "$filter" 1)" = "" ] || return
+	[ "$(hex_filter "$browseable" "$filter" 1)" = "" ] || return
 
 	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/smb.conf
 	[ -n "$users" ] && echo -e "\tvalid users = $users" >> /var/etc/smb.conf
