@@ -144,7 +144,7 @@ smb_add_share() {
 	path=$(readlink -f $path)
 	[ "${path:0:4}" == "/mnt" ] || path="/mnt/"
 
-	echo -e "\n[$(echo -e $name | head -1)]\n\tpath = $(echo -e $path | head -1)" >> /var/etc/smb.conf
+	echo -e "\n[$name]\n\tpath = ${path%%\\n*}" >> /var/etc/smb.conf
 	[ -n "$users" ] && echo -e "\tvalid users = $users" | head -1 >> /var/etc/smb.conf
 	[ -n "$read_only" ] && echo -e "\tread only = $read_only" | head -1 >> /var/etc/smb.conf
 	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" | head -1 >> /var/etc/smb.conf
