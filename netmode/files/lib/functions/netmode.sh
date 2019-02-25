@@ -192,6 +192,9 @@ switch_netmode() {
 	sync
 	apply_wet_cfg
 
+	#commit owsd to reload all init.d scripts dependent on its config
+	ubus call uci commit '{"config":"owsd"}'
+
 	local reboot=$(uci -q get netmode.$curmode.reboot)
 
 	if [ "$reboot" != "0" ]; then
