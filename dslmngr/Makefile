@@ -22,6 +22,22 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
+ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
+  TARGET_PLATFORM=BROADCOM
+else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+  TARGET_PLATFORM=BROADCOM
+else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
+  TARGET_PLATFORM=MEDIATEK
+else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
+  TARGET_PLATFORM=MARVELL
+else ifeq ($(CONFIG_TARGET_intel_mips),y)
+  TARGET_PLATFORM=INTEL
+else
+  $(info Unexpected CONFIG_TARGET)
+endif
+
+export TARGET_PLATFORM
+
 define Package/dslmngr
   SECTION:=utils
   CATEGORY:=Utilities
