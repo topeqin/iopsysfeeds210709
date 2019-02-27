@@ -6,4 +6,3 @@ event_log = no
 console => |CONSOLE|
 messages => |MESSAGES|
 syslog.|SYSLOG_FACILITY| => |SYSLOG|
-debug => debug,error,warning
