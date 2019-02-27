@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /lib/voice/voicelib.sh
+
 uci -q get voice_client.call_filter0 >/dev/null || {
 
 uci -q batch <<-EOT
@@ -27,24 +29,24 @@ EOT
 
 }
 
-# Default Broadcom phone volume for Iopsys 4.
+# Default phone volume for Iopsys 4.
 uci -q batch <<-EOT
-	set voice_client.brcm0.txgain=4
-	set voice_client.brcm0.rxgain=4
-	set voice_client.brcm1.txgain=4
-	set voice_client.brcm1.rxgain=4
-	set voice_client.brcm2.txgain=4
-	set voice_client.brcm2.rxgain=4
-	set voice_client.brcm3.txgain=4
-	set voice_client.brcm3.rxgain=4
-	set voice_client.brcm4.txgain=4
-	set voice_client.brcm4.rxgain=4
-	set voice_client.brcm5.txgain=4
-	set voice_client.brcm5.rxgain=4
-	set voice_client.brcm6.txgain=4
-	set voice_client.brcm6.rxgain=4
-	set voice_client.brcm7.txgain=4
-	set voice_client.brcm7.rxgain=4
+	set voice_client.$(getLineName)0.txgain=4
+	set voice_client.$(getLineName)0.rxgain=4
+	set voice_client.$(getLineName)1.txgain=4
+	set voice_client.$(getLineName)1.rxgain=4
+	set voice_client.$(getLineName)2.txgain=4
+	set voice_client.$(getLineName)2.rxgain=4
+	set voice_client.$(getLineName)3.txgain=4
+	set voice_client.$(getLineName)3.rxgain=4
+	set voice_client.$(getLineName)4.txgain=4
+	set voice_client.$(getLineName)4.rxgain=4
+	set voice_client.$(getLineName)5.txgain=4
+	set voice_client.$(getLineName)5.rxgain=4
+	set voice_client.$(getLineName)6.txgain=4
+	set voice_client.$(getLineName)6.rxgain=4
+	set voice_client.$(getLineName)7.txgain=4
+	set voice_client.$(getLineName)7.rxgain=4
 	commit voice_client
 EOT
 

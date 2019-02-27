@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /usr/share/libubox/jshn.sh
+. /lib/voice/voicelib.sh
 
 case "$1" in
 	list)
@@ -48,8 +49,8 @@ case "$1" in
                                 done
 				json_select ..
 
-				json_add_object "brcm"
-				for line in $(uci show voice_client | grep brcm_line | awk -F[.,=] '{print$2}'); do
+				json_add_object "$(getLineName)"
+				for line in $(uci show voice_client | grep $(getLineName)_line | awk -F[.,=] '{print$2}'); do
 					json_add_object "$line"
 					linestate="ONHOOK"
 					linenum=${line:4}
@@ -66,7 +67,7 @@ case "$1" in
 
 			;;
 			lines)
-				subchannels=$(asterisk -x 'brcm show status' 2>/dev/null | grep Subchannel | sort -u | wc -l)
+				subchannels=$(asterisk -x "$(getLineName) show status" 2>/dev/null | grep Subchannel | sort -u | wc -l)
 				[ $subchannels -eq 0 ] && subchannels=2
                                 json_init
                                 json_add_int num_subchannels $subchannels
