@@ -23,15 +23,7 @@
 # ./cbbs.sh BRCM 0 4444 BRCM/4 5 300 45
 #####################################################
 
-if [ -e /proc/nvram ]; then
-    . /lib/voice/broadcom.sh
-elif [ -n $(which fw_printenv) ] && [ $(fw_printenv -n uboot_version | sed 's/..*\(INTEL\)..*/\1/') = 'INTEL' ]; then
-    . /lib/voice/intel.sh
-else
-    echo 'Warning: Could not detect platform'
-    echo 'Defaulting to Broadcom'
-    . /lib/voice/broadcom.sh
-fi
+. /lib/voice/voicelib.sh
 
 #Create temporary file
 tempfile=$(mktemp)
