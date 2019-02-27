@@ -18,7 +18,7 @@ getSerial() {
 }
 
 getBaseMAC() {
-    echo =$(cat /proc/nvram/BaseMacAddr | sed 's/ //g')
+    echo $(cat /proc/nvram/BaseMacAddr | sed 's/ //g')
 }
 
 getAllLines() {
