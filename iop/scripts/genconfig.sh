@@ -20,6 +20,64 @@ function genconfig {
 	ramips="target/linux/iopsys-ramips"
 	intel_mips="target/linux/intel_mips"
 
+	Red='\033[0;31m'          # Red
+	Color_Off='\033[0m'       # Text Reset
+	Yellow='\033[0;33m'       # Yellow
+
+	function find_last {
+	    egrep "^[ #]*${1}[ =]" $2 | tail -n1
+	}
+
+	function is_new {
+	    for opt in $conf_warned
+	    do
+		if [ "$opt" == "$1" ]
+		then
+		    return 1
+		fi
+	    done
+	    # option not found return true
+	    return 0
+	}
+
+	function verify_config {
+	    IFS=$'\n'
+	    org=$(<.genconfig.config)
+	    unset IFS
+	    local num
+	    local conf_opt
+	    local conf_org
+	    local conf_new
+
+	    #echo "lines to check $tot_lines"
+	    num=0
+	    for line in $org
+	    do
+		conf_opt=$(echo $line | grep CONFIG_ | sed 's|.*\(CONFIG_[^ =]*\)[ =].*|\1|')
+		if [ -n "${conf_opt}" ]
+		then
+		    conf_org=$(find_last ${conf_opt} .genconfig.config)
+		    conf_new=$(find_last ${conf_opt} .config)
+		    if [ "$conf_org" != "$conf_new" ]
+		    then
+			if is_new $conf_opt
+			then
+			    echo -e "config option [${Red}$conf_opt${Color_Off}] is not set correctly in .config"
+			    echo -e "got value [${Yellow}$conf_new${Color_Off}] but wanted [${Yellow}$conf_org${Color_Off}]"
+			    echo "This is a real problem somebody needs to investigate"
+			    echo ""
+			    conf_warned="$conf_warned $conf_opt"
+			fi
+		    else
+			true
+			# for debug to see all options
+			#echo -e "wanted [$conf_org] got [$conf_new]"
+		    fi
+		fi
+		num=$((num+1))
+	    done
+	}
+
 	# Takes a board name and returns the target name in global var $target
 	set_target() {
 	    local profile=$1
@@ -325,6 +383,9 @@ function genconfig {
 		# so just touch that file.
 		[ -d ./build_dir ] && find build_dir/ -name "boardparms*c" -print0 2>/dev/null | xargs -0 touch 2>/dev/null
 
+		# Store generated config
+		cp .config .genconfig.config
+
 		# Set default values based on selected parameters
 		v "$(make defconfig 2>&1)"
 
@@ -332,6 +393,8 @@ function genconfig {
 
 		# Clean base-file package to force rebuild when changing profile
 		v "$(make package/base-files/clean 2>&1)"
+
+		verify_config
 	}
 
 	####### main #####
