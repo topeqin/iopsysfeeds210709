@@ -2,6 +2,9 @@
 
 [ "$INTERFACE" != "wan" ] && exit
 
+automode="$(uci -q get netmode.setup.automode)"
+[ "$automode" == "0" ] && exit
+
 . /lib/functions.sh
 . /lib/functions/network.sh
 . /lib/functions/netmode.sh
