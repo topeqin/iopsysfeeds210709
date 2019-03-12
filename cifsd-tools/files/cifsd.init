@@ -1,0 +1,124 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+USE_PROCD=1
+PROG=/usr/sbin/cifsd
+USER_DB=/etc/cifs/cifsdpwd.db
+
+EXTRA_COMMANDS="users"
+EXTRA_HELP="	users	Show list of users created by cifsadmin"
+
+users() {
+	[ -f "$USER_DB" ] && cut -d ':' $USER_DB -f1 || \
+		printf "No users available.\n"
+}
+
+validate_cifsd_global() {
+	uci_validate_section cifsd global "${1}" \
+		'server_string:string' \
+		'workgroup:string' \
+		'netbios_name:string' \
+		'ipc_timeout:uinteger'
+}
+
+validate_cifsd_share() {
+	uci_validate_section cifsd share "${1}" \
+		'name:string' \
+		'comment:string' \
+		'path:string' \
+		'guest_ok:bool' \
+		'writeable:bool' \
+		'allow_hosts:list' \
+		'deny_hosts:list' \
+		'valid_users:list' \
+		'invalid_users:list' \
+		'max_connections:uinteger' \
+		'veto_files:list'
+}
+
+load_cifsd_global() {
+	local server_string
+	local workgroup
+	local netbios name
+	local ipc_timeout
+
+	echo -e "[global]" >> /var/etc/cifsd.conf
+	[ -n "$server_string" ] && echo -e "\tserver string = $server_string" >> /var/etc/cifsd.conf
+	[ -n "$workgroup" ] && echo -e "\tworkgroup = $workgroup" >> /var/etc/cifsd.conf
+	[ -n "$netbios_name" ] && echo -e "\tnetbios name = $netbios_name" >> /var/etc/cifsd.conf
+	[ -n "$ipc_timeout" ] && echo -e "\tipc timeout name = $ipc_timeout" >> /var/etc/cifsd.conf || \
+		echo -e "\tipc timeout name = 8" >> /var/etc/cifsd.conf
+}
+
+load_cifsd_share() {
+	local name
+	local comment
+	local path
+	local guest_ok
+	local writeable
+	local allow_hosts
+	local deny_hosts
+	local valid_users
+	local invalid_users
+	local max_connections
+	local veto_files
+
+	config_get name $1 name
+	config_get comment $1 comment
+	config_get path $1 path
+	config_get guest_ok $1 guest_ok
+	config_get allow_hosts $1 allow_hosts
+	config_get deny_hosts $1 deny_hosts
+	config_get valid_users $1 valid_users
+	config_get invalid_users $1 invalid_users
+	config_get max_connections $1 max_connections
+	config_get veto_files $1 veto_files
+
+	if [ -z "$name" -o -z "$path" ]; then
+		return
+		logread -t ${0} "Missing name or path."
+	fi
+
+	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/cifsd.conf
+	[ -n "$comment" ] && echo -e "\tcomment = $comment" >> /var/etc/cifsd.conf
+	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" >> /var/etc/cifsd.conf
+	[ -n "$writeable" ] && echo -e "\writeable = $writeable" >> /var/etc/cifsd.conf
+	[ -n "$allow_hosts" ] && echo -e "\tallow hosts = $allow_hosts" >> /var/etc/cifsd.conf
+	[ -n "$deny_hosts" ] && echo -e "\tdeny hosts = $deny_hosts" >> /var/etc/cifsd.conf
+	[ -n "$valid_users" ] && echo -e "\tvalid users = $valid_users" >> /var/etc/cifsd.conf
+	[ -n "$invalid_users" ] && echo -e "\tinvalid users = $invalid_users" >> /var/etc/cifsd.conf
+	[ -n "$max_connections" ] && echo -e "\tmax connections = $max_connections" >> /var/etc/cifsd.conf
+	[ -n "$veto_files" ] && echo -e "\tveto files = $veto_files" >> /var/etc/cifsd.conf
+}
+
+service_triggers()
+{
+	procd_open_validate
+	validate_cifsd_global
+	validate_cifsd_share
+	procd_close_validate
+}
+
+init_config() {
+	[ -f "/var/etc/cifsd.conf" ] && rm /var/etc/cifsd.conf
+
+	config_load cifsd
+	load_cifsd_global
+	config_foreach load_cifsd_share
+}
+
+start_service() {
+	. /lib/functions.sh
+	init_config
+
+	[ ! "$(grep cifsd /proc/modules)" ] && modprobe cifsd
+	procd_open_instance
+	procd_set_param command /usr/bin/env LANG=en_US.UTF-8 $PROG -c /var/etc/cifsd.conf
+	procd_set_param respawn
+	procd_close_instance
+}
+
+stop_service() {
+	killall cifsd
+	# IPC timeout will kill the remaining processes.
+}
