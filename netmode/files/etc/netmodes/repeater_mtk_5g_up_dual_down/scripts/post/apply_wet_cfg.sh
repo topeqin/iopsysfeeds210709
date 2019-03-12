@@ -35,3 +35,4 @@ apply_wet_cfg()
 	rm /tmp/netmodecfg 2> /dev/null
 }
 
+apply_wet_cfg

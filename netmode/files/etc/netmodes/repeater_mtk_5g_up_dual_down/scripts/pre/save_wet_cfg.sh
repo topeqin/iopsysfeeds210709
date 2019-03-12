@@ -35,3 +35,4 @@ save_wet_cfg()
 	config_foreach parse_wet_cfg "wifi-iface"
 }
 
+save_wet_cfg

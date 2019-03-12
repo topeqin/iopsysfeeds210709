@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /etc/netmodes/repeater_mtk_5g_up_dual_down/scripts/pre/save_wet_cfg.sh
-. /etc/netmodes/repeater_mtk_5g_up_dual_down/scripts/post/apply_wet_cfg.sh
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
@@ -182,7 +180,7 @@ switch_netmode() {
 	run_netmode_scripts $curmode "pre"
 
 	logger -s -p user.info -t $0 "[netmode] Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
-	save_wet_cfg
+
 	for file in $(ls /etc/netmodes/$curmode/); do
 		case "$file" in
 			DETAILS|scripts) continue ;;
@@ -190,7 +188,6 @@ switch_netmode() {
 		cp /etc/netmodes/$curmode/$file /etc/config/
 	done
 	sync
-	apply_wet_cfg
 
 	#commit owsd to reload all init.d scripts dependent on its config
 	ubus call uci commit '{"config":"owsd"}'
