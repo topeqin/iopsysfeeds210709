@@ -128,7 +128,7 @@ case "$1" in
 			;;
 			platform)
                                 json_init
-                                json_add_string platform $(getLineName)
+                                json_add_string platform "$(getLineName)"
 
 				case $(getLineName) in
 				    "brcm")
