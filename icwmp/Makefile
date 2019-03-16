@@ -51,6 +51,13 @@ define Package/icwmp_xmpp
 	DEPENDS:=+libuci +libubox +libexpat +libstrophe
 endef
 
+define Package/icwmp_udpechoserver
+	SECTION:=utils
+	CATEGORY:=Utilities
+	TITLE:=TR-069 udpechoserver feature
+	DEPENDS:=+libuci
+endef
+
 define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
@@ -203,6 +210,15 @@ define Package/icwmp_xmpp/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_xmpp $(1)/etc/config
 endef
 
+define Package/icwmp_udpechoserver/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_udpechoserverd $(1)/usr/sbin/icwmp_udpechoserverd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_udpechoserverd $(1)/etc/init.d/icwmp_udpechoserverd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_udpechoserver $(1)/etc/config
+endef
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/include/libdatamodel
@@ -238,4 +254,5 @@ $(eval $(call BuildPackage,icwmp-curl))
 $(eval $(call BuildPackage,libdatamodel))
 $(eval $(call BuildPackage,icwmp_stun))
 $(eval $(call BuildPackage,icwmp_xmpp))
+$(eval $(call BuildPackage,icwmp_udpechoserver))
 $(eval $(call BuildPackage,icwmp-zstream))
