@@ -5,7 +5,7 @@
 
 case "$1" in
 	list)
-		echo '{ "status" : {}, "lines" : {}, "codecs" : {}, "call_log" : {} }'
+		echo '{ "status" : {}, "lines" : {}, "codecs" : {}, "call_log" : {}, "platform" : {} }'
 
 	;;
 	call)
@@ -124,6 +124,26 @@ case "$1" in
 				        json_add_string to "$to"
 					json_select ..
                                 done < /var/log/asterisk/cdr-csv/Master.csv
+				json_dump
+			;;
+			platform)
+                                json_init
+                                json_add_string platform "$(getLineName)"
+
+				case $(getLineName) in
+				    "brcm")
+					    json_add_int lineoffset 0
+					    json_add_int chanoffset 0
+				    ;;
+				    "tapi")
+					    json_add_int lineoffset 1
+					    json_add_int chanoffset -1
+				    ;;
+			        *)
+				    # Error, unknown platform
+				    ;;
+				esac
+				
 				json_dump
 			;;
 		esac

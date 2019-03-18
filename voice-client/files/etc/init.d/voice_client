@@ -83,7 +83,7 @@ TMPL_CONFBRIDGE=$TEMPLATEDIR/confbridge.conf.TEMPLATE
 TMPL_UDPTL=$TEMPLATEDIR/udptl.conf.TEMPLATE
 
 TMPL_CHANNEL=$TEMPLATEDIR/$(getLineName).conf.TEMPLATE
-TMPL_CHANNEL_LINE=$TEMPLATEDIR/$(getLineName)_line.TEMPLATE
+TMPL_CHANNEL_LINE=$TEMPLATEDIR/tel_line.TEMPLATE
 
 TMPL_MEETME=$TEMPLATEDIR/meetme.conf.TEMPLATE
 
@@ -1161,7 +1161,7 @@ configure_cdr()
 configure_call_filters()
 {
 	local country
-	config_get country $(getChannelName) country
+	config_get country TEL country
 	# Read the International Dialing Code and the Country Code from config
 
 	echo "Looking up IDC and CC for country $country"
@@ -1837,7 +1837,7 @@ configure_codecs()
 {
 	echo "Configuring codecs"
 	local genericplc
-	config_get genericplc $(getChannelName) genericplc
+	config_get genericplc TEL genericplc
 	sed -i "s/|PLC|/$genericplc/"			$WORKDIR/codecs.tmp
 }
 
@@ -1855,13 +1855,13 @@ configure_tel()
 	local dialoutmsec
 	local fac
 
-	config_get jbenable $(getChannelName) jbenable
-	config_get jbforce $(getChannelName) jbforce
-	config_get jbmaxsize $(getChannelName) jbmaxsize
-	config_get jbimpl $(getChannelName) jbimpl
+	config_get jbenable TEL jbenable
+	config_get jbforce TEL jbforce
+	config_get jbmaxsize TEL jbmaxsize
+	config_get jbimpl TEL jbimpl
 	config_get dtmfmode SIP dtmfmode
-	config_get dialoutmsec $(getChannelName) dialoutmsec
-	config_get fac $(getChannelName) fac
+	config_get dialoutmsec TEL dialoutmsec
+	config_get fac TEL fac
 
 	CHANNEL_FAC="$CHANNEL_FAC $fac"
 	# Convert whitespace to commas
@@ -1938,30 +1938,30 @@ configure_tel_line()
 		clir=0
 	fi
 
-	cp $TMPL_CHANNEL_LINE $WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|SECTION|/$1/"				$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|CALLERID|/$extension/g"			$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|CONTEXT|/$sip_provider/g"			$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|DIALTONE_EXTENSION_HINT|/$1/"		$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|AUTODIAL|/$autodial/"			$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|AUTODIAL_TIMEOUT|/$autodial_timeout/"	$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|DIALTONE_TIMEOUT|/$dialtone_timeout/"	$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|DTMFRELAY|/$dtmfmode/"			$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|CALLWAITING|/$callwaiting/"			$WORKDIR/$(getLineName)_line.tmp
-	sed -i "s/|CLIR|/$clir/"				$WORKDIR/$(getLineName)_line.tmp
-
+	cp $TMPL_CHANNEL_LINE $WORKDIR/tel_line.tmp
+	sed -i "s/|SECTION|/$1/"				$WORKDIR/tel_line.tmp
+	sed -i "s/|CALLERID|/$extension/g"			$WORKDIR/tel_line.tmp
+	sed -i "s/|CONTEXT|/$sip_provider/g"			$WORKDIR/tel_line.tmp
+	sed -i "s/|DIALTONE_EXTENSION_HINT|/$1/"		$WORKDIR/tel_line.tmp
+	sed -i "s/|AUTODIAL|/$autodial/"			$WORKDIR/tel_line.tmp
+	sed -i "s/|AUTODIAL_TIMEOUT|/$autodial_timeout/"	$WORKDIR/tel_line.tmp
+	sed -i "s/|DIALTONE_TIMEOUT|/$dialtone_timeout/"	$WORKDIR/tel_line.tmp
+	sed -i "s/|DTMFRELAY|/$dtmfmode/"			$WORKDIR/tel_line.tmp
+	sed -i "s/|CALLWAITING|/$callwaiting/"			$WORKDIR/tel_line.tmp
+	sed -i "s/|CLIR|/$clir/"				$WORKDIR/tel_line.tmp
+	sed -i "s/|LINE_NAME|/$(getLineName)/"			$WORKDIR/tel_line.tmp
 
 	#Configure CHANNEL line with codecs according to the SIP line settings
 #	local is_fax
 #	config_get is_fax $sip_provider is_fax
 # 	if [ -z "$is_fax" -o "$is_fax" = "1" ] ; then
-# 		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/$(getLineName)_line.tmp
+# 		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/tel_line.tmp
 # 	else
-# 		sed -i "s/|ALLOW|/$(read_codecs $sip_provider)/"	$WORKDIR/$(getLineName)_line.tmp
+# 		sed -i "s/|ALLOW|/$(read_codecs $sip_provider)/"	$WORKDIR/tel_line.tmp
 # 	fi
 
-	cat $WORKDIR/$(getLineName)_line.tmp >>				$WORKDIR/$(getLineName).tmp
-	rm -f							$WORKDIR/$(getLineName)_line.tmp
+	cat $WORKDIR/tel_line.tmp >>				$WORKDIR/$(getLineName).tmp
+	rm -f							$WORKDIR/tel_line.tmp
 }
 
 #
@@ -2161,7 +2161,7 @@ start_service() {
 	# and delete non-existing lines from voice_client config
 	########################################################
 	local maxlinenum=$(db get hw.board.VoicePorts)
-	config_foreach set_line_name $(getLineName)_line $maxlinenum
+	config_foreach set_line_name tel_line $maxlinenum
 	uci_commit voice_client
 
 	#######################################
@@ -2221,9 +2221,9 @@ start_service() {
 	# CHANNEL configuration
 	#####################
 	configure_tel
-	config_foreach configure_tel_line $(getLineName)_line
-	config_foreach configure_tel_line_extension $(getLineName)_line
-	config_foreach create_extensions_dialtone $(getLineName)_line
+	config_foreach configure_tel_line tel_line
+	config_foreach configure_tel_line_extension tel_line
+	config_foreach create_extensions_dialtone tel_line
 	configure_codecs
 
 	###########################
@@ -2298,7 +2298,7 @@ reload_service() {
 	sleep 1
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
-	asterisk -rx "$(getLineName) reload"
+	asterisk -rx "$(getChipVendor) reload"
 }
 
 service_triggers() {
