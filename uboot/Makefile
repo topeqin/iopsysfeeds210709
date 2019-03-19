@@ -123,8 +123,13 @@ define Build/Compile
 		CROSS_COMPILE=$(TARGET_CROSS) env
 endef
 
+# don't install /etc/init.d/uboot for intel-mips as it's not needed
 define Package/uboot/install/default
-	$(CP) ./files/* $$(1)/
+	$(INSTALL_DIR) $$(1)/lib/upgrade
+	$(CP) ./files/uboot-upgrade $$(1)/lib/upgrade/
+	$(if $(CONFIG_TARGET_intel_mips), ,$(INSTALL_DIR) $$(1)/etc/init.d)
+	$(if $(CONFIG_TARGET_intel_mips), ,$(CP) ./files/uboot $$(1)/etc/init.d/)
+
 	$(INSTALL_DIR) $(BIN_DIR)/$(TARGET)
 	$(INSTALL_DIR) $$(1)/boot
 	$(CP) \

@@ -1,9 +1,5 @@
-#!/bin/sh /etc/rc.common
-
-START=50
 
 . /usr/share/libubox/jshn.sh
-
 
 sanity_check_env(){
 
@@ -26,18 +22,24 @@ sanity_check_env(){
     fw_setenv baudrate 115200
 }
 
-uboot_upgrade(){
+do_uboot_upgrade(){
     local u_ver
     echo "doing upgrade of u-boot old version $cur_Major.$cur_Minor new version $Major.$Minor"
     mtd erase /dev/mtd0
-    mtd write /boot/uboot.img /dev/mtd0
+    mtd write $1 /dev/mtd0
     u_ver=$(strings  /dev/mtd0 | grep 938f0820-2ffb-11e7-bbc9-2f21351ee6fb)
     [ -n "$u_ver" ] && fw_setenv uboot_inteno_version "$u_ver"
     sanity_check_env
 }
 
 
-start() {
+# Return:
+# 0: update is successfull
+# 1: update is not needed
+# 2: error occured
+uboot_upgrade() {
+    [ ! -f $1 ] && return 2
+
     iver=$(fw_printenv -n uboot_inteno_version 2>/dev/null)
 
     # Fixup improper json string for major and minor key.
@@ -47,8 +49,8 @@ start() {
     if [ -z "$iver" ]
     then
 	# if this variable is not set by u-boot the u-boot version is too old.
-	uboot_upgrade
-	return
+	do_uboot_upgrade $1
+	return 0
     fi
 
     # read in current version into Major Minor variables
@@ -63,7 +65,7 @@ start() {
     cur_Minor=$Minor
 
     # read in new uboot version into Major Minor variables
-    json_load $(strings /boot/uboot.img | grep 938f0820-2ffb-11e7-bbc9-2f21351ee6fb |sed -e 's/938f0820-2ffb-11e7-bbc9-2f21351ee6fb: //')
+    json_load $(strings $1 | grep 938f0820-2ffb-11e7-bbc9-2f21351ee6fb |sed -e 's/938f0820-2ffb-11e7-bbc9-2f21351ee6fb: //')
     json_get_vars Major Minor
 
 #    echo "Major $Major"
@@ -71,14 +73,15 @@ start() {
     
     if [ $Major -gt $cur_Major ]
     then
-	uboot_upgrade
-	return
+	do_uboot_upgrade $1
+	return 0
     fi
 
     if [ $Major -eq $cur_Major -a $Minor -gt $cur_Minor ]
     then
-	uboot_upgrade
-	return
+	do_uboot_upgrade $1
+	return 0
     fi
-}
 
+    return 1
+}
