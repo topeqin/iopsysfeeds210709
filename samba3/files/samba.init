@@ -11,6 +11,11 @@ useradd()
 	local password
 	config_get user $1 user
 	config_get password $1 password
+
+        filter="0A;5C 6E"
+        [ "$(hex_filter "$user" "$filter" 1)" = "" ] || return
+        [ "$(hex_filter "$password" "$filter" 1)" = "" ] || return
+
 	if ! $(grep -rq "^$user:" /etc/passwd) ; then
 		echo "adding user $user"
 		adduser $user -s /bin/false -D -H -h /mnt/$user -g "samba,pass=$password" && smbpasswd $user $password
