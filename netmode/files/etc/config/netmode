@@ -4,6 +4,6 @@ config mode 'setup'
         option curmode 'routed'
 
 config tools 'tools'
-	option wificontrol 1
-	option arp_discovery 1
+	option wificontrol 0
+	option arp_discovery 0
 
