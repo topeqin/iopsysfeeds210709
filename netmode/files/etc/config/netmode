@@ -5,5 +5,5 @@ config mode 'setup'
 
 config tools 'tools'
 	option wificontrol 0
-	option arp_discovery 0
+	option arp_discovery 1
 
