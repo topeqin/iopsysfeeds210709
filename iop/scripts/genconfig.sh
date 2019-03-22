@@ -12,7 +12,6 @@ function genconfig {
 	export CUSTCONF="customerconfigs/customers"
 	export VERBOSE=0
 	export DEVELOPER=0
-	LOCAL_MIRROR="http://mirror.inteno.se/mirror"
 	target="bogus"
 	config_path=""
 	brcm63xx_mips="target/linux/iopsys-brcm63xx-mips"
