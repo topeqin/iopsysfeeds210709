@@ -10,4 +10,13 @@ add_owsd_object_wifi() {
 	fi
 }
 
+add_dnsmasq_lease_hwmask() {
+	local ubusx="$(uci -q get owsd.ubusproxy.enable)"
+	if [ "$ubusx" == "1" ]; then
+		uci -q set dhcp.@dnsmasq[0].lease_hwmask='0x000000'
+		uci commit dhcp
+	fi
+}
+
 add_owsd_object_wifi
+add_dnsmasq_lease_hwmask
