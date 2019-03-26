@@ -4,6 +4,7 @@ START=90
 USE_PROCD=1
 PROG=/usr/sbin/cifsd
 USER_DB=/etc/cifs/cifsdpwd.db
+CIFS_ADMIN=cifsadmin
 
 EXTRA_COMMANDS="users"
 EXTRA_HELP="	users	Show list of users created by cifsadmin"
@@ -14,10 +15,11 @@ users() {
 }
 
 validate_cifsd_global() {
-	uci_validate_section cifsd global "${1}" \
+	uci_validate_section cifsd global global \
 		'server_string:string' \
 		'workgroup:string' \
 		'netbios_name:string' \
+		'interface:string' \
 		'ipc_timeout:uinteger'
 }
 
@@ -27,20 +29,31 @@ validate_cifsd_share() {
 		'comment:string' \
 		'path:string' \
 		'guest_ok:bool' \
-		'writeable:bool' \
+		'read_only:bool' \
 		'allow_hosts:list' \
 		'deny_hosts:list' \
-		'valid_users:list' \
-		'invalid_users:list' \
+		'users:string' \
+		'invalid_users:string' \
+		'create_mask:string' \
+		'dir_mask:string' \
 		'max_connections:uinteger' \
 		'veto_files:list'
+}
+
+validate_cifsd_users() {
+	uci_validate_section cifsd users "${1}" \
+		'user:string' \
+		'password:string' \
+		'desc:string'
 }
 
 load_cifsd_global() {
 	local server_string
 	local workgroup
-	local netbios name
+	local netbios_name
 	local ipc_timeout
+
+	validate_cifsd_global
 
 	echo -e "[global]" >> /var/etc/cifsd.conf
 	[ -n "$server_string" ] && echo -e "\tserver string = $server_string" >> /var/etc/cifsd.conf
@@ -55,48 +68,62 @@ load_cifsd_share() {
 	local comment
 	local path
 	local guest_ok
-	local writeable
 	local allow_hosts
 	local deny_hosts
-	local valid_users
+	local users
 	local invalid_users
 	local max_connections
 	local veto_files
+	local dir_mask
+	local create_mask
+	local read_only
 
-	config_get name $1 name
-	config_get comment $1 comment
-	config_get path $1 path
-	config_get guest_ok $1 guest_ok
-	config_get allow_hosts $1 allow_hosts
-	config_get deny_hosts $1 deny_hosts
-	config_get valid_users $1 valid_users
-	config_get invalid_users $1 invalid_users
-	config_get max_connections $1 max_connections
-	config_get veto_files $1 veto_files
+	validate_cifsd_share ${1}
 
 	if [ -z "$name" -o -z "$path" ]; then
-		return
 		logread -t ${0} "Missing name or path."
+		return
 	fi
 
 	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/cifsd.conf
 	[ -n "$comment" ] && echo -e "\tcomment = $comment" >> /var/etc/cifsd.conf
 	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" >> /var/etc/cifsd.conf
-	[ -n "$writeable" ] && echo -e "\writeable = $writeable" >> /var/etc/cifsd.conf
 	[ -n "$allow_hosts" ] && echo -e "\tallow hosts = $allow_hosts" >> /var/etc/cifsd.conf
 	[ -n "$deny_hosts" ] && echo -e "\tdeny hosts = $deny_hosts" >> /var/etc/cifsd.conf
-	[ -n "$valid_users" ] && echo -e "\tvalid users = $valid_users" >> /var/etc/cifsd.conf
+	[ -n "$users" ] && echo -e "\tvalid users = $users" >> /var/etc/cifsd.conf
 	[ -n "$invalid_users" ] && echo -e "\tinvalid users = $invalid_users" >> /var/etc/cifsd.conf
 	[ -n "$max_connections" ] && echo -e "\tmax connections = $max_connections" >> /var/etc/cifsd.conf
+	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" >> /var/etc/cifsd.conf
+	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" >> /var/etc/cifsd.conf
+	[ -n "$read_only" ] && {
+		echo -e "\tread only = $read_only" >> /var/etc/cifsd.conf
+		if [ "${read_only}" -eq "0" ]; then
+			echo -e "\twrite ok = 1" >> /var/etc/cifsd.conf
+		fi
+	}
 	[ -n "$veto_files" ] && echo -e "\tveto files = $veto_files" >> /var/etc/cifsd.conf
+}
+
+load_cifsd_users() {
+	local user
+	local password
+	local desc
+
+	validate_cifsd_users ${1}
+	[ $(which ${CIFS_ADMIN}) ] || {
+		logread -t ${0} "${CIFS_ADMIN} tools is not available"
+		return;
+	}
+
+	cifsadmin -a "${user}" -p "${password}"
+	if [ "$?" -ne 0 ]; then
+		logread -t ${0} "Failed to create/update ${user}"
+	fi
 }
 
 service_triggers()
 {
-	procd_open_validate
-	validate_cifsd_global
-	validate_cifsd_share
-	procd_close_validate
+	procd_add_config_trigger "config.change" "cifsd" /etc/init.d/cifsd restart
 }
 
 init_config() {
@@ -104,7 +131,13 @@ init_config() {
 
 	config_load cifsd
 	load_cifsd_global
-	config_foreach load_cifsd_share
+
+	# Delete existing users
+	[ -f "${USER_DB}" ] && {
+		rm -f "${USER_DB}"
+	}
+	config_foreach load_cifsd_users users
+	config_foreach load_cifsd_share share
 }
 
 start_service() {
