@@ -49,8 +49,8 @@ case "$1" in
                                 done
 				json_select ..
 
-				json_add_object "$(getLineName)"
-				for line in $(uci show voice_client | grep $(getLineName)_line | awk -F[.,=] '{print$2}'); do
+				json_add_object "tel"
+				for line in $(uci show voice_client | grep tel_line | awk -F[.,=] '{print$2}'); do
 					json_add_object "$line"
 					linestate="ONHOOK"
 					linenum=${line:4}
