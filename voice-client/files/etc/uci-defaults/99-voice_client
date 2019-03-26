@@ -2,6 +2,11 @@
 
 . /lib/voice/voicelib.sh
 
+# Adapt to config section name changes
+grep -q brcm_line /etc/config/voice_client && sed -i 's/brcm_line/tel_line/g' /etc/config/voice_client
+grep -q brcm_advanced /etc/config/voice_client && sed -i 's/brcm_advanced/tel_advanced/g' /etc/config/voice_client
+
+# Add call filter section
 uci -q get voice_client.call_filter0 >/dev/null || {
 
 uci -q batch <<-EOT
@@ -16,6 +21,7 @@ EOT
 
 }
 
+# Add ringing schedule section
 uci -q get voice_client.RINGING_STATUS >/dev/null || {
 
 uci -q batch <<-EOT
@@ -29,7 +35,7 @@ EOT
 
 }
 
-# Default phone volume for Iopsys 4.
+# Default phone volume for iopsysWrt 4.X.
 uci -q batch <<-EOT
 	set voice_client.$(getLineName)0.txgain=4
 	set voice_client.$(getLineName)0.rxgain=4
@@ -50,6 +56,7 @@ uci -q batch <<-EOT
 	commit voice_client
 EOT
 
+# Add firewall include
 uci -q batch <<-EOT
         delete firewall.sip
         set firewall.sip=include
