@@ -95,12 +95,16 @@ load_cifsd_share() {
 	[ -n "$max_connections" ] && echo -e "\tmax connections = $max_connections" >> /var/etc/cifsd.conf
 	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" >> /var/etc/cifsd.conf
 	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" >> /var/etc/cifsd.conf
-	[ -n "$read_only" ] && {
+
+	if [ -n "$read_only" ]; then
 		echo -e "\tread only = $read_only" >> /var/etc/cifsd.conf
 		if [ "${read_only}" -eq "0" ]; then
 			echo -e "\twrite ok = 1" >> /var/etc/cifsd.conf
 		fi
-	}
+	else
+		echo -e "\twrite ok = 1" >> /var/etc/cifsd.conf
+	fi
+
 	[ -n "$veto_files" ] && echo -e "\tveto files = $veto_files" >> /var/etc/cifsd.conf
 }
 
