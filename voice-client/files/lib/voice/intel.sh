@@ -35,3 +35,18 @@ getLineIdx() {
     i=$1
     echo $((i+1))
 }
+
+getEchoCancellingValue() {
+    case $1 in
+	0)
+	    echo 'off'
+	    ;;
+	1)
+	    echo 'nlec'
+	    ;;
+	*)
+	    # Unknown value
+	    echo ''
+	    ;;
+    esac
+}

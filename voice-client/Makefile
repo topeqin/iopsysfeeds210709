@@ -59,6 +59,11 @@ ifeq ($(CONFIG_TARGET_intel_mips),y)
 	-e 's/broadcom/intel/g' \
 	$(1)/etc/config/voice_client \
 	$(1)/etc/asterisk_templates/*
+	sed -i \
+	-e '/echo_cancel/d' \
+	-e "/config.*tel_advanced.*TEL/a \        option 'echo_cancel' '1'" \
+	$(1)/etc/config/voice_client
+
 endif
 endef
 

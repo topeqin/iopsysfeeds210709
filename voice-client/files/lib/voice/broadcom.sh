@@ -2,7 +2,7 @@
 # Voice library for Broadcom boards
 
 getChipVendor() {
-    echo broadcom
+    echo brcm
 }
 
 getChannelName() {
@@ -27,4 +27,19 @@ getAllLines() {
 
 getLineIdx() {
     echo $1
+}
+
+getEchoCancellingValue() {
+    case $1 in
+	0)
+	    echo '0'
+	    ;;
+	1)
+	    echo '1'
+	    ;;
+	*)
+	    # Unknown value
+	    echo ''
+	    ;;
+    esac
 }

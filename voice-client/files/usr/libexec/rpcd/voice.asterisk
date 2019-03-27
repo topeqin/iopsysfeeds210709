@@ -67,7 +67,7 @@ case "$1" in
 
 			;;
 			lines)
-				subchannels=$(asterisk -x "$(getLineName) show status" 2>/dev/null | grep Subchannel | sort -u | wc -l)
+				subchannels=$(asterisk -x "$(getChipVendor) show status" 2>/dev/null | grep Subchannel | sort -u | wc -l)
 				[ $subchannels -eq 0 ] && subchannels=2
                                 json_init
                                 json_add_int num_subchannels $subchannels
