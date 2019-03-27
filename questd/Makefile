@@ -57,7 +57,7 @@ define Package/questd/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
+#	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/graphd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uproxyd $(1)/sbin/
 	$(INSTALL_DIR) $(1)/usr/bin
