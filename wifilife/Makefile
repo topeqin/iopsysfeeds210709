@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=wifilife
 PKG_VERSION:=1.0.2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=815f28e8b02b0f8fb5ea98526b812da2acf608e8
+PKG_SOURCE_VERSION:=de6183cda406fbd1a98779bda2ea1b2ffb8f2e04
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
 ifeq ($(CONFIG_WIFILIFE_OPEN),y)
