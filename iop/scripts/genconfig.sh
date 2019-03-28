@@ -161,14 +161,15 @@ function genconfig {
 		echo
 		echo 1>&2 "Usage: $0 [ OPTIONS ] < Board_Type > [ Customer [customer2 ]...]"
 		echo
-		echo -e "  -c|--clean\tRemove all files under ./files and import from config "
-		echo -e "  -v|--verbose\tVerbose"
+		echo -e "  -c|--clean\t\tRemove all files under ./files and import from config "
+		echo -e "  -v|--verbose\t\tVerbose"
 		echo -e "  -n|--no-update\tDo NOT! Update customer config before applying"
-		echo -e "  -s|--override\tEnable 'Package source tree override'"
-		echo -e "  -h|--help\tShow this message"
+		echo -e "  -s|--override\t\tEnable 'Package source tree override'"
+		echo -e "  -S|--brcmsingle\tForce build of bcmkernel to use only one thread"
+		echo -e "  -h|--help\t\tShow this message"
 		echo -e "  -l|--list [customer]\tList all Customers or all boards for one customer"
-		echo -e "  -a|--list-all\tList all Customers and their board types"
-		echo -e "  -b|--boards\tList all board types"
+		echo -e "  -a|--list-all\t\tList all Customers and their board types"
+		echo -e "  -b|--boards\t\tList all board types"
 		echo
 		echo "Example ./iop genconfig vg50 TELIA"
 		echo "(if no customerconfig is chosen the Inteno Config will be used)"
@@ -370,6 +371,11 @@ function genconfig {
 			echo "CONFIG_WIFILIFE_OPEN=y" >> .config
 		fi
 
+		if [ -n "$BRCM_MAX_JOBS" ]
+		then
+		    echo "CONFIG_BRCM_MAX_JOBS=\"1\"" >>.config
+		fi
+
 		# Force regeneration of themes
 		touch package/feeds/juci/juci/Makefile
 
@@ -418,6 +424,7 @@ function genconfig {
 			-p|--profile) export PROFILE="$2"; shift;;
 			-r|--repo) export CUSTREPO="$2"; shift;;
 			-s|--override) export SRCTREEOVERR=1;;
+			-S|--brcmsingel) export BRCM_MAX_JOBS=1;;
 			-h|--help) usage;;
 			-l|--list) list_customers 0 $2;;
 			-a|--list-all)list_customers 1;;
