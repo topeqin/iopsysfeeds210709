@@ -2296,11 +2296,13 @@ reload_service() {
 	# if there is a registered account
 	ubus call led.voice1 set '{"state":"off"}'
 
-	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
-	sleep 1
-	asterisk -rx "core reload"
-	asterisk -rx "dialplan reload"
-	asterisk -rx "$(getChipVendor) reload"
+	[ -f /var/run/asterisk/asterisk.pid ] && /etc/init.d/asterisk restart
+
+#	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
+#	sleep 1
+#	asterisk -rx "core reload"
+#	asterisk -rx "dialplan reload"
+#	asterisk -rx "$(getChipVendor) reload"
 }
 
 service_triggers() {
