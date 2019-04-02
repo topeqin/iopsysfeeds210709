@@ -386,7 +386,9 @@ populate_netmodes() {
 			if json_select acl; then
 				_i=1
 				while json_get_var user $_i; do
+					uci del_list netmode.$mode._access_r="$user"
 					uci del_list netmode.$mode._access_w="$user"
+					uci add_list netmode.$mode._access_r="$user"
 					uci add_list netmode.$mode._access_w="$user"
 					_i=$((_i+1))
 				done
