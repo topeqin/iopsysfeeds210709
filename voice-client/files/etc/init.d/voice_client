@@ -2102,7 +2102,7 @@ set_line_name()
 	if [ -n "$name_ix" ]; then
 		for item in $(db get hw.board.VoicePortNames); do
 			if [ $ix -eq $name_ix ]; then
-				uci_set voice_client $tel_line name "$(echo '$item' |tr '[_]' '[ ]')"
+				uci_set voice_client $tel_line name "$(echo $item | tr '[_]' '[ ]')"
 				return
 			fi
 			ix=$((ix+1))
