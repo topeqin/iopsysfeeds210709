@@ -25,6 +25,6 @@ config rule
 config rule
 	option priority	"low"
 	option macaddr "6a:4b:2c:5d:1e:70"
-	list proto icmp
+	option proto "icmp"
 	option comment      "Ping"
 	# -j MARK --set-xmark 0x1/0x1
