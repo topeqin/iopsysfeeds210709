@@ -23,7 +23,7 @@ PKG_RELEASE:=1
 include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/$(PKG_NAME)
-  SUBMENU:=Genexis
+  SUBMENU:=LED modules
   TITLE:=LED driver for Gryphon
   FILES:=$(PKG_BUILD_DIR)/$(PKG_NAME).$(LINUX_KMOD_SUFFIX)
   KCONFIG:=CONFIG_PACKAGE_kmod-gryphon-led-kernel-module=y
