@@ -3,6 +3,8 @@
 # Copyright (C) 2015 inteno.org
 #
 
+. /usr/share/libubox/jshn.sh
+
 START=99
 USE_PROCD=1
 
@@ -46,29 +48,57 @@ clean_client_entries() {
 }
 
 map_client_entries() {
+	local clients ip mac host
+
 	json_load "$(ubus call router.network 'clients')"
 	json_get_keys keys
 
-	echo "macaddr ipaddr hostname">${CLIENT_LIST}
 	for key in ${keys};
 	do
 		json_select ${key}
 		json_get_vars ipaddr macaddr hostname
-		echo "${macaddr} ${ipaddr} ${hostname}">>${CLIENT_LIST}
+		clients="${macaddr} ${ipaddr} ${hostname};${clients}"
 		json_select ..
 	done
+
+	json_init
+	json_add_array "clients"
+	IFS=";"
+	for client in ${clients};
+	do
+		json_add_object "NULL"
+		json_add_string "macaddr" "$(echo ${client} | cut -d" " -f1)"
+		json_add_string "ip" "$(echo ${client} | cut -d" " -f2)"
+		json_add_string "host" "$(echo ${client} | cut -d" " -f3)"
+		json_close_object
+	done
+
+	IFS=' '
+	echo `json_dump` > ${CLIENT_LIST}
 	json_cleanup
 }
 
 # Find the IP of a corresponding mac from arp table
 get_ipaddress() {
-	local mac=${1};
-	local ip="";
-	
-	ip=$(grep -i "${mac}" ${CLIENT_LIST}|awk '{print $2}')
-	if [ -z "${ip}" ]; then
-		log "Failed to get IP for ${mac}";
-	fi
+	local clients ip mac host
+
+	json_load "$(cat ${CLIENT_LIST})"
+	json_get_keys keys
+
+	json_select "clients"
+	local i="1"
+	while json_get_type type $i; do
+			json_get_var arrvar "$((i++))"
+			if [ "${1}" == "${macaddr}" ];
+			then
+				ip=${ipaddr}
+				break
+			fi
+	done
+	json_select ".."
+
+	json_cleanup
+
 	echo ${ip};
 }
 
