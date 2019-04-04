@@ -26,7 +26,7 @@ get_priority() {
 			echo 0;;
 		"low")
 			echo 1;;
-		"best")
+		"besteffort")
 			echo 2;;
 		"normal")
 			echo 3;;
