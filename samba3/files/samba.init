@@ -72,9 +72,25 @@ hex_filter() {
 	IFS=';'
 	for i in $hex_chars;
 	do
-		local wc
-		wc=$(echo "$dump" | grep -o "$i" | wc -w)
-		wc_tot=$((wc_tot+wc))
+		local filtered
+
+		IFS=' '
+		filtered=${dump//$i/}
+
+		set -- $i
+		divider=$#
+
+		set -- $dump
+		start=$#
+
+		set -- $filtered
+		end=$#
+
+		wc=$((start-end))
+		wc=$((wc/divider))
+
+		[ $wc -eq 0 ] || wc_tot=$((wc_tot+wc))
+		IFS=';'
 	done
 
 	[ $wc_tot -gt $wc_max ] && echo "corrupt"
