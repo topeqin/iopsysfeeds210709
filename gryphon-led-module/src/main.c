@@ -128,17 +128,18 @@ static int canyon_led_probe(struct platform_device *pdev)
 	leds->dev = &pdev->dev;
 	leds->led_brightness = SK9822_DEFAULT_BRIGHTNESS;
 
+	ret = of_property_read_u16(pdev->dev.of_node, "led-count", &leds->led_count);
+	if (ret < 0) {
+		dev_warn(&pdev->dev, "Could not read led-count property\n");
+		leds->led_count = SK9822_DEFAULT_NUM_LEDS;
+	}
+
 	leds->led_colors = devm_kzalloc(&pdev->dev,
 			(sizeof(cRGB) * leds->led_count), GFP_KERNEL);
 	if (!leds->led_colors) {
 		return -ENOMEM;
 	}
 
-	ret = of_property_read_u16(pdev->dev.of_node, "led-count", &leds->led_count);
-	if (ret < 0) {
-		dev_warn(&pdev->dev, "Could not read led-count property\n");
-		leds->led_count = SK9822_DEFAULT_NUM_LEDS;
-	}
 
 	platform_set_drvdata(pdev, leds);
 
