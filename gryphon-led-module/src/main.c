@@ -82,7 +82,6 @@ static ssize_t set_led_color(struct device *dev,
 	}
 
 	// Update the LED array here
-	printk(KERN_DEBUG "Set LED color\n");
 	ret = sk9822_set_color_str(sk9822, buf);
 	if (ret != 0) {
 		printk(KERN_ERR "Failed to set led color\n");
@@ -119,8 +118,6 @@ static int canyon_led_probe(struct platform_device *pdev)
 	int ret;
 	struct sk9822_leds *leds;
 
-	printk(KERN_NOTICE "Begin probing...\n");
-
 	leds = devm_kzalloc(&pdev->dev, sizeof(*leds), GFP_KERNEL);
 	if (!leds) {
 		return -ENOMEM;
@@ -142,8 +139,6 @@ static int canyon_led_probe(struct platform_device *pdev)
 
 
 	platform_set_drvdata(pdev, leds);
-
-	printk(KERN_INFO "Allocated memory\n");
 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 16, 0)
 	leds->clock_gpio = gpiod_get_index(&pdev->dev, "led", 0);
@@ -192,14 +187,16 @@ static int canyon_led_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+#if 0
 	printk(KERN_INFO "Flash LEDs to verify they work\n");
 	sk9822_set_color_str(leds, "00FF00");
 	sk9822_update(leds);
 	msleep(200);
+#endif
 	sk9822_set_color_str(leds, "000000");
 	sk9822_update(leds);
 
-	printk(KERN_NOTICE "We made it, carry on...\n");
+	printk(KERN_INFO "canyon led successfully probed\n");
 
 	return 0;
 }
