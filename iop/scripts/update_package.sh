@@ -496,6 +496,7 @@ check_feeds()
     for feed in `echo $feeds`
     do
 		feed_hash=$(feeds_hash $feed)
+		[ -n "$feed_hash" ] || continue
 		if [ -d feeds/$feed ]; then
 			in_git=$(cd feeds/$feed; git rev-parse HEAD)
 
