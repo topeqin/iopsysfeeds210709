@@ -56,31 +56,27 @@ int sk9822_set_color_str(struct sk9822_leds *sk9822, const char *hex)
 int sk9822_update(struct sk9822_leds *sk9822)
 {
 	uint16_t i;
-	uint8_t *rawarray = (uint8_t *)sk9822->led_colors;
 	uint16_t led_count = sk9822->led_count;
 
-	sk9822_bb_write(sk9822, 0x00);  // Start Frame
+	// Start Frame
+	sk9822_bb_write(sk9822, 0x00);
 	sk9822_bb_write(sk9822, 0x00);
 	sk9822_bb_write(sk9822, 0x00);
 	sk9822_bb_write(sk9822, 0x00);
 
-	for (i = 0; i < (led_count*3); i += 3) {
+	for (i = 0; i < led_count; i++) {
+		cRGB *p = &sk9822->led_colors[i];
 		sk9822_bb_write(sk9822, 0xe0+sk9822->led_brightness);  // Maximum global brightness
-		sk9822_bb_write(sk9822, rawarray[i+0]);
-		sk9822_bb_write(sk9822, rawarray[i+1]);
-		sk9822_bb_write(sk9822, rawarray[i+2]);
+		sk9822_bb_write(sk9822, p->b);
+		sk9822_bb_write(sk9822, p->g);
+		sk9822_bb_write(sk9822, p->r);
 	}
 
-	// Reset frame - Only needed for SK9822, has no effect on APA102
-	sk9822_bb_write(sk9822, 0x00);
-	sk9822_bb_write(sk9822, 0x00);
-	sk9822_bb_write(sk9822, 0x00);
-	sk9822_bb_write(sk9822, 0x00);
-
-	// End frame: 8+8*(leds >> 4) clock cycles
-	for (i = 0; i < led_count; i += 16) {
-		sk9822_bb_write(sk9822, 0xff);  // 8 more clock cycles
-	}
+	// End frame
+	sk9822_bb_write(sk9822, 0xff);
+	sk9822_bb_write(sk9822, 0xff);
+	sk9822_bb_write(sk9822, 0xff);
+	sk9822_bb_write(sk9822, 0xff);
 
 	return 0;
 }
