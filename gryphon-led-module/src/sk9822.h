@@ -22,7 +22,7 @@
 #include <linux/types.h>
 
 #define SK9822_DEFAULT_NUM_LEDS 32 // U16, used if DT param fails
-#define SK9822_DEFAULT_BRIGHTNESS 31  // 5-bit brightness, 0-31
+#define SK9822_DEFAULT_BRIGHTNESS 15  // 5-bit brightness, 0-31
 
 typedef struct {
 	uint8_t b;
