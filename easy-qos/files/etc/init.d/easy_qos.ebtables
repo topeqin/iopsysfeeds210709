@@ -1,0 +1,140 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+log() {
+	echo "${@}"|logger -t easy_qos.ebtable -p debug
+}
+
+exec_log() {
+	${@}
+	if [ "${?}" -ne 0 ]; then
+		log "Failed to create ${@}";
+	fi
+}
+
+get_priority() {
+	local prio=$(echo $1|tr [A-Z] [a-z]);
+	case "${prio}" in
+		"lowest")
+			echo 0;;
+		"low")
+			echo 1;;
+		"besteffort")
+			echo 2;;
+		"normal")
+			echo 3;;
+		"video")
+			echo 4;;
+		"medium")
+			echo 5;;
+		"high")
+			echo 6;;
+		"highest")
+			echo 7;;
+	esac
+}
+
+validate_rule_section()
+{
+	uci_validate_section easy_qos rule "${1}" \
+		'priority:string' \
+		'macaddr:string' \
+		'proto:string:none' \
+		'port:list(uinteger)' \
+		'comment:string:none'
+}
+
+# Clear existing rules before applying new rules
+clear_existing_rules() {
+	local rule=$(ebtables -t broute -L BROUTING|grep -m 1 mark)
+	while [ -n "${rule}" ]; do
+		exec_log ebtables -t broute -D BROUTING ${rule}
+		rule=$(ebtables -t broute -L BROUTING|grep -m 1 mark)
+	done
+}
+
+create_rule() {
+	local protocol=$1; shift
+	local mac=$1; shift
+	local mark="0x$1"; shift
+	local forward_port=$1;
+	local cmd="";
+	local protocol_number
+
+	cmd="-j mark --mark-or ${mark}";
+	if [ -n "${forward_port}" ]; then
+		cmd="--ip-destination-port ${forward_port} ${cmd}";
+	fi
+	
+	case "${protocol}" in
+		"tcp")
+			protocol_number=6;;
+		"udp")
+			protocol_number=17;;
+		"dccp")
+			protocol_number=33;;
+		"sctp")
+			protocol_number=132;;
+		*)
+			log "Protocol ${protocol} not supported in ebtables"
+			return;;
+	esac
+			
+	cmd="--ip-proto ${protocol_number} $cmd"
+	cmd="-p ip $cmd"
+
+	cmd="-s ${mac} $cmd"
+	exec_log ebtables -t broute -A BROUTING ${cmd}
+}
+
+manage_rule() {
+	local cfg="$1"
+	local priority macaddr proto port comment prio_num protocol
+
+	validate_rule_section "${1}" || {
+		log "Validation of section failed"
+		return 1;
+	}
+
+	protocol=$(echo ${proto}|tr [A-Z] [a-z])
+	prio_num=$(get_priority ${priority})
+	if [ -n "${macaddr}" -a -n "${prio_num}" ]; then
+		for p in ${port}; do
+			if [ "${protocol}" == "none" ]; then
+				create_rule tcp ${macaddr} ${prio_num} ${p}
+				create_rule udp ${macaddr} ${prio_num} ${p}
+			else
+				create_rule ${protocol} ${macaddr} ${prio_num} ${p}
+			fi
+		done
+		# Create rule for all ports if port is not mentioned in uci
+		if [ -z "${port}" ]; then
+			if [ "${protocol}" == "none" ]; then
+				create_rule tcp ${macaddr} ${prio_num}
+				create_rule udp ${macaddr} ${prio_num}
+			else
+				create_rule ${protocol} ${macaddr} ${prio_num}
+			fi
+		fi
+	fi
+}
+
+reload_service() {
+	# Do not apply rules if ebtables is not present in system
+	[ -x /usr/sbin/ebtables ] || return;
+
+	clear_existing_rules
+	config_load easy_qos
+	config_foreach manage_rule rule
+}
+
+start_service() {
+	reload_service
+}
+
+service_triggers() {
+	procd_add_reload_trigger "easy_qos"
+}
+

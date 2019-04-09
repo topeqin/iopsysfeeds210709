@@ -1,0 +1,193 @@
+#!/bin/sh /etc/rc.common
+
+. /usr/share/libubox/jshn.sh
+
+START=99
+USE_PROCD=1
+
+CLIENT_LIST="/tmp/easy_qos_client.list"
+
+log() {
+	echo "${@}"|logger -t easy_qos -p debug
+}
+
+exec_log() {
+	${@}
+	if [ "${?}" -ne 0 ]; then
+		log "Failed to create ${@}";
+	fi
+}
+
+get_priority() {
+	local prio=$(echo $1|tr [A-Z] [a-z]);
+	case "${prio}" in
+		"lowest")
+			echo 0;;
+		"low")
+			echo 1;;
+		"besteffort")
+			echo 2;;
+		"normal")
+			echo 3;;
+		"video")
+			echo 4;;
+		"medium")
+			echo 5;;
+		"high")
+			echo 6;;
+		"highest")
+			echo 7;;
+	esac
+}
+
+clean_client_entries() {
+	[ -f ${CLIENT_LIST} ] && rm ${CLIENT_LIST}
+}
+
+map_client_entries() {
+	local clients ip mac host
+
+	json_load "$(ubus call router.network 'clients')"
+	json_get_keys keys
+
+	for key in ${keys};
+	do
+		json_select ${key}
+		json_get_vars ipaddr macaddr hostname
+		clients="${macaddr} ${ipaddr} ${hostname};${clients}"
+		json_select ..
+	done
+
+	json_init
+	json_add_array "clients"
+	IFS=";"
+	for client in ${clients};
+	do
+		json_add_object "NULL"
+		json_add_string "macaddr" "$(echo ${client} | cut -d" " -f1)"
+		json_add_string "ip" "$(echo ${client} | cut -d" " -f2)"
+		json_add_string "host" "$(echo ${client} | cut -d" " -f3)"
+		json_close_object
+	done
+
+	IFS=' '
+	echo `json_dump` > ${CLIENT_LIST}
+	json_cleanup
+}
+
+# Find the IP of a corresponding mac from arp table
+get_ipaddress() {
+	local clients ip mac host
+
+	json_load "$(cat ${CLIENT_LIST})"
+	json_get_keys keys
+
+	json_select "clients"
+	local i="1"
+	while json_get_type type $i; do
+			json_get_var arrvar "$((i++))"
+			if [ "${1}" == "${macaddr}" ];
+			then
+				ip=${ipaddr}
+				break
+			fi
+	done
+	json_select ".."
+
+	json_cleanup
+
+	echo ${ip};
+}
+
+validate_rule_section()
+{
+	uci_validate_section easy_qos rule "${1}" \
+		'priority:string' \
+		'macaddr:string' \
+		'proto:string:none' \
+		'port:list(uinteger)' \
+		'comment:string:none'
+}
+
+# Clear existing rules before applying new rules
+clear_existing_rules() {
+	local rule=$(iptables -t mangle -S OUTPUT|grep -m 1 MARK |sed 's/-A/-D/1')
+	while [ -n "${rule}" ]; do
+		exec_log iptables -t mangle ${rule}
+		rule=$(iptables -t mangle -S OUTPUT|grep -m 1 MARK |sed 's/-A/-D/1')
+	done
+}
+
+check_and_create() {
+	iptables -t mangle -C OUTPUT ${@} 2>/dev/null
+	# Create rule if not exists
+	if [ ${?} -ne 0 ]; then
+		exec_log iptables -t mangle -A OUTPUT ${@}
+	else
+		log "Rule exists for ${@}"
+	fi
+}
+
+create_rule() {
+	local proto=$1; shift
+	local src_ip=$1; shift
+	local mark="0x$1/0x$1"; shift
+	local ports=$1;
+	local cmd="";
+
+	cmd="-j MARK --set-xmark ${mark}";
+	if [ -n "${ports}" ]; then
+		cmd="--match multiport --dports ${ports} ${cmd}";
+	fi
+	
+	if [ "${proto}" == "icmp" ]; then
+		cmd="-p icmp -m icmp --icmp-type 8 $cmd"
+	elif [ "${proto}" == "all" ]; then
+		cmd="-p all $cmd"
+	else
+		cmd="-p ${proto} -m ${proto} $cmd"
+	fi
+	cmd="-s ${src_ip} $cmd"
+	check_and_create ${cmd} 
+}
+
+manage_rule() {
+	local cfg="$1"
+	local priority macaddr proto port comment prio_num ip port_list
+
+	validate_rule_section "${1}" || {
+		log "Validation of section failed"
+		return 1;
+	}
+
+	prio_num=$(get_priority ${priority})
+	ip=$(get_ipaddress ${macaddr})
+	port_list=$(echo ${port}|sed 's/ /,/g')
+
+	if [ -n "${ip}" -a -n "${prio_num}" ]; then
+		if [ "${proto}" == "none" ]; then
+			create_rule tcp ${ip} ${prio_num} ${port_list}
+			create_rule udp ${ip} ${prio_num} ${port_list}
+		else
+			create_rule ${proto} ${ip} ${prio_num} ${port_list}
+		fi
+	fi
+}
+
+reload_service() {
+	clear_existing_rules
+	map_client_entries
+	config_load easy_qos
+	config_foreach manage_rule rule
+	clean_client_entries
+}
+
+start_service() {
+	reload_service
+	echo "Easy QoS installed">/dev/console;
+}
+
+service_triggers() {
+	procd_add_reload_trigger "easy_qos"
+}
+
