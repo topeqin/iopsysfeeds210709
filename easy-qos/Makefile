@@ -25,7 +25,10 @@ define Build/Compile
 endef
 
 define Package/easy-qos/install
-	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(CP) ./files/etc/config/easy_qos $(1)/etc/config/
+	$(CP) ./files/etc/init.d/easy_qos.iptables $(1)/etc/init.d/
 endef
 
 $(eval $(call BuildPackage,easy-qos))
