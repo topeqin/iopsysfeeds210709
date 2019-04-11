@@ -362,7 +362,7 @@ function genconfig {
 			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
 			[ $wifilifeAllowed -eq 0 ] && echo "CONFIG_WIFILIFE_OPEN=y" >> .config
 		else
-			echo "CONFIG_GITMIRROR_REWRITE=n" >>.config
+			echo "# CONFIG_GITMIRROR_REWRITE is not set" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
 			echo "CONFIG_ICE_OPEN=y" >> .config
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
