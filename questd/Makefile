@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=questd
 PKG_VERSION:=3.1.40
 
-PKG_SOURCE_VERSION:=4768a02bc466885f23fd00f9b5af5b050f6f3e77
+PKG_SOURCE_VERSION:=5665a74b76774c4bb2c9c05a2abfe27c674b606e
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/questd
 
@@ -27,7 +27,7 @@ else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
 QUESTD_TARGET:=-DIOPSYS_MARVELL
 else ifeq ($(CONFIG_TARGET_intel_mips),y)
 # BUG FIXME the Intel mips target is not handled in questd this is just to get it to compile
-QUESTD_TARGET:=-DIOPSYS_BROADCOM
+QUESTD_TARGET:=-DIOPSYS_INTEL
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
 QUESTD_TARGET:=-DIOPSYS_MEDIATEK
 QUESTD_CFLAGS:=\
