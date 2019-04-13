@@ -1,0 +1,10 @@
+# Add firewall include
+uci -q batch <<-EOT
+        delete firewall.easyqos
+        set firewall.easyqos=include
+        set firewall.easyqos.path=/etc/firewall.easyqos
+        set firewall.easyqos.reload=1
+	uci del_list firewall.easyqos._access_w="root"
+	uci add_list firewall.easyqos._access_w="root"
+        commit firewall
+EOT

@@ -27,8 +27,11 @@ endef
 define Package/easy-qos/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(CP) ./files/etc/config/easy_qos $(1)/etc/config/
 	$(CP) ./files/etc/init.d/easy_qos.iptables $(1)/etc/init.d/easy_qos
+	$(CP) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/
+	$(CP) ./files/etc/firewall.easyqos $(1)/etc/firewall.easyqos
 endef
 
 $(eval $(call BuildPackage,easy-qos))
