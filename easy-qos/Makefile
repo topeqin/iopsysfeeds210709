@@ -28,7 +28,7 @@ define Package/easy-qos/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) ./files/etc/config/easy_qos $(1)/etc/config/
-	$(CP) ./files/etc/init.d/easy_qos.iptables $(1)/etc/init.d/
+	$(CP) ./files/etc/init.d/easy_qos.iptables $(1)/etc/init.d/easy_qos
 endef
 
 $(eval $(call BuildPackage,easy-qos))
