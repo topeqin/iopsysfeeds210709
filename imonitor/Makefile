@@ -15,7 +15,6 @@ PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/imonitor.git
 PKG_SOURCE_VERSION:=532f4900862bcb45d8cd4bf37555fabda81750b6
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
-PKG_MAINTAINER:=Sartura Support for Inteno <support-inteno@sartura.hr>
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
