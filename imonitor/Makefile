@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 Inteno
+# Copyright (C) 2018 iopsys
 #
 
 include $(TOPDIR)/rules.mk
@@ -23,7 +23,7 @@ include $(INCLUDE_DIR)/cmake.mk
 
 define Package/imonitor
 	CATEGORY:=Utilities
-	TITLE:=Inteno process supervisor
+	TITLE:=iopsysWrt process supervisor
 	DEPENDS:=+ubox +uci +ubus +rpcd +rpcd-mod-file
 endef
 

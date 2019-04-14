@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 Inteno
+# Copyright (C) 2016 iopsys
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -34,7 +34,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/inbd
 	CATEGORY:=Utilities
-	TITLE:=Inteno Netlink Bridge Daemon
+	TITLE:=iopsys Netlink Bridge Daemon
 	URL:=
 	DEPENDS:=+libuci +libubus +libblobmsg-json +libnl-genl
 endef

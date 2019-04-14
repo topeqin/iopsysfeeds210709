@@ -20,7 +20,7 @@ define Package/iop
 endef
 
 define Package/iop/description
-	This package contains Intenos Iop utilities
+	This package contains iopsysWrt SDK utilities
 endef
 
 define Build/Compile

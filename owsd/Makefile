@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 Inteno
+# Copyright (C) 2018 iopsys
 #
 
 include $(TOPDIR)/rules.mk

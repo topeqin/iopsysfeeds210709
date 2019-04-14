@@ -1,12 +1,12 @@
 #
-# Copyright (C) 2013 Inteno
+# Copyright (C) 2013-2019 iopsys
 #
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=3.1.40
+PKG_VERSION:=4.0.1
 
 PKG_SOURCE_VERSION:=58a40d862dd7f74544ae5cbf321a4a0772852214
 PKG_SOURCE_PROTO:=git
