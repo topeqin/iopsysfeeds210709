@@ -5,6 +5,7 @@
 # Adapt to config section name changes
 grep -q brcm_line /etc/config/voice_client && sed -i 's/brcm_line/tel_line/g' /etc/config/voice_client
 grep -q brcm_advanced /etc/config/voice_client && sed -i 's/brcm_advanced/tel_advanced/g' /etc/config/voice_client
+grep -q BRCM /etc/config/voice_client && sed -i 's/BRCM/TEL/g' /etc/config/voice_client
 
 # Add call filter section
 uci -q get voice_client.call_filter0 >/dev/null || {
@@ -70,9 +71,9 @@ EOT
 # If dtmfmode is set to the obsolete compatability change to auto
 sed -i 's/dtmfmode\s*=\s*compatibility/dtmfmode=auto/' /etc/asterisk/sip.conf
 
-if [ $(uci get voice_client.SIP.dtmfmode) == 'compatibility' ]; then
-    uci set voice_client.SIP.dtmfmode='auto'
-    uci commit
+if [ "$(uci get voice_client.SIP.dtmfmode)" == "compatibility" ]; then
+	uci set voice_client.SIP.dtmfmode="auto"
+	uci commit voice_client
 fi
 
 exit 0
