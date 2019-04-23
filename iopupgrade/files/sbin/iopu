@@ -21,7 +21,6 @@ upd_ubi_id=""		# num,	UBI volume number for the volume name
 run_cleanup=0		# if set the cleanup should be run otherwise we skip it.
 run_mount_cleanup=0	# set if we should run umount in cleanup
 upd_kernel=0		# set to 1 if system has the kernel in own mtd partition
-upd_cfe=0		# set to 1 if system is using cfe as bootloader.
 log_stdout=1		# set to 0 to prevent the log to also print to stdout
 upd_noreboot=0		# set to 1 if we should not reboot after programming
 upd_forceimage=0	# set this to force upgrade even if image is for wrong board.
