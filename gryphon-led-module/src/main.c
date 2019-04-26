@@ -192,9 +192,9 @@ static int canyon_led_probe(struct platform_device *pdev)
 	sk9822_set_color_str(leds, "00FF00");
 	sk9822_update(leds);
 	msleep(200);
-#endif
 	sk9822_set_color_str(leds, "000000");
 	sk9822_update(leds);
+#endif
 
 	printk(KERN_INFO "canyon led successfully probed\n");
 
