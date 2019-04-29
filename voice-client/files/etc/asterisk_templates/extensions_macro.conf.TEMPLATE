@@ -130,7 +130,7 @@ exten => s,1,			Goto(s-${DIALSTATUS},1)
 exten => s,n,			Hangup()
 
 ;handle busy (with CBBS support)
-exten => s-BUSY,1,		Read(DIGIT,Busy,1,in,30)
+exten => s-BUSY,1,		Read(DIGIT,Busy,1,i,30)
 exten => s-BUSY,n,		GotoIf($["${DIGIT}" = "${ARG8}"]?ccbs)
 exten => s-BUSY,n,		Hangup()
 exten => s-BUSY,n(ccbs),	Set(result=${SHELL(/usr/lib/asterisk/cbbs.sh ${ARG1} ${ARG2} ${ARG3} ${ARG4} ${ARG5} ${ARG6} ${ARG7})})
