@@ -171,8 +171,8 @@ function genconfig {
 		echo -e "  -a|--list-all\t\tList all Customers and their board types"
 		echo -e "  -b|--boards\t\tList all board types"
 		echo
-		echo "Example ./iop genconfig vg50 TELIA"
-		echo "(if no customerconfig is chosen the Inteno Config will be used)"
+		echo "Example ./iop genconfig dg200 TELIA"
+		echo "(if no customerconfig is chosen, iopsys config will be used)"
 		echo
 		exit 0
 	}
@@ -439,7 +439,7 @@ function genconfig {
 			shift;
 		done
 
-		CUSTREPO="${CUSTREPO:-git@private.inteno.se:customerconfigs}"
+		CUSTREPO="${CUSTREPO:-git@dev.iopsys.eu:consumer/iopsys.git}"
 
 		setup_dirs
 		create_and_copy_files "$@"
