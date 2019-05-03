@@ -50,7 +50,7 @@ config wifi-iface
 	option macfilter '0'
 	option wps_pbc '1'
 	option wmf_bss_enable '1'
-	option bss_max '32'
+	option maxassoc '32'
 	option ifname 'wl0'
 
 config wifi-device 'wl1'
@@ -90,6 +90,6 @@ config wifi-iface
 	option macfilter '0'
 	option wps_pbc '1'
 	option wmf_bss_enable '1'
-	option bss_max '32'
+	option maxassoc '32'
 	option ifname 'wl1'
 
