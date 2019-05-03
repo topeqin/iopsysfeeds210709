@@ -8,10 +8,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
-PKG_VERSION:=1.2.0
+PKG_VERSION:=1.3.0
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dectmngr.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=5856660dfe8f9b0bf76863a20957d54ace0a5e77
+PKG_SOURCE_VERSION:=637aa9ef231f81d195f7a1b67c70af445ade7fee
 PKG_NAME:=dectmngr2
 
 
