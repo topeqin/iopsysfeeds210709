@@ -19,7 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/uspd
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=TR069 extention for USP
+  TITLE:=USP ubus backend
   DEPENDS:=+libubox +ubus +icwmp-curl
 endef
 
