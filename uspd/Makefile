@@ -8,7 +8,7 @@ PKG_NAME:=uspd
 PKG_VERSION:=1.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=e9aa8a42f1da90b44fbd6bca3f4131a24fe79efb
+PKG_SOURCE_VERSION:=a5fba2890d05e868605431dacd32ffda4bdc232d
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/uspd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
