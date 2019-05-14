@@ -1,0 +1,54 @@
+#!/bin/sh
+
+. /lib/functions/mbid.sh
+
+# read firewall parental rules and add repeated addresses
+append_rpt_rules() {
+	# get the rules
+	rules="$(iptables --list-rules | grep "Parental Rule")"
+	[ -z "$rules" ] && exit
+
+	# get the chain name (should be FORWARD)
+	chain="$(awk 'NR == 1 {print $2}' <<-EOF
+		$rules
+		EOF
+	)"
+	[ -z "$chain" ] && exit
+
+	# get the rules positions in the chain
+	ids="$(iptables -t filter -L $chain --line-numbers | grep -i "Parental Rule" | awk '{print $1}' | sort -nr)"
+	[ -z "$ids" ] && exit
+
+	octets=$(get_octets)
+	mobid=$(get_mobid)
+	[ -z "$mobid" -o -z "$octets" ] && return
+
+	oct2="$(echo $mobid | awk '{print $1}')"
+	oct3="$(echo $mobid | awk '{print $2}')"
+
+	# delete the existing rules
+	while read id; do
+		iptables -t filter -D $chain $id || true
+	done <<-EOF
+		$ids
+		EOF
+
+	IFS=$'\n'
+	for rule in $rules; do
+		# keep same rule, replace --append with --insert
+		rule=${rule/-A /-I }
+		rule="iptables -t filter $rule"
+		eval $rule
+
+		mac=$(echo $rule | awk '{print $9}')
+		rpt_macs=$(repeated_macs $octets $oct2 $oct3 $mac | awk '{print toupper($0)}')
+		for rpt_mac in $rpt_macs; do
+			[ -z "$rpt_mac" ] && continue
+			[ "$rules" != "${rules/$rpt_mac/}" ] && continue
+			rpt_rule=${rule/$mac/$rpt_mac}
+			eval $rpt_rule
+		done
+	done
+}
+
+append_rpt_rules
