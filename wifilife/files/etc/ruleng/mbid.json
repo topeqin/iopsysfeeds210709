@@ -1,0 +1,18 @@
+{
+	"if" : [
+		{
+			"event": "ubus.object.add",
+			"regex": true,
+			"match": {
+				"path":".*\/wifi\\.agent"
+			}
+		}
+	],
+	"then" : [
+		{
+			"object": "mbid",
+			"method":"reload",
+			"args": {}
+		}
+	]
+}
