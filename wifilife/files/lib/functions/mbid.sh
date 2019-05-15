@@ -3,23 +3,6 @@
 . /usr/share/libubox/jshn.sh
 . /lib/functions.sh
 
-get_neighbors() {
-	neighbors=""
-
-	json_get_keys keys
-
-	IFS=$' '
-	for key in $keys; do
-		json_select $key 2>/dev/null
-		json_get_var bssid bssid
-		neighbors="$neighbors $bssid"
-		json_select ..
-	done
-
-	echo "$neighbors"
-	json_select ..
-}
-
 mobid_cb() {
 	local device mobility_domain
 
@@ -35,19 +18,6 @@ _get_mobid() {
 	config_load wireless
 	mobid="$(config_foreach mobid_cb wifi-iface $vif)"
 	echo $mobid
-}
-
-match_neigh() {
-	neighbor=$1
-	assoclist=$2
-
-	neighbor=$(echo "$neighbor" | awk '{print tolower($0)}')
-
-	for mac in $assoclist; do
-		[ ${mac:2} = ${neighbor:2} ] || continue
-		echo $mac
-		break
-	done
 }
 
 repeated_macs() {
@@ -85,40 +55,43 @@ mac_to_repeated() {
 	echo "$(repeated_macs $octets $oct2 $oct3 $mac)"
 }
 
+get_octet() {
+	ip=$1
+
+	res="$(ubus call router.network clients 2>/dev/null)"
+
+	json_load "$res"
+	json_get_keys keys
+	IFS=$' '
+	for key in $keys; do
+		json_select $key 2>/dev/null
+		json_get_var ipaddr ipaddr
+		json_get_var wireless wireless
+		json_get_var frequency frequency
+		json_get_var macaddr macaddr
+		json_select ..
+
+		[ "$ipaddr" = "$ip" ] || continue
+		[ "$wireless" = "1" ] || break
+		[ "$frequency" = "5GHz" ] || break
+
+		octet=$(echo $macaddr | cut -c1-2)
+		echo "$octet"
+	done
+}
+
 # only get all first octets - use when parsing several MACS
 get_octets() {
 	octets=""
 	assoclist=""
 	neighbors=""
 
-	assoc="$(ubus -t1 call wifix assoclist 2>/dev/null)"
-	[ -z "$assoc" ] && return
+	objects=$(ubus list | grep -E '.*\/wifix$')
+	[ -z "$objects" ] && return
 
-	json_load "$assoc"
-	json_select assoclist 2>/dev/null
-	json_get_keys keys
-	IFS=$' '
-	for key in $keys; do
-		json_select $key 2>/dev/null
-		json_get_var macaddr macaddr
-		assoclist="$macaddr $assoclist"
-		json_select ..
-	done
-
-	list_neighbor="$(ubus -t1 call wifix list_neighbor 2>/dev/null)"
-	[ -z "$list_neighbor" ] && return
-
-	json_load "$list_neighbor"
-	json_get_keys keys
-	for key in $keys; do
-		json_select $key 2>/dev/null
-		neighbors="$(get_neighbors) $neighbors"
-		json_select ..
-	done
-
-	for neighbor in $neighbors; do
-		bssid=$(match_neigh $neighbor $assoclist)
-		octet=$(echo $bssid | cut -c1-2)
+	for obj in $objects; do
+		ip=$(echo $obj | cut -d'/' -f1)
+		octet="$(get_octet $ip)"
 		[ "$octets" != "${octets/$octet/}" ] && continue
 		octets="$octet $octets"
 	done
