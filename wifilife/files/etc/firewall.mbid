@@ -5,6 +5,9 @@
 # read firewall parental rules and add repeated addresses
 append_rpt_rules() {
 	# get the rules
+
+	[ "$(uci -q get owsd.ubusproxy.enable)" == "1" ] || return
+
 	rules="$(iptables --list-rules | grep "Parental Rule")"
 	[ -z "$rules" ] && exit
 

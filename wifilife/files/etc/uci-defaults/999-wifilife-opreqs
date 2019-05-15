@@ -33,12 +33,9 @@ add_firewall_mbid() {
 }
 
 add_ruleng_section() {
-	local ubusx="$(uci -q get owsd.ubusproxy.enable)"
-	if [ "$ubusx" == "1" ]; then
-		uci -q add ruleng rule
-		uci -q set ruleng.@rule[-1].recipe='/etc/ruleng/mbid.json'
-		uci commit ruleng
-	fi
+	uci -q add ruleng rule
+	uci -q set ruleng.@rule[-1].recipe='/etc/ruleng/mbid.json'
+	uci commit ruleng
 }
 
 add_owsd_object_wifi
