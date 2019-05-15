@@ -53,7 +53,7 @@ MAKE_PATH:=src
 
 define Package/wifilife/install
 	$(INSTALL_DIR) $(1)/etc
-	$(CP) -r ./files/* $(1)/etc/
+	$(CP) -r ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wifiagent $(1)/usr/sbin/
 endef
