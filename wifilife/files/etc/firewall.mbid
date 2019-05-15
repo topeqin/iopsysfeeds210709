@@ -2,6 +2,16 @@
 
 . /lib/functions/mbid.sh
 
+remove_rpt_rules() {
+	old_rules="$(cat "/tmp/mbid_macs" 2>/dev/null)"
+	IFS=$'\n'
+	for old_rule in $old_rules; do
+		old_rule=${old_rule/-A /-D }
+		eval $old_rule
+	done
+	rm /tmp/mbid_macs
+}
+
 # read firewall parental rules and add repeated addresses
 append_rpt_rules() {
 	[ "$(uci -q get owsd.ubusproxy.enable)" == "1" ] || return
@@ -33,6 +43,7 @@ append_rpt_rules() {
 		eval $rule
 
 		rpt_macs=$(repeated_macs $octets $oct2 $oct3 $mac | awk '{print toupper($0)}')
+		> /tmp/mbid_macs
 		for rpt_mac in $rpt_macs; do
 			[ -z "$rpt_mac" ] && continue
 			rpt_rule=${rule/$mac/$rpt_mac}
@@ -42,6 +53,7 @@ append_rpt_rules() {
 			done
 
 			eval $rpt_rule
+			echo $rpt_rule >> /tmp/mbid_macs
 		done
 	done
 }
@@ -50,5 +62,6 @@ while [ -f /tmp/mbid.lock ]; do
 	sleep 2
 done
 touch /tmp/mbid.lock
+remove_rpt_rules
 append_rpt_rules
 rm /tmp/mbid.lock
