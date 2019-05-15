@@ -10,9 +10,12 @@
 	],
 	"then" : [
 		{
-			"object": "mbid",
-			"method":"reload",
-			"args": {}
+			"object": "file",
+			"method":"exec",
+			"args": {
+				"command": "sh",
+				"params": ["/etc/firewall.mbid"]
+			}
 		}
 	]
 }
