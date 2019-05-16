@@ -55,28 +55,46 @@ mac_to_repeated() {
 	echo "$(repeated_macs $octets $oct2 $oct3 $mac)"
 }
 
+assocl_match_mac() {
+	mac=$1
+
+	res="$(ubus call wifix assoclist 2>/dev/null)"
+
+	json_load "$res"
+	json_select assoclist 2>/dev/null
+	json_get_keys keys
+
+	IFS=$' '
+	for key in $keys; do
+		json_select $key 2>/dev/null
+		json_get_var macaddr macaddr
+		json_select ..
+
+		[ "$macaddr" = "$mac" ] || continue
+
+		octet=$(echo $macaddr | cut -c1-2)
+		echo "$octet"
+	done
+}
+
 get_octet() {
 	ip=$1
 
-	res="$(ubus call router.network clients 2>/dev/null)"
+	res="$(ubus call router.net arp 2>/dev/null)"
 
 	json_load "$res"
+	json_select table 2>/dev/null
 	json_get_keys keys
 	IFS=$' '
 	for key in $keys; do
 		json_select $key 2>/dev/null
 		json_get_var ipaddr ipaddr
-		json_get_var wireless wireless
-		json_get_var frequency frequency
 		json_get_var macaddr macaddr
 		json_select ..
 
 		[ "$ipaddr" = "$ip" ] || continue
-		[ "$wireless" = "1" ] || break
-		[ "$frequency" = "5GHz" ] || break
 
-		octet=$(echo $macaddr | cut -c1-2)
-		echo "$octet"
+		echo "$(assocl_match_mac $macaddr)"
 	done
 }
 
