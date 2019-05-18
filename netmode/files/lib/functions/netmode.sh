@@ -5,6 +5,7 @@
 
 NMTMPDIR=/var/netmodes
 OLD_MODE_FILE=/var/netmodes/old_mode
+CONF_BACKUP_DIR=/var/netmodes/backup/
 SWITCHMODELOCK="/tmp/switching_mode"
 MODEDIR=$(uci -q get netmode.setup.dir)
 MTK=0
@@ -179,6 +180,11 @@ switch_netmode() {
 
 	run_netmode_scripts $curmode "pre"
 
+	# make backup of current config before switching
+	rm -rf $CONF_BACKUP_DIR
+	mkdir -p $CONF_BACKUP_DIR
+	cp -af /etc/config/* $CONF_BACKUP_DIR
+
 	logger -s -p user.info -t $0 "[netmode] Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
 
 	for file in $(ls /etc/netmodes/$curmode/); do
@@ -224,6 +230,28 @@ switch_netmode() {
 	esac
 
 	run_netmode_scripts $curmode "post"
+}
+
+revert_netmode() {
+	local from="$1"
+	local to="$2"
+	local rready="$3"
+
+	ubus call leds set  '{"state" : "allflash"}'
+	echo "Could not switch to '$from' mode; going back to '$to' mode" > /dev/console
+	uci -q set netmode.setup.curmode="$to"
+	uci -q set netmode.setup.repeaterready="$rready"
+	uci commit netmode
+	cp -af $CONF_BACKUP_DIR/* /etc/config/
+	sync
+	rm -rf $CONF_BACKUP_DIR
+	rm -rf $OLD_MODE_FILE
+
+	echo "Restarting network services" > /dev/console
+	ubus call network reload
+	wifi reload
+	ubus call router.network reload
+	ubus call leds set  '{"state" : "normal"}'
 }
 
 wificontrol_takes_over() {
