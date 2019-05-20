@@ -27,7 +27,7 @@ config wifi-iface
 	option ssid     iopsys-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
-	option wps_pushbutton	1
+	option wps	1
 	option ifname	ra0
 
 config wifi-device  rai0
@@ -47,6 +47,6 @@ config wifi-iface
 	option ssid     iopsys-$BSSID4
 	option encryption psk2
 	option key      $WPAKEY
-	option wps_pushbutton	1
+	option wps	1
 	option ifname	rai0
 
