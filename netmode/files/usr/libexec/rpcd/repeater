@@ -3,6 +3,10 @@
 . /usr/share/libubox/jshn.sh
 . /lib/functions.sh
 
+WIFISTA=0
+STACONF="/etc/Wireless/iNIC/iNIC_ap.dat"
+[ -f $STACONF ] && WIFISTA=1
+
 get_if_creds() {
 	local section=$1
 	local network=$2
@@ -84,9 +88,22 @@ duplicate_if_single_radio() {
 	done
 }
 
+get_wifi_iface_cfgstr() {
+	get_cfgno() {
+		config_get ifname "$1" ifname
+		[ "$ifname" == "$2" ] && echo "wireless.$1"
+	}
+	config_load wireless
+	config_foreach get_cfgno wifi-iface $1
+}
+
 case "$1" in
 	list)
-		echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" } }'
+		if [ $WIFISTA -eq 1 ]; then
+			echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" }, "connect": { "ssid": "str", "key": "str" }, "forget_network": {} }'
+		else
+			echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" } }'
+		fi
 	;;
 	call)
 		case "$2" in
@@ -135,6 +152,64 @@ case "$1" in
 				json_add_string "status" success
 				json_dump
 
+			;;
+			connect)
+				local ssid key enc auth wetif wetcfg wetssid wetkey code
+				read input
+				json_load "$input"
+				json_get_var ssid ssid
+				json_get_var key key
+				code=1
+				[ $WIFISTA -eq 1 ] && wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
+				if [ -s /sys/class/net/$wetif/operstate ]; then
+					wetcfg="$(get_wifi_iface_cfgstr $wetif)"
+					wetssid="$(uci -q get $wetcfg.ssid)"
+					wetkey="$(uci -q get $wetcfg.key)"
+					ssid="${ssid:-$wetssid}"
+					key="${key:-$wetkey}"
+					if [ -n "$key" ]; then
+						auth="WPA2PSK"
+						enc="AES"
+					else
+						auth="OPEN"
+						enc="NONE"
+					fi
+					iwpriv $wetif set ApCliEnable=0
+					iwpriv $wetif set ApCliSsid="$ssid"
+					iwpriv $wetif set ApCliAuthMode="$auth"
+					iwpriv $wetif set ApCliEncrypType="$enc"
+					iwpriv $wetif set ApCliWPAPSK="$key"
+					iwpriv $wetif set ApCliEnable=1
+					iwpriv $wetif set ApCliAutoConnect=1
+					code=0
+				fi
+				json_init
+				json_add_int "code" $code
+				json_dump
+			;;
+			forget_network)
+				local wetif wetcfg code
+				code=1
+				[ $WIFISTA -eq 1 ] && wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
+				if [ -s /sys/class/net/$wetif/operstate ]; then
+					wetcfg="$(get_wifi_iface_cfgstr $wetif)"
+					uci -q set $wetcfg.ssid=""
+					uci -q set $wetcfg.key=""
+					uci -q commit wireless
+
+					sed -i "s/ApCliSsid=.*/ApCliSsid=/g" $STACONF
+					sed -i "s/ApCliAuthMode=.*/ApCliAuthMode=/g" $STACONF
+					sed -i "s/ApCliEncrypType=.*/ApCliEncrypType=/g" $STACONF
+					sed -i "s/ApCliWPAPSK=.*/ApCliWPAPSK=/g" $STACONF
+
+					ifconfig $wetif down
+					ifconfig $wetif up
+
+					code=0
+				fi
+				json_init
+				json_add_int "code" $code
+				json_dump
 			;;
 		esac
 	;;
