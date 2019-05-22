@@ -9,7 +9,8 @@
 	],
 	"excluded_boards" : [
 		"*G*",
-		"F*"
+		"F*",
+		"NORRLAND"
 	],
 	"uplink_band" : 'a',
 	"downlink_band" : 'a b',

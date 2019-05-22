@@ -9,7 +9,8 @@
 	],
 	"excluded_boards" : [
 		"EX4*",
-		"SDX810-AP"
+		"SDX810-AP",
+		"NORRLAND"
 	],
 	"credentials" : 0
 }

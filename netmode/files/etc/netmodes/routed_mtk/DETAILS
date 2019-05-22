@@ -9,7 +9,8 @@
 	],
 	"excluded_boards" : [
 		"*G*",
-		"F*"
+		"F*",
+		"NORRLAND"
 	],
 	"reboot" : 0,
 	"credentials" : 0
