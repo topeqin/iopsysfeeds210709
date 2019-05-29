@@ -301,11 +301,15 @@ start_service() {
 	procd_set_param respawn
 
 	procd_close_instance
-	# Start uproxyd
-	procd_open_instance
-	procd_set_param command $UPROXYD
-	procd_set_param respawn
-	procd_close_instance
+
+	if [ "${enable}" -eq 1 ]; then
+		# Start uproxyd
+		procd_open_instance
+		procd_set_param command $UPROXYD
+		procd_set_param respawn
+		procd_close_instance
+	fi
+
 }
 
 #stop_service()
