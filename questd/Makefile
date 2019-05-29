@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=questd
 PKG_VERSION:=4.1.0
 
-PKG_SOURCE_VERSION:=54eff933cebcb363107ffbb703cd375c10a6ceea
+PKG_SOURCE_VERSION:=fdd80766b50fce51f68ff675b0e5398e0d31d3bb
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/questd
 
@@ -59,7 +59,6 @@ define Package/questd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/graphd $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uproxyd $(1)/sbin/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netcheck $(1)/usr/bin/
 endef
