@@ -1917,11 +1917,9 @@ configure_tel_line()
 	config_get clir $1 clir
 
 	#If line is configured with no sip_provider, or sip_provider is disabled, use local_extensions context
-	[ -n "$sip_provider" ] && {
-		config_get sip_provider_user $sip_provider user
-		config_get sip_provider_enabled $sip_provider enabled
-	}
-	if [ -z "$sip_provider" -o "$sip_provider" == "-" -o -z "$sip_provider_enabled" -o "$sip_provider_enabled" == "0" -o -z "$sip_provider_user" ] ; then
+	config_get sip_provider_user $sip_provider user
+	config_get sip_provider_enabled $sip_provider enabled
+	if [ "$sip_provider" == "-" -o -z "$sip_provider_enabled" -o "$sip_provider_enabled" == "0" -o -z "$sip_provider_user" ] ; then
 		sip_provider="local_extensions"
 	fi
 
@@ -2064,48 +2062,6 @@ pbx_fix_ownership()
 	chown $ASTUSER:$ASTGROUP -R $ASTDIRSRECURSIVE
 }
 
-# Set voice_client.LINE_x.sip_account correctly as per "voice_client.sipX.call_lines"
-set_line_sip_account()
-{
-	local tel_line=$1
-	local old_sip_account=
-	local new_sip_account=
-	local line_name=$(getLineName)
-	local line_name_len=${#line_name}
-	local lnum=${tel_line:${line_name_len}}
-	local chan_name=$(getChannelName)
-	local ___type="sip_service_provider"
-	local section cfgtype call_lines chan_num
-
-	config_get old_sip_account $tel_line sip_account
-
-	# Note: On Intel platform, tel_line's section name starts with 0, e.g. tapi0.
-	# But channel index in voice_client.sipX.call_lines starts with 1, e.g. TAPI/1
-	if [ "$line_name" == "tapi" ]; then
-		chan_num=$((lnum+1))
-	else
-		chan_num=$lnum
-	fi
-
-	for section in ${CONFIG_SECTIONS}; do
-		config_get cfgtype "$section" TYPE
-		[ -n "$___type" -a "x$cfgtype" != "x$___type" ] && continue
-		config_get call_lines "$section" call_lines
-		# Note: tel_line's section name starts with 0, e.g. tapi0 or brcm0.
-		# But channel index in voice_client.sipX.call_lines starts with 1, e.g. TAPI/1
-		[ -n "$call_lines" ] && echo "$call_lines" | grep -q "$chan_name/$chan_num" && {
-			# Append this sip_acount to the tel line
-			if [ -z "$new_sip_account" ]; then
-				new_sip_account="$section"
-			else
-				new_sip_account="$new_sip_account $section"
-			fi
-		}
-	done
-
-	[ "$old_sip_account" != "$new_sip_account" ] && uci_set voice_client $tel_line sip_account "$new_sip_account"
-}
-
 #
 # Calculate a name for each $(getLineName) line, depending on port type
 # and number. The name is used to make UI look better.
@@ -2203,21 +2159,12 @@ start_service() {
 	config_load voice_client
 
 	########################################################
-	# Set line sip_account according to sip accounts'
-	# settings
-	########################################################
-	config_foreach set_line_sip_account tel_line
-
-	########################################################
 	# Set line names according to board parameters
 	# and delete non-existing lines from voice_client config
 	########################################################
 	local maxlinenum=$(db get hw.board.VoicePorts)
 	config_foreach set_line_name tel_line $maxlinenum
 	uci_commit voice_client
-
-	# Reload the config since it has changed
-	config_load voice_client
 
 	#######################################
 	# Create temporary files from templates
@@ -2344,17 +2291,16 @@ stop_service() {
 
 reload_service() {
 	start
-	# turn off voice led; asterisk will turn it on if there is a registered account
+	#stop
+	# turn off voice led; asterisk will turn it on
+	# if there is a registered account
 	ubus call led.voice1 set '{"state":"off"}'
 
-	# FXS channel module must be reloaded before sip module. Otherwise some attributes like
-	# line's registration state which is updated by SIP module through callback might be
-	# reset.
-	asterisk -rx "$(getChipVendor) reload"
 	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
 	sleep 1
 	asterisk -rx "core reload"
 	asterisk -rx "dialplan reload"
+	asterisk -rx "$(getChipVendor) reload"
 }
 
 service_triggers() {
