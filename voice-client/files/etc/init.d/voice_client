@@ -260,90 +260,41 @@ read_codecs_ptime()
 #
 read_lines()
 {
-	local lines=""
-	local call_lines
-	local fxsIdx fxsEpt dectIdx dectEpt
+	local line call_lines lineid ldx lines llength clength
+	local loffset=$(ubus -t 1 call voice.asterisk platform | jsonfilter -e @.lineoffset)
+	loffset=${loffset:-0}
 
-	# Are lines already set by user conf?
-	config_get call_lines $1 call_lines
+	config_get call_lines $1 call_lines "0"
 
-	# Otherwise set default depending on board HW. This
-	# is only done at very first boot or a default reset.
-	if test -z "$call_lines"; then
-		# Get all FSX voice endpoints. Translate to uppercase with awk
-		# due to tr [:upper:] doesn't work in our BusyBox.
-		voicePorts=$(db get hw.board.VoicePortOrder | \
-			awk '{ print toupper($0) }' | \
-			sed  -e "s/\([[:alpha:]]*\)\([[:digit:]]\)/\1\/\2/g")
-		voiceNames=$(db get hw.board.VoicePortNames)
-		hasVoice=0
+	for line in $call_lines ; do
 
-		if test $(db get hw.board.hasVoice) = "1"; then
-			# Get the first FSX voice endpoint index by
-			# searching for the name usually used.
-			fxsIdx=$(echo $voiceNames | \
-				awk -e '{
-					i = 1;
-					while(i <= NF && tolower($i) !~ /^tel.*$/) {
-						i++;
-					}
-					print i;
-				}'
-			)
-	
-			# Convert index to endpoint ID
-			if test $fxsIdx -gt 0; then
-				fxsEpt=$(echo $voicePorts | awk '{ print $'$fxsIdx' }')
-			fi
-
-			hasVoice=1
-		fi
-	
-		if test $(db get hw.board.hasDect) = "1"; then
-			# Get the first Dect voice endpoint index by
-			# searching for the name usually used.
-			dectIdx=$(echo $voiceNames | \
-				awk -e '{
-					i = 1;
-					while(i <= NF && tolower($i) !~ /^dect.*$/) {
-						i++;
-					}
-					print i;
-				}
-			')
-
-			if test $dectIdx -gt 0; then
-				dectEpt=$(echo $voicePorts | awk '{ print $'$dectIdx' }')
-			fi
-
-			hasVoice=1
-		fi
-
-		if test $hasVoice -eq 1; then
-		        call_lines="$dectEpt $fxsEpt"
-		        # Remove leading/trailing spaces
-			call_lines=$(echo $call_lines | xargs echo -n)
-
-			# If we didn't find any endpoint ID we
-			# fallback to activate them all.
-			if test -z "$call_lines"; then
-				call_lines="$voicePorts"
-			fi
-		fi
-
-		# Save the endpoint IDs we found where the
-		# GUI expects to find them.
-		uci_set voice_client "${1}" "call_lines" "$call_lines"
-		uci_commit voice_client
-	fi
-
-	for i in $call_lines ; do
-		case $i in
-			''|*[!0-9]*)	lines=$lines"$i&" ;;
-			*) 				lines=$lines"$CHANNELNAME/$i&" ;;
+		# convert line format to <LINENAME><LINEID>
+		case $line in
+			[0-9])
+				line="$LINENAME$line"
+			;;
+			"$CHANNELNAME"/[0-9])
+				clength=$(echo $CHANNELNAME | wc -c)
+				line="$LINENAME${line:$clength}"
+			;;
 		esac
-		
+
+		# get the index from line name
+		# llength=$(echo $LINENAME | wc -c)
+		# lineid="${lineid:$llength}"
+
+		# get the index from uci config order
+		lineid="$(uci show voice_client | grep =tel_line | grep -wn $line | cut -d ':' -f1)"
+
+		[ -n "$lineid" ] || continue
+
+		# -1 to get uci config index (which starts from 0)
+		# +loffset to give correct number of channel driver
+		ldx=$((lineid-1+loffset))
+
+		lines="$lines$CHANNELNAME/$ldx&"
 	done
+
 	lines=$(escape_sed_substitution $lines)
 	echo "${lines%??}"
 }
@@ -1481,7 +1432,6 @@ configure_extensions()
 #
 configure_extensions_provider()
 {
-	echo COMES HERE
 	local enabled
 	local displayname
 	local user
