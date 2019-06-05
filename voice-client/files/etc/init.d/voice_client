@@ -17,8 +17,8 @@ START=60
 USE_PROCD=1
 
 # Some global variables
-SERIAL=$(getSerial)
-BASEMAC=$(getBaseMAC)
+SERIAL="$(getSerial)"
+BASEMAC="$(getBaseMAC)"
 MODULENAME=voice
 USERAGENT="Inteno_${SERIAL}_${BASEMAC}"
 
@@ -32,7 +32,10 @@ ASTERISKDIR=/etc/asterisk
 WORKDIR=/tmp/$MODULENAME.$$
 MD5SUMSFILE=/tmp/$MODULENAME-sums.$$
 
-# Whitespace separated list of $(getChannelName) feature access codes
+LINENAME="$(getLineName)"
+CHANNELNAME="$(getChannelName)"
+
+# Whitespace separated list of $CHANNELNAME feature access codes
 CHANNEL_FAC=
 
 #TODO: go through templates, check usage
@@ -82,7 +85,7 @@ TMPL_ACL=$TEMPLATEDIR/acl.conf.TEMPLATE
 TMPL_CONFBRIDGE=$TEMPLATEDIR/confbridge.conf.TEMPLATE
 TMPL_UDPTL=$TEMPLATEDIR/udptl.conf.TEMPLATE
 
-TMPL_CHANNEL=$TEMPLATEDIR/$(getLineName).conf.TEMPLATE
+TMPL_CHANNEL=$TEMPLATEDIR/$LINENAME.conf.TEMPLATE
 TMPL_CHANNEL_LINE=$TEMPLATEDIR/tel_line.TEMPLATE
 
 TMPL_MEETME=$TEMPLATEDIR/meetme.conf.TEMPLATE
@@ -182,7 +185,7 @@ assemble_and_copy_config()
 	mv $WORKDIR/sip_registrations.tmp	$WORKDIR/sip_registrations.conf
 	mv $WORKDIR/sip_providers.tmp		$WORKDIR/sip_providers.conf
 	mv $WORKDIR/sip_users.tmp		$WORKDIR/sip_users.conf
-	mv $WORKDIR/$(getLineName).tmp		$WORKDIR/$(getLineName).conf
+	mv $WORKDIR/$LINENAME.tmp		$WORKDIR/$LINENAME.conf
 	mv $WORKDIR/extensions.tmp		$WORKDIR/extensions.conf
 	mv $WORKDIR/codecs.tmp			$WORKDIR/codecs.conf
 	mv $WORKDIR/rtp.tmp			$WORKDIR/rtp.conf
@@ -337,7 +340,7 @@ read_lines()
 	for i in $call_lines ; do
 		case $i in
 			''|*[!0-9]*)	lines=$lines"$i&" ;;
-			*) 				lines=$lines"$(getChannelName)/$i&" ;;
+			*) 				lines=$lines"$CHANNELNAME/$i&" ;;
 		esac
 		
 	done
@@ -1032,9 +1035,9 @@ configure_queue()
 	do
 		local out=""
 		re='^[0-9]+$'
-		num=${member#$(getLineName)}
+		num=${member#$LINENAME}
 		if [ -z "${num##[0-9]*}" ] ; then
-			out="$(getChannelName)/$num"
+			out="$CHANNELNAME/$num"
 		else
 			local sip_user
 			config_get sip_user $member user
@@ -1478,6 +1481,7 @@ configure_extensions()
 #
 configure_extensions_provider()
 {
+	echo COMES HERE
 	local enabled
 	local displayname
 	local user
@@ -1688,7 +1692,7 @@ configure_extensions_provider()
 	echo "exten => $user,n(norewrite),NoOp()">>							$tmp
 
 	# read a list of lines that should be dialled on incoming calls
-	incoming_lines=$(read_lines $1)
+	incoming_lines="$(read_lines $1)"
 	config_get call_queue $1 call_queue
 	config_get call_ivr $1 call_ivr
 	if [ -n "$incoming_lines" ]; then
@@ -1737,7 +1741,7 @@ configure_tel_line_extension()
 	local cbbs_retrytime
 	local cbbs_waittime
 	local mailbox
-	local line_name=$(getLineName)
+	local line_name=$LINENAME
 	
 	line=${1:${#line_name}}
 	config_get extension $1 extension
@@ -1842,11 +1846,11 @@ configure_codecs()
 }
 
 #
-# Configure default settings for $(getLineName).conf
+# Configure default settings for $LINENAME.conf
 #
 configure_tel()
 {
-	echo "Configuring $(getChannelName)"
+	echo "Configuring $CHANNELNAME"
 	local jbenable
 	local jbforce
 	local jbmaxsize
@@ -1873,29 +1877,29 @@ configure_tel()
 		dialoutmsec=4000
 	fi
 
-	sed -i "s/|JBENABLE|/$jbenable/"			$WORKDIR/$(getLineName).tmp
-	sed -i "s/|JBFORCE|/$jbforce/"				$WORKDIR/$(getLineName).tmp
-	sed -i "s/|JBMAXSIZE|/$jbmaxsize/"			$WORKDIR/$(getLineName).tmp
-	sed -i "s/|JBIMPL|/$jbimpl/"				$WORKDIR/$(getLineName).tmp
-	sed -i "s/|DIALOUTMSEC|/$dialoutmsec/"			$WORKDIR/$(getLineName).tmp
-	sed -i "s/|FAC|/$CHANNEL_FAC/"				$WORKDIR/$(getLineName).tmp
-	sed -i "s/|CHANNELS|/$(db get hw.board.VoicePorts)/"	$WORKDIR/$(getLineName).tmp
-	sed -i "s/|ECHOCANCEL|/$(getEchoCancellingValue $echocancel)/"	$WORKDIR/$(getLineName).tmp
+	sed -i "s/|JBENABLE|/$jbenable/"			$WORKDIR/$LINENAME.tmp
+	sed -i "s/|JBFORCE|/$jbforce/"				$WORKDIR/$LINENAME.tmp
+	sed -i "s/|JBMAXSIZE|/$jbmaxsize/"			$WORKDIR/$LINENAME.tmp
+	sed -i "s/|JBIMPL|/$jbimpl/"				$WORKDIR/$LINENAME.tmp
+	sed -i "s/|DIALOUTMSEC|/$dialoutmsec/"			$WORKDIR/$LINENAME.tmp
+	sed -i "s/|FAC|/$CHANNEL_FAC/"				$WORKDIR/$LINENAME.tmp
+	sed -i "s/|CHANNELS|/$(db get hw.board.VoicePorts)/"	$WORKDIR/$LINENAME.tmp
+	sed -i "s/|ECHOCANCEL|/$(getEchoCancellingValue $echocancel)/"	$WORKDIR/$LINENAME.tmp
 
 	if [ "$dtmfmode" == "compatibility" ] ; then
 		dtmfcompatibility="1"
 	else
 		dtmfcompatibility="0"
 	fi
-	sed -i "s/|DTMFCOMPATIBILITY|/$dtmfcompatibility/"      $WORKDIR/$(getLineName).tmp
+	sed -i "s/|DTMFCOMPATIBILITY|/$dtmfcompatibility/"      $WORKDIR/$LINENAME.tmp
 }
 
 #
-# Configure settings for individual line in $(getLineName).conf
+# Configure settings for individual line in $LINENAME.conf
 #
 configure_tel_line()
 {
-	echo "Configuring $(getChannelName) line $1"
+	echo "Configuring $CHANNELNAME line $1"
 	local extension
 	local sip_provider
 	local codecs
@@ -1952,7 +1956,7 @@ configure_tel_line()
 	sed -i "s/|DTMFRELAY|/$dtmfmode/"			$WORKDIR/tel_line.tmp
 	sed -i "s/|CALLWAITING|/$callwaiting/"			$WORKDIR/tel_line.tmp
 	sed -i "s/|CLIR|/$clir/"				$WORKDIR/tel_line.tmp
-	sed -i "s/|LINE_NAME|/$(getLineName)/"			$WORKDIR/tel_line.tmp
+	sed -i "s/|LINE_NAME|/$LINENAME/"			$WORKDIR/tel_line.tmp
 
 	#Configure CHANNEL line with codecs according to the SIP line settings
 #	local is_fax
@@ -1963,7 +1967,7 @@ configure_tel_line()
 # 		sed -i "s/|ALLOW|/$(read_codecs $sip_provider)/"	$WORKDIR/tel_line.tmp
 # 	fi
 
-	cat $WORKDIR/tel_line.tmp >>				$WORKDIR/$(getLineName).tmp
+	cat $WORKDIR/tel_line.tmp >>				$WORKDIR/$LINENAME.tmp
 	rm -f							$WORKDIR/tel_line.tmp
 }
 
@@ -2063,14 +2067,14 @@ pbx_fix_ownership()
 }
 
 #
-# Calculate a name for each $(getLineName) line, depending on port type
+# Calculate a name for each $LINENAME line, depending on port type
 # and number. The name is used to make UI look better.
 #
 set_line_name()
 {
 	local maxlinenum=$2
 	local curname name_ix ix item lnum
-	local line_name=$(getLineName)
+	local line_name=$LINENAME
 	local line_name_len=${#line_name}
 	local tel_line=$1
 	
@@ -2176,7 +2180,7 @@ start_service() {
 	cp $TMPL_SIP			$WORKDIR/sip.tmp
 	cp $TMPL_RTP			$WORKDIR/rtp.tmp
 	cp $TMPL_STUN			$WORKDIR/res_stun_monitor.tmp
-	cp $TMPL_CHANNEL		$WORKDIR/$(getLineName).tmp
+	cp $TMPL_CHANNEL		$WORKDIR/$LINENAME.tmp
 	cp $TMPL_CODECS			$WORKDIR/codecs.tmp
 	cp $TMPL_VOICEMAIL		$WORKDIR/voicemail.tmp
 	cp $TMPL_DNSMGR			$WORKDIR/dnsmgr.tmp
