@@ -1,8 +1,7 @@
 #!/bin/sh /etc/rc.common
 #
-# This file is part of luci-app-voice,
-# its purpose is to (re)create asterisk configuration files
-# from luci config file(s).
+# The purpose of this file is to (re)create asterisk
+# configuration files from voice_client UCI config file.
 #
 . /lib/functions.sh
 . /lib/functions/network.sh
@@ -19,8 +18,10 @@ USE_PROCD=1
 # Some global variables
 SERIAL="$(getSerial)"
 BASEMAC="$(getBaseMAC)"
+LINENAME="$(getLineName)"
+CHANNELNAME="$(getChannelName)"
 MODULENAME=voice
-USERAGENT="Inteno_${SERIAL}_${BASEMAC}"
+USERAGENT="iopsys_${SERIAL}_${BASEMAC}"
 
 ASTUSER=nobody
 ASTGROUP=nogroup
@@ -31,9 +32,6 @@ TEMPLATEDIR=/etc/asterisk_templates
 ASTERISKDIR=/etc/asterisk
 WORKDIR=/tmp/$MODULENAME.$$
 MD5SUMSFILE=/tmp/$MODULENAME-sums.$$
-
-LINENAME="$(getLineName)"
-CHANNELNAME="$(getChannelName)"
 
 # Whitespace separated list of $CHANNELNAME feature access codes
 CHANNEL_FAC=
@@ -255,9 +253,6 @@ read_codecs_ptime()
 # returns a list of lines, formatted to replace a tag with sed
 # in a Dial() command
 #
-# For backwards compatibility, if i is only a number (not prefixed by
-#	"SIP/" or "CHANNEL/") then add "CHANNEL/"
-#
 read_lines()
 {
 	local line call_lines lineid ldx lines llength clength
@@ -288,8 +283,8 @@ read_lines()
 
 		[ -n "$lineid" ] || continue
 
-		# -1 to get uci config index (which starts from 0)
-		# +loffset to give correct number of channel driver
+		# -1 to match the line's uci config index number
+		# +loffset to match the correct number in channel driver
 		ldx=$((lineid-1+loffset))
 
 		lines="$lines$CHANNELNAME/$ldx&"
