@@ -174,5 +174,4 @@ config sip_service_provider 'sip0'
 	option redial '*66'
 	option is_fax '0'
 	option transport 'udp'
-	option call_lines '0'
 
