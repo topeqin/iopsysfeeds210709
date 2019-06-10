@@ -14,12 +14,12 @@ getLineName() {
 }
 
 getSerial() {
-    sernum=$(fw_printenv -n serial_number) 2> /dev/null
+    sernum="$(fw_printenv -n serial_number 2> /dev/null)"
 
     if [ $? ]; then
-	echo 0
-    else
 	echo $sernum
+    else
+	echo 0
     fi
 }
 
