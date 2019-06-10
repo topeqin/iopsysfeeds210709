@@ -17,7 +17,7 @@ PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
 PKG_SOURCE_VERSION:=c77089efc41ea3292125330221bd5016796631b9
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
-PKG_SOURCE_VERSION:=3ef2ba866a99205496e0ce01935c89a1778d9b85
+PKG_SOURCE_VERSION:=670ad7a30f3c6871b6c8a972e19ca2dd78ea8c9b
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -46,7 +46,7 @@ UBOOT_IMG:=uboot.img
 define uboot/ex400
   TITLE:=U-Boot for the ex400
   DEPENDS:=@TARGET_iopsys_ramips
-  PKG_RELEASE:=6
+  PKG_RELEASE:=7
 endef
 
 define uboot/sdx810_ap
