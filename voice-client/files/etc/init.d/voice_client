@@ -18,6 +18,7 @@ USE_PROCD=1
 # Some global variables
 SERIAL="$(getSerial)"
 BASEMAC="$(getBaseMAC)"
+BASEMAC="${BASEMAC//:}"
 LINENAME="$(getLineName)"
 CHANNELNAME="$(getChannelName)"
 MODULENAME=voice
