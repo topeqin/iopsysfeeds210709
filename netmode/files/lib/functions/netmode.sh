@@ -379,7 +379,7 @@ populate_netmodes() {
 	done
 
 	local hardware=$(db get hw.board.hardware)
-	local keys lang desc exp exclude
+	local keys lang desc exp exclude support
 	for mode in $(ls $MODEDIR); do
 
 			case "$mode" in
@@ -409,6 +409,23 @@ populate_netmodes() {
 				done
 				json_select ..
 				[ $exclude -eq 1 ] && continue
+			elif json_select supported_boards; then
+				support=0
+				_i=1
+				while json_get_var board $_i; do
+					case "$hardware" in
+						$board)
+							support=1
+							break
+						;;
+					esac
+					_i=$((_i+1))
+				done
+				json_select ..
+				[ $support -eq 1 ] || {
+					uci -q delete netmode.$mode
+					continue
+				}
 			fi
 
 			if json_select acl; then
