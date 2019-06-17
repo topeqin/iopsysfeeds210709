@@ -269,31 +269,33 @@ start_service() {
 	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
 	[ -n "${www_maxage}" ] && procd_append_param command -t"${www_maxage}"
 
-	validate_owsd_ubusproxy || {
-		echo "Ubusproxy validation failed"
-		return 1
+	#validate_owsd_ubusproxy || {
+	#	echo "Ubusproxy validation failed"
+	#	return 1
+	#}
+
+	validate_owsd_ubusproxy && {
+		if [ "${enable}" -eq 1 ]; then
+			procd_append_param command -U
+
+			[ -n "${peer_cert}" ] && procd_append_param command -C"${peer_cert}"
+			[ -n "${peer_key}"  ] && procd_append_param command -K"${peer_key}"
+			[ -n "${peer_ca}"   ] && procd_append_param command -A"${peer_ca}"
+
+			append_peer () {
+				[ -n "$1"   ] && procd_append_param command -P"$1"
+			}
+
+			append_object () {
+				[ -n "$1"   ] && procd_append_param command -U"$1"
+			}
+
+			config_list_foreach "ubusproxy" "peer" append_peer
+			config_list_foreach "ubusproxy" "object" append_object
+
+			[ "${prefix}" == "mac" ] && procd_append_param command -F"mac"
+		fi
 	}
-
-	if [ "${enable}" -eq 1 ]; then
-		procd_append_param command -U
-
-		[ -n "${peer_cert}" ] && procd_append_param command -C"${peer_cert}"
-		[ -n "${peer_key}"  ] && procd_append_param command -K"${peer_key}"
-		[ -n "${peer_ca}"   ] && procd_append_param command -A"${peer_ca}"
-
-		append_peer () {
-			[ -n "$1"   ] && procd_append_param command -P"$1"
-		}
-
-		append_object () {
-			[ -n "$1"   ] && procd_append_param command -U"$1"
-		}
-
-		config_list_foreach "ubusproxy" "peer" append_peer
-		config_list_foreach "ubusproxy" "object" append_object
-
-		[ "${prefix}" == "mac" ] && procd_append_param command -F"mac"
-	fi
 
 	config_foreach parse_owsd_iface "owsd-listen"
 
