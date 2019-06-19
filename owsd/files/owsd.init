@@ -126,8 +126,8 @@ validate_owsd_global() {
 
 }
 
-append_origin() {
-	procd_append_param command -o"$1"
+append_str() {
+	json_add_string "" "$1"
 }
 
 append_origin_parts() {
@@ -137,9 +137,9 @@ append_origin_parts() {
 	port="$3"
 
 	if [ "${proto}" = "https" -a "${port}" -eq 443 -o "${proto}" = "http" -a "${port}" -eq 80 ]; then
-		append_origin "${proto}://${host}"
+		append_str "${proto}://${host}"
 	else
-		append_origin "${proto}://${host}:${port}"
+		append_str "${proto}://${host}:${port}"
 	fi
 }
 
@@ -150,6 +150,7 @@ validate_owsd_iface() {
 		'origin:list(string)' \
 		'whitelist_interface_as_origin:bool:0' \
 		'whitelist_dhcp_domains:bool:0' \
+		'whitelist_all_origins:bool:0' \
 		'ipv6:bool:1' \
 		'ipv6only:bool:0' \
 		'linklocal:bool:0' \
@@ -163,7 +164,7 @@ validate_owsd_iface() {
 }
 
 parse_owsd_iface() {
-	local port interface whitelist_interface_as_origin whitelist_dhcp_domains ipv6 ipv6only linklocal
+	local port interface whitelist_interface_as_origin whitelist_dhcp_domains whitelist_all_origins ipv6 ipv6only linklocal
 	local cert key ca
 	local restrict_to_user
 	local ubusx_acl
@@ -175,24 +176,37 @@ parse_owsd_iface() {
 
 	# utility function
 	new_listen_socket() {
-		procd_append_param command -p "${port}"
+		json_add_int "port" ${port}
 
-		procd_append_param command -L"$1"
+		[ -n "${cert}"      ] && json_add_string "cert" "${cert}"
+		[ -n "${key}"       ] && json_add_string "key" "${key}"
+		[ -n "${ca}"        ] && json_add_string "ca" "${ca}"
 
-		[ -n "${cert}"      ] && procd_append_param command -c"${cert}"
-		[ -n "${key}"       ] && procd_append_param command -k"${key}"
-		[ -n "${ca}"        ] && procd_append_param command -a"${ca}"
+		[ -n "${restrict_to_user}" ] && {
+			json_add_array "restrict_to_user"
+			config_list_foreach "$1" "restrict_to_user" append_str
+			json_close_array
+		}
+		[ -n "$2" ] && json_add_string "interface" "$2"
 
-		[ -n "${restrict_to_user}" ] && procd_append_param command -u"${restrict_to_user}"
-
-		[ -n "$2" ] && procd_append_param command -i"$2"
-
-		[ -n "${ubusx_acl}" ] && procd_append_param command -X"${ubusx_acl}"
+		[ -n "${ubusx_acl}" ] && json_add_string "ubusx_acl" "$ubusx_acl"
 
 	}
 
-	append_whitelists () {
-		config_list_foreach "$1" "origin" append_origin
+	origin_whitelist_all() {
+		[ "$1" = "*" ] && echo "true"
+	}
+
+	append_whitelists() {
+		config_list_foreach "$1" "origin" append_str
+
+		# uncomment code below when implementing one vhost per origin fix
+		#[ -n "$2" ] && whitelist_all_origins=1
+
+		#if [ "$whitelist_all_origins" -eq 1 ]; then
+		#	whitelist_dhcp_domains=1
+		#	whitelist_interface_as_origin=1
+		#fi
 
 		if [ "$whitelist_dhcp_domains" -eq 1 ]; then
 			for domain in $DHCP_DOMAINS; do
@@ -212,13 +226,22 @@ parse_owsd_iface() {
 	if [ -n "${interface}" ]; then
 		# 1 listen-socket (vhost) for each IP address on that network's iface
 
+		whitelist=$(config_list_foreach "$1" "origin" origin_whitelist_all)
+
 		# ipv4 addresses
 		if [ "${ipv6only}" -eq 0 ]; then
 			network_get_ipaddrs ip4addrs "${interface}";
 		fi
+
+		json_add_array "$1"
 		for addr in ${ip4addrs}; do
+			json_add_object "${1}"
 			new_listen_socket "$1" "${addr}"
-			append_whitelists "$1"
+			[ -n "$whitelist" -o "$whitelist_all_origins" -eq 1 ] && json_add_boolean "origin_check" false
+			json_add_array "origin"
+			append_whitelists "$1" "$whitelist"
+			json_close_array
+			json_close_object
 		done
 
 		# ipv6 addresses
@@ -230,16 +253,24 @@ parse_owsd_iface() {
 				ip6addrs="${ip6addrs} ${linklocaladdrs}"
 			fi
 		fi
+
 		for addr in ${ip6addrs}; do
+			json_add_object "${1}6"
 			new_listen_socket "$1" "${addr}"
 			addr="\\[${addr}]"
-			append_whitelists "$1"
-			procd_append_param command -66
+			[ -n "$whitelist" ] && json_add_boolean "origin_check" false
+			json_add_array "origin"
+			append_whitelists "$1" "$whitelist"
+			json_close_array
+			json_add_boolean "ipv6" 1
+			json_close_object
 		done
+		json_close_array
+
 	else
 		new_listen_socket "$1"
-		if [ "${ipv6}" -eq 1 ]; then procd_append_param command -6; fi
-		if [ "${ipv6}" -eq 1 -a "${ipv6only}" -eq 1 ]; then procd_append_param command -6; fi
+		if [ "${ipv6}" -eq 1 ]; then json_add_boolean "ipv6only" 1; fi
+		if [ "${ipv6}" -eq 1 -a "${ipv6only}" -eq 1 ]; then json_add_boolean "ipv6only" 1; fi
 
 		append_whitelists "$1"
 	fi
@@ -263,41 +294,49 @@ start_service() {
 		echo "Global validation failed"
 		return 1
 	}
-
-	[ -n "${sock}"      ] && procd_append_param command -s"${sock}"
-	[ -n "${www}"       ] && procd_append_param command -w"${www}"
-	[ -n "${redirect}"  ] && procd_append_param command -r"${redirect}"
-	[ -n "${www_maxage}" ] && procd_append_param command -t"${www_maxage}"
-
-	#validate_owsd_ubusproxy || {
-	#	echo "Ubusproxy validation failed"
-	#	return 1
-	#}
+	json_init
+	json_add_object "global"
+	[ -n "${sock}"       ] && json_add_string "socket" "$sock"
+	[ -n "${www}"        ] && json_add_string "www" "$www"
+	[ -n "${redirect}"   ] && json_add_string "redirect" "$redirect"
+	[ -n "${www_maxage}" ] && json_add_int "www_maxage" "$www_maxage"
+	json_close_object
 
 	validate_owsd_ubusproxy && {
 		if [ "${enable}" -eq 1 ]; then
-			procd_append_param command -U
+			json_add_object "ubusproxy"
 
-			[ -n "${peer_cert}" ] && procd_append_param command -C"${peer_cert}"
-			[ -n "${peer_key}"  ] && procd_append_param command -K"${peer_key}"
-			[ -n "${peer_ca}"   ] && procd_append_param command -A"${peer_ca}"
+			[ -n "${peer_cert}" ] && json_add_string "peer_cert" "${peer_cert}"
+			[ -n "${peer_key}"  ] && json_add_string "peer_key" "${peer_key}"
+			[ -n "${peer_ca}"   ] && json_add_string "peer_ca" "${peer_ca}"
 
 			append_peer () {
-				[ -n "$1"   ] && procd_append_param command -P"$1"
+				[ -n "$1"   ] && json_add_string "peer" "$1"
 			}
 
 			append_object () {
-				[ -n "$1"   ] && procd_append_param command -U"$1"
+				[ -n "$1"   ] && json_add_string "object" "$1"
 			}
 
+			json_add_array "peer"
 			config_list_foreach "ubusproxy" "peer" append_peer
+			json_close_array
+			json_add_array "object"
 			config_list_foreach "ubusproxy" "object" append_object
+			json_close_array
 
-			[ "${prefix}" == "mac" ] && procd_append_param command -F"mac"
+			[ "${prefix}" == "mac" ] && json_add_string "prefix" "mac"
+			json_close_object
 		fi
 	}
 
+	json_add_object "owsd-listen"
 	config_foreach parse_owsd_iface "owsd-listen"
+	json_close_object
+
+	[ ! -d "/tmp/owsd" ] && mkdir /tmp/owsd
+	json_dump > /tmp/owsd/owsd_cfg.json
+	procd_append_param command -f "/tmp/owsd/owsd_cfg.json"
 
 #	procd_set_param stderr 1
 	procd_set_param respawn
