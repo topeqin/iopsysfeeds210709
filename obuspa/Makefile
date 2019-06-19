@@ -22,7 +22,7 @@ define Package/obuspa
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=USP agent
-  DEPENDS:=+libcoap +libopenssl +libcurl +libsqlite3 +libcares +libubox +libubus +libblobmsg-json
+  DEPENDS:=+libcoap +libopenssl +libcurl +libsqlite3 +libcares +libubox +libubus +libblobmsg-json +uspd
 endef
 
 define Package/obuspa/description
