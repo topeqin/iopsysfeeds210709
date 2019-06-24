@@ -6,8 +6,10 @@ add_owsd_object_wifi() {
 	local wifi=$(uci -q get owsd.ubusproxy.object | grep wifi*)
 	if [ -z "$wifi" ]; then
 		uci -q add_list owsd.ubusproxy.object="wifi*"
-		uci commit owsd
 	fi
+	uci del_list owsd.ubusproxy.object="router.system"
+	uci add_list owsd.ubusproxy.object="router.system"
+	uci commit owsd
 }
 
 add_dnsmasq_lease_hwmask() {
