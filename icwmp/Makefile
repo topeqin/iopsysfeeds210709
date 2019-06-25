@@ -215,6 +215,7 @@ define Package/icwmp_xmpp/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_xmppd $(1)/etc/init.d/icwmp_xmppd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_xmpp $(1)/etc/config
+	$(CP) ./xmpp-files/* $(1)/
 endef
 
 define Package/icwmp_udpechoserver/install
