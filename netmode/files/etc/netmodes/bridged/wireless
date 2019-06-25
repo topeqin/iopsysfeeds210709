@@ -1,15 +1,11 @@
 config wifi-status 'status'
 	option wlan '1'
-	option wps '1'
 	option sched_status '0'
 	option schedule '0'
 
 config bandsteering 'bandsteering'
 	option enabled '0'
 	option policy '0'
-
-config apsteering 'apsteering'
-	option enabled '0'
 
 config wifi-device 'wl0'
 	option type 'broadcom'
