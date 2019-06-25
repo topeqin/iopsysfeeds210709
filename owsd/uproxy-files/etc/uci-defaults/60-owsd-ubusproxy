@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# do not create ubusproxy section if it exists already
+[ "$(uci -q get owsd.ubusproxy)" == "ubusproxy" ] && exit 0
+
+uci set owsd.ubusproxy="ubusproxy"
+uci set owsd.ubusproxy.enable="1"
+uci set owsd.ubusproxy.peer_key="/etc/ubusx/ubusx_demo_only.key"
+uci set owsd.ubusproxy.peer_cert="/etc/ubusx/ubusx_demo_only.crt"
+uci set owsd.ubusproxy.peer_ca="/etc/ubusx/ubusxDemoCA.crt"
+uci commit owsd
+
+# do not create wan_https section if it exists already
+[ "$(uci -q get owsd.wan_https)" == "owsd-listen" ] && exit 0
+
+# do not create wan_https section if wan interface doesn't exist
+[ "$(uci -q get network.wan)" == "interface" ] || exit 0
+
+uci set owsd.wan_https="owsd-listen"
+uci set owsd.wan_https.port="443"
+uci set owsd.wan_https.interface="wan"
+uci set owsd.wan_https.key="/etc/ubusx/ubusx_demo_only.key"
+uci set owsd.wan_https.cert="/etc/ubusx/ubusx_demo_only.crt"
+uci set owsd.wan_https.ca="/etc/ubusx/ubusxDemoCA.crt"
+uci set owsd.wan_https.whitelist_interface_as_origin="1"
+uci del_list owsd.wan_https.origin="*"
+uci add_list owsd.wan_https.origin="*"
+uci commit owsd
+

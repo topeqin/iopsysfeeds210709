@@ -61,6 +61,9 @@ define Package/owsd/install
 	$(INSTALL_CONF) ./files/owsd.config $(1)/etc/config/owsd
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/owsd.hotplug $(1)/etc/hotplug.d/iface/55-owsd
+ifeq ($(CONFIG_OWSD_UPROXYD),y)
+	$(CP) ./uproxy-files/* $(1)/
+endif
 endef
 
 define Package/owsd-testdata
