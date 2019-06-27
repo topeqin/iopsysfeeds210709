@@ -100,7 +100,7 @@ get_wifi_iface_cfgstr() {
 case "$1" in
 	list)
 		if [ $WIFISTA -eq 1 ]; then
-			echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" }, "connect": { "ssid": "str", "key": "str" }, "forget_network": {} }'
+			echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" }, "connect": { "ssid": "str", "key": "str" }, "forget_network": {}, "wps_enroll": {}, "wps_stop": {} }'
 		else
 			echo '{ "get_creds": { "network": "str", "file": "str" }, "set_creds": { "file": "str", "from_gui": "str" } }'
 		fi
@@ -209,6 +209,30 @@ case "$1" in
 				fi
 				json_init
 				json_add_int "code" $code
+				json_dump
+			;;
+			wps_enroll)
+				local wetif
+				[ $WIFISTA -eq 1 ] && wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
+				if [ -n "$wetif" ]; then
+					iwpriv $wetif set ApCliEnable=0
+					iwpriv $wetif set WscConfMode=1
+					iwpriv $wetif set WscMode=2
+					iwpriv $wetif set ApCliEnable=1
+					iwpriv $wetif set WscGetConf=1
+				fi
+				json_init
+				json_add_string "ifname" $wetif
+				json_dump
+			;;
+			wps_stop)
+				local wetif
+				[ $WIFISTA -eq 1 ] && wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
+				if [ -n "$wetif" ]; then
+					iwpriv $wetif set WscStop=1
+				fi
+				json_init
+				json_add_string "ifname" $wetif
 				json_dump
 			;;
 		esac
