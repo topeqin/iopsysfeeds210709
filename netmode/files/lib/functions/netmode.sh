@@ -122,7 +122,7 @@ run_netmode_scripts() {
 	local when=$2
 	local script
 	if [ -d /etc/netmodes/$mode/scripts/$when ]; then
-		logger -s -p user.info -t $0 "[netmode] Executing $when netmode scripts" >/dev/console
+		logger -s -p user.info -t "netmode" "Executing $when netmode scripts" >/dev/console
 		for script in $(ls /etc/netmodes/$mode/scripts/$when/); do
 			sh /etc/netmodes/$mode/scripts/$when/$script
 		done
@@ -185,7 +185,7 @@ switch_netmode() {
 	mkdir -p $CONF_BACKUP_DIR
 	cp -af /etc/config/* $CONF_BACKUP_DIR
 
-	logger -s -p user.info -t $0 "[netmode] Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
+	logger -s -p user.info -t "netmode" "Copying /etc/netmodes/$curmode in /etc/config" >/dev/console
 
 	for file in $(ls /etc/netmodes/$curmode/); do
 		case "$file" in
@@ -210,10 +210,8 @@ switch_netmode() {
 	case "$curmode" in
 		repeater*)
 			touch $SWITCHMODELOCK
-			logger -s -p user.info -t $0 "Switching to $curmode mode" > /dev/console
+			logger -s -p user.info -t "netmode" "Switching to $curmode mode" > /dev/console
 			ubus call leds set  '{"state" : "allflash"}'
-			[ -f /etc/init.d/omcproxy ] && /etc/init.d/omcproxy stop
-			[ -f /etc/init.d/igmpproxy ] && /etc/init.d/igmpproxy stop
 			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
 			ubus call network reload
 			wifi reload nodat
@@ -238,7 +236,7 @@ revert_netmode() {
 	local rready="$3"
 
 	ubus call leds set  '{"state" : "allflash"}'
-	echo "Could not switch to '$from' mode; going back to '$to' mode" > /dev/console
+	logger -s -p user.info -t "netmode" "Could not switch to '$from' mode; going back to '$to' mode" > /dev/console
 	uci -q set netmode.setup.curmode="$to"
 	uci -q set netmode.setup.repeaterready="$rready"
 	uci commit netmode
@@ -247,7 +245,7 @@ revert_netmode() {
 	rm -rf $CONF_BACKUP_DIR
 	rm -rf $OLD_MODE_FILE
 
-	echo "Restarting network services" > /dev/console
+	logger -s -p user.info -t "netmode" "Restarting network services" > /dev/console
 	ubus call network reload
 	wifi reload
 	ubus call router.network reload
@@ -288,10 +286,10 @@ wait_for_netmode_handler() {
 
 netmode_get_ip_type() {
 	[ -n "$(echo $1 | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)')" ] && {
-		logger -t "[netmode]" "netmode_get_ip_type: ip $1 is private"
+		logger -t $0 "netmode_get_ip_type: ip $1 is private"
 		echo "private"
 	} || {
-		logger -t "[netmode]" "netmode_get_ip_type: ip $1 is public"
+		logger -t $0 "netmode_get_ip_type: ip $1 is public"
 		echo "public"
 	}
 }
