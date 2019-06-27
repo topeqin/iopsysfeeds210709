@@ -43,3 +43,32 @@ getEchoCancellingValue() {
 	    ;;
     esac
 }
+
+supportedCountries() {
+	echo "Australia:AUS"
+	echo "Belgium:BEL"
+	echo "Brazil:BRA"
+	echo "Chile:CHL"
+	echo "China:CHN"
+	echo "Czech:CZE"
+	echo "Denmark:DNK"
+	echo "ETSI:ETS"
+	echo "Finland:FIN"
+	echo "France:FRA"
+	echo "Germany:DEU"
+	echo "Hungary:HUN"
+	echo "India:IND"
+	echo "Italy:ITA"
+	echo "Japan:JPN"
+	echo "Netherlands:NLD"
+	echo "New Zealand:NZL"
+	echo "North America:USA"
+	echo "Spain:ESP"
+	echo "Sweden:SWE"
+	echo "Switzerland:CHE"
+	echo "Norway:NOR"
+	echo "Taiwan:TWN"
+	echo "United Kingdoms:GRB"
+	echo "United Arab Emirates:ARE"
+	echo "CFG TR57:T57"
+}

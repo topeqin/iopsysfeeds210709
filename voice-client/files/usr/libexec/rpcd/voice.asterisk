@@ -5,7 +5,7 @@
 
 case "$1" in
 	list)
-		echo '{ "status" : {}, "lines" : {}, "codecs" : {}, "call_log" : {}, "platform" : {} }'
+		echo '{ "status" : {}, "lines" : {}, "codecs" : {}, "call_log" : {}, "platform" : {}, "supported_countries" : {} }'
 
 	;;
 	call)
@@ -145,6 +145,22 @@ case "$1" in
 				esac
 				
 				json_dump
+			;;
+			supported_countries)
+				vcf="/tmp/voice.supported_countries"
+				supportedCountries > $vcf
+                                json_init
+                                json_add_array countries
+				while IFS= read -r line
+				do
+					json_add_object ""
+					json_add_string country "$(echo $line | cut -d':' -f1)"
+					json_add_string code "$(echo $line | cut -d':' -f2)"
+					json_select ..
+				done < "$vcf"
+
+				json_dump
+				rm -f $vcf
 			;;
 		esac
 	;;

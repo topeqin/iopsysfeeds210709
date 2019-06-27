@@ -50,3 +50,7 @@ getEchoCancellingValue() {
 	    ;;
     esac
 }
+
+supportedCountries() {
+	echo "ETSI:ETS"
+}
