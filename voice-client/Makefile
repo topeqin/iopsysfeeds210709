@@ -57,6 +57,7 @@ ifeq ($(CONFIG_TARGET_intel_mips),y)
 	-e 's/brcm/tapi/g' \
 	-e 's/BRCM/TAPI/g' \
 	-e 's/broadcom/intel/g' \
+	-e 's/SWE/ETS/g' \
 	$(1)/etc/config/voice_client \
 	$(1)/etc/asterisk_templates/*
 	sed -i \
