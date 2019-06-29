@@ -1,0 +1,12 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+add_required_ubusproxy_objects() {
+	uci -q del_list owsd.ubusproxy.object="wifix"
+	uci -q add_list owsd.ubusproxy.object="wifix"
+	uci commit owsd
+}
+
+add_required_ubusproxy_objects
+
