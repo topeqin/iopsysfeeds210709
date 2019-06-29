@@ -3,12 +3,12 @@
 . /lib/functions.sh
 
 add_owsd_object_wifi() {
-	local wifi=$(uci -q get owsd.ubusproxy.object | grep wifi*)
-	if [ -z "$wifi" ]; then
-		uci -q add_list owsd.ubusproxy.object="wifi*"
-	fi
-	uci del_list owsd.ubusproxy.object="router.system"
-	uci add_list owsd.ubusproxy.object="router.system"
+	uci -q del_list owsd.ubusproxy.object="router.system"
+	uci -q del_list owsd.ubusproxy.object="wifix"
+	uci -q del_list owsd.ubusproxy.object="wifi.*"
+	uci -q add_list owsd.ubusproxy.object="router.system"
+	uci -q add_list owsd.ubusproxy.object="wifix"
+	uci -q add_list owsd.ubusproxy.object="wifi.*"
 	uci commit owsd
 }
 
