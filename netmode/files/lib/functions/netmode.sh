@@ -213,6 +213,7 @@ switch_netmode() {
 			logger -s -p user.info -t "netmode" "Switching to $curmode mode" > /dev/console
 			ubus call leds set  '{"state" : "allflash"}'
 			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
+			[ -f /etc/init.d/macoffset ] && /etc/init.d/macoffset reload
 			ubus call network reload
 			wifi reload nodat
 			ubus call router.network reload
@@ -223,6 +224,7 @@ switch_netmode() {
 		;;
 		*)
 			[ -f /etc/init.d/layer2 ] && /etc/init.d/layer2 reload
+			[ -f /etc/init.d/macoffset ] && /etc/init.d/macoffset reload
 			ubus call uci commit '{"config":"network"}'
 		;;
 	esac
