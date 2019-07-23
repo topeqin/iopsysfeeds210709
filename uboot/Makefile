@@ -14,7 +14,7 @@ PKG_SOURCE_PROTO:=git
 
 ifdef CONFIG_TARGET_intel_mips
 PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
-PKG_SOURCE_VERSION:=c77089efc41ea3292125330221bd5016796631b9
+PKG_SOURCE_VERSION:=b1aea2a7df70bbc21b28c82a7f7bbc7d80d7b436
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
 PKG_SOURCE_VERSION:=670ad7a30f3c6871b6c8a972e19ca2dd78ea8c9b
@@ -74,7 +74,7 @@ define uboot/grx500_norrland
   TITLE:=U-Boot for Norrland Board
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
-  PKG_RELEASE:=14
+  PKG_RELEASE:=15
 endef
 
 UBOOTS := \
