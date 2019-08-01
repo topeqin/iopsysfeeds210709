@@ -5,15 +5,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-soc-libs
-PKG_VERSION:=1.0.1
+PKG_VERSION:=2.0.0
 PKG_RELEASE:=1
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a0ec330f74d0ef5ec6d7e61ac4079de9c93f36ab
+PKG_SOURCE_VERSION:=47801a723c110a4af11748c87831562401117f2d
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
-PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@inteno.se>
+PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 endif
 
