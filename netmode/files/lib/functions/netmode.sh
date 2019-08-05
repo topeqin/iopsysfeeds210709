@@ -121,6 +121,11 @@ run_netmode_scripts() {
 	local mode=$1
 	local when=$2
 	local script
+	local path
+
+	path=$(readlink -f /etc/netmodes/$mode/)
+	[ "${path:0:14}" == "/etc/netmodes/" ] || exit
+
 	if [ -d /etc/netmodes/$mode/scripts/$when ]; then
 		logger -s -p user.info -t "netmode" "Executing $when netmode scripts" >/dev/console
 		for script in $(ls /etc/netmodes/$mode/scripts/$when/); do
