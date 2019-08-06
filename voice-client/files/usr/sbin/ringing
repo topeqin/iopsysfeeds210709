@@ -49,6 +49,11 @@ set_ringing_schedule() {
 	stop_hour=$(echo $stop | awk -F ':' '{print$1}')
 	stop_min=$(echo $stop | awk -F ':' '{print$2}')
 
+	[ "${start_min//[0-9]/}" = "" ] || return
+	[ "${start_hour//[0-9]/}" = "" ] || return
+	[ "${stop_min//[0-9]/}" = "" ] || return
+	[ "${stop_hour//[0-9]/}" = "" ] || return
+
 	daymatch=0
 	for day in $days; do
 		[ "${day:0:3}" == "$current_day" ] && daymatch=1
