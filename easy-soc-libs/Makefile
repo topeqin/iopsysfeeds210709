@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-soc-libs
-PKG_VERSION:=2.0.0
+PKG_VERSION:=2.0.1
 PKG_RELEASE:=1
 
 LOCAL_DEV=0
@@ -37,7 +37,7 @@ endef
 define Package/libwifi
   $(call Package/easy-soc-libs)
   TITLE:= WiFi library (libwifi)
-  DEPENDS+=+TARGET_intel_mips:libnl +TARGET_intel_mips:libnl-route
+  DEPENDS+=+libnl +libnl-route
 endef
 
 define Package/libethernet
