@@ -61,6 +61,8 @@ set_ringing_schedule() {
 		[ -n "$dayns" ] && dayns="$dayns,$dayn" || dayns="$dayn"
 	done
 
+	[ "${dayns//[0-6,\-]/}" = "" ] || return
+
 	if [ $daymatch -eq 1 -a $current_time -gt ${start/:/} -a $current_time -lt ${stop/:/} ]; then
 		timematch=1
 		uci -q set voice_client.RINGING_STATUS.shouldring="$status"
