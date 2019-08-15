@@ -56,7 +56,7 @@ configure_ethports(){
 	config_get speed $name speed
 	config_get ifname $name ifname
 	config_get pause $name pause
-	set_port_speed $ifname $speed
+	set_port_speed $ifname $speed $name
 	set_port_pause $ifname $pause
 }
 
