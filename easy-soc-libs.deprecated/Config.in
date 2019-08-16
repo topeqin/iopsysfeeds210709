@@ -1,0 +1,10 @@
+if (PACKAGE_libwifix)
+menu "configurations"
+
+config LIBWIFIX_DEBUG
+	depends on PACKAGE_libwifix
+	bool "Enable wifi debugging"
+	default n
+
+endmenu
+endif
