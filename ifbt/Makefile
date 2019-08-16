@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ifbt
-PKG_VERSION:=0.1
+PKG_VERSION:=0.2
 
-PKG_SOURCE_VERSION:=356543d517f49480227215b897da02e0e7dc0765
+PKG_SOURCE_VERSION:=f6edff47b6c0a154ab892301acf767d19ac8ad73
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ifbt.git
 
