@@ -107,7 +107,7 @@ define Build/InstallDev/libwifi
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifi/wifi.h $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi*.so* $(1)/usr/lib/
 endef
 
 define Build/InstallDev/libdsl
@@ -137,7 +137,7 @@ endef
 
 define Package/libwifi/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi*.so* $(1)/usr/lib/
 endef
 
 define Package/libethernet/install
