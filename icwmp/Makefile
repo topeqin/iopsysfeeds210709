@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2019-07-03
+PKG_VERSION:=4.0-2019-08-17
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=b0f29f5102d5ade78b586d190abb521fcc668b78
+PKG_SOURCE_VERSION:=cee977a780a92817c67d21e011bbf913b3a24ada
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -34,7 +34,7 @@ define Package/libdatamodel
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Library for broadband-forum data model
-  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libusb-1.0
 endef
 
 define Package/icwmp_stun
