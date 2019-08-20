@@ -66,6 +66,8 @@ rpcd_acl() {
 }
 
 handle_owsd_acl() {
+	[ -d /tmp/owsd ] || mkdir /tmp/owsd
+
 	config_load rpcd
 	config_foreach append_users "login"
 
@@ -77,9 +79,9 @@ handle_owsd_acl() {
 		config_foreach owsd_acl "owsd-listen" "$USR"
 		json_close_array
 	done
-	json_dump > /tmp/owsd_acl
+	json_dump > /tmp/owsd/owsd_acl
 
-	json_load "$(cat /tmp/owsd_acl)"
+	json_load "$(cat /tmp/owsd/owsd_acl)"
 	config_load rpcd
 	config_foreach rpcd_acl "login"
 	uci commit rpcd
