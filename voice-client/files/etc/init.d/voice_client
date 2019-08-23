@@ -670,29 +670,25 @@ configure_sip_provider()
 	local autoframing
 	local encryption
 
-	config_get enabled $1 enabled
+	config_get enabled $1 enabled "0"
 	config_get domain $1 domain
-	config_get host $1 host
+	config_get host $1 host "$domain"
 	config_get port $1 port
 	config_get outboundproxy $1 outboundproxy
 	config_get outboundproxyport $1 outboundproxyport
 	config_get user $1 user
 	config_get authuser $1 authuser
 	config_get secret $1 secret
-	config_get is_fax $1 is_fax
-	config_get autoframing $1 autoframing
-	config_get transport $1 transport
-	config_get encryption $1 encryption
+	config_get is_fax $1 is_fax "0"
+	config_get autoframing $1 autoframing "0"
+	config_get transport $1 transport "udp"
+	config_get encryption $1 encryption "0"
 
 	# This is a hack to fix security issue #14962
 	user=${user//"'"/}
 	authuser=${authuser//"'"/}
 
-	if [ -z "$transport" ] ; then 
-		transport="udp" 
-	fi
-
-	if [ -z "$enabled" -o "$enabled" = "0" ] ; then
+	if [ "$enabled" == "0" ] ; then
 		return
 	fi
 
@@ -702,10 +698,6 @@ configure_sip_provider()
 	fi
 
 	echo "Configuring SIP Provider $1"
-
-	if [ -z "$host" ] ; then
-		host=$domain
-	fi
 
 	# Get secret from existing asterisk config if its not set in luci config
 	if [ -z "$secret" ] ; then
@@ -753,23 +745,20 @@ configure_sip_provider()
 	fi
 
 	# Set or remove encryption
-	if [ -z "$encryption" -o "$encryption" == "0" ] ; then
+	if [ "$encryption" == "0" ] ; then
 		sed -i "/|ENCRYPTION|/d"		$WORKDIR/sip_provider.tmp
 	else
 		sed -i "s/|ENCRYPTION|/yes/g"		$WORKDIR/sip_provider.tmp
 	fi
 
 	# Force ulaw/alaw if fax, otherwise read selected codecs
-	if [ -z "$is_fax" -o "$is_fax" = "1" ] ; then
+	if [ "$is_fax" == "1" ] ; then
 		sed -i "s/|ALLOW|/allow = ulaw\nallow = alaw/"	$WORKDIR/sip_provider.tmp
 	else
 		sed -i "s/|ALLOW|/$(read_codecs_ptime $1)/"		$WORKDIR/sip_provider.tmp
 	fi
 
 	# Autoframing
-	if [ -z "$autoframing" ] ; then
-		autoframing=0
-	fi
 	sed -i "s/|AUTOFRAMING|/$autoframing/"			$WORKDIR/sip_provider.tmp
 
 	# Set registered extension so that incoming calls match the correct peer
