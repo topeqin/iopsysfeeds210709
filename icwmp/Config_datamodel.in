@@ -1,7 +1,0 @@
-if PACKAGE_libdatamodel
-
-config UPNP_TR064
-	bool "Compile with tr064 features"
-	default n
-
-endif

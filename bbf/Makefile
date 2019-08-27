@@ -1,0 +1,79 @@
+#
+# Copyright (C) 2019 Iopsys
+#
+
+include $(TOPDIR)/rules.mk
+
+PKG_NAME:=libbbfdm
+PKG_VERSION:=1.0-2019-08-27
+PKG_FIXUP:=autoreconf
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=584c9243f82ccb08c5fe78e7db2ee1f0c4521558
+PKG_RELEASE=$(PKG_SOURCE_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+
+include $(INCLUDE_DIR)/package.mk
+
+define Package/libbbfdm
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE:=Library for broadband-forum data model
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace
+endef
+
+define Package/libbbfdm/config
+	source "$(SOURCE)/Config_bbfdm.in"
+endef
+
+define Package/libbbfdm/description
+ Test description will update later.
+endef
+
+TARGET_CFLAGS += -DCUSTOM_PREFIX=\\\"$(CONFIG_LIBBBFDM_VENDOR_PREFIX)\\\"
+
+TARGET_CFLAGS += \
+	-D_GNU_SOURCE -D_AADJ
+
+ifeq ($(CONFIG_BBF_TR181),y)
+CONFIGURE_ARGS += \
+	--enable-tr181
+endif
+
+ifeq ($(CONFIG_BBF_TR104),y)
+CONFIGURE_ARGS += \
+	--enable-tr104
+endif
+
+ifeq ($(CONFIG_BBF_TR143),y)
+CONFIGURE_ARGS += \
+	--enable-tr143
+endif
+
+ifeq ($(CONFIG_BBF_TR064),y)
+CONFIGURE_ARGS += \
+	--enable-tr064
+endif
+
+define Package/libbbfdm/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.so* $(1)/lib/
+	$(INSTALL_DIR) $(1)/etc/icwmpd
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/icwmpd
+	$(INSTALL_DIR) $(1)/usr/share/icwmp
+	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/icwmp
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/include/libbbfdm
+	$(CP) $(PKG_BUILD_DIR)/*.h $(1)/usr/include/libbbfdm/
+	$(CP) $(PKG_BUILD_DIR)/dmtree/tr181/*.h $(1)/usr/include/libbbfdm/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.{a,so*} $(1)/usr/lib/
+endef
+
+$(eval $(call BuildPackage,libbbfdm))
