@@ -73,3 +73,8 @@ service_triggers() {
 	procd_add_reload_trigger ports
 }
 
+boot() {
+	wan=$(db -q get hw.board.ethernetWanPort)
+	restart_port $wan
+	start
+}
