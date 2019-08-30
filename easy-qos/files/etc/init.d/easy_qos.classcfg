@@ -1,0 +1,148 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+RULE_LIST="/tmp/easy_qos_rule.list"
+BRIDGE_INTF="br-lan"
+
+[ -f /etc/profile.d/intel.sh ] && {
+	. /etc/profile.d/intel.sh
+	sh /etc/profile.d/intel.sh
+}
+
+log() {
+	echo "${@}"|logger -t easy_q_clas -p debug
+}
+
+exec_log() {
+	${@} |grep -i successful
+	if [ "${?}" -ne 0 ]; then
+		log "Failed to create ${@}";
+		return 1
+	fi
+	return 0
+}
+
+get_priority() {
+	local prio=$(echo $1|tr [A-Z] [a-z]);
+	case "${prio}" in
+		"lowest")
+			echo 0;;
+		"low")
+			echo 1;;
+		"besteffort")
+			echo 2;;
+		"normal")
+			echo 3;;
+		"video")
+			echo 4;;
+		"medium")
+			echo 5;;
+		"high")
+			echo 6;;
+		"highest")
+			echo 7;;
+	esac
+}
+
+validate_rule_section()
+{
+	uci_validate_section easy_qos rule "${1}" \
+		'priority:string:none' \
+		'macaddr:string:none' \
+		'proto:string:none' \
+		'port:list(uinteger):none' \
+		'comment:string:none'
+}
+
+# Clear existing rules before applying new rules
+clear_existing_rules() {
+	# execute the delete rules written onto a file then delete the file
+	[ -f ${RULE_LIST} ] || return 0
+
+	log "Deleting old classification rules"
+	while read line
+	do
+		exec_log classcfg -D ${line} -i ${BRIDGE_INTF}
+	done <${RULE_LIST}
+	sync
+
+	[ -f ${RULE_LIST} ] && rm ${RULE_LIST}
+}
+
+# classcfg -M local_dhcp -i lo -p udp --dport 67:67 --dport 68:68 -j mark --mark 1
+create_rule() {
+	local proto=$1; shift
+	local mac_addr=$1; shift
+	local mark=$1; shift
+	local ports=$1;
+	local cmd="";
+	# Rule name is uniqe, so we take hash of all the input as rule_name
+	local rule_name="$(echo ${mac_addr}${proto}${mark}${ports} |md5sum |head -c 30)"
+
+	cmd="-j mark --mark ${mark}";
+
+	if [ "${mac_addr}" != "none" ]; then
+		cmd="--smac ${mac_addr}";
+	fi
+	if [ "${ports}" != "none" ]; then
+		IFS=","
+		for port in ${ports};
+		do
+			cmd="--dport ${port}:${port} ${cmd}";
+		done
+		IFS=' '
+	fi
+	if [ "${proto}" != "none" ]; then
+		cmd="-p ${proto} $cmd"
+	fi
+	cmd="-i ${BRIDGE_INTF} $cmd"
+	cmd="-A ${rule_name} $cmd"
+
+	# Store the rule_names for cleanup on reload
+	log "command to execute $cmd"
+
+	exec_log classcfg ${cmd} 
+	[ $? -eq 0 ] && \
+		echo ${rule_name}  >> ${RULE_LIST}
+}
+
+manage_rule() {
+	local cfg="$1"
+	local priority macaddr proto port comment prio_num port_list
+
+	validate_rule_section "${1}" || {
+		log "Validation of section failed"
+		return 1;
+	}
+
+	prio_num=$(get_priority ${priority})
+	port_list=$(echo ${port}|sed 's/ /,/g')
+
+	if [ -n "${prio_num}" ]; then
+		if [ "${proto}" == "none" -o "${proto}" == "tcp/udp" ]; then
+			create_rule tcp ${macaddr} ${prio_num} ${port_list}
+			create_rule udp ${macaddr} ${prio_num} ${port_list}
+		else
+			create_rule ${proto} ${macaddr} ${prio_num} ${port_list}
+		fi
+	fi
+}
+
+reload_service() {
+	clear_existing_rules
+	config_load easy_qos
+	config_foreach manage_rule rule
+}
+
+start_service() {
+	[ -x /opt/intel/usr/sbin/classcfg ] || exit 0
+	reload_service
+	log "Easy QoS class installed"
+}
+
+service_triggers() {
+	procd_add_reload_trigger "easy_qos"
+}
+
