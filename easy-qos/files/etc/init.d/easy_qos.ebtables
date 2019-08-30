@@ -102,7 +102,7 @@ manage_rule() {
 	prio_num=$(get_priority ${priority})
 	if [ -n "${macaddr}" -a -n "${prio_num}" ]; then
 		for p in ${port}; do
-			if [ "${protocol}" == "none" ]; then
+			if [ "${protocol}" == "none" -o "${protocol}" == "tcp/udp" ]; then
 				create_rule tcp ${macaddr} ${prio_num} ${p}
 				create_rule udp ${macaddr} ${prio_num} ${p}
 			else
@@ -111,7 +111,7 @@ manage_rule() {
 		done
 		# Create rule for all ports if port is not mentioned in uci
 		if [ -z "${port}" ]; then
-			if [ "${protocol}" == "none" ]; then
+			if [ "${protocol}" == "none" -o "${protocol}" == "tcp/udp" ]; then
 				create_rule tcp ${macaddr} ${prio_num}
 				create_rule udp ${macaddr} ${prio_num}
 			else
