@@ -37,27 +37,6 @@ EOT
 
 }
 
-# Default phone volume for iopsysWrt 4.X.
-uci -q batch <<-EOT
-	set voice_client.$(getLineName)0.txgain=4
-	set voice_client.$(getLineName)0.rxgain=4
-	set voice_client.$(getLineName)1.txgain=4
-	set voice_client.$(getLineName)1.rxgain=4
-	set voice_client.$(getLineName)2.txgain=4
-	set voice_client.$(getLineName)2.rxgain=4
-	set voice_client.$(getLineName)3.txgain=4
-	set voice_client.$(getLineName)3.rxgain=4
-	set voice_client.$(getLineName)4.txgain=4
-	set voice_client.$(getLineName)4.rxgain=4
-	set voice_client.$(getLineName)5.txgain=4
-	set voice_client.$(getLineName)5.rxgain=4
-	set voice_client.$(getLineName)6.txgain=4
-	set voice_client.$(getLineName)6.rxgain=4
-	set voice_client.$(getLineName)7.txgain=4
-	set voice_client.$(getLineName)7.rxgain=4
-	commit voice_client
-EOT
-
 # Add firewall include
 uci -q batch <<-EOT
         delete firewall.sip
