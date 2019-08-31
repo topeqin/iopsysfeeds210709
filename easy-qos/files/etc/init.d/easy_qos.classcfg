@@ -28,21 +28,21 @@ get_priority() {
 	local prio=$(echo $1|tr [A-Z] [a-z]);
 	case "${prio}" in
 		"lowest")
-			echo 0;;
+			echo 8;;
 		"low")
-			echo 1;;
+			echo 7;;
 		"besteffort")
-			echo 2;;
+			echo 6;;
 		"normal")
-			echo 3;;
+			echo 5;;
 		"video")
 			echo 4;;
 		"medium")
-			echo 5;;
+			echo 3;;
 		"high")
-			echo 6;;
+			echo 2;;
 		"highest")
-			echo 7;;
+			echo 1;;
 	esac
 }
 
