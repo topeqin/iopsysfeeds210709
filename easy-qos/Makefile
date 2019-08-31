@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-qos
-PKG_VERSION:=1.0
+PKG_VERSION:=1.1
 PKG_RELEASE:=0
 
 include $(INCLUDE_DIR)/package.mk
@@ -29,8 +29,11 @@ define Package/easy-qos/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(CP) ./files/etc/config/easy_qos $(1)/etc/config/
+ifeq ($(CONFIG_TARGET_intel_mips),y)
+	$(CP) ./files/etc/init.d/easy_qos.classcfg $(1)/etc/init.d/easy_qos
+else
 	$(CP) ./files/etc/init.d/easy_qos.iptables $(1)/etc/init.d/easy_qos
-	$(CP) ./files/etc/init.d/easy_qos.classcfg $(1)/etc/init.d/
+endif
 	$(CP) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/
 	$(CP) ./files/etc/firewall.easyqos $(1)/etc/firewall.easyqos
 endef
