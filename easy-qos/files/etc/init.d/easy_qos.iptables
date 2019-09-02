@@ -158,7 +158,7 @@ manage_rule() {
 	port_list=$(echo ${port}|sed 's/ /,/g')
 
 	if [ -n "${ip}" -a -n "${prio_num}" ]; then
-		if [ "${proto}" == "none" -o "${proto}" == "tcp/udp" ]; then
+		if [ "${proto}" == "none" -o "${proto}" == "tcpudp" ]; then
 			create_rule tcp ${ip} ${prio_num} ${port_list}
 			create_rule udp ${ip} ${prio_num} ${port_list}
 		else

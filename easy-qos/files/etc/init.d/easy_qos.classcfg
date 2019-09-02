@@ -4,7 +4,7 @@ START=99
 USE_PROCD=1
 
 RULE_LIST="/tmp/easy_qos_rule.list"
-BRIDGE_INTF="br-lan"
+BRIDGE_INTF=""
 
 [ -f /etc/profile.d/intel.sh ] && {
 	. /etc/profile.d/intel.sh
@@ -12,7 +12,7 @@ BRIDGE_INTF="br-lan"
 }
 
 log() {
-	echo "${@}"|logger -t easy_q_clas -p debug
+	echo "${@}"|logger -t easy_qos_class -p debug
 }
 
 exec_log() {
@@ -46,6 +46,24 @@ get_priority() {
 	esac
 }
 
+is_lan_bridge() {
+	local _section=$1
+	local _type
+	local _is_lan
+
+	config_get _type "$section" "type"
+	config_get _is_lan "$section" "is_lan"
+
+	if [ "${_type}" == "bridge" -a "${_is_lan}" == "1" ]; then
+		BRIDGE_INTF="br-${_section}"
+	fi
+}
+
+get_bridge_interface() {
+	config_load network
+	config_foreach is_lan_bridge interface
+}
+
 validate_rule_section()
 {
 	uci_validate_section easy_qos rule "${1}" \
@@ -61,9 +79,9 @@ clear_existing_rules() {
 	# execute the delete rules written onto a file then delete the file
 	[ -f ${RULE_LIST} ] || return 0
 
-	log "Deleting old classification rules"
 	while read line
 	do
+		log "Deleting old classification rules"
 		exec_log classcfg -D ${line} -i ${BRIDGE_INTF}
 	done <${RULE_LIST}
 	sync
@@ -84,7 +102,7 @@ create_rule() {
 	cmd="-j mark --mark ${mark}";
 
 	if [ "${mac_addr}" != "none" ]; then
-		cmd="--smac ${mac_addr}";
+		cmd="--smac ${mac_addr} ${cmd}";
 	fi
 	if [ "${ports}" != "none" ]; then
 		IFS=","
@@ -101,8 +119,6 @@ create_rule() {
 	cmd="-A ${rule_name} $cmd"
 
 	# Store the rule_names for cleanup on reload
-	log "command to execute $cmd"
-
 	exec_log classcfg ${cmd} 
 	[ $? -eq 0 ] && \
 		echo ${rule_name}  >> ${RULE_LIST}
@@ -121,7 +137,7 @@ manage_rule() {
 	port_list=$(echo ${port}|sed 's/ /,/g')
 
 	if [ -n "${prio_num}" ]; then
-		if [ "${proto}" == "none" -o "${proto}" == "tcp/udp" ]; then
+		if [ "${proto}" == "none" -o "${proto}" == "tcpudp" ]; then
 			create_rule tcp ${macaddr} ${prio_num} ${port_list}
 			create_rule udp ${macaddr} ${prio_num} ${port_list}
 		else
@@ -131,6 +147,7 @@ manage_rule() {
 }
 
 reload_service() {
+	get_bridge_interface
 	clear_existing_rules
 	config_load easy_qos
 	config_foreach manage_rule rule
@@ -143,6 +160,6 @@ start_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "easy_qos"
+	procd_add_reload_trigger "easy_qos" "network"
 }
 
