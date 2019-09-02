@@ -14,7 +14,7 @@ PKG_SOURCE_PROTO:=git
 
 ifdef CONFIG_TARGET_intel_mips
 PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
-PKG_SOURCE_VERSION:=819227ec4cf4f2f8f7e8d46a3bee58e329089de6
+PKG_SOURCE_VERSION:=19dde95c2bba420d5ead96b0dd5aea8dc7979ec0
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
 PKG_SOURCE_VERSION:=670ad7a30f3c6871b6c8a972e19ca2dd78ea8c9b
