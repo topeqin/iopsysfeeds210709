@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=1.0-2019-08-30
+PKG_VERSION:=1.0-2019-09-03
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=c2c0f8a4f9094b0c4e09d8252f35bdc7dc4fdbf8
+PKG_SOURCE_VERSION:=f236c73ef2d06e188100a709de20ae3800f8696a
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -61,10 +61,10 @@ endif
 define Package/libbbfdm/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.so* $(1)/lib/
-	$(INSTALL_DIR) $(1)/etc/icwmpd
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/icwmpd
-	$(INSTALL_DIR) $(1)/usr/share/icwmp
-	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/icwmp
+	$(INSTALL_DIR) $(1)/etc/bbfdm
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/bbfdm
+	$(INSTALL_DIR) $(1)/usr/share/bbfdm
+	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/bbfdm
 endef
 
 define Build/InstallDev
