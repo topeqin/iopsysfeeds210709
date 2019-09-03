@@ -1,9 +1,18 @@
-#
-# Copyright (C) 2006-2010 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
+/*
+ * <Optional Description>
+ *
+ * Copyright (C) 2019 iopsys Software Solutions AB. All rights reserved.
+ *
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ */
 
 include $(TOPDIR)/rules.mk
 
@@ -22,6 +31,10 @@ PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/endptmngr
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_NAME:=endptmngr
+
+PKG_LICENSE:=GPLv2
+PKG_LICENSE_FILES:=LICENSE
+
 endif
 
 RSTRIP:=true
