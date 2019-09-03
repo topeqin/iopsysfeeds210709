@@ -1,5 +1,4 @@
-/*
- * <Optional Description>
+/* 
  *
  * Copyright (C) 2019 iopsys Software Solutions AB. All rights reserved.
  *
