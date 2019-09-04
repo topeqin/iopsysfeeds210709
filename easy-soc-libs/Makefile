@@ -1,6 +1,8 @@
 #
-# Copyright (C) 2018 Iopsys
+# Copyright (C) 2019 iopsys Software Solutions AB
 #
+# This is free software, licensed under the GNU General Public License v2.
+# 
 
 include $(TOPDIR)/rules.mk
 
@@ -18,6 +20,9 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_LICENSE:=GPLv2
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
