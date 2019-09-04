@@ -1,10 +1,9 @@
 #
-# Copyright (C) 2006-2010 OpenWrt.org
+# Copyright (C) 2019 iopsys Software Solutions AB
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
-
 include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
