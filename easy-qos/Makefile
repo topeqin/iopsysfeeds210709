@@ -1,8 +1,17 @@
+#
+# Copyright (C) 2019 iopsys Software Solutions AB
+#
+# This is free software, licensed under the GNU General Public License v2.
+# 
+
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-qos
 PKG_VERSION:=1.1
 PKG_RELEASE:=0
+
+PKG_LICENSE:=GPLv2
+PKG_LICENSE_FILES:=none
 
 include $(INCLUDE_DIR)/package.mk
 
