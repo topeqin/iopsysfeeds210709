@@ -16,6 +16,9 @@ PKG_SOURCE_URL:=https://github.com/merbanan/ltq-nand/archive/
 #PKG_SOURCE_URL:=https://github.com/merbanan/ltq-nand.git
 #PKG_SOURCE_VERSION:=07b5b0331af6de4174dab2c02bf260ee9625452a
 
+PKG_LICENSE:=GPLv2
+PKG_LICENSE_FILES:=LICENSE
+
 include $(INCLUDE_DIR)/host-build.mk
 
 
