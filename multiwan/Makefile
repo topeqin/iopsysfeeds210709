@@ -11,6 +11,8 @@ PKG_NAME:=multiwan
 PKG_VERSION:=1.0.22
 PKG_RELEASE:=2
 
+PKG_LICENSE:=GPLv2
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/multiwan
