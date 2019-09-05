@@ -1,5 +1,7 @@
 #
-# Copyright (C) 2015 Inteno
+# Copyright (C) 2018 iopsys Software Solutions AB
+#
+# This is free software, licensed under the GNU General Public License v2.
 #
 
 include $(TOPDIR)/rules.mk
@@ -9,6 +11,7 @@ PKG_NAME:=ifsi
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_LICENSE:=GPLv2
 
 include $(INCLUDE_DIR)/package.mk
 
