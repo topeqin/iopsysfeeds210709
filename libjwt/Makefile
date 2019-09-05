@@ -17,6 +17,8 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_FIXUP:=autoreconf
 
+PKG_LICENSE:=LGPLv3
+PKG_LICENSE_FILES:=COPYING
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libjwt
