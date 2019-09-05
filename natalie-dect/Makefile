@@ -25,6 +25,8 @@ endif
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_BUILD_PARALLEL:=1
 
+PKG_LICENSE:=PROPRIETARY
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/image.mk
 include $(INCLUDE_DIR)/kernel.mk
