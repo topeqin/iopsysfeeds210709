@@ -11,6 +11,9 @@ PKG_MD5SUM:=ac19fd6ff4d05dd2b15ea00d1ed591e7
 
 PKG_BUILD_DEPENDS+= +libopenssl +@OPENSSL_WITH_EC2M
 
+PKG_LICENSE:=MIT-X11
+PKG_LICENSE_FILES:=COPYING
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/picolisp
