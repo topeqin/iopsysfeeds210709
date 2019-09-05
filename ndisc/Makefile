@@ -15,6 +15,9 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.remlab.net/files/ndisc6
 PKG_MD5SUM:=50cb4c19606cf6ff2b7388e71832f579
 
+PKG_LICENSE:=GPLv2
+PKG_LICENSE_FILES:=COPYING
+
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
