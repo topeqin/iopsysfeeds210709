@@ -28,7 +28,7 @@ define KernelPackage/$(PKG_NAME)
   FILES:=$(PKG_BUILD_DIR)/$(PKG_NAME).$(LINUX_KMOD_SUFFIX)
   KCONFIG:=CONFIG_PACKAGE_kmod-gryphon-led-kernel-module=y
   AUTOLOAD:=$(call AutoLoad,60,$(PKG_NAME))
-  PKG_LICENSE:=Genexis
+  PKG_LICENSE:=GPLv2
   PKG_LICENSE_URL:=
 endef
 
