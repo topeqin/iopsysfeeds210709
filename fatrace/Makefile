@@ -1,7 +1,7 @@
 #
 # Copyright (C) 2006-2010 OpenWrt.org
 #
-# This is free software, licensed under the GNU General Public License v2.
+# This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
 #
 
@@ -19,6 +19,9 @@ PKG_SOURCE_URL:=https://git.launchpad.net/fatrace
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_LICENSE:=GPL-3.0
+PKG_LICENSE_FILES:=LICENSE
 
 # support parallel build
 #PKG_BUILD_PARALLEL:=1
