@@ -1,12 +1,18 @@
+# Copyright (C) 2019 iopsys
 #
-# Copyright (C) 2013 Inteno
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
 #
+
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iwatchdog
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
+
+PKG_LICENSE:=GPLv2
+PKG_LICENSE_FILES:=LICENSE
 
 # support parallel build
 PKG_BUILD_PARALLEL:=1
@@ -22,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/iwatchdog
   CATEGORY:=Utilities
-  TITLE:=Inteno watchdog
+  TITLE:=IOPSYS watchdog
 endef
 
 define Package/iwatchdog/description
