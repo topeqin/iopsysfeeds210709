@@ -1794,6 +1794,7 @@ configure_tel()
 	local dialoutmsec
 	local fac
 	local echocancel
+	local hold_target_before_refer
 
 	config_get jbenable TEL jbenable
 	config_get jbforce TEL jbforce
@@ -1803,6 +1804,7 @@ configure_tel()
 	config_get dialoutmsec TEL dialoutmsec
 	config_get fac TEL fac
 	config_get echocancel TEL echo_cancel
+	config_get hold_target_before_refer TEL hold_target_before_refer
 
 	CHANNEL_FAC="$CHANNEL_FAC $fac"
 	# Convert whitespace to commas
@@ -1827,6 +1829,12 @@ configure_tel()
 		dtmfcompatibility="0"
 	fi
 	sed -i "s/|DTMFCOMPATIBILITY|/$dtmfcompatibility/"      $WORKDIR/$LINENAME.tmp
+
+	if [ "$hold_target_before_refer" == "no" ]; then
+		sed -i "s/|HOLDTARGET|/no/"			$WORKDIR/$LINENAME.tmp
+	else
+		sed -i "s/|HOLDTARGET|/yes/"			$WORKDIR/$LINENAME.tmp
+	fi
 }
 
 #
