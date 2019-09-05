@@ -12,6 +12,9 @@ PKG_BUILD_DIR:=${BUILD_DIR}/ndt-$(PKG_VERSION)
 PKG_SOURCE:=ndt-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://software.internet2.edu/sources/ndt
 
+PKG_LICENSE:=NONSTANDARD
+PKG_LICENSE_FILES:=COPYRIGHT
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/ndt
