@@ -16,6 +16,10 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_FIXUP:=autoreconf
 
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:= LICENSE
+
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/obuspa
