@@ -64,3 +64,10 @@ featureaccesscodes = |FAC|
 ;
 ;language=
 
+; Whether the transferor puts the transfer target on-hold before sending REFER
+;
+; The transferor needs put the transfer target on-hold before sending REFER to the transferee as per RFC5589.
+; But call transfer fails on some devices, e.g. Ericsson MTAS as the transfer target. The configuration is
+; to solve this kind of interoperability issue.
+hold_target_before_refer = |HOLDTARGET|
+
