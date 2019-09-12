@@ -139,7 +139,6 @@ function genconfig {
 		DEVELOPER=1
 
 		bcmAllowed=0
-		iceAllowed=0
 		endptAllowed=0
 		natalieAllowed=0
 		mediatekAllowed=0
@@ -150,7 +149,6 @@ function genconfig {
 		git ls-remote git@dev.iopsys.eu:dialog/natalie-dect-12.26.git -q 2>/dev/null && natalieAllowed=1
 		git ls-remote git@dev.iopsys.eu:iopsys/endptmngr.git -q 2>/dev/null && endptAllowed=1
 		git ls-remote git@dev.iopsys.eu:iopsys/wifilife.git -q 2>/dev/null && wifilifeAllowed=1
-		git ls-remote git@private.inteno.se:ice-client.git -q -q 2>/dev/null && iceAllowed=1
 	}
 
 	v() {
@@ -356,7 +354,6 @@ function genconfig {
 			# rewrite url to clone with ssh instead of http
 			echo "CONFIG_GITMIRROR_REWRITE=y" >>.config
 			[ $bcmAllowed -eq 0 ] && echo "CONFIG_BCM_OPEN=y" >> .config
-			[ $iceAllowed -eq 0 ] && echo "CONFIG_ICE_OPEN=y" >> .config
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
@@ -364,7 +361,6 @@ function genconfig {
 		else
 			echo "# CONFIG_GITMIRROR_REWRITE is not set" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
-			echo "CONFIG_ICE_OPEN=y" >> .config
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
 			echo "CONFIG_NATALIE_OPEN=y" >> .config
 			echo "CONFIG_MEDIATEK_OPEN=y" >> .config

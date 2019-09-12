@@ -59,23 +59,6 @@ build_endptmngr_consumer() {
 	cd "$curdir"
 }
 
-build_ice_consumer() {
-	# create ice-client open version tar file
-	local iceversion icebasever icerelease icecommith
-	icecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/ice-client/Makefile | head -1 | cut -d'=' -f2)
-	icebasever=$(grep -w "BASE_PKG_VERSION:" ./feeds/iopsys/ice-client/Makefile | cut -d'=' -f2)
-	icerelease=$(grep -w "PKG_RELEASE:" ./feeds/iopsys/ice-client/Makefile | cut -d'=' -f2)
-	iceversion=$icebasever$icerelease
-	[ -n "$target" -a -n "$iceversion" -a -n "$icecommith" ] || return
-	ssh $SERVER "test -f $FPATH/ice-client-$target-$iceversion-$icecommith.tar.gz" && return
-	cd ./build_dir/target-*/ice-client-$icebasever/ipkg-* || cd ./build_dir/target-mips*musl-*/ice-client-$icebasever/ipkg-*
-	tar -czv  ice-client -f ice-client-$target-$iceversion-$icecommith.tar.gz
-	scp -pv ice-client-$target-$iceversion-$icecommith.tar.gz $SERVER:$FPATH/
-	cp ice-client-$target-$iceversion-$icecommith.tar.gz $curdir/
-	rm -f ice-client-$target-$iceversion-$icecommith.tar.gz
-	cd "$curdir"
-}
-
 build_wifilife_consumer() {
 	local ver commit
 	ver=$(grep -w "PKG_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
@@ -169,11 +152,9 @@ function generate_tarballs {
 		build_bcmkernel_consumer
 		build_natalie_consumer
 		build_endptmngr_consumer
-		build_ice_consumer
 		build_wifilife_consumer
 	elif [ "$stk_target" == "mediatek" ]; then
 		build_mediatek_kernel
-		build_ice_consumer		
 		build_wifilife_consumer
 	else
 		echo "Invalid target: $stk_target"
