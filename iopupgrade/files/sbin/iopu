@@ -164,7 +164,7 @@ trap finish EXIT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
-while getopts "nrxb" opt; do
+while getopts "nrxbh" opt; do
     case $opt in
 	n)
 	    upd_noreboot=1
@@ -184,7 +184,7 @@ while getopts "nrxb" opt; do
 	    exit 0
 	    ;;
 	h)
-	    upd_usage
+	    usage
 	    exit 1
 	    ;;
     esac
