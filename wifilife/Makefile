@@ -1,13 +1,13 @@
 #
-# Copyright (C) 2018 Iopsys
+# Copyright (C) 2019 Iopsys
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifilife
-PKG_VERSION:=2.4.4
+PKG_VERSION:=2.5.0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=762245ef090e5073c4d4a1ce310d560f9e1b02fb
+PKG_SOURCE_VERSION:=9b9a787120743d121ce867251af45da076fe7cce
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
 ifeq ($(CONFIG_WIFILIFE_OPEN),y)
@@ -56,6 +56,7 @@ define Package/wifilife/install
 	$(CP) -r ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wifiagent $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wificntlr $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,wifilife))

@@ -2,7 +2,8 @@
 
 START=96
 STOP=10
-PROG=/usr/sbin/wifiagent
+PROG_AGENT=/usr/sbin/wifiagent
+PROG_CNTLR=/usr/sbin/wificntlr
 ENABLE=/tmp/owsd_enable
 USE_PROCD=1
 EXTRA_COMMANDS="enable_check"
@@ -12,7 +13,7 @@ start_service() {
 	[ "$(uci -q get wifilife.@wifilife[0].enabled)" == "0" ] && return
 
 	procd_open_instance
-	procd_set_param command ${PROG} -d -l -f -o /tmp/wifiagent.log
+	procd_set_param command ${PROG_AGENT} -d -l -f -o /tmp/wifiagent.log
 	procd_set_param respawn
 	procd_close_instance
 
@@ -21,7 +22,7 @@ start_service() {
 	config_get enable ubusproxy enable
 	if [ "$enable" == "1" ]; then
 		echo $enable > $ENABLE
-		procd_set_param command ${PROG} -c -d -l -f -o /tmp/wificntlr.log
+		procd_set_param command ${PROG_CNTLR} -d -l -f -o /tmp/wificntlr.log
 	fi
 	procd_close_instance
 }
