@@ -1,14 +1,14 @@
 #
-# Copyright (C) 2018 Iopsys
+# Copyright (C) 2019 Iopsys
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifimngr
-PKG_VERSION:=2.0.2
+PKG_VERSION:=2.4.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=7d65bf397b157656459e7e25228893611cf9f024
+PKG_SOURCE_VERSION:=c4063e9c5581fed6e75037d0b13698b7cb2d6c2a
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wifimngr.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
