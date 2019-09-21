@@ -1,0 +1,25 @@
+diff --git a/src/framework/engine.h b/src/framework/engine.h
+index 57a48ad..9e1bc36 100644
+--- a/src/framework/engine.h
++++ b/src/framework/engine.h
+@@ -10,6 +10,7 @@
+ #include <map>
+ #include <vector>
+ #include <string>
++#include <sys/select.h>
+ 
+ #include "logger.h"
+ 
+diff --git a/src/framework/mk.inc b/src/framework/mk.inc
+index 793e211..13275be 100644
+--- a/src/framework/mk.inc
++++ b/src/framework/mk.inc
+@@ -7,7 +7,7 @@ OS:=$(shell uname)
+ CXXFLAGS += -O2 -W -Wall -I$(DIRLEVEL)
+ 
+ ifeq ($(OS),Linux)
+-CXX = g++
++CXX = $(CROSS_COMPILE)g++
+ endif
+ 
+ ifeq ($(OS),Darwin)
