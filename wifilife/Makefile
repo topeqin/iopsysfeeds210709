@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 Iopsys
+# Copyright (C) 2019 IOPSYS Software Solutions AB
 #
 
 include $(TOPDIR)/rules.mk
@@ -12,7 +12,7 @@ PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
 ifeq ($(CONFIG_WIFILIFE_OPEN),y)
 TARGET_PROD=$(shell echo $(CONFIG_TARGET_BOARD) | sed s/\"//g)
-PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
 PKG_SOURCE:=$(PKG_NAME)-$(TARGET_PROD)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 else
 PKG_SOURCE_PROTO:=git

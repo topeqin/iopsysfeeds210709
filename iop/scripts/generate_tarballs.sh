@@ -112,8 +112,8 @@ function print_usage {
 
 function generate_tarballs {
 
-    SERVER="god@software.inteno.se"
-    FPATH="/var/www/html/iopsys/consumer"
+    SERVER="god@download.iopsys.eu"
+    FPATH="/var/www/html/iopsys/opensdk"
 
     set -e
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment

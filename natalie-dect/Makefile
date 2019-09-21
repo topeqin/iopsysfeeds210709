@@ -1,8 +1,5 @@
 #
-# Copyright (C) 2006-2008 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
+# Copyright (C) 2019 IOPSYS Software Solutions AB
 #
 
 include $(TOPDIR)/rules.mk
@@ -14,7 +11,7 @@ PKG_SOURCE_VERSION:=378c404fba3efc8f1bcde54370a5370670fa1853
 ifeq ($(CONFIG_NATALIE_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=$(PKG_NAME)-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
 PKG_NAME:=natalie-dect-open
 else
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 iopsys Software Solutions AB
+# Copyright (C) 2018 IOPSYS Software Solutions AB
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -14,7 +14,7 @@ PKG_SOURCE_VERSION:=631e61b7ab5d86f2f4c86756a117badff9fb0f2c
 ifeq ($(CONFIG_ENDPT_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=endptmngr-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://iopsys.inteno.se/iopsys/consumer/
+PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
 PKG_NAME:=endptmngr-open
 else
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/endptmngr
