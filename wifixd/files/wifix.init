@@ -4,7 +4,7 @@ START=96
 STOP=10
 
 USE_PROCD=1
-PROG=/usr/sbin/wifimngr.deprecated
+PROG=/usr/sbin/wifixd
 
 start_service() {
 	procd_open_instance
