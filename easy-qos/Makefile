@@ -19,10 +19,11 @@ define Package/easy-qos
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Easy QoS
+  DEPENDS:=@(TARGET_intel_mips||TARGET_iopsys_brcm63xx_arm||TARGET_iopsys_brcm63xx_mips)
 endef
 
 define Package/easy-qos/description
-	This package contains Easy QoS utitie
+	This package contains Easy QoS utility
 endef
 
 define Build/Prepare
