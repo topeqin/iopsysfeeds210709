@@ -20,7 +20,7 @@ define Package/uspd
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=USP ubus backend
-  DEPENDS:=+libubox +ubus +icwmp-curl
+  DEPENDS:=+libubox +ubus +libbbfdm
 endef
 
 define Package/uspd/description
