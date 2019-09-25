@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2019-09-15
+PKG_VERSION:=4.0-2019-09-25
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=89564260af83117243b57dcc00a441f25225cb98
+PKG_SOURCE_VERSION:=3b94c08cfc7adc2def9c1894aa1cfd08f588f9cb
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -64,7 +64,11 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
+ifeq ($(CONFIG_PACKAGE_libtr098),y)
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libtr098
+else
   DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libbbfdm
+endif
 endef
 
 define Package/icwmp/description
@@ -102,6 +106,10 @@ endif
 
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
+
+ifeq ($(CONFIG_PACKAGE_libtr098),y)
+TARGET_CFLAGS += -DTR098
+endif
 
 ifneq ($(CWMP_REVISION)_,_)
 ifneq ($(CWMP_REVISION),exported)
@@ -149,6 +157,11 @@ endif
 ifeq ($(CONFIG_CWMP_DEVEL_DEBUG),y)
 CONFIGURE_ARGS += \
 	--enable-devel
+endif
+
+ifeq ($(CONFIG_PACKAGE_libtr098),y)
+CONFIGURE_ARGS += \
+	--enable-tr098
 endif
 
 define Package/icwmp-$(BUILD_VARIANT)/install
