@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=1.0-2019-09-18
+PKG_VERSION:=1.0-2019-09-25
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=4be7fe3c202e221c4d094de36c8a88126cc47bdf
+PKG_SOURCE_VERSION:=9cca4a52977bb8574e7baf48cffce31a7e7c06b5
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -54,6 +54,11 @@ endif
 ifeq ($(CONFIG_BBF_TR143),y)
 CONFIGURE_ARGS += \
 	--enable-tr143
+endif
+
+ifeq ($(CONFIG_BBF_TR157),y)
+CONFIGURE_ARGS += \
+	--enable-tr157
 endif
 
 ifeq ($(CONFIG_BBF_TR064),y)

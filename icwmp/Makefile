@@ -12,7 +12,7 @@ PKG_VERSION:=4.0-2019-09-25
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=3b94c08cfc7adc2def9c1894aa1cfd08f588f9cb
+PKG_SOURCE_VERSION:=6b4c42f9596669d97c6b05b5e32eab6c4386735c
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -58,6 +58,13 @@ define Package/icwmp_udpechoserver
 	CATEGORY:=Utilities
 	TITLE:=TR-069 udpechoserver feature
 	DEPENDS:=+libuci
+endef
+
+define Package/icwmp_bulkdata
+ SECTION:=utils
+ CATEGORY:=Utilities
+ TITLE:=TR-069 BulkData Collection
+ DEPENDS:=+libubus +libuci +libubox +libjson-c +libcurl +curl +libblobmsg-json +libbbfdm
 endef
 
 define Package/icwmp/Default
@@ -222,6 +229,15 @@ define Package/icwmp_twamp/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_twamp $(1)/etc/config
 endef
 
+define Package/icwmp_bulkdata/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_bulkdatad $(1)/usr/sbin/icwmp_bulkdatad
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_bulkdatad $(1)/etc/init.d/icwmp_bulkdatad
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_bulkdata $(1)/etc/config
+endef
+
 define Package/icwmp-$(BUILD_VARIANT)/postinst
 	#!/bin/sh
 	echo "$(CWMP_BKP_FILE)" >> $${IPKG_INSTROOT}/etc/sysupgrade.conf
@@ -246,4 +262,5 @@ $(eval $(call BuildPackage,icwmp_stun))
 $(eval $(call BuildPackage,icwmp_xmpp))
 $(eval $(call BuildPackage,icwmp_udpechoserver))
 $(eval $(call BuildPackage,icwmp_twamp))
+$(eval $(call BuildPackage,icwmp_bulkdata))
 $(eval $(call BuildPackage,icwmp-zstream))
