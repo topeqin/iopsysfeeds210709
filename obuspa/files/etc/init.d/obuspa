@@ -16,7 +16,7 @@ log() {
 
 db_set() {
 	log "DBSET param|${1}| value|${2}|"
-	USP_BOARD_IFNAME=${l3device} ${PROG} -c dbset ${1} ${2}
+	${PROG} -c dbset ${1} ${2}
 }
 
 validate_controller_section()
@@ -39,7 +39,8 @@ validate_connection_section()
 		'host:string:"usp-controller.com"' \
 		'username:string:username' \
 		'password:string:password' \
-		'encryption:bool:true'
+		'encryption:bool:true' \
+		'interface:string:wan'
 }
 
 configure_controller() {
@@ -65,12 +66,22 @@ configure_mtp() {
 }
 
 configure_connection() {
-	local host username password encryption
+	local host username password encryption interface
 
 	validate_connection_section "${1}" || {
 		log "Validation of section failed"
 		return 1;
 	}
+
+	# Get wan L3 interface
+	json_load "$(ubus call network.interface.${interface} status)"
+	json_get_var l3device l3_device
+	echo "l3device ${l3device}">/dev/console
+	export USP_BOARD_IFNAME=${l3device}
+
+	# Set this variable for root user
+	echo "export USP_BOARD_IFNAME=${l3device}">/root/.profile
+
 	db_set "${CONN_PATH}Host" ${host}
 	db_set "${CONN_PATH}Username" ${username}
 	db_set "${CONN_PATH}Password" ${password}
@@ -81,14 +92,11 @@ db_init() {
 	[ -f /tmp/usp.db ] && rm -f /tmp/usp.db
 
 	config_load obuspa
+	config_foreach configure_connection connection
 	config_foreach configure_controller controller
 	config_foreach configure_mtp mtp
-	config_foreach configure_connection connection
 }
 start_service() {
-	# Get wan L3 interface
-	json_load "$(ubus call network.interface.wan status)"
-	json_get_var l3device l3_device
 	db_init
 	procd_open_instance
 	procd_set_param env USP_BOARD_IFNAME=${l3device}
@@ -110,4 +118,3 @@ reload_service() {
 service_triggers() {
 	procd_add_config_trigger "config.change" "obuspa"  /etc/init.d/obuspa restart
 }
-

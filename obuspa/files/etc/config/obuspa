@@ -11,4 +11,5 @@ config connection
 	option username 'username'
 	option password 'password'
 	option encryption 'false'
+	option interface 'lan'
 
