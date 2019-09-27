@@ -71,13 +71,7 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl
-ifeq ($(CONFIG_PACKAGE_libtr098),y)
-   DEPENDS+= +libtr098
-endif
-ifeq ($(CONFIG_PACKAGE_libbbfdm),y)
-   DEPENDS+= +libbbfdm
-endif
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libbbfdm +(PACKAGE_libtr098):libtr098
 endef
 
 define Package/icwmp/description
@@ -169,10 +163,8 @@ CONFIGURE_ARGS += \
 	--enable-tr098
 endif
 
-ifeq ($(CONFIG_PACKAGE_libbbfdm),y)
 CONFIGURE_ARGS += \
 	--enable-tr181
-endif
 
 define Package/icwmp-$(BUILD_VARIANT)/install
 	$(INSTALL_DIR) $(1)/etc/icwmpd
