@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2019-09-25
+PKG_VERSION:=4.0-2019-09-26
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=6b4c42f9596669d97c6b05b5e32eab6c4386735c
+PKG_SOURCE_VERSION:=86ba9c09741a49d9a10b546dd92e9f919abb9849
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -71,10 +71,12 @@ define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl
 ifeq ($(CONFIG_PACKAGE_libtr098),y)
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libtr098
-else
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libbbfdm
+   DEPENDS+= +libtr098
+endif
+ifeq ($(CONFIG_PACKAGE_libbbfdm),y)
+   DEPENDS+= +libbbfdm
 endif
 endef
 
@@ -113,10 +115,6 @@ endif
 
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
-
-ifeq ($(CONFIG_PACKAGE_libtr098),y)
-TARGET_CFLAGS += -DTR098
-endif
 
 ifneq ($(CWMP_REVISION)_,_)
 ifneq ($(CWMP_REVISION),exported)
@@ -171,10 +169,18 @@ CONFIGURE_ARGS += \
 	--enable-tr098
 endif
 
+ifeq ($(CONFIG_PACKAGE_libbbfdm),y)
+CONFIGURE_ARGS += \
+	--enable-tr181
+endif
+
 define Package/icwmp-$(BUILD_VARIANT)/install
 	$(INSTALL_DIR) $(1)/etc/icwmpd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_BUILD_DIR)/bin/icwmpd $(1)/usr/sbin
+ifeq ($(CONFIG_PACKAGE_libtr098),y)
+	$(CP) $(PKG_BUILD_DIR)/bin/icwmp_tr098d $(1)/usr/sbin
+endif
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/firewall.cwmp $(1)/etc/firewall.cwmp
