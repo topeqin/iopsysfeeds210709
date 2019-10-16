@@ -1,15 +1,41 @@
+# controller, mtp, connection makes a group and related to one another
+# ex: first controller will be mapped to first mtp and first connection
+# details, always defined in groups
+
+config obuspa
+	option cert '/etc/obuspa/rootCA.pem'
+	option interface 'wan'
+	option debug 'false'
+
 config controller
 	option endpointid 'self::usp-controller.com'
+	option enable 'true'
+	# Trust cerificate number
+	option AssignedRole 1
+	option PeriodicNotifInterval "86400"
+	option PeriodicNotifTime "0001-01-01T00:00:00Z"
+	option USPRetryMinimumWaitInterval "5"
+	option USPRetryIntervalMultiplier "2000"
+	option ControllerCode ""
+	option protocol 'STOMP'
 
 config mtp
 	option enable 'true'
 	option protocol 'STOMP'
-	option destination 'uspq'
+	option destination ''
 
 config connection
 	option host 'usp-controller.com'
 	option username 'username'
 	option password 'password'
-	option encryption 'false'
-	option interface 'wan'
+	option encryption 'true'
+	option enable 'true'
+	option port 61613
+	option virtualhost '/'
+	option EnableHeartbeats "true"
+	option OutgoingHeartbeat "30000"
+	option IncomingHeartbeat "300000"
+	option ServerRetryInitialInterval "60"
+	option ServerRetryIntervalMultiplier "2000"
+	option ServerRetryMaxInterval "30720"
 

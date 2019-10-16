@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=obuspa
-PKG_VERSION:=1.0.0
+PKG_VERSION:=2.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=f362163d5a660a18081ec8665851c8db90d6f238
+PKG_SOURCE_VERSION:=4491e22c6d0778766a41143861aeb4d8d60ba057
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/obuspa.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -51,7 +51,8 @@ define Package/obuspa/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/obuspa
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/obuspa $(1)/usr/sbin/
-	$(CP) ./files/* $(1)/
+	$(INSTALL_BIN) ./files/etc/init.d/obuspa $(1)/etc/init.d/
+	$(INSTALL_DATA) ./files/etc/config/obuspa $(1)/etc/config/
 endef
 
 $(eval $(call BuildPackage,obuspa))
