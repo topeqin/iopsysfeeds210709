@@ -70,6 +70,7 @@ define Package/libbbfdm/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.so* $(1)/lib/
 	$(INSTALL_DIR) $(1)/etc/bbfdm
+	$(INSTALL_DIR) $(1)/etc/bbfdm/json
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/bbfdm
 	$(INSTALL_DIR) $(1)/usr/share/bbfdm
 	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/bbfdm
