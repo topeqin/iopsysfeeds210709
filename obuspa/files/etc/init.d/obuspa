@@ -190,6 +190,7 @@ configure_obuspa() {
 }
 db_init() {
 	[ -f ${PARAM_FILE} ] && rm -f ${PARAM_FILE}
+	[ -f /tmp/usp.db ] && rm -f /tmp/usp.db
 
 	config_load obuspa
 	config_foreach configure_obuspa obuspa
@@ -199,15 +200,9 @@ db_init() {
 	db_set Internal.Reboot.Cause "LocalFactoryReset"
 }
 
-boot() {
-	[ -f /tmp/usp.db ] && rm -f /tmp/usp.db
-
-	start
-}
-
 start_service() {
-	db_init
 	procd_open_instance obuspa
+	db_init
 	procd_set_param env USP_BOARD_IFNAME=${l3device}
 	procd_set_param command ${PROG}
 	procd_append_param command -p -v 4 -r ${PARAM_FILE}
