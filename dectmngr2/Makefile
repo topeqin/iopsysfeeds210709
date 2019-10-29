@@ -30,7 +30,7 @@ define Package/dectmngr2
   CATEGORY:=Utilities
   TITLE:=Dectmngr2
   URL:=
-  DEPENDS:= +natalie-dect-h bcmkernel +libubox +ubus +libpicoevent
+  DEPENDS:= +natalie-dect-h bcmkernel +libubox +ubus +libpicoevent endptmngr
 endef
 
 define Package/dectmngr2/description
