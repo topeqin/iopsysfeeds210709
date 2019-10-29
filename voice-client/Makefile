@@ -29,7 +29,7 @@ define Package/voice-client
   SECTION:=net
   CATEGORY:=Network
   TITLE:=voice-client
-  DEPENDS:=+asterisk13
+  DEPENDS:=@TARGET_HAS_VOICE
 endef
 
 define Package/voice-client/description
