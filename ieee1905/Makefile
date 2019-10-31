@@ -20,7 +20,7 @@ define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 parser
-  DEPENDS:=+libubox +libubus 
+  DEPENDS:=+meshcomms +libubox +libubus +libblobmsg-json
 endef
 
 define Package/ieee1905/description
