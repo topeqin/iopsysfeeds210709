@@ -18,6 +18,8 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/samba-$(PKG_VERSION)
 PKG_BUILD_PARALLEL:=1
 #PKG_FIXUP:=autoreconf
 
+PKG_LICENSE:=GPL-2.0-only
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 

@@ -8,7 +8,7 @@ PKG_NAME:=voice-client
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
-
+PKG_LICENSE:=GPL-2.0-only
 include $(INCLUDE_DIR)/package.mk
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)

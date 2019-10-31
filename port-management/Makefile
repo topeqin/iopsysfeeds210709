@@ -4,7 +4,7 @@ PKG_NAME:=port-management
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
-
+PKG_LICENSE:=GPL-2.0-only
 include $(INCLUDE_DIR)/package.mk
 
 define Package/port-management

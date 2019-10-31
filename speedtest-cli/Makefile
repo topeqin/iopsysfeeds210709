@@ -12,7 +12,8 @@ PKG_NAME:=speedtest-cli
 PKG_RELEASE:=1
 PKG_SOURCE:=speedtest_cli.py
 PKG_SOURCE_URL:=https://raw.githubusercontent.com/sivel/speedtest-cli/master
-
+PKG_LICENSE:=Apache-2.0
+PKG_LICENSE_FILES:=LICENSE
 include $(INCLUDE_DIR)/package.mk
 
 define Package/speedtest-cli

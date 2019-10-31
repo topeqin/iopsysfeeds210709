@@ -15,7 +15,8 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.routemeister.net/projects/sipcalc/files \
 		http://download.google.com/mirror
 PKG_MD5SUM:=8d59e70d21d8f0568e310d342e3e2306
-
+PKG_LICENSE:=NONSTANDARD_PERMISSIV
+PKG_LICENSE_FILES:=COPYING
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sipcalc
