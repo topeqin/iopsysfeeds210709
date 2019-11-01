@@ -8,7 +8,7 @@ PKG_NAME:=ieee1905
 PKG_VERSION:=1.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=0f32eabc1a79c6c41dd9e6ae7c231ae73071dc39
+PKG_SOURCE_VERSION:=a6a39128b1fe5132e51de4f580bf66f373515dcd
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -19,7 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=IEEE1905 parser
+  TITLE:=IEEE1905 handler
   DEPENDS:=+meshcomms +libubox +libubus +libblobmsg-json
 endef
 
