@@ -1,0 +1,100 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+
+USE_PROCD=1
+PROG=/usr/sbin/al_entity
+
+validate_global_section()
+{
+	uci_validate_section meshcomms meshcomms "${1}" \
+		'basemacint:string:wan' \
+		'interfaces:string' \
+		'mapall:bool:true' \
+		'debug:bool:true' \
+		'port:port:8888'
+}
+
+get_l3_interface() {
+	local l3
+	# Get wan L3 interface
+	json_load "$(ubus -t 2 call network.interface.${1} status)"
+	json_get_var l3 l3_device
+	echo ${l3}
+}
+
+get_interface_mac() {
+	local l3 basemac
+	l3=$(get_l3_interface ${1})
+	json_load "$(ubus -t 2 call network.device status "{\"name\":\"${l3}\"}")"
+	json_get_var basemac macaddr
+	echo ${basemac}
+}
+
+configure_meshcomms()
+{
+	local basemacint interfaces mapall debug port l3device basemac intf
+
+	validate_global_section global || {
+		echo "Validation of global section failed"
+		return 1;
+	}
+	if [ ${debug} -eq 1 ]; then
+		# Forward stdout of the command to logd
+		procd_set_param stdout 1
+		# Same for stderr
+		procd_set_param stderr 1
+	fi
+	
+	basemac=$(get_interface_mac ${basemacint})
+
+
+	for f in ${interfaces}
+	do
+		local l3=$(get_l3_interface $f)
+		intf="${intf} ${l3}"
+	done
+	intf=$(echo $intf|sed 's/ /,/g')
+	[ -z "${intf}" ] && \
+		echo "interface list is empty/invalid">/dev/console \
+		return 1
+
+	procd_append_param command -m ${basemac} -i ${intf}
+
+	[ "${debug}" -eq 1 ] && \
+		procd_append_param command -vv
+
+	[ "${mapall}" -eq 1 ] && \
+		procd_append_param command -w
+
+	[ ${port} -ne 8888 ] && \
+		procd_append_param command -p ${port}
+}
+
+configure_network() {
+	ebtables -L FORWARD |grep -iq "01:80:c2:00:00:13 -j DROP"
+	if [ "$?" -ne 0 ]; then
+		echo "Applying drop rule to drop pkts forwared by kernel to 1905.1 multicast mac"
+		ebtables -A FORWARD -d 01:80:c2:00:00:13 -j DROP
+	fi
+	config_load meshcomms
+	config_foreach configure_meshcomms meshcomms
+}
+
+start_service() {
+	procd_open_instance meshcomms
+	procd_set_param command ${PROG}
+	configure_network
+	procd_set_param respawn
+	procd_close_instance
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger "network"
+}

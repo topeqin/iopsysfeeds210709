@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=meshcomms
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=7b7fa65c9dfddd7f999a04488c96bfdcb96a0226
+PKG_SOURCE_VERSION:=8d5808d81d1fc96e4ce4ee682847b4de15b46224
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/meshcomms.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -54,6 +54,10 @@ endif
 
 define Package/meshcomms/install
 	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/meshcomms.conf $(1)/etc/config/meshcomms
+	$(INSTALL_BIN) ./files/meshcomms.init $(1)/etc/init.d/meshcomms
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/al_entity $(1)/usr/sbin/
 endef
 
