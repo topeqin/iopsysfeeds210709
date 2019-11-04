@@ -103,9 +103,8 @@ case "$1" in
 					echo $uniqueid | grep "[A-Z,a-z]" && continue
 					from="$(echo $line | cut -d',' -f2)"
 					to="$(echo $line | cut -d',' -f3)"
-					callok=0
-					uci show voice_client | grep user | grep -wq "$from\|$to" && callok=1
-					[ $callok -eq 0 ] && continue
+					# "from" will be empty for call log of internal call (beween extension numbers)
+					[ -z "$from" ] && [ -z "$to" ] && continue
 					account="$(echo $line | cut -d',' -f4)"
 					actok=0
 					uci show voice_client  | grep sip_service_provider | grep -wq "$account" && actok=1
