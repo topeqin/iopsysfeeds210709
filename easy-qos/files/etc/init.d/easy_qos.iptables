@@ -103,18 +103,18 @@ validate_rule_section()
 
 # Clear existing rules before applying new rules
 clear_existing_rules() {
-	local rule=$(iptables -t mangle -S OUTPUT|grep -m 1 MARK |sed 's/-A/-D/1')
+	local rule=$(iptables -t mangle -S PREROUTING | grep -m 1 MARK |sed 's/-A/-D/1')
 	while [ -n "${rule}" ]; do
 		exec_log iptables -t mangle ${rule}
-		rule=$(iptables -t mangle -S OUTPUT|grep -m 1 MARK |sed 's/-A/-D/1')
+		rule=$(iptables -t mangle -S PREROUTING | grep -m 1 MARK |sed 's/-A/-D/1')
 	done
 }
 
 check_and_create() {
-	iptables -t mangle -C OUTPUT ${@} 2>/dev/null
+	iptables -t mangle -C PREROUTING ${@} 2>/dev/null
 	# Create rule if not exists
 	if [ ${?} -ne 0 ]; then
-		exec_log iptables -t mangle -A OUTPUT ${@}
+		exec_log iptables -t mangle -A PREROUTING ${@}
 	else
 		log "Rule exists for ${@}"
 	fi
