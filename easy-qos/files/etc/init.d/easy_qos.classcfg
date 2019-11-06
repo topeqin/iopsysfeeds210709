@@ -4,6 +4,7 @@ START=99
 USE_PROCD=1
 
 RULE_LIST="/tmp/easy_qos_rule.list"
+CLIENT_LIST="/tmp/easy_qos_class_client.list"
 BRIDGE_INTF=""
 
 [ -f /etc/profile.d/intel.sh ] && {
@@ -16,6 +17,13 @@ log() {
 }
 
 exec_log() {
+	${@}
+	if [ "${?}" -ne 0 ]; then
+		log "Failed to create ${@}";
+	fi
+}
+
+exec_class_log() {
 	${@} |grep -i successful
 	if [ "${?}" -ne 0 ]; then
 		log "Failed to create ${@}";
@@ -46,6 +54,114 @@ get_priority() {
 	esac
 }
 
+get_mark() {
+	local prio=$(echo $1|tr [A-Z] [a-z]);
+	case "${prio}" in
+		"lowest")
+			echo "0x41/0x3df";;
+		"low")
+			echo "0x82/0x3df";;
+		"besteffort")
+			echo "0xc3/0x3df";;
+		"normal")
+			echo "0x104/0x3df";;
+		"video")
+			echo "0x145/0x3df";;
+		"medium")
+			echo "0x186/0x3df";;
+		"high")
+			echo "0x1c7/0x3df";;
+		"highest")
+			echo "0x208/0x3df";;
+	esac
+}
+
+clean_client_entries() {
+	[ -f ${CLIENT_LIST} ] && rm ${CLIENT_LIST}
+}
+
+map_client_entries() {
+	local clients ip mac host
+
+	json_load "$(ubus call router.network 'clients')"
+	json_get_keys keys
+
+	for key in ${keys};
+	do
+		json_select ${key}
+		json_get_vars ipaddr macaddr hostname
+		clients="${macaddr} ${ipaddr} ${hostname};${clients}"
+		json_select ..
+	done
+
+	json_init
+
+	IFS=";"
+	for client in ${clients};
+	do
+		macaddr=$(echo ${client} | cut -d" " -f1)
+		json_add_object "${macaddr//:/_}"
+		json_add_string "ip" "$(echo ${client} | cut -d" " -f2)"
+		json_add_string "macaddr" "$(echo ${client} | cut -d" " -f1)"
+		json_add_string "host" "$(echo ${client} | cut -d" " -f3)"
+		json_close_object
+	done
+
+	IFS=' '
+	echo `json_dump` > ${CLIENT_LIST}
+	json_cleanup
+}
+
+# Find the IP of a corresponding mac from arp table
+get_ipaddress() {
+	local clients ip mac host
+
+	json_load "$(cat ${CLIENT_LIST})"
+	json_get_keys keys
+
+	# jshn seems a bit iffy on having : in key, replace by _
+	json_select "${1//:/_}" 2 > /dev/null
+	json_get_var ip ip
+
+	echo "$ip"
+}
+
+check_and_create() {
+	iptables -t mangle -C PREROUTING ${@} 2>/dev/null
+	# Create rule if not exists
+	if [ ${?} -ne 0 ]; then
+		exec_log iptables -t mangle -A PREROUTING ${@}
+	else
+		log "Rule exists for ${@}"
+	fi
+}
+
+create_ip_rule() {
+	local proto=$1; shift
+	local src_ip=$1; shift
+	local mark=$1; shift
+	local ports=$1;
+	local cmd="";
+
+	cmd="-j EXTMARK --set-mark ${mark}";
+	if [ "${proto}" != "icmp" ]; then
+		if [ -n "${ports}" ]; then
+			cmd="--match multiport --dports ${ports} ${cmd}";
+		fi
+	fi
+
+	if [ "${proto}" == "icmp" ]; then
+		cmd="-p icmp -m icmp --icmp-type 8 $cmd"
+	elif [ "${proto}" == "all" ]; then
+		cmd="-p all $cmd"
+	else
+		cmd="-p ${proto} -m ${proto} $cmd"
+	fi
+	cmd="-s ${src_ip} $cmd"
+
+	check_and_create ${cmd}
+}
+
 is_lan_bridge() {
 	local _section=$1
 	local _type
@@ -67,10 +183,10 @@ get_bridge_interface() {
 validate_rule_section()
 {
 	uci_validate_section easy_qos rule "${1}" \
-		'priority:string:none' \
-		'macaddr:string:none' \
+		'priority:string' \
+		'macaddr:string' \
 		'proto:string:none' \
-		'port:list(uinteger):none' \
+		'port:list(uinteger)' \
 		'comment:string:none'
 }
 
@@ -82,8 +198,14 @@ clear_existing_rules() {
 	while read line
 	do
 		log "Deleting old classification rules"
-		exec_log classcfg -D ${line} -i ${BRIDGE_INTF}
+		exec_class_log classcfg -D ${line} -i ${BRIDGE_INTF}
 	done <${RULE_LIST}
+
+	local rule=$(iptables -t mangle -S PREROUTING|grep -m 1 EXTMARK |sed 's/-A/-D/1')
+	while [ -n "${rule}" ]; do
+		exec_log iptables -t mangle ${rule}
+		rule=$(iptables -t mangle -S PREROUTING|grep -m 1 EXTMARK |sed 's/-A/-D/1')
+	done
 	sync
 
 	[ -f ${RULE_LIST} ] && rm ${RULE_LIST}
@@ -104,13 +226,16 @@ create_rule() {
 	if [ "${mac_addr}" != "none" ]; then
 		cmd="--smac ${mac_addr} ${cmd}";
 	fi
-	if [ "${ports}" != "none" ]; then
-		IFS=","
-		for port in ${ports};
-		do
-			cmd="--dport ${port}:${port} ${cmd}";
-		done
-		IFS=' '
+
+	if [ "${proto}" != "icmp" ]; then
+		if [ "${ports}" != "none" ]; then
+			IFS=","
+			for port in ${ports};
+			do
+				cmd="--dport ${port}:${port} ${cmd}";
+			done
+			IFS=' '
+		fi
 	fi
 	if [ "${proto}" != "none" ]; then
 		cmd="-p ${proto} $cmd"
@@ -119,14 +244,14 @@ create_rule() {
 	cmd="-A ${rule_name} $cmd"
 
 	# Store the rule_names for cleanup on reload
-	exec_log classcfg ${cmd} 
+	exec_class_log classcfg ${cmd}
 	[ $? -eq 0 ] && \
 		echo ${rule_name}  >> ${RULE_LIST}
 }
 
 manage_rule() {
 	local cfg="$1"
-	local priority macaddr proto port comment prio_num port_list
+	local priority macaddr proto port comment prio_num port_list ip ipmark
 
 	validate_rule_section "${1}" || {
 		log "Validation of section failed"
@@ -135,22 +260,33 @@ manage_rule() {
 
 	prio_num=$(get_priority ${priority})
 	port_list=$(echo ${port}|sed 's/ /,/g')
+	ipmark=$(get_mark ${priority})
+	ip=$(get_ipaddress ${macaddr})
 
 	if [ -n "${prio_num}" ]; then
 		if [ "${proto}" == "none" -o "${proto}" == "tcpudp" ]; then
 			create_rule tcp ${macaddr} ${prio_num} ${port_list}
 			create_rule udp ${macaddr} ${prio_num} ${port_list}
+			if [ -n "${ip}" ]; then
+				create_ip_rule tcp ${ip} ${ipmark} ${port_list}
+				create_ip_rule udp ${ip} ${ipmark} ${port_list}
+			fi
 		else
 			create_rule ${proto} ${macaddr} ${prio_num} ${port_list}
+			if [ -n "${ip}" ]; then
+				create_ip_rule ${proto} ${ip} ${ipmark} ${port_list}
+			fi
 		fi
 	fi
 }
 
 reload_service() {
 	get_bridge_interface
+	map_client_entries
 	clear_existing_rules
 	config_load easy_qos
 	config_foreach manage_rule rule
+	clean_client_entries
 }
 
 start_service() {
