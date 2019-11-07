@@ -8,7 +8,7 @@ PKG_NAME:=wifimngr
 PKG_VERSION:=2.4.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=c4063e9c5581fed6e75037d0b13698b7cb2d6c2a
+PKG_SOURCE_VERSION:=939b0ae989979a1ad1942373791fe230bc3e41ca
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wifimngr.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
