@@ -8,7 +8,7 @@ PKG_NAME:=meshcomms
 PKG_VERSION:=1.0.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=69e58ff9c49898a269f2d20e3001553c35bf862e
+PKG_SOURCE_VERSION:=fc8ae5dc6b78cd1d813ce66ffc4786228cb468ea
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/meshcomms.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -41,12 +41,6 @@ TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
 	-D_GNU_SOURCE
 #        -DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
-
-ifneq ($(CONFIG_BIG_ENDIAN),)
-TARGET_CFLAGS += -D_HOST_IS_BIG_ENDIAN_=1
-else
-TARGET_CFLAGS += -D_HOST_IS_LITTLE_ENDIAN_=1
-endif
 
 #define Build/Prepare
 #        $(CP) -rf ./meshcomms/* $(PKG_BUILD_DIR)/
