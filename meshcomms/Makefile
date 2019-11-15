@@ -8,7 +8,7 @@ PKG_NAME:=meshcomms
 PKG_VERSION:=1.0.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=fc8ae5dc6b78cd1d813ce66ffc4786228cb468ea
+PKG_SOURCE_VERSION:=72048b609104a5479ac2cdae21d5d1f733fd2bc3
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/meshcomms.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -16,12 +16,6 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_LICENSE:=BSD2+Patent
 PKG_LICENSE_FILES:=LICENSE
-
-PLATFORM := linux
-FLAVOUR  := iopsys
-
-export PLATFORM
-export FLAVOUR
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -62,11 +56,12 @@ define Package/meshcomms/install
 	$(INSTALL_BIN) ./files/meshcomms.init $(1)/etc/init.d/meshcomms
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/al_entity $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/libmeshcomms.so $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/libmeshcomms.so $(STAGING_DIR)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/include/meshcomms.h $(STAGING_DIR)/usr/include/meshcomms/
-	$(CP) $(PKG_BUILD_DIR)/src/common/interfaces/*.h $(STAGING_DIR)/usr/include/meshcomms/common/
-	$(CP) $(PKG_BUILD_DIR)/src/factory/interfaces/*.h $(STAGING_DIR)/usr/include/meshcomms/factory/
-	$(CP) $(PKG_BUILD_DIR)/src/factory/interfaces/extensions/bbf/*.h $(STAGING_DIR)/usr/include/meshcomms/bbf/
-	$(CP) $(PKG_BUILD_DIR)/src/al/internal_interfaces/*.h $(STAGING_DIR)/usr/include/meshcomms/al/
+	$(CP) $(PKG_BUILD_DIR)/src/common/interfaces/*.h $(STAGING_DIR)/usr/include/meshcomms/
+	$(CP) $(PKG_BUILD_DIR)/src/factory/interfaces/*.h $(STAGING_DIR)/usr/include/meshcomms/
+	$(CP) $(PKG_BUILD_DIR)/src/factory/interfaces/extensions/bbf/*.h $(STAGING_DIR)/usr/include/meshcomms/
+	$(CP) $(PKG_BUILD_DIR)/src/al/internal_interfaces/*.h $(STAGING_DIR)/usr/include/meshcomms/
 endef
 
 $(eval $(call BuildPackage,meshcomms))
