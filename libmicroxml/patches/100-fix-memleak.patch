@@ -1,0 +1,130 @@
+diff --git a/mxml-file.c b/mxml-file.c
+index 02eca9d..f10d202 100644
+--- a/mxml-file.c
++++ b/mxml-file.c
+@@ -363,9 +363,12 @@ mxmlSaveFile(mxml_node_t    *node,	/* I - Node to write */
+   * Write the node...
+   */
+ 
+-  if ((col = mxml_write_node(node, fp, cb, 0, mxml_file_putc, global)) < 0)
++  if ((col = mxml_write_node(node, fp, cb, 0, mxml_file_putc, global)) < 0){
++    global_free(global);
+     return (-1);
+-
++  }
++  
++  global_free(global);
+   if (col > 0)
+     if (putc('\n', fp) < 0)
+       return (-1);
+@@ -1448,6 +1451,7 @@ mxml_load_data(
+   if ((buffer = malloc(64)) == NULL)
+   {
+     mxml_error("Unable to allocate string buffer!");
++    global_free(global);
+     return (NULL);
+   }
+ 
+@@ -2083,11 +2087,12 @@ mxml_load_data(
+ 		 node->parent ? node->parent->value.element.name : "(null)");
+ 
+       mxmlDelete(first);
+-
++      global_free(global);
+       return (NULL);
+     }
+   }
+ 
++  global_free(global);
+   if (parent)
+     return (parent);
+   else
+@@ -2102,7 +2107,7 @@ error:
+   mxmlDelete(first);
+ 
+   free(buffer);
+-
++  global_free(global);
+   return (NULL);
+ }
+ 
+diff --git a/mxml-private.c b/mxml-private.c
+index 4378ca3..ea6e452 100644
+--- a/mxml-private.c
++++ b/mxml-private.c
+@@ -41,6 +41,32 @@
+  * This code currently supports AIX, HP-UX, Linux, Mac OS X, Solaris, and
+  * Windows.  It might work on the BSDs and IRIX, but I haven't tested that.
+  */
++void *global_mem[16] = {0};
++
++static void *global_calloc(int x, int size)
++{
++  int i;
++  void *m = calloc(x, size);
++  for (i = ((sizeof(global_mem)/sizeof(global_mem[0])) - 1); i > 0; i--) {
++    global_mem[i] = global_mem[i-1];
++  }
++  global_mem[0] = m;
++  return m;
++}
++
++void global_free(void *m)
++{
++  int i;
++  if (m == NULL)
++    return;
++  for (i = ((sizeof(global_mem)/sizeof(global_mem[0])) - 1); i >= 0; i--) {
++    if (global_mem[i] == m) {
++      global_mem[i] = NULL;
++      free(m);
++      break;
++    }
++  }
++}
+ 
+ #if defined(__sun) || defined(_AIX)
+ #  pragma fini(_mxml_fini)
+@@ -148,7 +174,6 @@ mxml_real_cb(mxml_node_t *node)		/* I - Current node */
+   return (MXML_REAL);
+ }
+ 
+-
+ #ifdef HAVE_PTHREAD_H			/**** POSIX threading ****/
+ #  include <pthread.h>
+ 
+@@ -190,7 +215,6 @@ _MXML_FINI(void)
+   }
+ }
+ 
+-
+ /*
+  * '_mxml_global()' - Get global data.
+  */
+@@ -205,7 +229,7 @@ _mxml_global(void)
+ 
+   if ((global = (_mxml_global_t *)pthread_getspecific(_mxml_key)) == NULL)
+   {
+-    global = (_mxml_global_t *)calloc(1, sizeof(_mxml_global_t));
++    global = (_mxml_global_t *)global_calloc(1, sizeof(_mxml_global_t));
+     pthread_setspecific(_mxml_key, global);
+ 
+     global->num_entity_cbs = 1;
+@@ -288,7 +312,7 @@ _mxml_global(void)
+ 
+   if ((global = (_mxml_global_t *)TlsGetValue(_mxml_tls_index)) == NULL)
+   {
+-    global = (_mxml_global_t *)calloc(1, sizeof(_mxml_global_t));
++    global = (_mxml_global_t *)global_calloc(1, sizeof(_mxml_global_t));
+ 
+     global->num_entity_cbs = 1;
+     global->entity_cbs[0]  = _mxml_entity_cb;
+diff --git a/mxml-private.h b/mxml-private.h
+index c591208..72ed338 100644
+--- a/mxml-private.h
++++ b/mxml-private.h
+@@ -43,3 +43,4 @@ typedef struct _mxml_global_s
+ extern _mxml_global_t	*_mxml_global(void);
+ extern int		_mxml_entity_cb(const char *name);
+ 
++extern void global_free(void *m);
