@@ -6,13 +6,10 @@ function extract_core {
 	topdir=$(pwd)
 
 	# Paths to packages that should be exported.
-	paths+='package/network/services/dnsmasq '
 	paths+='package/network/config/firewall '
 	paths+='package/network/config/netifd '
-	paths+='package/network/config/qos-scripts '
 	paths+='package/utils/busybox '
 	paths+='package/base-files '
-	paths+='package/system/procd '
 	paths+='package/system/rpcd '
 	paths+='package/network/services/openvpn '
 
@@ -24,7 +21,13 @@ function extract_core {
 		echo ""
 		echo "Example: $0 extract_core"
 		echo "  -p package/utils/busybox"
-		echo "  -r feeds/lede_core"
+		echo "  -r feeds/openwrt_core"
+		echo "  -b devel"
+		echo ""
+		echo "Extract all default packages:"
+		echo "$0 extract_core"
+		echo "  -p default"
+		echo "  -r feeds/openwrt_core"
 		echo "  -b devel"
 	}
 
