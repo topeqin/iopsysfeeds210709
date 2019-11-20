@@ -28,7 +28,7 @@ function feeds_update {
 
     # replace core packages with iopsys versions
     if [ $override == 1 ]; then
-		./scripts/feeds install -f -p lede_core -a
+		./scripts/feeds install -f -p openwrt_core -a
     fi
 
     # targets need to be installed explicitly
