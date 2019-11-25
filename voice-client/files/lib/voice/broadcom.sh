@@ -22,7 +22,7 @@ getBaseMAC() {
 }
 
 getAllLines() {
-    echo "BRCM/0&BRCM/1&BRCM/2&BRCM/3&BRCM/4&BRCM/5&BRCM/6"
+    echo "BRCM/0&BRCM/1&BRCM/2&BRCM/3&BRCM/4&BRCM/5"
 }
 
 getLineIdx() {

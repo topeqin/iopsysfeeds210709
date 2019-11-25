@@ -153,7 +153,6 @@ assemble_and_copy_config()
 	[ -f $TMPL_ASTERISK ]		&& cp $TMPL_ASTERISK		$WORKDIR/asterisk.conf
 	[ -f $TMPL_CDR ]		&& cp $TMPL_CDR			$WORKDIR/cdr.conf
 	[ -f $TMPL_CEL ]		&& cp $TMPL_CEL			$WORKDIR/cel.conf
-	[ -f $TMPL_INDICATIONS ]	&& cp $TMPL_INDICATIONS		$WORKDIR/indications.conf
 	[ -f $TMPL_MANAGER ]		&& cp $TMPL_MANAGER		$WORKDIR/manager.conf
 	[ -f $TMPL_MODULES ]		&& cp $TMPL_MODULES		$WORKDIR/modules.conf
 	[ -f $TMPL_EXTENSIONS_MACRO ]	&& cp $TMPL_EXTENSIONS_MACRO	$WORKDIR/extensions_macro.conf
@@ -165,6 +164,14 @@ assemble_and_copy_config()
 	[ -f $TMPL_UDPTL ]	        && cp $TMPL_UDPTL	        $WORKDIR/udptl.conf
 	[ -f $SPECRATECFG ]		&& cp $SPECRATECFG		$WORKDIR/special_rate_nr.cfg
 	
+	[ -f $TMPL_INDICATIONS ]	&&  {
+		cp $TMPL_INDICATIONS		$WORKDIR/indications.conf
+
+		config_get country TEL country
+		country_code=$(supportedCountries |grep $country |cut -d':' -f3 |tr [A-Z] [a-z])
+		sed -i "s/^country=.*/country=${country_code}/g" $WORKDIR/indications.conf
+	}
+
 	test -e $TMPL_MEETME && cp $TMPL_MEETME $WORKDIR/meetme.conf
 	
 	# Handle extensions_extra, carry over old file to new config if there is one
@@ -256,9 +263,7 @@ read_codecs_ptime()
 #
 read_lines()
 {
-	local line call_lines lineid ldx lines llength clength
-	local loffset=$(ubus -t 1 call voice.asterisk platform | jsonfilter -e @.lineoffset)
-	loffset=${loffset:-0}
+	local line call_lines lines clength
 
 	config_get call_lines $1 call_lines
 
@@ -267,28 +272,17 @@ read_lines()
 		# convert line format to <LINENAME><LINEID>
 		case $line in
 			[0-9])
-				line="$LINENAME$line"
 			;;
 			"$CHANNELNAME"/[0-9])
+				# get the index from channel name
 				clength=$(echo $CHANNELNAME | wc -c)
-				line="$LINENAME${line:$clength}"
+				line="${line:$clength}"
 			;;
 		esac
 
-		# get the index from line name
-		# llength=$(echo $LINENAME | wc -c)
-		# lineid="${lineid:$llength}"
+		[ -n "$line" ] || continue
 
-		# get the index from uci config order
-		lineid="$(uci show voice_client | grep =tel_line | grep -wn $line | cut -d ':' -f1)"
-
-		[ -n "$lineid" ] || continue
-
-		# -1 to match the line's uci config index number
-		# +loffset to match the correct number in channel driver
-		ldx=$((lineid-1+loffset))
-
-		lines="$lines$CHANNELNAME/$ldx&"
+		lines="$lines$CHANNELNAME/$line&"
 	done
 
 	lines=$(escape_sed_substitution $lines)
@@ -1795,6 +1789,7 @@ configure_tel()
 	local fac
 	local echocancel
 	local hold_target_before_refer
+	local calleridtype
 
 	config_get jbenable TEL jbenable
 	config_get jbforce TEL jbforce
@@ -1805,6 +1800,7 @@ configure_tel()
 	config_get fac TEL fac
 	config_get echocancel TEL echo_cancel
 	config_get hold_target_before_refer TEL hold_target_before_refer
+	config_get calleridtype TEL calleridtype
 
 	CHANNEL_FAC="$CHANNEL_FAC $fac"
 	# Convert whitespace to commas
@@ -1822,6 +1818,12 @@ configure_tel()
 	sed -i "s/|FAC|/$CHANNEL_FAC/"				$WORKDIR/$LINENAME.tmp
 	sed -i "s/|CHANNELS|/$(db get hw.board.VoicePorts)/"	$WORKDIR/$LINENAME.tmp
 	sed -i "s/|ECHOCANCEL|/$(getEchoCancellingValue $echocancel)/"	$WORKDIR/$LINENAME.tmp
+
+	if [ -n "${calleridtype}" ] ; then
+		sed -i "s/^calleridtype *=.*/calleridtype = ${calleridtype}/g" $WORKDIR/$LINENAME.tmp
+	else
+		sed -i "/^calleridtype *=.*/d" $WORKDIR/$LINENAME.tmp
+	fi
 
 	if [ "$dtmfmode" == "compatibility" ] ; then
 		dtmfcompatibility="1"
@@ -2243,6 +2245,7 @@ reload_service() {
 	# FXS channel module must be reloaded before sip module. Otherwise some attributes like
 	# line's registration state which is updated by SIP module through callback might be
 	# reset.
+	asterisk -rx "config reload $ASTERISKDIR/indications.conf"
 	asterisk -rx "$(getChipVendor) reload"
 	asterisk -rx "config reload $ASTERISKDIR/sip.conf"
 	sleep 1

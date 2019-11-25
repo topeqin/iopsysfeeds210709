@@ -28,12 +28,11 @@ getBaseMAC() {
 }
 
 getAllLines() {
-    echo "TAPI/1&TAPI/2&TAPI/3&TAPI/4&TAPI/5&TAPI/6"
+    echo "TAPI/0&TAPI/1"
 }
 
 getLineIdx() {
-    i=$1
-    echo $((i+1))
+    echo $1
 }
 
 getEchoCancellingValue() {
@@ -52,5 +51,14 @@ getEchoCancellingValue() {
 }
 
 supportedCountries() {
-	echo "ETSI:ETS"
+	echo "Austria:AUT:AT"
+	echo "Denmark:DNK:DK"
+	echo "Estonia:EST:EE"
+	echo "Germany:DEU:DE"
+	echo "Netherlands:NLD:NL"
+	echo "Norway:NOR:NO"
+	echo "Spain:ESP:ES"
+	echo "Sweden:SWE:SE"
+	echo "Switzerland:CHE:CH"
+	echo "United Kingdom:GBR:UK"
 }

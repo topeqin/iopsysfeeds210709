@@ -137,8 +137,8 @@ case "$1" in
 					    json_add_int chanoffset 0
 				    ;;
 				    "tapi")
-					    json_add_int lineoffset 1
-					    json_add_int chanoffset -1
+					    json_add_int lineoffset 0
+					    json_add_int chanoffset 0
 				    ;;
 			        *)
 				    # Error, unknown platform
