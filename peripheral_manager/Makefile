@@ -39,7 +39,7 @@ define Package/peripheral_manager
 	CATEGORY:=Utilities
 	TITLE:=Application deamon for handling of peripheral
 	URL:=
-	DEPENDS:=+libuci +libubus +libblobmsg-json +PACKAGE_bcmkernel:bcmkernel +PACKAGE_bcmopen:bcmopen
+	DEPENDS:=+libuci +libubus +libblobmsg-json @+PACKAGE_bcmkernel:bcmkernel @+PACKAGE_bcmopen:bcmopen
 endef
 
 define Package/peripheral_manager/description
