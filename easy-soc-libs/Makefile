@@ -162,3 +162,4 @@ endef
 $(eval $(call BuildPackage,libwifi))
 $(eval $(call BuildPackage,libdsl))
 $(eval $(call BuildPackage,libethernet))
+$(eval $(call BuildPackage,easy-soc-libs))
