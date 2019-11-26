@@ -23,7 +23,7 @@ define Package/wifixd
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi status and configration utility (Deprecated)
-  DEPENDS:=+libwifix +libuci +libubox +ubus +libpthread +libnl-genl
+  DEPENDS:=+libuci +libubox +ubus +libpthread +libnl-genl
 endef
 
 define Package/wifixd/description
