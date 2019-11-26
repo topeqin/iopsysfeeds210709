@@ -24,7 +24,6 @@ define Package/sipcalc
   CATEGORY:=Network
   TITLE:=IPv6 IPv4 Calculation Program
   URL:=http://www.routemeister.net/projects/sipcalc/
-  DEPENDS:=+kmod-ipv6
 endef
 
 define Package/sipcalc/description
