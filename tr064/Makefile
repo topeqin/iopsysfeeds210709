@@ -24,7 +24,7 @@ define Package/tr064
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=tr064
-  DEPENDS:=+libubus +libuci +libubox +libmicroxml +libjson-c +libpthread +libdatamodel +libopenssl +libubus +libubox
+  DEPENDS:=+libubus +libuci +libubox +libmicroxml +libjson-c +libpthread +libopenssl +libubus +libubox
 endef
 
 define Package/tr064/description
