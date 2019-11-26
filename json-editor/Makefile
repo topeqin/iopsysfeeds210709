@@ -17,7 +17,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/json-editor
   SECTION:=base
   CATEGORY:=Libraries
-  DEPENDS:=+libjson-c +libblobmsg_json
+  DEPENDS:=+libjson-c +libblobmsg-json
   TITLE:=JSON-editor
 endef
 
