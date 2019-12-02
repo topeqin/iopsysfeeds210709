@@ -25,6 +25,7 @@ log_stdout=1		# set to 0 to prevent the log to also print to stdout
 upd_noreboot=0		# set to 1 if we should not reboot after programming
 upd_forceimage=0	# set this to force upgrade even if image is for wrong board.
 upd_forceboot=0		# set this to force upgrade of boot loader
+upd_keepconfig=0	# set this to keep the current configuration.
 ###############################################################################
 # import external functions
 source /lib/upgrade/iopsys.sh
@@ -153,11 +154,12 @@ function usage {
     echo ""
     echo "opts:"
     echo ""
-    echo "	-n	Do not do the final reboot of the target board"
-    echo "	-c	Keep configuration"
-    echo "	-x	Force install even if firmware is not for this board"
-    echo "	-b	Force install of bootloader regardless of version installed"
-    echo "	-r	Jump into chroot env of other system"
+    echo "	-n		Do not do the final reboot of the target board"
+    echo "	-c		Keep configuration"
+    echo "	-x		Force install even if firmware is not for this board"
+    echo "	-b		Force install of bootloader regardless of version installed"
+    echo "	-r		Jump into chroot env of other system"
+    echo "	-C \"command\"	Execute command in chroot env of other system"
 }
 
 # Execute command in newroot(other system root)
@@ -188,7 +190,7 @@ trap ctrl_c INT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
-while getopts "nrxbhc:" opt; do
+while getopts "nrxbhcC:" opt; do
     case $opt in
 	n)
 	    upd_noreboot=1
@@ -199,11 +201,14 @@ while getopts "nrxbhc:" opt; do
 	b)
 	    upd_forceboot=1
 	    ;;
+	c)
+	    upd_keepconfig=1
+	    ;;
 	r)
 	    newroot_exec /bin/sh
 	    exit 0
 	    ;;
-	c)
+	C)
 	    newroot_exec "${OPTARG}"
 	    exit 0
 	    ;;
@@ -271,8 +276,15 @@ mount_newroot
 chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline
 umount_newroot
 
-log "Update fully installed."
+log "New firmware fully installed."
 run_cleanup=0
+
+# handle configuration
+if [ $upd_keepconfig -eq 1 ]
+then
+    # newroot_exec /sbin/iopu_configurationsystem
+    log "Configuration handling not done yet!"
+fi
 
 # Now make sure that we actually boot the new system on the next reboot
 upd_finnish
@@ -293,10 +305,5 @@ then
 else
     log "Skipping reboot"
 fi
-
-
-
-
-
 
 
