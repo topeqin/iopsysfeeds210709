@@ -70,6 +70,18 @@ function finish {
     lock -u /tmp/iopu.lock
 }
 
+function ctrl_c {
+
+    # on ctrl-c we remove the exit handler as it is called directly.
+    trap - EXIT
+
+    # call cleanup function
+    finish
+
+    # do not continue program
+    exit 1
+}
+
 function sig_pipe {
     log_stdout=0  # stdin,stdout,stderr do not exist anymore
     log "Got sigpipe. Turning of log printing to stdout"
@@ -148,6 +160,17 @@ function usage {
     echo "	-r	Jump into chroot env of other system"
 }
 
+# Execute command in newroot(other system root)
+function newroot_exec {
+
+    upd_vol=$(get_flashbank_next)
+    mount_newroot
+    (ENV=/sbin/iopu_chroot_env chroot /tmp/newroot_overlay $1)
+    echo ""
+    umount_newroot
+
+}
+
 ###############################################################################
 
 # just one instance
@@ -161,10 +184,11 @@ then
 fi
 
 trap finish EXIT
+trap ctrl_c INT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
-while getopts "nrxbh" opt; do
+while getopts "nrxbhc:" opt; do
     case $opt in
 	n)
 	    upd_noreboot=1
@@ -176,11 +200,11 @@ while getopts "nrxbh" opt; do
 	    upd_forceboot=1
 	    ;;
 	r)
-	    upd_vol=$(get_flashbank_next)
-	    mount_newroot
-	    (ENV=/sbin/iopu_chroot_env chroot /tmp/newroot_overlay /bin/sh)
-	    echo ""
-	    umount_newroot
+	    newroot_exec /bin/sh
+	    exit 0
+	    ;;
+	c)
+	    newroot_exec "${OPTARG}"
 	    exit 0
 	    ;;
 	h)
