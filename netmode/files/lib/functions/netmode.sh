@@ -244,17 +244,16 @@ revert_netmode() {
 
 	ubus call leds set  '{"state" : "allflash"}'
 	logger -s -p user.info -t "netmode" "Could not switch to '$from' mode; going back to '$to' mode" > /dev/console
+	cp -af $CONF_BACKUP_DIR/* /etc/config/
+	sync
 	uci -q set netmode.setup.curmode="$to"
 	uci -q set netmode.setup.repeaterready="$rready"
 	uci commit netmode
-	cp -af $CONF_BACKUP_DIR/* /etc/config/
-	sync
 	rm -rf $CONF_BACKUP_DIR
 	rm -rf $OLD_MODE_FILE
 
 	logger -s -p user.info -t "netmode" "Restarting network services" > /dev/console
-	ubus call network reload
-	wifi reload
+	/etc/init.d/network restart
 	ubus call router.network reload
 	ubus call leds set  '{"state" : "normal"}'
 }
