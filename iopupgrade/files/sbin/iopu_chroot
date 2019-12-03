@@ -14,6 +14,7 @@
 # by functions declared in this script
 upd_forceboot=0
 log_stdout=1		# set to 0 to prevent the log to also print to stdout
+upd_keepconfig=0	# set this to keep the current configuration.
 
 ###############################################################################
 # import external functions
@@ -37,12 +38,15 @@ function log {
 }
 
 
-while getopts "hb" opt; do
+while getopts "hbc" opt; do
     case $opt in
 	h)
 	    upd_usage
 	    exit 1
 	    ;;
+	c)
+		upd_keepconfig=1
+		;;
 	b)
 	    upd_forceboot=1
 	    ;;
@@ -58,4 +62,10 @@ cp /tmp/oldroot/tmp/upd_log /root/upd_log
 
 # Upgrade boot loader if needed.
 function_call upd_program_boot
+
+# Let the new upgrade do whatever it needs,
+# such as configuration migration etc.
+if [ $upd_keepconfig -eq 1 -a -x /lib/upgrade/post-rootfs-fixup ]; then
+	(/lib/upgrade/post-rootfs-fixup) || exit
+fi
 

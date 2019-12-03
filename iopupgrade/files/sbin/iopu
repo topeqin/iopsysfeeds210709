@@ -271,6 +271,7 @@ log "Transfering configuration to new system."
 
 # Force upgrade of boot loader
 [ $upd_forceboot -eq 1 ] && chroot_cmdline="$chroot_cmdline -b"
+[ $upd_keepconfig -eq 1 ] && chroot_cmdline="$chroot_cmdline -c"
 
 mount_newroot
 chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline
