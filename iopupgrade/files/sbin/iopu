@@ -167,7 +167,7 @@ function newroot_exec {
 
     upd_vol=$(get_flashbank_next)
     mount_newroot
-    (ENV=/sbin/iopu_chroot_env chroot /tmp/newroot_overlay $1)
+    (ENV=/sbin/iopu_chroot_env chroot /tmp/newroot_overlay "$@")
     echo ""
     umount_newroot
 

@@ -27,7 +27,7 @@ source /lib/upgrade/iopsys.sh
 function_call() {
     if type "$1" 2>/dev/null >/dev/null
     then
-	$1 $@
+		$1 "$@" || exit
     fi
 }
 # Cleanup and error handling functions.
