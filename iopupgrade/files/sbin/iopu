@@ -206,11 +206,11 @@ while getopts "nrxbhcC:" opt; do
 	    ;;
 	r)
 	    newroot_exec /bin/sh
-	    exit 0
+	    exit
 	    ;;
 	C)
 	    newroot_exec "${OPTARG}"
-	    exit 0
+	    exit
 	    ;;
 	h)
 	    usage
