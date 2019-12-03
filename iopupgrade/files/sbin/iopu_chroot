@@ -25,7 +25,7 @@ source /lib/upgrade/iopsys.sh
 
 # only call function if it exists
 function_call() {
-    if type "$1" 2>/dev/null >/dev/null
+    if [ -n "$1" ] && type "$1" 2>/dev/null >/dev/null
     then
 		$1 "$@" || exit
     fi
