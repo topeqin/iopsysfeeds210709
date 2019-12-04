@@ -226,8 +226,7 @@ done
 # put a timeout on this if it takes longer than 120 seconds we should abort
 # and clean up
 (
-sleep 120	# if 2 minutes pass
-kill -ALRM $$	2>/dev/null # send it a SIGALRM signal
+	sleep 120 && kill -ALRM $$ 2>/dev/null		# send it a SIGALRM signal
 )&
 TIMEOUT_PID=$!
 
