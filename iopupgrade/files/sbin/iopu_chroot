@@ -66,6 +66,6 @@ function_call upd_program_boot
 # Let the new upgrade do whatever it needs,
 # such as configuration migration etc.
 if [ $upd_keepconfig -eq 1 -a -x /lib/upgrade/post-rootfs-fixup ]; then
-	(/lib/upgrade/post-rootfs-fixup) || exit
+	(/lib/upgrade/post-rootfs-fixup /dev/null /tmp/oldroot) || exit
 fi
 
