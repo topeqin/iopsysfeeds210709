@@ -25,36 +25,36 @@ source /lib/upgrade/iopsys.sh
 
 # only call function if it exists
 function_call() {
-    if [ -n "$1" ] && type "$1" 2>/dev/null >/dev/null
-    then
+	if [ -n "$1" ] && type "$1" 2>/dev/null >/dev/null
+	then
 		$1 "$@" || exit
-    fi
+	fi
 }
 # Cleanup and error handling functions.
 function log {
-    TIME=$(date)
-    [ $log_stdout -eq 1 ] && echo "$@"
-    echo "[$TIME] $@" >>/root/upd_log
+	TIME=$(date)
+	[ $log_stdout -eq 1 ] && echo "$@"
+	echo "[$TIME] $@" >>/root/upd_log
 }
 
 
 while getopts "hbc" opt; do
-    case $opt in
-	h)
-	    upd_usage
-	    exit 1
-	    ;;
-	c)
-		upd_keepconfig=1
-		;;
-	b)
-	    upd_forceboot=1
-	    ;;
-	\?)
-	    echo "Invalid option: -$OPTARG" >&2
-	    exit 1
-	    ;;
-    esac
+	case $opt in
+		h)
+			upd_usage
+			exit 1
+			;;
+		c)
+			upd_keepconfig=1
+			;;
+		b)
+			upd_forceboot=1
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" >&2
+			exit 1
+			;;
+	esac
 done
 
 # copy old install log over
