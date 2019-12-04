@@ -266,26 +266,24 @@ fi
 
 log "Firmware programmed to flash."
 
-
-log "Transfering configuration to new system."
-
 # Force upgrade of boot loader
 [ $upd_forceboot -eq 1 ] && chroot_cmdline="$chroot_cmdline -b"
-[ $upd_keepconfig -eq 1 ] && chroot_cmdline="$chroot_cmdline -c"
+
+if [ $upd_keepconfig -eq 1 ]; then
+	log "Transfering configuration to new system."
+	chroot_cmdline="$chroot_cmdline -c"
+fi
 
 mount_newroot
-chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline
+if ! chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline; then
+	log "Configuration migration failed!"
+	exit 1
+fi
 umount_newroot
 
 log "New firmware fully installed."
 run_cleanup=0
 
-# handle configuration
-if [ $upd_keepconfig -eq 1 ]
-then
-    # newroot_exec /sbin/iopu_configurationsystem
-    log "Configuration handling not done yet!"
-fi
 
 # Now make sure that we actually boot the new system on the next reboot
 upd_finnish
