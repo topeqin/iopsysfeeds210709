@@ -56,6 +56,7 @@ function finish {
     then
 
 	function_call upd_cleanup
+	run_cleanup=0
 	log ""
     fi
 
@@ -90,7 +91,6 @@ function sig_pipe {
 
 # if a timout happens terminate
 function timeout {
-    finish
     exit 1
 }
 
