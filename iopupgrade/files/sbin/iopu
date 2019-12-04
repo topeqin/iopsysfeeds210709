@@ -259,12 +259,9 @@ function_call upd_conf_kernel
 log "now starting writing data to flash with [ iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id ]"
 run_cleanup=1	# When we start to actually write data there might be some
 		# things that need cleanup if we get an error/crash
-iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id
-
-# in case of any error we abort
-if [ $? -ne 0 ]; then
-    log "iopupgrade program Failed"
-    exit 1
+if ! iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id; then
+	log "iopupgrade program Failed"
+	exit 1
 fi
 
 log "Firmware programmed to flash."
