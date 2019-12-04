@@ -67,7 +67,10 @@ function finish {
     fi
     # always kill the timeout process, will leave the sleep but that is harmless
     # as long as the kill will nerver be run.
-    kill $TIMEOUT_PID 2>/dev/null
+    if [ -n "$TIMEOUT_PID" ]; then
+        kill $TIMEOUT_PID 2>/dev/null
+        TIMEOUT_PID=""
+    fi
 
     lock -u /tmp/iopu.lock
 }
