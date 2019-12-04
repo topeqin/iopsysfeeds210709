@@ -149,6 +149,7 @@ function umount_newroot {
     umount /tmp/newroot_overlay/rom
     umount /tmp/newroot_overlay
     umount /tmp/newroot
+    rmdir /tmp/newroot_overlay /tmp/newroot
     run_mount_cleanup=0
 }
 
