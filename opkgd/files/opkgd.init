@@ -1,0 +1,20 @@
+#!/bin/sh /etc/rc.common
+
+START=94
+STOP=10
+
+USE_PROCD=1
+PROG=/usr/sbin/opkgd
+
+start_service() {
+	procd_open_instance
+	procd_set_param command ${PROG}
+	procd_set_param respawn
+	procd_close_instance
+}
+
+reload_service() {
+	stop
+	start
+}
+
