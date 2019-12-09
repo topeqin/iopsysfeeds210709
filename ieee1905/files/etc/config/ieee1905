@@ -1,0 +1,39 @@
+config ieee1905
+        option enabled '1'
+        option debug  true
+
+config meshcomms 'global'
+        option enabled '1'
+        option basemacint 'wan'
+        option mapall true
+#        option registrar 'rai0'
+        option debug_level  2
+        option port  8888
+        option cmdu_event false
+
+#config al-iface
+#        option enabled '1'
+#        option ifname 'br-lan'
+#        option media 'bridge'
+#        option manufacturer_name 'Broadcom'
+#        option model_name 'Eth EG400'
+#        option model_number '00002'
+#        option device_name 'EG400R1'
+
+#config al-iface
+#        option enabled '1'
+#        option ifname 'wl0'
+#        option media 'ap'
+#        option manufacturer_name 'Mediatek'
+#        option model_name 'WIFI EX400'
+#        option model_number '00001'
+#        option device_name 'EX400R0'
+
+#config al-iface
+#        option enabled '1'
+#        option ifname 'wl1'
+#        option media 'ap'
+#        option manufacturer_name 'Mediatek'
+#        option model_name 'WIFI EX400'
+#        option model_number '00001'
+#        option device_name 'EX400R0'

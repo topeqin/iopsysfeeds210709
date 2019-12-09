@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.1.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a6a39128b1fe5132e51de4f580bf66f373515dcd
+PKG_SOURCE_VERSION:=3008fe46ee9247f0203b3a125fddebadbdd7dcdc
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -20,16 +20,21 @@ define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 handler
-  DEPENDS:=+meshcomms +libubox +libubus +libblobmsg-json
+  DEPENDS:= +libwifi +ubox +libpicoevent +libpcap +libopenssl +libuci +libjson-c
 endef
 
 define Package/ieee1905/description
- Listens to ieee1905 messages, parse and expose them over ubus.
+ IEEE1905 stack with extended functionalities.
 endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
-	-D_GNU_SOURCE
+	-D_GNU_SOURCE \
+	-DSEND_EMPTY_TLVS \
+	-DFIX_BROKEN_TLVS \
+	-DSPEED_UP_DISCOVERY \
+	-DREGISTER_EXTENSION_BBF
+	#-DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS \
 
 #define Build/Prepare
 #        $(CP) -rf ./ieee1905/* $(PKG_BUILD_DIR)/
@@ -37,9 +42,16 @@ TARGET_CFLAGS += \
 
 define Package/ieee1905/install
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/hotplug.d
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
 	$(INSTALL_BIN) ./files/etc/init.d/ieee1905 $(1)/etc/init.d/ieee1905
+	$(INSTALL_BIN) ./files/etc/hotplug.d/button/11-ieee1905 $(1)/etc/hotplug.d/button/11-ieee1905
+	$(INSTALL_DATA) ./files/etc/config/ieee1905 $(1)/etc/config/ieee1905
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ieee1905 $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ieee1905d $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libs/*.so $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,ieee1905))
