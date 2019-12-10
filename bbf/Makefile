@@ -81,6 +81,7 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/libbbfdm
 	$(CP) $(PKG_BUILD_DIR)/*.h $(1)/usr/include/libbbfdm/
 	$(CP) $(PKG_BUILD_DIR)/dmtree/tr181/*.h $(1)/usr/include/libbbfdm/
+	$(CP) $(PKG_BUILD_DIR)/dmtree/tr157/*.h $(1)/usr/include/libbbfdm/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.{a,so*} $(1)/usr/lib/
 endef
