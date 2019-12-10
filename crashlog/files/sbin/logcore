@@ -52,10 +52,9 @@ cat >/dev/null
 
 nr=$(db get hw.board.serialNumber)
 hw=$(db get hw.board.hardware)
-hwv=$(db get hw.board.hardwareVersion)
-bid=$(db get hw.board.boardId)
+fam=$(hw.board.iopVerFam)
 sw=$(db get hw.board.iopVersion)
 
-scp -S /usr/sbin/logssh $TMP_CORE log@${server}:log/core_${1}_${2}_${bid}_${hwv}_${hw}_${sw}_${nr}
+scp -S /usr/sbin/logssh $TMP_CORE log@${server}:log/core_${1}_${2}_${fam}_${hw}_${sw}_${nr}
 rm $TMP_CORE
 

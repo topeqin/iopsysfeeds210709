@@ -6,14 +6,13 @@ send_log()
 {
 	nr=$(db get hw.board.serialNumber)
 	hw=$(db get hw.board.hardware)
-	hwv=$(db get hw.board.hardwareVersion)
-	bid=$(db get hw.board.boardId)
+	fam=$(db get hw.board.iopVerFam)
 	sw=$(db get hw.board.iopVersion)
 	server=$(/sbin/uci get system.crashlog.server)
 
 	while true
 	do
-	    scp  -S /usr/sbin/logssh /proc/last_kmsg log@${server}:log/${bid}_${hwv}_${hw}_${sw}_${nr}
+	    scp  -S /usr/sbin/logssh /proc/last_kmsg log@${server}:log/${fam}_${hw}_${sw}_${nr}
 	    if [ $? == 0 ]
 	    then
 	       break;
