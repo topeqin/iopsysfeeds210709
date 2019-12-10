@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2019-10-17
+PKG_VERSION:=4.0-2019-12-07
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=9cfbfa9a381d372643fe18f8c258779bed3ee3bd
+PKG_SOURCE_VERSION:=33eb15471d8f40aab139ac3cdb1b4f6d0f3bb6df
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -33,45 +33,52 @@ CWMP_REVISION=$(shell svnversion ./src/ -n|cut -f2 -d:)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/icwmp_stun
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE:=TR-069 stun Client
-	DEPENDS:=+libubus +libuci +libubox +libjson-c +libopenssl +libblobmsg-json
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=TR-069 stun Client
+  DEPENDS:=+libubus +libuci +libubox +libjson-c +libopenssl +libblobmsg-json
 endef
 
 define Package/icwmp_xmpp
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE:=TR-069 xmpp feature
-	DEPENDS:=+libuci +libubox +libexpat +libstrophe
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=TR-069 xmpp feature
+  DEPENDS:=+libuci +libubox +libexpat +libstrophe
 endef
 
 define Package/icwmp_twamp
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE:=TR-069 twamp feature
-	DEPENDS:=+libuci
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=TR-069 twamp feature
+  DEPENDS:=+libuci
 endef
 
 define Package/icwmp_udpechoserver
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE:=TR-069 udpechoserver feature
-	DEPENDS:=+libuci
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=TR-069 udpechoserver feature
+  DEPENDS:=+libuci
 endef
 
 define Package/icwmp_bulkdata
- SECTION:=utils
- CATEGORY:=Utilities
- TITLE:=TR-069 BulkData Collection
- DEPENDS:=+libubus +libuci +libubox +libjson-c +libcurl +curl +libblobmsg-json +libbbfdm
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=TR-069 BulkData Collection
+  DEPENDS:=+libubus +libuci +libubox +libjson-c +libcurl +curl +libblobmsg-json +libbbfdm
+endef
+
+define Package/icwmp-tr098
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=CWMP client for TR-098 Data Model
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libcurl +libtr098
 endef
 
 define Package/icwmp/Default
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libbbfdm +libtr098
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libbbfdm
 endef
 
 define Package/icwmp/description
@@ -101,10 +108,6 @@ ifneq ($(USE_LOCAL),)
 define Build/Prepare
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
-endif
-
-ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
-TARGET_CFLAGS += -DEX400
 endif
 
 TARGET_CFLAGS += \
@@ -158,21 +161,10 @@ CONFIGURE_ARGS += \
 	--enable-devel
 endif
 
-ifeq ($(CONFIG_PACKAGE_libtr098),y)
-CONFIGURE_ARGS += \
-	--enable-tr098
-endif
-
-CONFIGURE_ARGS += \
-	--enable-tr181
-
 define Package/icwmp-$(BUILD_VARIANT)/install
 	$(INSTALL_DIR) $(1)/etc/icwmpd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_BUILD_DIR)/bin/icwmpd $(1)/usr/sbin
-ifeq ($(CONFIG_PACKAGE_libtr098),y)
-	$(CP) $(PKG_BUILD_DIR)/bin/icwmp_tr098d $(1)/usr/sbin
-endif
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/firewall.cwmp $(1)/etc/firewall.cwmp
@@ -188,6 +180,11 @@ ifeq ($(CONFIG_CWMP_SCRIPTS_FULL),y)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/icwmp.sh $(1)/usr/sbin/icwmp
 endif
 	$(CP) ./files/* $(1)/
+endef
+
+define Package/icwmp-tr098/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(CP) $(PKG_BUILD_DIR)/bin/icwmp_tr098d $(1)/usr/sbin
 endef
 
 define Package/icwmp_stun/install
@@ -261,3 +258,5 @@ $(eval $(call BuildPackage,icwmp_xmpp))
 $(eval $(call BuildPackage,icwmp_udpechoserver))
 $(eval $(call BuildPackage,icwmp_twamp))
 $(eval $(call BuildPackage,icwmp_bulkdata))
+$(eval $(call BuildPackage,icwmp-tr098))
+$(eval $(call BuildPackage,icwmp-zstream))
