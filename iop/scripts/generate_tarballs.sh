@@ -119,7 +119,7 @@ function generate_tarballs {
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment
 
     target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
-    board=$(grep CONFIG_TARGET_IBOARDID .config | cut -d'=' -f2 | tr -d '"')
+    board=$(grep CONFIG_TARGET_FAMILY .config | cut -d'=' -f2 | tr -d '"')
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
     majver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f1 -d .)
     minver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f2 -d .)
