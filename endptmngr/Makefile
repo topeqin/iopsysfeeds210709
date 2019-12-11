@@ -43,7 +43,7 @@ define Package/endptmngr
   CATEGORY:=Utilities
   TITLE:=Brcmslic
   URL:=
-  DEPENDS:= +libubox +ubus +libpicoevent +PACKAGE_bcmkernel:bcmkernel +PACKAGE_bcmopen:bcmopen @(PACKAGE_bcmkernel||PACKAGE_bcmopen) @TARGET_HAS_VOICE
+  DEPENDS:= +libubox +ubus +libpicoevent @+PACKAGE_bcmkernel:bcmkernel @+PACKAGE_bcmopen:bcmopen @(PACKAGE_bcmkernel||PACKAGE_bcmopen) @TARGET_HAS_VOICE
 endef
 
 define Package/endptmngr/description
