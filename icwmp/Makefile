@@ -113,6 +113,11 @@ endif
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
 
+ifeq ($(CONFIG_PACKAGE_icwmp-tr098),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_tr098
+endif
+
 ifneq ($(CWMP_REVISION)_,_)
 ifneq ($(CWMP_REVISION),exported)
 ifneq ($(CWMP_REVISION),Unversioned directory)
