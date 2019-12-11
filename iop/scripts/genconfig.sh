@@ -344,6 +344,8 @@ function genconfig {
 		# Set target version
 		local GIT_TAG=$(git describe --abbrev=0 --tags)
 		echo "CONFIG_TARGET_VERSION=\"${GIT_TAG}\"" >> .config
+		echo "CONFIG_VERSION_CODE=\"${GIT_TAG}\"" >> .config
+		echo "CONFIG_VERSION_PRODUCT=\"$BOARDTYPE"\" >> .config
 
 		# Enable Pckage source tree override if selected
 		[ $SRCTREEOVERR -eq 1 ] && echo CONFIG_SRC_TREE_OVERRIDE=y >> .config
