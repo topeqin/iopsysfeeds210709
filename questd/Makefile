@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=4.1.1
+PKG_VERSION:=5.0.0
 
-PKG_SOURCE_VERSION:=89619c1ae8243812a71cdc0ae31491e74866f4be
+PKG_SOURCE_VERSION:=ff1db5af789da87666c230548df32a9a71b3fb27
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/questd
 
@@ -20,30 +20,9 @@ PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/cmake.mk
 
-ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
-QUESTD_TARGET:=-DIOPSYS_BROADCOM
-KERNEL_DIR:=$(BUILD_DIR)/bcmkernel/bcm963xx
-else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
-QUESTD_TARGET:=-DIOPSYS_BROADCOM
-else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
-QUESTD_TARGET:=-DIOPSYS_MARVELL
-else ifeq ($(CONFIG_TARGET_intel_mips),y)
-# BUG FIXME the Intel mips target is not handled in questd this is just to get it to compile
-QUESTD_TARGET:=-DIOPSYS_INTEL
-else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
-QUESTD_TARGET:=-DIOPSYS_MEDIATEK
-QUESTD_CFLAGS:=\
-	-I$(STAGING_DIR)/usr/include \
-	-I$(STAGING_DIR)/usr/include/libnl-tiny
-else
-$(info (UNEXPECTED CONFIG TARGET))
-endif
-QUESTD_CFLAGS:=$(QUESTD_CFLAGS) $(QUESTD_TARGET)
-
-export QUESTD_TARGET
-export KERNEL_DIR
-export QUESTD_CFLAGS
+PKG_INSTALL:=
 
 define Package/questd
 	CATEGORY:=Utilities
@@ -60,10 +39,6 @@ define Package/questd/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/questd $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wificontrol $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/graphd $(1)/sbin/
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netcheck $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,questd))
