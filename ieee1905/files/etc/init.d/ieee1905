@@ -50,7 +50,7 @@ get_interface_mac() {
 	local rest=$(echo $basemac |cut -d : -f 2-)
 	# Set local bit
 	first=$((first|2))
-	first=$(printf "%x" $first)
+	first=$(printf "%02x" $first)
 	basemac="${first}:${rest}"
 	echo ${basemac}
 }
