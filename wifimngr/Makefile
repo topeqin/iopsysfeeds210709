@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifimngr
-PKG_VERSION:=2.4.0
+PKG_VERSION:=2.5.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=4b876ccabc1df73202bfb165b35fd6464ed019aa
+PKG_SOURCE_VERSION:=00e29842d8082a6240fbdb3bbceb36b09dc53861
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wifimngr.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
@@ -37,15 +37,6 @@ TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
 	-I$(STAGING_DIR)/usr/include/libnl3 \
 	-D_GNU_SOURCE
-
-#MAKE_FLAGS += \
-	CFLAGS="$(TARGET_CFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS)" \
-	FPIC="$(FPIC)"
-
-#define Build/Compile
-#	+$(MAKE_VARS) $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS)
-#endef
 
 define Package/wifimngr/install
 	$(INSTALL_DIR) $(1)/etc/init.d
