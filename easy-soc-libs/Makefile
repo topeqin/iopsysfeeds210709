@@ -2,18 +2,18 @@
 # Copyright (C) 2019 iopsys Software Solutions AB
 #
 # This is free software, licensed under the GNU General Public License v2.
-# 
+#
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-soc-libs
-PKG_VERSION:=2.4.1
+PKG_VERSION:=2.5.0
 PKG_RELEASE:=1
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=0accbd7266b2742ad8921edd5dab974fc384a49a
+PKG_SOURCE_VERSION:=6bf3911521b6c9072c20798c59390280afd0f16f
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
