@@ -77,16 +77,15 @@ build_wifilife_consumer() {
 }
 
 build_mediatek_kernel() {
-	local mediatek_commit kernel_version kernel
+	local mediatek_commit kernel
 
 	mediatek_commit=$(grep CONFIG_KERNEL_GIT_COMMIT .config | cut -d '=' -f2 | tr -d '"')
-	kernel_version=$(grep KERNEL_PATCHVER target/linux/iopsys-ramips/Makefile  | cut -d '=' -f2)
-	kernel=linux-${kernel_version}.*
+	kernel=linux-git*
 	[ -n "$mediatek_commit" ] || return
 	ssh $SERVER "test -f $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
 	echo "Building mediatek kernel tarball from kernel commit:"	
 	echo $mediatek_commit
-	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/$kernel
+	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/linux-git*
 
 	# Save Kconfig files to recreate the same kernel config,
 	# delete everyting else.
