@@ -64,12 +64,13 @@ validate_al_section()
 		'manufacturer_name:string:iopsys' \
 		'model_name:string' \
 		'model_number:string' \
-		'device_name:string'
+		'device_name:string' \
+		'serial_number:string'
 }
 
 configure_interface()
 {
-	local ifname media enabled manufacturer_name model_name model_number device_name
+	local ifname media enabled manufacturer_name model_name model_number device_name serial_number
 	validate_al_section ${1} || {
 		echo "Validation of global section failed"
 		return 1;
@@ -85,6 +86,14 @@ configure_interface()
 		INTERFACE="${INTERFACE},${ifname}"
 	fi
 
+	local uuid=$(cat /proc/sys/kernel/random/uuid)
+	local ifindex=$(cat /sys/class/net/${ifname}/upper_*/ifindex 2>/dev/null)
+	if [ -z ${ifindex} ]; then
+		ifindex=$(cat /sys/class/net/${ifname}/ifindex)
+	fi
+
+	echo "Interface ${ifname} ifindex |${ifindex}|" >>/dev/console
+
 	json_add_object
 	json_add_string ifname ${ifname}
 	json_add_string media ${media}
@@ -92,6 +101,9 @@ configure_interface()
 	json_add_string model_name ${model_name}
 	json_add_string model_number ${model_number}
 	json_add_string device_name ${device_name}
+	json_add_string serial_number ${serial_number}
+	json_add_string uuid ${uuid}
+	json_add_int ifindex ${ifindex}
 	json_close_object
 }
 

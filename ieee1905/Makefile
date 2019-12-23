@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=1.1.1
+PKG_VERSION:=1.1.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=16211b2eb15c5fd0670f4bd93ded2139b002cc15
+PKG_SOURCE_VERSION:=dfc91ea4420ae34a10af7ad3a021a3496b84d565
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -20,7 +20,7 @@ define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 handler
-  DEPENDS:= +libwifi +ubox +libpicoevent +libpcap +libopenssl +libuci +libjson-c
+  DEPENDS:= +ubox +libpicoevent +libpcap +libopenssl +libuci +libjson-c
 endef
 
 define Package/ieee1905/description
@@ -33,9 +33,9 @@ TARGET_CFLAGS += \
 	-DSEND_EMPTY_TLVS \
 	-DFIX_BROKEN_TLVS \
 	-DSPEED_UP_DISCOVERY \
-	-DREGISTER_MULTIAP_FEATURE
+	-DREGISTER_MULTIAP_FEATURE \
+	-DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
 	#-DREGISTER_EXTENSION_BBF
-	#-DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS \
 
 #define Build/Prepare
 #        $(CP) -rf ./ieee1905/* $(PKG_BUILD_DIR)/
