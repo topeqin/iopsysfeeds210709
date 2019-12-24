@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=1.1.2
+PKG_VERSION:=1.1.3
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=9b6b93b7cd03ef8ecf4948b019ff98652b005acc
+PKG_SOURCE_VERSION:=5662473a82582b00f35c7e8915734f033a2fe789
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -44,10 +44,7 @@ TARGET_CFLAGS += \
 define Package/ieee1905/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DIR) $(1)/etc/hotplug.d
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
 	$(INSTALL_BIN) ./files/etc/init.d/ieee1905 $(1)/etc/init.d/ieee1905
-	$(INSTALL_BIN) ./files/etc/hotplug.d/button/11-ieee1905 $(1)/etc/hotplug.d/button/11-ieee1905
 	$(INSTALL_DATA) ./files/etc/config/ieee1905 $(1)/etc/config/ieee1905
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/lib
