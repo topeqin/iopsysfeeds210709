@@ -6,10 +6,11 @@ config meshcomms 'global'
         option enabled '1'
         option basemacint 'wan'
         option mapall true
-#        option registrar 'rai0'
+#        option registrar 'wl0'
         option debug_level  2
         option port  8888
         option cmdu_event false
+        option discovery_timer 300
 
 #config al-iface
 #        option enabled '1'
