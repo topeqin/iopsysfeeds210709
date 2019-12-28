@@ -36,6 +36,13 @@ define Package/libbbfdm/description
  Test description will update later.
 endef
 
+USE_LOCAL=$(shell ls ./src/ 2>/dev/null >/dev/null && echo 1)
+ifneq ($(USE_LOCAL),)
+define Build/Prepare
+	$(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
+endif
+
 TARGET_CFLAGS += -DCUSTOM_PREFIX=\\\"$(CONFIG_LIBBBFDM_VENDOR_PREFIX)\\\"
 
 TARGET_CFLAGS += \
