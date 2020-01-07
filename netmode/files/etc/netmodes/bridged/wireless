@@ -38,10 +38,10 @@ config wifi-iface
 	option device 'wl0'
 	option network 'lan'
 	option mode 'ap'
-	option ssid 'iopsys-$BSSID4'
+	#option ssid AUTO-CREATED AT FIRST BOOT
 	option encryption 'psk2'
 	option cipher 'auto'
-	option key '$WPAKEY'
+	#option key AUTO-CREATED AT FIRST BOOT
 	option gtk_rekey '3600'
 	option macfilter 'disable'
 	option wps '1'
@@ -78,10 +78,10 @@ config wifi-iface
 	option device 'wl1'
 	option network 'lan'
 	option mode 'ap'
-	option ssid 'iopsys-$BSSID4'
+	#option ssid AUTO-CREATED AT FIRST BOOT
 	option encryption 'mixed-psk'
 	option cipher 'auto'
-	option key '$WPAKEY'
+	#option key AUTO-CREATED AT FIRST BOOT
 	option gtk_rekey '3600'
 	option macfilter 'disable'
 	option wps '1'

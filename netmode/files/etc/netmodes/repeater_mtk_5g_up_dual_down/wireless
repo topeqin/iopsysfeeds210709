@@ -19,9 +19,9 @@ config wifi-iface
 	option device   ra0
 	option network  wan
 	option mode     ap
-	option ssid     iopsys-$BSSID4
+	#option ssid AUTO-CREATED AT FIRST BOOT
 	option encryption psk2
-	option key      $WPAKEY
+	#option key AUTO-CREATED AT FIRST BOOT
 	option ifname	ra0
 	option wps	1
 
@@ -38,9 +38,9 @@ config wifi-iface
 	option device   rai0
 	option network  wan
 	option mode     ap
-	option ssid     iopsys-$BSSID4
+	#option ssid AUTO-CREATED AT FIRST BOOT
 	option encryption psk2
-	option key      $WPAKEY
+	#option key AUTO-CREATED AT FIRST BOOT
 	option ifname	rai0
 	option wps	1
 
@@ -48,8 +48,8 @@ config wifi-iface
 	option device   rai0
 	option network  wan
 	option mode     wet
-	option ssid     iopsys-$BSSID4
+	#option ssid AUTO-CREATED AT FIRST BOOT
 	option encryption psk2
-	option key      $WPAKEY
+	#option key AUTO-CREATED AT FIRST BOOT
 	option ifname	apclii0
 

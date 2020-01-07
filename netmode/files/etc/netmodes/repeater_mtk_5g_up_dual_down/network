@@ -6,21 +6,24 @@ config interface 'loopback'
 
 config device 'lan_dev'
 	option name 'eth0.1'
-	option macaddr '$MACLAN'
+	# Unused?
+	#option macaddr '$MACLAN'
 	option vid 1
 
 config interface 'wan'
 	option type 'bridge'
 	option ifname 'eth0.2 eth0.1'
 	option proto 'dhcp'
-	option hostname 'iopsys-$MAC'
+	#option hostname AUTO-CREATED AT FIRST BOOT
 	option reqopts '66 67 128 224'
 	option igmp_snooping '0'
-	option macaddr '$MACWAN'
+	# Unused?
+	#option macaddr '$MACWAN'
 
 config device 'wan_dev'
 	option name 'eth0.2'
-	option macaddr '$MACWAN'
+	# Unused?
+	#option macaddr '$MACWAN'
 	option vid 2
 
 config interface 'wan6'
