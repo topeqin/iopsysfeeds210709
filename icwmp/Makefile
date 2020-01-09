@@ -43,7 +43,7 @@ define Package/icwmp_xmpp
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=TR-069 xmpp feature
-  DEPENDS:=+libuci +libstrophe
+  DEPENDS:=+libuci +libubox +libexpat +libstrophe
 endef
 
 define Package/icwmp_twamp
