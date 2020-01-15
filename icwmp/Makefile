@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2019-12-28
+PKG_VERSION:=4.0-2020-01-15
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=b3c9b384ccf9d48a9b4dac953586f5230cfd6fc2
+PKG_SOURCE_VERSION:=f53b68619dad73ae8b6e5aac8e5d0c956507f049
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -116,6 +116,31 @@ TARGET_CFLAGS += \
 ifeq ($(CONFIG_PACKAGE_icwmp-tr098),y)
 CONFIGURE_ARGS += \
 	--enable-icwmp_tr098
+endif
+
+ifeq ($(CONFIG_PACKAGE_icwmp_xmpp),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_xmpp
+endif
+
+ifeq ($(CONFIG_PACKAGE_icwmp_stun),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_stun
+endif
+
+ifeq ($(CONFIG_PACKAGE_icwmp_udpechoserver),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_udpechoserver
+endif
+
+ifeq ($(CONFIG_PACKAGE_icwmp_twamp),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_twamp
+endif
+
+ifeq ($(CONFIG_PACKAGE_icwmp_bulkdata),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_bulkdata
 endif
 
 ifneq ($(CWMP_REVISION)_,_)
