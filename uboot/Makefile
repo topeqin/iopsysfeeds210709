@@ -134,13 +134,12 @@ define Package/uboot/install/default
 	$(if $(CONFIG_TARGET_intel_mips), ,$(CP) ./files/uboot $$(1)/etc/init.d/)
 
 	$(INSTALL_DIR) $(BIN_DIR)/$(TARGET)
-	$(INSTALL_DIR) $$(1)/boot
 	$(CP) \
 		$(PKG_BUILD_DIR)/$(UBOOT_IMG) \
 		$(BIN_DIR)/$(TARGET)/uboot.img
 	$(CP) \
 		$(PKG_BUILD_DIR)/$(UBOOT_IMG) \
-		$$(1)/boot/uboot.img
+		$(wildcard $(BUILD_DIR)/linux-$(BOARD)*)/uboot.img
 
 	$(INSTALL_DIR) $$(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv $$(1)/usr/sbin/
