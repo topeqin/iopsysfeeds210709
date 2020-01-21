@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2020-01-15
+PKG_VERSION:=4.0-2020-01-21
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=f53b68619dad73ae8b6e5aac8e5d0c956507f049
+PKG_SOURCE_VERSION:=c2aef839594edd4cef580b105d510c2ad09bf6a5
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -99,7 +99,7 @@ define Package/icwmp-zstream
   VARIANT:=zstream
 endef
 
-define Package/icwmp-zstream/config
+define Package/icwmp-curl/config
 	source "$(SOURCE)/Config_cwmp.in"
 endef
 
