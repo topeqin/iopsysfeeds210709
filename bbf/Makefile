@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=1.0-2019-12-28
+PKG_VERSION:=1.1-2020-01-21
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=87df7048821fb8a6dcd35f0959f97aa08688f53b
+PKG_SOURCE_VERSION:=4ab526b9f2aea6b48079d215dfd63bd63f075579
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -21,19 +21,30 @@ PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
+define Package/libbbf_api
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE:=Library for libbbfdm API
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c
+endef
+
 define Package/libbbfdm
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Library for broadband-forum data model
-  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api
 endef
 
 define Package/libbbfdm/config
 	source "$(SOURCE)/Config_bbfdm.in"
 endef
 
+define Package/libbbf_api/description
+ Library contains the API(UCI, UBUS, JSON, CLI and Browse) of libbbfdm
+endef
+
 define Package/libbbfdm/description
- Test description will update later.
+ Library contains the data model tree. It includes TR181, TR104, TR143, TR157 and TR064 data models
 endef
 
 USE_LOCAL=$(shell ls ./src/ 2>/dev/null >/dev/null && echo 1)
@@ -73,6 +84,11 @@ CONFIGURE_ARGS += \
 	--enable-tr064
 endif
 
+define Package/libbbf_api/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbf_api.so* $(1)/lib/
+endef
+
 define Package/libbbfdm/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.so* $(1)/lib/
@@ -81,16 +97,20 @@ define Package/libbbfdm/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/bbfdm
 	$(INSTALL_DIR) $(1)/usr/share/bbfdm
 	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/bbfdm
+	$(INSTALL_DIR) $(1)/usr/lib/bbfdm
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/include/libbbfdm
+	$(INSTALL_DIR) $(1)/usr/include/libbbf_api
 	$(CP) $(PKG_BUILD_DIR)/*.h $(1)/usr/include/libbbfdm/
 	$(CP) $(PKG_BUILD_DIR)/dmtree/tr181/*.h $(1)/usr/include/libbbfdm/
 	$(CP) $(PKG_BUILD_DIR)/dmtree/tr157/*.h $(1)/usr/include/libbbfdm/
+	$(CP) $(PKG_BUILD_DIR)/libbbf_api/*.h $(1)/usr/include/libbbf_api/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.{a,so*} $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbf_api.{a,so*} $(1)/usr/lib/
 endef
 
+$(eval $(call BuildPackage,libbbf_api))
 $(eval $(call BuildPackage,libbbfdm))
