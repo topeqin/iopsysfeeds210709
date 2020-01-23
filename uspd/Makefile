@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uspd
-PKG_VERSION:=1.0.5
+PKG_VERSION:=1.0.6
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a1263e71d35c6e6d184ee853485ee700d5bfb134
+PKG_SOURCE_VERSION:=bd9cc62e1c95c6fc303a05d8324cf66a6fde892e
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/uspd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -35,7 +35,7 @@ TARGET_CFLAGS += \
 	-D_GNU_SOURCE
 
 #define Build/Prepare
-#        $(CP) -rf ./uspd/* $(PKG_BUILD_DIR)/
+#	$(CP) -rf ./uspd/* $(PKG_BUILD_DIR)/
 #endef
 
 define Package/uspd/install
