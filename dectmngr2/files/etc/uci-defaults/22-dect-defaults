@@ -12,7 +12,7 @@ if [ -e "/proc/nvram/BoardId" ]; then
 		echo "0xfffffff2" >/proc/nvram/ulBoardStuffOption
 
 		db -q batch <<-EOT
-			set hw.board.hasDect=1
+			set hw.board.has_dect=1
 			commit hw.board
 		EOT
 	fi

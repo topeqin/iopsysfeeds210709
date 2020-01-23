@@ -382,7 +382,7 @@ populate_netmodes() {
 		fi
 	done
 
-	local hardware=$(db get hw.board.hardware)
+	local hardware=$(db get hw.board.model_name)
 	local keys lang desc exp exclude support
 	for mode in $(ls $MODEDIR); do
 

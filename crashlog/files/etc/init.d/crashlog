@@ -4,8 +4,8 @@ START=99
 
 send_log()
 {
-	nr=$(db get hw.board.serialNumber)
-	hw=$(db get hw.board.hardware)
+	nr=$(db get hw.board.serial_number)
+	hw=$(db get hw.board.model_name)
 	fam=$(db get hw.board.iopVerFam)
 	sw=$(db get hw.board.iopVersion)
 	server=$(/sbin/uci get system.crashlog.server)

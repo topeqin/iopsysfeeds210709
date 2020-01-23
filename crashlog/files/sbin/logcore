@@ -50,8 +50,8 @@ cat >$TMP_CORE
 # more memory to work with. normally this would do nothing.
 cat >/dev/null
 
-nr=$(db get hw.board.serialNumber)
-hw=$(db get hw.board.hardware)
+nr=$(db get hw.board.serial_number)
+hw=$(db get hw.board.model_name)
 fam=$(hw.board.iopVerFam)
 sw=$(db get hw.board.iopVersion)
 
