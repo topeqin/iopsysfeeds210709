@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.1
+PKG_VERSION:=2.0.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a0ddea0c372f7827d6562d11808bb91d114b4c68
+PKG_SOURCE_VERSION:=77c8a0cbae7780c53b7edee8c789a0b3eefc498a
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -62,7 +62,7 @@ TARGET_CFLAGS += \
 
 
 #define Build/Prepare
-#        $(CP) -rf ./ieee1905/* $(PKG_BUILD_DIR)/
+#	$(CP) -rf ./ieee1905/* $(PKG_BUILD_DIR)/
 #endef
 
 define Package/ieee1905/install
