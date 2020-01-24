@@ -26,6 +26,7 @@ db_set() {
 validate_obuspa_section()
 {
 	uci_validate_section obuspa obuspa "${1}" \
+		'enable:bool:true' \
 		'cert:string:"/etc/obuspa/rootCA.pem"' \
 		'interface:string:wan' \
 		'debug:bool:false'
@@ -163,12 +164,16 @@ configure_connection() {
 }
 
 configure_obuspa() {
-	local cert interface debug
+	local enable cert interface debug
 
 	validate_obuspa_section "${1}" || {
 		log "Validation of section failed"
 		return 1;
 	}
+
+	[ ${enable} -eq 0 ] && \
+		echo "obuspa not enabled" >>/dev/console && \
+		exit
 
 	if [ ${debug} -eq 1 ]; then
 		# Forward stdout of the command to logd

@@ -3,6 +3,7 @@
 # details, always defined in groups
 
 config obuspa
+	option enable 'true'
 	option cert '/etc/obuspa/rootCA.pem'
 	option interface 'wan'
 	option debug 'false'
