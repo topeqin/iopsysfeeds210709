@@ -10,7 +10,8 @@ config meshcomms 'global'
         option debug_level  2
         option port  8888
         option cmdu_event false
-        option discovery_timer 300
+        option discovery_timer 60
+        option multiap_plugin false
 
 #config al-iface
 #        option enabled '1'
