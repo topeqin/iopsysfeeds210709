@@ -188,7 +188,7 @@ configure_obuspa() {
 	export USP_BOARD_IFNAME=${l3device}
 
 	# Set this variable for root user
-	echo "export USP_BOARD_IFNAME=${l3device}">/root/.profile
+	echo "export USP_BOARD_IFNAME=${l3device}">>/root/.profile
 
 	[ -f $cert ] && certificate=$cert
 
