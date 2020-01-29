@@ -230,18 +230,20 @@ function genconfig {
 
 	setup_dirs()
 	{
-		if git ls-remote $CUSTREPO -q 2>/dev/null; then
-			if [ ! -d "$CUSTPATH" ]; then
-				git clone "$CUSTREPO" "$CUSTPATH"
-			elif [ $IMPORT -eq 1 ]; then
-				cd $CUSTPATH
-				v "git pull"
-				git pull
-				cd - >/dev/null #go back
+		git remote -v | grep -q http || {
+			if git ls-remote $CUSTREPO -q 2>/dev/null; then
+				if [ ! -d "$CUSTPATH" ]; then
+					git clone "$CUSTREPO" "$CUSTPATH"
+				elif [ $IMPORT -eq 1 ]; then
+					cd $CUSTPATH
+					v "git pull"
+					git pull
+					cd - >/dev/null #go back
+				fi
+			else
+				echo "You do not have access to $CUSTREPO"
 			fi
-		else
-			echo "You do not have access to $CUSTREPO"
-		fi
+		}
 
 		if [ ! -d "$FILEDIR" ]; then
 			mkdir -p $FILEDIR
