@@ -11,7 +11,7 @@ config meshcomms 'global'
         option port  8888
         option cmdu_event false
         option discovery_timer 60
-        option multiap_plugin false
+        option map_plugin false
 
 #config al-iface
 #        option enabled '1'

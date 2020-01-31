@@ -20,7 +20,7 @@ validate_global_section()
 		'port:port:8888' \
 		'cmdu_event:bool:true' \
 		'discovery_timer:uinteger:60' \
-		'multiap_plugin:bool:false'
+		'map_plugin:bool:false'
 }
 
 validate_ieee1905_section()
@@ -112,7 +112,7 @@ configure_interface()
 configure_meshcomms()
 {
 	local enabled almac basemacint mapall debug_level port l3device basemac intf registrar cmdu_event discovery_timer
-	local multiap_plugin
+	local map_plugin
 
 	validate_global_section global || {
 		echo "Validation of global section failed"
@@ -153,7 +153,7 @@ configure_meshcomms()
 	json_add_int port ${port}
 	json_add_int cmdu_event ${cmdu_event}
 	json_add_int discovery_timer ${discovery_timer}
-	json_add_int multiap_plugin ${multiap_plugin}
+	json_add_int map_plugin ${map_plugin}
 	json_close_object
 
 	json_dump >${MESH_CONF}
