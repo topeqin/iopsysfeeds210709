@@ -4,6 +4,9 @@
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
+# intel_mips branch:
+# iopsys 4.x: iop_grx-ugw-8.1.1-ga
+# iopsys 5.x: iop_grx-ugw-8.4.1.30 
 
 include $(TOPDIR)/rules.mk
 
@@ -14,7 +17,7 @@ PKG_SOURCE_PROTO:=git
 
 ifdef CONFIG_TARGET_intel_mips
 PKG_SOURCE_URL:=git@dev.iopsys.eu:intel/uboot.git
-PKG_SOURCE_VERSION:=19dde95c2bba420d5ead96b0dd5aea8dc7979ec0
+PKG_SOURCE_VERSION:=4ec482e39c6c0effdbde8fabbc8232b41bc833f5
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/uboot.git
 PKG_SOURCE_VERSION:=670ad7a30f3c6871b6c8a972e19ca2dd78ea8c9b
@@ -61,7 +64,7 @@ define uboot/grx500
   TITLE:=U-Boot for the grx
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
-  PKG_RELEASE:=10
+  PKG_RELEASE:=11
 endef
 
 # obsolete: no longer supported
@@ -76,7 +79,7 @@ define uboot/grx500_norrland
   TITLE:=U-Boot for Norrland Board
   UBOOT_IMG:=u-boot-nand.bin
   DEPENDS:=@TARGET_intel_mips
-  PKG_RELEASE:=15
+  PKG_RELEASE:=16
 endef
 
 UBOOTS := \
