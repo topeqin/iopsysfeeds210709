@@ -2,21 +2,22 @@ config ieee1905
         option enabled '1'
         option debug  true
 
-config meshcomms 'global'
+config al
         option enabled '1'
         option basemacint 'wan'
+      # option almac ''
         option mapall true
-#        option registrar 'wl0'
+      # option registrar 'wl0'
         option debug_level  2
-        option port  8888
-        option cmdu_event false
+        option alme_port  8888
+        option cmdu_event true
         option discovery_timer 60
         option map_plugin false
 
 #config al-iface
 #        option enabled '1'
 #        option ifname 'br-lan'
-#        option media '802_3U'
+#        option media 'eth'
 #        option manufacturer_name 'Broadcom'
 #        option model_name 'Eth EG400'
 #        option model_number '00002'
@@ -26,7 +27,7 @@ config meshcomms 'global'
 #config al-iface
 #        option enabled '1'
 #        option ifname 'wl0'
-#        option media '802_11N5'
+#        option media 'wifi'
 #        option manufacturer_name 'Broadcom'
 #        option model_name 'WIFI EG400'
 #        option model_number '00001'
@@ -36,7 +37,7 @@ config meshcomms 'global'
 #config al-iface
 #        option enabled '1'
 #        option ifname 'wl1'
-#        option media '802_11N2'
+#        option media 'wifi'
 #        option manufacturer_name 'Broadcom'
 #        option model_name 'WIFI EG400'
 #        option model_number '00001'

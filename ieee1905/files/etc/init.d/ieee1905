@@ -5,23 +5,8 @@ STOP=10
 
 USE_PROCD=1
 PROG=/usr/sbin/ieee1905d
-MESH_CONF=/tmp/meshcomms.config
+AL_CONF=/tmp/ieee1905.config
 INTERFACE=""
-
-validate_global_section()
-{
-	uci_validate_section ieee1905 meshcomms "${1}" \
-		'enabled:bool:false' \
-		'basemacint:string:wan' \
-		'almac:string' \
-		'registrar:string' \
-		'mapall:bool:true' \
-		'debug_level:uinteger:5' \
-		'port:port:8888' \
-		'cmdu_event:bool:true' \
-		'discovery_timer:uinteger:60' \
-		'map_plugin:bool:false'
-}
 
 validate_ieee1905_section()
 {
@@ -57,7 +42,7 @@ get_interface_mac() {
 	echo ${basemac}
 }
 
-validate_al_section()
+validate_al_iface_section()
 {
 	uci_validate_section ieee1905 al-iface "${1}" \
 		'enabled:bool:false' \
@@ -73,7 +58,7 @@ validate_al_section()
 configure_interface()
 {
 	local ifname media enabled manufacturer_name model_name model_number device_name serial_number
-	validate_al_section ${1} || {
+	validate_al_iface_section ${1} || {
 		echo "Validation of global section failed"
 		return 1;
 	}
@@ -109,12 +94,28 @@ configure_interface()
 	json_close_object
 }
 
-configure_meshcomms()
+validate_al_section()
 {
-	local enabled almac basemacint mapall debug_level port l3device basemac intf registrar cmdu_event discovery_timer
-	local map_plugin
+	uci_validate_section ieee1905 meshcomms "${1}" \
+		'enabled:bool:false' \
+		'basemacint:string:wan' \
+		'almac:string' \
+		'registrar:string' \
+		'mapall:bool:true' \
+		'debug_level:uinteger:1' \
+		'alme_port:port:8888' \
+		'cmdu_event:bool:true' \
+		'discovery_timer:uinteger:60' \
+		'map_plugin:bool:false'
+}
 
-	validate_global_section global || {
+
+configure_al_entity()
+{
+	local enabled almac basemacint mapall debug_level alme_port l3device basemac intf
+	local registrar cmdu_event discovery_timer map_plugin
+
+	validate_al_section ${1} || {
 		echo "Validation of global section failed"
 		return 1;
 	}
@@ -137,26 +138,28 @@ configure_meshcomms()
 	json_add_array al-iface
 	config_foreach configure_interface al-iface
 	json_close_array
+
 	json_add_object deviceInfo
 	json_add_string friendly_name ${fname}
 	json_add_string manufacturer_name ${cname}
 	json_add_string model ${model}
 	json_add_string control_url ${cUrl}
 	json_close_object
-	json_add_object meshcomms
+
+	json_add_object al
 	json_add_int enabled ${enabled}
 	json_add_string mac ${basemac}
 	json_add_string interfaces ${INTERFACE}
 	json_add_int map ${mapall}
 	json_add_string registrar ${registrar}
 	json_add_int debug_level ${debug_level}
-	json_add_int port ${port}
+	json_add_int alme_port ${alme_port}
 	json_add_int cmdu_event ${cmdu_event}
 	json_add_int discovery_timer ${discovery_timer}
 	json_add_int map_plugin ${map_plugin}
 	json_close_object
 
-	json_dump >${MESH_CONF}
+	json_dump >${AL_CONF}
 
 }
 
@@ -182,7 +185,7 @@ configure_ieee1905()
 }
 
 configure_network() {
-	[ -f ${MESH_CONF} ] && rm ${MESH_CONF}
+	[ -f ${AL_CONF} ] && rm ${AL_CONF}
 
 	ebtables -L FORWARD|grep -iqE "1:80:C2:(0)+:(0)+:13.*-j.*DROP"
 	if [ "$?" -ne 0 ]; then
@@ -192,7 +195,7 @@ configure_network() {
 
 	config_load ieee1905
 	config_foreach configure_ieee1905 ieee1905
-	config_foreach configure_meshcomms meshcomms
+	config_foreach configure_al_entity al
 }
 
 start_service() {
