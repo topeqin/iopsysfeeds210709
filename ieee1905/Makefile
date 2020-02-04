@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.5
+PKG_VERSION:=2.0.6
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=49736f4ceb51f23495b973cf7d0a9ab99e074d1d
+PKG_SOURCE_VERSION:=dd269e797fcede80af2569c270b3889a56bcf59c
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -38,7 +38,7 @@ define Package/lib1905ubus
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 ubus library
-  DEPENDS:= +ubox +libpicoevent +libjson-c
+  DEPENDS:= +ubox +libjson-c
 endef
 
 define Package/lib1905hle
