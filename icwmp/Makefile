@@ -36,42 +36,42 @@ define Package/icwmp_stun
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=TR-069 stun Client
-  DEPENDS:=+libubus +libuci +libubox +libjson-c +libopenssl +libblobmsg-json
+  DEPENDS:=+PACKAGE_icwmp_stun:libubus +PACKAGE_icwmp_stun:libuci +PACKAGE_icwmp_stun:libubox +PACKAGE_icwmp_stun:libjson-c +PACKAGE_icwmp_stun:libopenssl +PACKAGE_icwmp_stun:libblobmsg-json
 endef
 
 define Package/icwmp_xmpp
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=TR-069 xmpp feature
-  DEPENDS:=+libuci +libubox +libexpat +libstrophe
+  DEPENDS:=+PACKAGE_icwmp_xmpp:libuci +PACKAGE_icwmp_xmpp:libubox +PACKAGE_icwmp_xmpp:libexpat +PACKAGE_icwmp_xmpp:libstrophe
 endef
 
 define Package/icwmp_twamp
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=TR-069 twamp feature
-  DEPENDS:=+libuci
+  DEPENDS:=+PACKAGE_icwmp_twamp:libuci
 endef
 
 define Package/icwmp_udpechoserver
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=TR-069 udpechoserver feature
-  DEPENDS:=+libuci
+  DEPENDS:=+PACKAGE_icwmp_udpechoserver:libuci
 endef
 
 define Package/icwmp_bulkdata
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=TR-069 BulkData Collection
-  DEPENDS:=+libubus +libuci +libubox +libjson-c +libcurl +curl +libblobmsg-json +libbbfdm
+  DEPENDS:=+PACKAGE_icwmp_bulkdata:libubus +PACKAGE_icwmp_bulkdata:libuci +PACKAGE_icwmp_bulkdata:libubox +PACKAGE_icwmp_bulkdata:libjson-c +PACKAGE_icwmp_bulkdata:libcurl +PACKAGE_icwmp_bulkdata:curl +PACKAGE_icwmp_bulkdata:libblobmsg-json +PACKAGE_icwmp_bulkdata:libbbfdm
 endef
 
 define Package/icwmp-tr098
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client for TR-098 Data Model
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libcurl +libtr098
+  DEPENDS:=+PACKAGE_icwmp-tr098:libuci +PACKAGE_icwmp-tr098:libmicroxml +PACKAGE_icwmp-tr098:libubox +PACKAGE_icwmp-tr098:jshn +PACKAGE_icwmp-tr098:libubus +PACKAGE_icwmp-tr098:libblobmsg-json +PACKAGE_icwmp-tr098:libpthread +PACKAGE_icwmp-tr098:ubusd +PACKAGE_icwmp-tr098:shflags +PACKAGE_icwmp-tr098:getopt +PACKAGE_icwmp-tr098:zlib +PACKAGE_icwmp-tr098:libjson-c +PACKAGE_icwmp-tr098:libopenssl +PACKAGE_icwmp-tr098:curl +PACKAGE_icwmp-tr098:libcurl +PACKAGE_icwmp-tr098:libtr098
 endef
 
 define Package/icwmp/Default
@@ -88,14 +88,14 @@ endef
 define Package/icwmp-curl
   $(call Package/icwmp/Default)
   TITLE+= (using libcurl)
-  DEPENDS+= +libcurl
+  DEPENDS+= +PACKAGE_icwmp-curl:libcurl
   VARIANT:=curl
 endef
 
 define Package/icwmp-zstream
   $(call Package/icwmp/Default)
   TITLE+= (using libzstream)
-  DEPENDS+= +libzstream
+  DEPENDS+= +PACKAGE_icwmp-zstream:libzstream
   VARIANT:=zstream
 endef
 
