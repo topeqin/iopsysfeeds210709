@@ -32,7 +32,7 @@ define Package/libbbfdm
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Library for broadband-forum data model
-  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api +libminiupnpc
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api
 endef
 
 define Package/libbbfdm/config
