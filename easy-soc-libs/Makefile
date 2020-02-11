@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 iopsys Software Solutions AB
+# Copyright (C) 2020 iopsys Software Solutions AB
 #
 # This is free software, licensed under the GNU General Public License v2.
 #
@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-soc-libs
-PKG_VERSION:=2.5.0
+PKG_VERSION:=3.0.1
 PKG_RELEASE:=1
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=90d4082d83ef1d32924c5ecdf5a0f9a5b23d31e7
+PKG_SOURCE_VERSION:=5d00980694830343f1ecdb3a5c292ef2a2ef827c
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -39,10 +39,16 @@ define Package/libwifi/config
   source "$(SOURCE)/Config.in"
 endef
 
+define Package/libeasy
+  $(call Package/easy-soc-libs)
+  TITLE:= Common helper functions library (libeasy)
+  DEPENDS+=+libnl +libnl-route
+endef
+
 define Package/libwifi
   $(call Package/easy-soc-libs)
   TITLE:= WiFi library (libwifi)
-  DEPENDS+=+libnl +libnl-route
+  DEPENDS+=+libnl +libnl-route +libeasy
 endef
 
 define Package/libethernet
@@ -86,6 +92,7 @@ define Package/libdsl
 endef
 
 subdirs := \
+	$(if $(CONFIG_PACKAGE_libeasy),libeasy) \
 	$(if $(CONFIG_PACKAGE_libwifi),libwifi) \
 	$(if $(CONFIG_PACKAGE_libdsl),libdsl) \
 	$(if $(CONFIG_PACKAGE_libethernet),libethernet)
@@ -107,6 +114,15 @@ define Build/Prepare
 	rsync -r --exclude=.* ~/git/easy-soc-libs/ $(PKG_BUILD_DIR)/
 endef
 endif
+
+define Build/InstallDev/libeasy
+	$(INSTALL_DIR) $(1)/usr/include/easy
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libeasy/easy.h $(1)/usr/include/easy/
+	$(CP) $(PKG_BUILD_DIR)/libeasy/event.h $(1)/usr/include/easy/
+	$(CP) $(PKG_BUILD_DIR)/libeasy/utils.h $(1)/usr/include/easy/
+	$(CP) $(PKG_BUILD_DIR)/libeasy/libeasy*.so* $(1)/usr/lib/
+endef
 
 define Build/InstallDev/libwifi
 	$(INSTALL_DIR) $(1)/usr/include
@@ -140,6 +156,11 @@ define Build/InstallDev
 	$(foreach dir,$(subdirs),$(call Build/InstallDev/$(dir),$(1),$(2));)
 endef
 
+define Package/libeasy/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libeasy/libeasy*.so* $(1)/usr/lib/
+endef
+
 define Package/libwifi/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi*.so* $(1)/usr/lib/
@@ -159,7 +180,11 @@ ifeq ($(CONFIG_LIBDSL_TEST),y)
 endif
 endef
 
+define Package/easy-soc-libs/install
+	:
+endef
+
+$(eval $(call BuildPackage,libeasy))
 $(eval $(call BuildPackage,libwifi))
 $(eval $(call BuildPackage,libdsl))
 $(eval $(call BuildPackage,libethernet))
-
