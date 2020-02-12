@@ -1,0 +1,51 @@
+#!/bin/sh
+
+# As part of sysupgrade we migrate the users custom changes to the
+# new fs. (Those which differ from the first boot defaults.)
+
+
+# Abort on any error.
+set -e
+
+
+# Do nothing if user want to discard old settings.
+if [ -n "$SAVE_CONFIG" -a $SAVE_CONFIG -eq 0 ]; then
+	exit 0
+fi
+
+
+[ -d "/lib/config/snapshots/first_boot/uci" ] || exit 0
+
+
+# Read the very first verion of the wireless settings.
+chroot "${2}" uci -c "/lib/config/snapshots/first_boot/uci" \
+	show wireless >"/tmp/wireless-first-$$"
+
+
+# Let the current UCI export its wireless settings.
+chroot "${2}" uci show wireless >"/tmp/wireless-current-$$"
+
+
+# Create a diff between the two.
+if grep -vFf "/tmp/wireless-first-$$"  "/tmp/wireless-current-$$" \
+		>"/tmp/wireless-diff-$$" && [ -s "/tmp/wireless-diff-$$" ]; then
+
+	# Migration of anonymous section requires special handling.
+	if [ ! -s "/etc/config/wireless" ]; then
+		: >>"/etc/config/wireless"
+		grep ']=' "/tmp/wireless-current-$$" | tr ".@=" " " | \
+			awk '{system("uci add "$1" "$3" >/dev/null");}'
+	fi
+
+	# Import the diff into the next UCI database. The eval
+	# is for string parsing of quotation marks.
+	while read -t 5 -s line; do
+		uci set "$(eval echo $line)"
+	done <"/tmp/wireless-diff-$$"
+fi
+
+# Report success.
+logger -s -p daemon.info -t post-hooks -- "UCI wireless migrated."
+
+exit 0
+
