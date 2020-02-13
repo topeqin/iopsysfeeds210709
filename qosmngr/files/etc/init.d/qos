@@ -1,0 +1,47 @@
+#!/bin/sh /etc/rc.common
+
+# Uncomment this if functions need to called inside /lib/qos
+# include /lib/qos
+
+START=21
+STOP=90
+
+USE_PROCD=1
+NAME=qosmngr
+
+# This function checks the hardware and calls corresponding
+# scripts as per the platform
+configure_queue()
+{
+	if [ "$(db get hw.board.tm)" == "1" ]; then
+		. /lib/qos/broadcom.sh
+	fi
+}
+
+start_service() {
+	# Call functions to configure queues
+	if [ -f "/etc/config/qos" ]; then
+		configure_queue
+	fi
+
+	# procd_open_instance
+	# start the daemon responsible for reading qos stats
+	# procd_set_param command "/sbin/qosmngr"
+	# procd_set_param respawn
+	# procd_close_instance
+}
+
+stop() {
+	#stop_service() is called after procd killed the service
+	echo ;
+}
+
+reload_service() {
+	# Call functions to configure queues
+	if [ -f "/etc/config/qos" ]; then
+		configure_queue
+	fi
+	
+	# reload the daemon responsible for reading qos stats
+	# ubus -t 5 call qos reload
+}

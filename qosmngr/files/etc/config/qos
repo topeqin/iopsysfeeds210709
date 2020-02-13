@@ -1,0 +1,231 @@
+config queue 'q0'
+	option ifname 'eth2'
+	option precedence 0
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 0
+	option weight 1
+
+config queue 'q1'
+	option ifname 'eth2'
+	option precedence 1
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 1
+	option weight 1
+
+config queue 'q2'
+	option ifname 'eth2'
+	option precedence 2
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 2
+	option weight 1
+
+config queue 'q3'
+	option ifname 'eth2'
+	option precedence 3
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 3
+	option weight 1
+
+config queue 'q4'
+	option ifname 'eth2'
+	option precedence 4
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 4
+	option weight 1
+
+config queue 'q5'
+	option ifname 'eth2'
+	option precedence 5
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 5
+	option weight 1
+
+config queue 'q6'
+	option ifname 'eth2'
+	option precedence 6
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 6
+	option weight 1
+
+config queue 'q7'
+	option ifname 'eth2'
+	option precedence 7
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 7
+	option weight 1
+
+config queue 'q8'
+	option ifname 'eth1'
+	option precedence 0
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 0
+	option weight 1
+
+config queue 'q9'
+	option ifname 'eth1'
+	option precedence 1
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 1
+	option weight 1
+
+config queue 'q10'
+	option ifname 'eth1'
+	option precedence 2
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 2
+	option weight 1
+
+config queue 'q11'
+	option ifname 'eth1'
+	option precedence 3
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 3
+	option weight 1
+
+config queue 'q12'
+	option ifname 'eth1'
+	option precedence 4
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 4
+	option weight 1
+
+config queue 'q13'
+	option ifname 'eth1'
+	option precedence 5
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 5
+	option weight 1
+
+config queue 'q14'
+	option ifname 'eth1'
+	option precedence 6
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 6
+	option weight 1
+
+config queue 'q15'
+	option ifname 'eth1'
+	option precedence 7
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 7
+	option weight 1
+
+config queue 'q16'
+	option ifname 'eth0'
+	option precedence 0
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 0
+	option weight 1
+
+config queue 'q17'
+	option ifname 'eth0'
+	option precedence 1
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 1
+	option weight 1
+
+config queue 'q18'
+	option ifname 'eth0'
+	option precedence 2
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 2
+	option weight 1
+
+config queue 'q19'
+	option ifname 'eth0'
+	option precedence 3
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 3
+	option weight 1
+
+config queue 'q20'
+	option ifname 'eth0'
+	option precedence 4
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 4
+	option weight 1
+
+config queue 'q21'
+	option ifname 'eth0'
+	option precedence 5
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 5
+	option weight 1
+
+config queue 'q22'
+	option ifname 'eth0'
+	option precedence 6
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 6
+	option weight 1
+
+config queue 'q23'
+	option ifname 'eth0'
+	option precedence 7
+	option scheduling 'WRR'
+	option rate 0
+	option burst_size -1
+	option traffic_class 7
+	option weight 1
+
+config shaper 's1'
+	option ifname 'eth2'
+	option rate 0
+	option burst_size -1
+
+config shaper 's2'
+	option ifname 'eth1'
+	option rate 0
+	option burst_size -1
+
+config shaper 's3'
+	option ifname 'eth0'
+	option rate 0
+	option burst_size -1
+
