@@ -26,16 +26,20 @@ chroot "${2}" uci -c "/lib/config/snapshots/first_boot/uci" \
 chroot "${2}" uci show wireless >"/tmp/wireless-current-$$"
 
 
-# Create a diff between the two.
+# If there a diff between the two?
 if grep -vFf "/tmp/wireless-first-$$"  "/tmp/wireless-current-$$" \
 		>"/tmp/wireless-diff-$$" && [ -s "/tmp/wireless-diff-$$" ]; then
 
+	[ -s "/etc/config/wireless" ] || : >>"/etc/config/wireless"
+
 	# Migration of anonymous section requires special handling.
-	if [ ! -s "/etc/config/wireless" ]; then
-		: >>"/etc/config/wireless"
-		grep ']=' "/tmp/wireless-current-$$" | tr ".@=" " " | \
-			awk '{system("uci add "$1" "$3" >/dev/null");}'
-	fi
+	grep ']=' "/tmp/wireless-current-$$" | tr ".@=" " " | \
+		awk '{
+			if(system("uci -q get "$1".@"$2" >/dev/null") != 0 &&				# Does it already exit?
+					system("uci add "$1" "$3" >/dev/null") != 0) {				# If not, then create it.
+				exit 1;
+			}
+		}'
 
 	# Import the diff into the next UCI database. The eval
 	# is for string parsing of quotation marks.
