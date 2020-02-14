@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=obuspa
-PKG_VERSION:=2.0.5
+PKG_VERSION:=2.0.6
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=555bf0d0b8ff2cd488583eac043a4dd1a0f5e7ae
+PKG_SOURCE_VERSION:=f1d3fe78fb45b4dd61fdfc0c068af67afcc689ed
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/obuspa.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
