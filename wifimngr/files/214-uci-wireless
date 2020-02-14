@@ -9,7 +9,7 @@ set -e
 
 
 # Do nothing if user want to discard old settings.
-if [ -n "$SAVE_CONFIG" -a $SAVE_CONFIG -eq 0 ]; then
+if [ -n "$SAVE_CONFIG" ] && [ $SAVE_CONFIG -eq 0 ]; then
 	exit 0
 fi
 
