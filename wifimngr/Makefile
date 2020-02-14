@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifimngr
-PKG_VERSION:=2.6.0
+PKG_VERSION:=2.7.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=fa5b303b1b93e54ca3fcb32bd7451184cb157c71
+PKG_SOURCE_VERSION:=89c80e8a412c4634a06d97895cfb0c367339a1b6
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wifimngr.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
