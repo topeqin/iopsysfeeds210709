@@ -1,0 +1,24 @@
+
+# Copy defaults by the factory to the cwmp UCI user section.
+
+
+# Get factory base MAC.
+baseMac=$(db -q get hw.board.basemac)
+
+# Erase colon and space characters.
+baseMac=${baseMac//:/}
+baseMac=${baseMac// /}
+
+# Caseing and fixed length string.
+mac=$(printf "%12.12X" $((0x$baseMac)))
+
+# Get system serial number.
+serial=$(db -q get hw.board.serial_number)
+
+uci -q batch <<-EOF
+	set cwmp.acs.userid="${mac:0:6}-${serial}"
+	set cwmp.cpe.userid="${mac:0:6}-${serial}"
+EOF
+
+
+# No need for commit here, it is done by uci_apply_defaults().
