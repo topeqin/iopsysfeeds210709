@@ -1,0 +1,250 @@
+# Kconfig for mtk wifi
+
+config MTK_WIFI_DRIVER
+	bool
+	default y
+	depends on (PACKAGE_kmod-mtk7615e || PACKAGE_kmod-mtk7603e)
+	select MTK_SUPPORT_OPENWRT
+	select MTK_MT_WIFI
+	select MTK_WIFI_BASIC_FUNC
+
+if MTK_WIFI_DRIVER
+
+menu "First WiFi card"
+choice
+	prompt "Choose First WiFi card"
+	default MTK_FIRST_IF_MT7603E
+
+	config MTK_FIRST_IF_NONE
+	bool "None"
+
+	config MTK_FIRST_IF_MT7603E
+	bool "MT7603E"
+	select RALINK_MT7603E
+	select MTK_WIFI_MT_MAC
+	select MTK_MT_MAC
+	select MTK_CHIP_MT7603E
+
+	config MTK_FIRST_IF_MT7615E
+	bool "MT7615E"
+	select MTK_WIFI_MT_MAC
+	select MTK_MT_MAC
+	select MTK_CHIP_MT7615E
+
+endchoice
+
+config  MTK_RT_FIRST_CARD
+        int
+        depends on ! MTK_FIRST_IF_NONE
+        default 7603 if MTK_FIRST_IF_MT7603E
+	default 7615 if MTK_FIRST_IF_MT7615E
+
+config MTK_MT_WIFI_PATH_FIRST_CARD
+	string "WiFi driver build directory name"
+	default "rlt_wifi"
+
+config  MTK_RT_FIRST_IF_RF_OFFSET
+        hex "RF offset of 1st card"
+        depends on ! MTK_FIRST_IF_NONE
+        default 0x0
+
+#prompt "WiFi detailed options for 1st card"
+
+choice
+	prompt "EEPROM Type of 1st Card"
+	depends on ! MTK_FIRST_IF_NONE
+	default MTK_FIRST_IF_EEPROM_EFUSE
+
+	config MTK_FIRST_IF_EEPROM_FLASH
+	bool "FLASH"
+
+	config MTK_FIRST_IF_EEPROM_PROM
+	bool "EEPROM"
+
+	config MTK_FIRST_IF_EEPROM_EFUSE
+	bool "EFUSE"
+
+endchoice
+
+config MTK_RT_FIRST_CARD_EEPROM
+	string
+	depends on ! MTK_FIRST_IF_NONE
+	default "prom" if MTK_FIRST_IF_EEPROM_PROM
+	default "efuse" if MTK_FIRST_IF_EEPROM_EFUSE
+	default "flash" if MTK_FIRST_IF_EEPROM_FLASH
+
+choice
+	prompt "PA/LNA Type of 1st Card"
+	depends on ! MTK_FIRST_IF_NONE
+	default MTK_FIRST_IF_IPAILNA
+
+	config MTK_FIRST_IF_EPAELNA
+	bool "ePAeLNA"
+	config MTK_FIRST_IF_IPAILNA
+	bool "iPAiLNA"
+	config MTK_FIRST_IF_IPAELNA
+	bool "iPAeLNA"
+endchoice
+
+menu "Operation Modes for 1st card"
+choice
+	prompt "Operating mode"
+	default MTK_WIFI_MODE_AP
+
+	config MTK_WIFI_MODE_AP
+	bool "AP"
+
+	config MTK_WIFI_MODE_STA
+	bool "STA"
+
+	config MTK_WIFI_MODE_BOTH
+	bool "AP+STA"
+	#select MTK_MT_STA_SUPPORT
+endchoice
+
+source "ap.config.in"
+
+endmenu
+endmenu
+### endmenu for 1st wifi card #######
+
+#### menu starts for 2nd wifi card ###
+menu "Second WiFi card"
+
+choice
+	prompt "Choose Second WiFi card"
+	default MTK_SECOND_IF_MT7615E
+
+	config MTK_SECOND_IF_NONE
+	bool "None"
+
+	config MTK_SECOND_IF_MT7603E
+	bool "MT7603E"
+	select RALINK_MT7603E
+	select MTK_WIFI_MT_MAC
+	select MTK_MT_MAC
+	select MTK_CHIP_MT7603E
+
+	config MTK_SECOND_IF_MT7615E
+	bool "MT7615E"
+	select MTK_WIFI_MT_MAC
+	select MTK_MT_MAC
+	select MTK_CHIP_MT7615E
+endchoice
+
+config  MTK_RT_SECOND_CARD
+        int
+        depends on ! MTK_SECOND_IF_NONE
+        default 7603 if MTK_SECOND_IF_MT7603E
+	default 7615 if MTK_SECOND_IF_MT7615E
+
+config MTK_MT_WIFI_PATH_SECOND_CARD
+	string "WiFi driver build directory name"
+	default "mt_wifi"
+
+config  MTK_RT_SECOND_IF_RF_OFFSET
+        hex "RF offset of 2nd card"
+        depends on ! MTK_SECOND_IF_NONE
+        default 0x8000
+
+#prompt "WiFi detailed options for 2nd card"
+
+choice
+	prompt "EEPROM Type of 2nd Card"
+	depends on ! MTK_SECOND_IF_NONE
+	default MTK_SECOND_IF_EEPROM_EFUSE
+
+	config MTK_SECOND_IF_EEPROM_FLASH
+	bool "FLASH"
+
+	config MTK_SECOND_IF_EEPROM_PROM
+	bool "EEPROM"
+
+	config MTK_SECOND_IF_EEPROM_EFUSE
+	bool "EFUSE"
+endchoice
+
+config MTK_RT_SECOND_CARD_EEPROM
+	string
+	depends on ! MTK_SECOND_IF_NONE
+	default "prom" if MTK_SECOND_IF_EEPROM_PROM
+	default "efuse" if MTK_SECOND_IF_EEPROM_EFUSE
+	default "flash" if MTK_SECOND_IF_EEPROM_FLASH
+
+
+choice
+        prompt "PA/LNA Type of 2nd Card"
+	depends on ! MTK_SECOND_IF_NONE
+	default MTK_SECOND_IF_IPAILNA
+
+	config MTK_SECOND_IF_EPAELNA
+	bool "ePAeLNA"
+	config MTK_SECOND_IF_IPAILNA
+	bool "iPAiLNA"
+	config MTK_SECOND_IF_IPAELNA
+	bool "iPAeLNA"
+endchoice
+
+
+menu "Operation Modes for 2nd card"
+choice
+	prompt "Operating mode"
+	default MTK_WIFI_MODE_AP
+
+	config MTK_WIFI_MODE_AP
+	bool "AP"
+
+	config MTK_WIFI_MODE_STA
+	bool "STA"
+
+	config MTK_WIFI_MODE_BOTH
+	bool "AP+STA"
+endchoice
+
+source "ap.config.in"
+
+endmenu
+
+endmenu
+### endmenu for 2nd wifi card #######
+
+
+#### placeholder for 3rd wifi card ###
+config MTK_THIRD_IF_NONE
+	bool
+	default y
+
+config  MTK_RT_THIRD_CARD
+        int
+	default 0
+
+config  MTK_RT_THIRD_IF_RF_OFFSET
+        hex
+	default 0x4000
+
+config MTK_RT_THIRD_CARD_EEPROM
+	string
+	default "efuse"
+### placehlder for 3rd wifi card #######
+
+
+config MTK_MULTI_INF_SUPPORT
+	bool
+	default y if !MTK_FIRST_IF_NONE && !MTK_SECOND_IF_NONE
+
+
+source "common.config.in"
+
+#if MTK_CHIP_MT7615E || MTK_CHIP_MT7622 || MTK_CHIP_MT7626 || MTK_CHIP_AXE || MTK_CHIP_MT7915
+#	config MTK_MT_MAC
+#		bool
+#		default y
+#		select MTK_RATE_ADAPTION
+#		select MTK_RATE_ADAPT_AGBS_SUPPORT
+#		select MTK_DOT11_N_SUPPORT
+#		select MTK_DOT11_VHT_AC
+#		select MTK_HDR_TRANS_TX_SUPPORT
+#		select MTK_HDR_TRANS_RX_SUPPORT
+#endif
+
+endif #MTK_WIFI_DRIVER#

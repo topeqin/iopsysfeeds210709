@@ -1,0 +1,12 @@
+diff -uprN a/mt7603_wifi/ap/ap_cfg.c b/mt7603_wifi/ap/ap_cfg.c
+--- a/mt7603_wifi/ap/ap_cfg.c	2020-02-15 13:29:48.306146391 +0100
++++ b/mt7603_wifi/ap/ap_cfg.c	2020-02-15 13:30:08.838820056 +0100
+@@ -3329,7 +3329,7 @@ INT RTMPAPSetInformation(
+ 			UCHAR *Buf;
+ 			struct wnm_command *cmd_data;
+ 
+-			os_alloc_mem(Buf, (UCHAR **)&Buf, wrq->u.data.length);
++			os_alloc_mem(NULL, (UCHAR **)&Buf, wrq->u.data.length);
+ 			Status = copy_from_user(Buf, wrq->u.data.pointer, wrq->u.data.length);
+ 			cmd_data = (struct wnm_command *)Buf;
+ 			if (wnm_handle_command(pAd, cmd_data) != NDIS_STATUS_SUCCESS)
