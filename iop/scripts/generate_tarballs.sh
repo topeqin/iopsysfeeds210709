@@ -87,11 +87,6 @@ build_mediatek_kernel() {
 	echo $mediatek_commit
 	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/linux-git*
 
-	# Save Kconfig files to recreate the same kernel config,
-	# delete everyting else.
-	find drivers/net/wireless/mt_wifi -type f ! -name Kconfig | xargs rm
-	find drivers/net/wireless/rlt_wifi -type f ! -name Kconfig | xargs rm
-
 	# remove git repo
 	rm -rf .git
 
@@ -101,6 +96,26 @@ build_mediatek_kernel() {
 
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
 	scp -pv mediatek-kernel-open-$mediatek_commit.tar.gz $SERVER:$FPATH/
+	cd "$curdir"
+}
+
+build_mediatek_wifi_consumer() {
+	local ver commit
+	local chip=$1
+
+	ver=$(grep -w "PKG_VERSION:" ./feeds/iopsys/mt${chip}/Makefile | cut -d'=' -f2)
+	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/mt${chip}/Makefile | cut -d'=' -f2)
+	[ -n "$ver" -a -n "$commit" ] || return
+	ssh $SERVER "test -f $FPATH/mtk${chip}e-${ver}_${commit}.tar.xz" && return
+	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/mtk${chip}e-$ver/ipkg-*
+	mkdir -p mtk${chip}e-$ver/src
+	cp -rf kmod-mtk${chip}e/etc mtk${chip}e-$ver/src/
+	cp -rf kmod-mtk${chip}e/lib mtk${chip}e-$ver/src/
+	tar Jcf mtk${chip}e-${ver}_${commit}.tar.xz mtk${chip}e-$ver
+	scp -pv mtk${chip}e-${ver}_${commit}.tar.xz $SERVER:$FPATH/
+	cp mtk${chip}e-${ver}_${commit}.tar.xz $curdir/
+	rm -rf mtk${chip}e-$ver
+	rm -f mtk${chip}e-${ver}_${commit}.tar.xz
 	cd "$curdir"
 }
 
@@ -154,6 +169,8 @@ function generate_tarballs {
 		build_wifilife_consumer
 	elif [ "$stk_target" == "mediatek" ]; then
 		build_mediatek_kernel
+		build_mediatek_wifi_consumer 7603
+		build_mediatek_wifi_consumer 7615
 		build_wifilife_consumer
 	else
 		echo "Invalid target: $stk_target"
