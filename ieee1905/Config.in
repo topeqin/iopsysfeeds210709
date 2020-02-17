@@ -1,0 +1,38 @@
+if PACKAGE_ieee1905 || PACKAGE_lib1905al
+
+menu "developer/debug options"
+
+	config IEEE1905_SEND_EMPTY_TLVS
+		bool "Allow sending of empty TLVs"
+		default y
+
+	config IEEE1905_FIX_BROKEN_TLVS
+		bool "Allow reception of missing TLVs"
+		default y
+
+	config IEEE1905_SPEED_UP_DISCOVERY
+		bool "Speed up discovery of an AL in network"
+		default y
+
+	config IEEE1905_DO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
+		bool "Do not accept M1/M2 messages from unknown AL(s)"
+		default y
+
+	choice
+		prompt "Select ALME support"
+		default IEEE1905_ALME_OVER_UBUS
+
+		config IEEE1905_ALME_OVER_UBUS
+			bool "ALME methods supported over ubus"
+
+		config IEEE1905_ALME_OVER_TCP
+			bool "ALME server over TCP port"
+
+	endchoice
+
+	config IEEE1905_REGISTER_EXTENSION_BBF
+		bool "Enable BBF extensions"
+		default n
+
+endmenu
+endif
