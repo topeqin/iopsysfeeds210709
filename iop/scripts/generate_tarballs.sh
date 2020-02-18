@@ -89,9 +89,6 @@ build_mediatek_kernel() {
 
 	# remove git repo
 	rm -rf .git
-
-	# patch kernel for openstk
-	ls consumer_release | while read line; do patch -p1 < consumer_release/$line; done
 	cd ..
 
 	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
