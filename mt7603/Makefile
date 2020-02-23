@@ -56,8 +56,12 @@ define Build/Compile
 endef
 
 define KernelPackage/mtk7603e/install
+	$(INSTALL_DIR) $(1)/etc_ro/wlan
+	$(INSTALL_DIR) $(1)/etc_ro/Wireless/RT2860
 	$(INSTALL_DIR) $(1)/etc/Wireless/RT2860
+	$(CP) ./files/MT7603_EEPROM.bin $(1)/etc_ro/wlan
 	$(CP) ./files/RT2860.dat $(1)/etc/Wireless/RT2860/RT2860.dat
+	$(CP) ./files/SingleSKU.dat $(1)/etc_ro/Wireless/RT2860
 endef
 
 $(eval $(call KernelPackage,mtk7603e))
