@@ -50,10 +50,15 @@ define Build/Compile
 endef
 
 define KernelPackage/mtk7615e/install
+	$(INSTALL_DIR) $(1)/etc_ro/wlan
+	$(INSTALL_DIR) $(1)/etc_ro/Wireless/iNIC
 	$(INSTALL_DIR) $(1)/etc/wireless
-	$(CP) ./files/l1profile.dat $(1)/etc/wireless
 	$(INSTALL_DIR) $(1)/etc/Wireless/iNIC
-	$(CP) ./files/iNIC_ap.dat $(1)/etc/Wireless/iNIC/iNIC_ap.dat
+	$(CP) ./files/MT7615_EEPROM.bin $(1)/etc_ro/wlan
+	$(CP) ./files/l1profile.dat $(1)/etc/wireless
+	$(CP) ./files/iNIC_ap.dat $(1)/etc/Wireless/iNIC
+	$(CP) ./files/SingleSKU.dat $(1)/etc_ro/Wireless/iNIC
+	$(CP) ./files/SingleSKU_BF.dat $(1)/etc_ro/Wireless/iNIC
 endef
 
 $(eval $(call KernelPackage,mtk7615e))
