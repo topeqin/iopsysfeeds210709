@@ -16,6 +16,10 @@ fi
 
 [ -d "/lib/config/snapshots/first_boot/uci" ] || exit 0
 
+# Does this system has WiFi?
+hasWifi=$(chroot "${2}" db -q get hw.board.hasWifi)
+[ "$hasWifi" = "1" ] || exit 0
+
 
 # Read the very first verion of the wireless settings.
 chroot "${2}" uci -c "/lib/config/snapshots/first_boot/uci" \
