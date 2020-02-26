@@ -5,12 +5,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfamap
-PKG_VERSION:=1.0.5
+PKG_VERSION:=1.0.6
 
+LOCAL_DEV:=0
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=c2b0e4acae43b88d844d1cdf0f4a2606fd91db75
+PKG_SOURCE_VERSION:=6aa80482d4204363eed3f1a5d053f565ef98f91a
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfamap.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -47,9 +50,11 @@ ifeq ($(CONFIG_IEEE1905_DO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS),y)
 TARGET_CFLAGS += -DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
 endif
 
-#define Build/Prepare
-#	$(CP) -rf ./wfamap/* $(PKG_BUILD_DIR)/
-#endef
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+	$(CP) -rf ~/git/wfamap/* $(PKG_BUILD_DIR)/
+endef
+endif
 
 define Package/wfamap/install
 	$(INSTALL_DIR) $(1)/usr/lib
