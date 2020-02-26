@@ -5,12 +5,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.10
+PKG_VERSION:=2.0.11
 
+LOCAL_DEV:=0
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=839e13fddfd979e70755e2d6225bc9af486d12c9
+PKG_SOURCE_VERSION:=287f16bd062a2e819009c940427887b80b552758
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -80,9 +83,11 @@ ifeq ($(CONFIG_IEEE1905_REGISTER_EXTENSION_BBF),y)
 TARGET_CFLAGS += -DREGISTER_EXTENSION_BBF
 endif
 
-#define Build/Prepare
-#	$(CP) -rf ./ieee1905/* $(PKG_BUILD_DIR)/
-#endef
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+	$(CP) -rf ~/git/ieee1905/* $(PKG_BUILD_DIR)/
+endef
+endif
 
 define Package/ieee1905/install
 	$(INSTALL_DIR) $(1)/etc/init.d
