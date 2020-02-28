@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.11
+PKG_VERSION:=2.0.12
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=287f16bd062a2e819009c940427887b80b552758
+PKG_SOURCE_VERSION:=bb52164248953882b1fa9d76df0027bb4f2b7617
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -38,7 +38,7 @@ define Package/lib1905al
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 stack library
-  DEPENDS:= +libpcap +libopenssl 
+  DEPENDS:= +libpcap +libopenssl +libwifi +libeasy
 endef
 
 define Package/lib1905ubus

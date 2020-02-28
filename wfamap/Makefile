@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfamap
-PKG_VERSION:=1.0.6
+PKG_VERSION:=1.0.7
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=6aa80482d4204363eed3f1a5d053f565ef98f91a
+PKG_SOURCE_VERSION:=e6df92d0b639d3d56b6dde20bd9458ebc541dc8b
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfamap.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -23,7 +23,7 @@ define Package/wfamap
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:= MultiAP Stack
-  DEPENDS:= +ubox +lib1905al
+  DEPENDS:= +ubox +lib1905al +libwifi
 endef
 
 define Package/wfamap/description

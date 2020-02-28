@@ -74,12 +74,11 @@ configure_interface()
 	fi
 
 	local uuid=$(cat /proc/sys/kernel/random/uuid)
-	local ifindex=$(cat /sys/class/net/${ifname}/upper_*/ifindex 2>/dev/null)
+	local ifindex=$(cat /sys/class/net/${ifname}/ifindex 2>/dev/null)
+	#local ifindex=$(cat /sys/class/net/${ifname}/upper_*/ifindex 2>/dev/null)
 	if [ -z ${ifindex} ]; then
 		ifindex=$(cat /sys/class/net/${ifname}/ifindex)
 	fi
-
-	echo "Interface ${ifname} ifindex |${ifindex}|" >>/dev/console
 
 	json_add_object
 	json_add_string ifname ${ifname}
