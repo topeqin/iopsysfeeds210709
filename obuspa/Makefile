@@ -5,12 +5,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=obuspa
-PKG_VERSION:=2.0.9
+PKG_VERSION:=2.0.10
 
+LOCAL_DEV:=0
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=4a1de3fe32e610e5e19f45ad31a22b7bfb9cd462
+PKG_SOURCE_VERSION:=cc22ce7d158435dcafa5a18eddebd6a8cffe950d
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/obuspa.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -35,15 +38,24 @@ endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
-	-D_GNU_SOURCE
+	-D_GNU_SOURCE \
+	-Wall \
+	-Wextra \
+	-fstrict-aliasing \
+	-Werror=format-overflow \
+	-Wno-error=unused-parameter \
+	-Wno-error=sign-compare
+
 
 ifneq ($(CONFIG_USE_MUSL),)
 TARGET_CFLAGS += -DUSE_MUSL
 endif
 
-#define Build/Prepare
-#        $(CP) -rf ./obuspa/* $(PKG_BUILD_DIR)/
-#endef
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+        $(CP) -rf ~/git/obuspa/* $(PKG_BUILD_DIR)/
+endef
+endif
 
 define Package/obuspa/install
 	$(INSTALL_DIR) $(1)/usr/sbin
