@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=1.2-2020-02-21
+PKG_VERSION:=1.1-2020-03-03
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=be7204e16e9357151313e5f0a7677af4c33780e2
+PKG_SOURCE_VERSION:=5b0bc226228f016eeef2ce43ccf1052648f70b1d
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -32,7 +32,7 @@ define Package/libbbfdm
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Library for broadband-forum data model
-  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api +libopenssl +libmbedtls
 endef
 
 define Package/libbbfdm/config
@@ -82,6 +82,16 @@ endif
 ifeq ($(CONFIG_BBF_TR064),y)
 CONFIGURE_ARGS += \
 	--enable-tr064
+endif
+
+ifeq ($(CONFIG_PACKAGE_libopenssl),y)
+CONFIGURE_ARGS += \
+	--enable-libopenssl
+endif
+
+ifeq ($(CONFIG_PACKAGE_libmbedtls),y)
+CONFIGURE_ARGS += \
+	--enable-libmbedtls
 endif
 
 define Package/libbbf_api/install
