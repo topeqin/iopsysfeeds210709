@@ -9,8 +9,8 @@ function install_key {
 
     echo "::sysinit:/etc/init.d/rcS S boot" >files/etc/inittab
     echo "::shutdown:/etc/init.d/rcS K shutdown" >>files/etc/inittab
-    echo "tty/0::askfirst:/bin/ash --login" >>files/etc/inittab
-    echo "console::askfirst:/bin/cttyhack /bin/ash --login" >>files/etc/inittab
+    echo "tty/0::askconsolelate:/bin/ash --login" >>files/etc/inittab
+    echo "console::askconsolelate:/bin/cttyhack /bin/ash --login" >>files/etc/inittab
 
     echo Done
 }
