@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=495d2a33463e8d2f01b3c256a589f9c6ddd81e66
+PKG_SOURCE_VERSION:=d866fcf90b128e2e2e2d157a7491f4f76d5b5a01
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -132,9 +132,11 @@ define Build/InstallDev/libwifi
 endef
 
 define Build/InstallDev/libdsl
-	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/include/xdsl
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libdsl/xdsl.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libdsl/xdsl.h $(1)/usr/include/xdsl
+	$(CP) $(PKG_BUILD_DIR)/libdsl/xtm.h $(1)/usr/include/xdsl
+	$(CP) $(PKG_BUILD_DIR)/libdsl/common.h $(1)/usr/include/xdsl
 	$(CP) $(PKG_BUILD_DIR)/libdsl/libdsl.so* $(1)/usr/lib/
 endef
 
