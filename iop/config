@@ -215,3 +215,8 @@ CONFIG_TARGET_PREINIT_IP=""
 CONFIG_TARGET_PREINIT_NETMASK=""
 CONFIG_TARGET_PREINIT_BROADCAST=""
 
+# The urandom-seed package is very strange. It seeds urandom with urandom...
+# Disable it. Most SoCs nowadays has HW random generators anyway.
+# CONFIG_PACKAGE_urandom-seed is not set
+# CONFIG_PACKAGE_urngd is not set
+
