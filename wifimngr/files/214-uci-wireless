@@ -34,7 +34,28 @@ chroot "${2}" uci show wireless >"/tmp/wireless-current-$$"
 if grep -vFf "/tmp/wireless-first-$$"  "/tmp/wireless-current-$$" \
 		>"/tmp/wireless-diff-$$" && [ -s "/tmp/wireless-diff-$$" ]; then
 
+	# Create new config if it doesn't yet exist.
 	[ -s "/etc/config/wireless" ] || : >>"/etc/config/wireless"
+
+	# Extract named section "headers" like e.g:
+	#   wireless.wl0=wifi-device
+	# from current settings.
+	grep -E "wireless\.[^\.@][^\.]+=" "/tmp/wireless-current-$$" \
+		>"/tmp/wireless-named-secs-$$"
+
+	# Check if a named section exist in the diff. If so,
+	# add corresponding named section "header" to the diff.
+	# Example: Is
+	#   wireless.wl0
+	# in the diff? Then add
+	#   wireless.wl0=wifi-device
+	# to the diff as well.
+	while read -t 5 -s line; do		
+		section="${line%%=*}"
+		if grep -qF "$section" "/tmp/wireless-diff-$$"; then
+			echo "$line" >>"/tmp/wireless-diff-$$"
+		fi
+	done <"/tmp/wireless-named-secs-$$"
 
 	# Migration of anonymous section requires special handling.
 	grep ']=' "/tmp/wireless-current-$$" | tr ".@=" " " | \
@@ -46,10 +67,12 @@ if grep -vFf "/tmp/wireless-first-$$"  "/tmp/wireless-current-$$" \
 		}'
 
 	# Import the diff into the next UCI database. The eval
-	# is for string parsing of quotation marks.
-	while read -t 5 -s line; do
-		uci set "$(eval echo $line)"
-	done <"/tmp/wireless-diff-$$"
+	# is for string parsing of quotation marks. The sort for
+	# section "headers" to come first.
+	sort -Vr "/tmp/wireless-diff-$$" | \
+		while read -t 5 -s line; do
+			uci set "$(eval echo $line)"
+		done
 fi
 
 # Report success.
