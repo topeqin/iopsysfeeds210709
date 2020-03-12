@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfamap
-PKG_VERSION:=1.0.7
+PKG_VERSION:=1.0.8
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=e6df92d0b639d3d56b6dde20bd9458ebc541dc8b
+PKG_SOURCE_VERSION:=2fa837da16e3790b1146dce44cf549c17883d8e1
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfamap.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
