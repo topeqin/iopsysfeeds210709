@@ -13,7 +13,7 @@ PKG_VERSION:=1.0.0
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=79e4dff374ce6ea1ca5d2bc2badcabdde27eb414
+PKG_SOURCE_VERSION:=fcad1331eb134b5f0cc05526aa897df61fc4fec0
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dslmngr.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 endif
