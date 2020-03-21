@@ -14,7 +14,7 @@ interface_check() {
 }
 
 interface_check
-if [ -n "$(pidof testnet)" ]; then
+if [ -n "$(pgrep -f testnet)" ]; then
 	testnet once
 else
 	testnet &
