@@ -28,10 +28,6 @@ define Package/opkgd/description
 	Ubus based backend for OPKG which can be used by other applications running on top of it.
 endef
 
-define Build/Prepare
-	$(CP) ./src/* $(PKG_BUILD_DIR)/
-endef
-
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
 	-D_GNU_SOURCE
