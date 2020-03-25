@@ -4,14 +4,14 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=wfamap
-PKG_VERSION:=1.0.9
+PKG_NAME:=map-1905
+PKG_VERSION:=0.0.1
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=c5f002e7a90246107f1db2f38206f5c7fc7e1a66
-PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfamap.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/map-1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
 
@@ -19,15 +19,15 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/wfamap
+define Package/map-1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:= MultiAP Stack
   DEPENDS:= +ubox +lib1905al +libwifi
 endef
 
-define Package/wfamap/description
- WiFi alliance multiAP stack
+define Package/map-1905/description
+ MultiAP plugin for ieee1905d based on Wifi alliance's MAP-r2 specification
 endef
 
 TARGET_CFLAGS += \
@@ -52,21 +52,21 @@ endif
 
 ifeq ($(LOCAL_DEV),1)
 define Build/Prepare
-	$(CP) -rf ~/git/wfamap/* $(PKG_BUILD_DIR)/
+	$(CP) -rf ~/git/map-1905/* $(PKG_BUILD_DIR)/
 endef
 endif
 
-define Package/wfamap/install
+define Package/map-1905/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifimap-2.so $(1)/usr/lib/
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/include/wifimap
-	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/wifimap/
+	$(INSTALL_DIR) $(1)/usr/include/map1905
+	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/map1905/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libwifimap-2.so $(1)/usr/lib
 endef
 
-$(eval $(call BuildPackage,wfamap))
+$(eval $(call BuildPackage,map-1905))
