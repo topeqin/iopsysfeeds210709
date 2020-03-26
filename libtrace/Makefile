@@ -18,8 +18,9 @@ PKG_LICENSE_FILES:=COPYING
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
+
+CXX_DEPENDS:=libstdcpp
 
 define Package/libtrace/Default
   SECTION:=net
@@ -33,7 +34,7 @@ define Package/libtrace
   CATEGORY:=Libraries
   TITLE:=Libtrace library for packet trace processing
   URL:=http://research.wand.net.nz/software/libtrace.php
-  DEPENDS:=+libpcap +libpthread +zlib +libbz2 +liblzo +librt $(CXX_DEPENDS)
+  DEPENDS:=+libpcap +libpthread +zlib +libbz2 +liblzo +librt +$(CXX_DEPENDS)
 endef
 
 define Package/libtrace/description
