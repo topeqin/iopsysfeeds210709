@@ -12,7 +12,7 @@ PKG_NAME:=peripheral_manager
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=ba1026896e221cb60751fe2faab002d241f9db74
+PKG_SOURCE_VERSION:=778735da4e25e2075a6ecb365850a61ceb4bd515
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/peripheral-manager
 
