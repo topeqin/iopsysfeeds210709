@@ -22,13 +22,18 @@ hasWifi=$(chroot "${2}" db -q get hw.board.hasWifi)
 
 
 # Read the very first verion of the wireless settings.
-chroot "${2}" uci -c "/lib/config/snapshots/first_boot/uci" \
-	show wireless >"/tmp/wireless-first-$$"
+if ! chroot "${2}" uci -c "/lib/config/snapshots/first_boot/uci" \
+		-q show wireless >"/tmp/wireless-first-$$" || \
+		[ ! -s "/tmp/wireless-first-$$" ]; then
+	exit 0
+fi
 
 
 # Let the current UCI export its wireless settings.
-chroot "${2}" uci show wireless >"/tmp/wireless-current-$$"
-
+if ! chroot "${2}" uci -q show wireless >"/tmp/wireless-current-$$" || \
+		[ ! -s "/tmp/wireless-current-$$" ]; then
+	exit 0
+fi
 
 # If there a diff between the two?
 if grep -vFf "/tmp/wireless-first-$$"  "/tmp/wireless-current-$$" \
