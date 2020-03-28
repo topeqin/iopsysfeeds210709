@@ -7,10 +7,9 @@ USE_PROCD=1
 include /lib/network
 
 populate_config(){
-	if [ -s "/etc/config/ports" ]
-	then
-		if uci -q get ports.@ethport[0] >/dev/null # return if there is any valid content
-		then
+	if [ -s "/etc/config/ports" ]; then
+		if uci -q get ports.@ethport[0] >/dev/null; then
+			# return if there is any valid content
 			return 0
 		else
 			rm -f /etc/config/ports
@@ -18,9 +17,8 @@ populate_config(){
 	fi
 	touch /etc/config/ports
 
-	local portorder="$(db get hw.board.ethernetPortOrder)"
-	for port in $portorder
-	do
+	local portorder="$(db -q get hw.board.ethernetPortOrder)"
+	for port in $portorder; do
 		uci add ports ethport
 		uci rename ports.@ethport[-1]="$(interfacename $port)"
 		uci set ports.@ethport[-1].enabled=1
@@ -30,8 +28,7 @@ populate_config(){
 		uci set ports.@ethport[-1].duplex="full"
 		uci set ports.@ethport[-1].autoneg=1
 		uci set ports.@ethport[-1].eee=0
-		if [ "$(db -q get hw.board.ethernetWanPort)" = "$port" ]
-		then
+		if [ "$(db -q get hw.board.ethernetWanPort)" = "$port" ]; then
 			uci set ports.@ethport[-1].pause=1
 			uci set ports.@ethport[-1].uplink=1
 		else
@@ -39,7 +36,7 @@ populate_config(){
 		fi
 	done
 
-	local fiberorder="$(db get hw.board.fiberPortOrder)"
+	local fiberorder="$(db -q get hw.board.fiberPortOrder)"
 	for fiber in $fiberorder; do
 		uci add ports sfpport
 		uci rename ports.@sfpport[-1]="$(fibername $fiber)"
@@ -57,7 +54,7 @@ populate_config(){
 	[ $DEBUG ] && cat /etc/config/ports
 }
 
-configure_ethports(){
+configure_ports(){
 	local cfg=$1
 	local fiber=$2
 	local ifname enabled speed duplex autoneg eee pause
@@ -81,7 +78,8 @@ start_service() {
 	[ -f /lib/network/port.sh ] || return
 
 	config_load ports
-	config_foreach configure_ethports ethport
+	config_foreach configure_ports ethport
+	config_foreach configure_ports sfpport
 }
 
 service_triggers() {
