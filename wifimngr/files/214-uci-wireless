@@ -19,7 +19,6 @@ for f in /lib/upgrade/iopsys*.sh; do
 	source $f
 done
 
-[ -d "/lib/config/snapshots/first_boot/uci" ] || exit 0
 
 # Does this system has WiFi?
 hasWifi=$(chroot "${2}" db -q get hw.board.hasWifi)
