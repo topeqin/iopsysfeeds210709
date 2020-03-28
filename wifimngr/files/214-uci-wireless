@@ -28,7 +28,7 @@ hasWifi=$(chroot "${2}" db -q get hw.board.hasWifi)
 uci_possibly_migrate_package "wireless" "$2" || exit
 
 # Report success.
-logger -s -p daemon.info -t post-hooks -- "UCI wireless migrated."
+log "post-hooks" "UCI wireless migrated."
 
 exit 0
 
