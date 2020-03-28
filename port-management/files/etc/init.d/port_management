@@ -23,7 +23,7 @@ populate_config(){
 	do
 		uci add ports ethport
 		uci rename ports.@ethport[-1]="$(interfacename $port)"
-		uci set ports.@ethport[-1].enable=1
+		uci set ports.@ethport[-1].enabled=1
 		uci set ports.@ethport[-1].name="$(interfacename $port)"
 		uci set ports.@ethport[-1].ifname="$port"
 		uci set ports.@ethport[-1].speed=1000
@@ -43,7 +43,7 @@ populate_config(){
 	for fiber in $fiberorder; do
 		uci add ports sfpport
 		uci rename ports.@sfpport[-1]="$(fibername $fiber)"
-		uci set ports.@sfpport[-1].enable=1
+		uci set ports.@sfpport[-1].enabled=1
 		uci set ports.@sfpport[-1].name="$(fibername $fiber)"
 		uci set ports.@sfpport[-1].ifname="$fiber"
 		uci set ports.@sfpport[-1].speed=1000
