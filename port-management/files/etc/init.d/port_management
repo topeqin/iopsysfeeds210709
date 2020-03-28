@@ -6,10 +6,10 @@ USE_PROCD=1
 . /lib/functions.sh
 include /lib/network
 
-check_for_config(){
+populate_config(){
 	if [ -s "/etc/config/ports" ]
 	then
-		if uci -q get ports.@ethport[0] >/dev/null #are there any valid content then continue
+		if uci -q get ports.@ethport[0] >/dev/null # return if there is any valid content
 		then
 			return 0
 		else
@@ -23,9 +23,13 @@ check_for_config(){
 	do
 		uci add ports ethport
 		uci rename ports.@ethport[-1]="$(interfacename $port)"
+		uci set ports.@ethport[-1].enable=1
 		uci set ports.@ethport[-1].name="$(interfacename $port)"
-		uci set ports.@ethport[-1].ifname=$port
-		uci set ports.@ethport[-1].speed='auto'
+		uci set ports.@ethport[-1].ifname="$port"
+		uci set ports.@ethport[-1].speed=1000
+		uci set ports.@ethport[-1].duplex="full"
+		uci set ports.@ethport[-1].autoneg=1
+		uci set ports.@ethport[-1].eee=0
 		if [ "$(db -q get hw.board.ethernetWanPort)" = "$port" ]
 		then
 			uci set ports.@ethport[-1].pause=1
@@ -39,10 +43,13 @@ check_for_config(){
 	for fiber in $fiberorder; do
 		uci add ports sfpport
 		uci rename ports.@sfpport[-1]="$(fibername $fiber)"
+		uci set ports.@sfpport[-1].enable=1
 		uci set ports.@sfpport[-1].name="$(fibername $fiber)"
-		uci set ports.@sfpport[-1].ifname=$fiber
-		uci set ports.@sfpport[-1].speed='auto'
-		uci set ports.@sfpport[-1].pause=1
+		uci set ports.@sfpport[-1].ifname="$fiber"
+		uci set ports.@sfpport[-1].speed=1000
+		uci set ports.@sfpport[-1].duplex="full"
+		uci set ports.@sfpport[-1].autoneg=1
+		uci set ports.@sfpport[-1].eee=0
 	done
 
 	uci commit ports
@@ -51,17 +58,25 @@ check_for_config(){
 }
 
 configure_ethports(){
-	local port ifname pause speed
-	name=$1
-	config_get speed $name speed
-	config_get ifname $name ifname
-	config_get pause $name pause
-	set_port_speed $ifname $speed $name
-	set_port_pause $ifname $pause
+	local cfg=$1
+	local fiber=$2
+	local ifname enabled speed duplex autoneg eee pause
+
+	config_get ifname $cfg ifname
+	[ -d /sys/class/net/$ifname ] || return
+
+	config_get enabled $cfg enabled 1
+	config_get speed $cfg speed 1000
+	config_get duplex $cfg duplex "auto"
+	config_get autoneg $cfg autoneg 1
+	config_get eee $cfg eee 0
+	config_get pause $cfg pause 0
+
+	set_port_settings $ifname $enabled $speed $duplex $autoneg $eee $pause
 }
 
 start_service() {
-	[ -f /sbin/db -a -f /lib/db/config/hw ] && check_for_config
+	[ -f /sbin/db -a -f /lib/db/config/hw ] && populate_config
 
 	[ -f /lib/network/port.sh ] || return
 
@@ -71,10 +86,4 @@ start_service() {
 
 service_triggers() {
 	procd_add_reload_trigger ports
-}
-
-boot() {
-	wan=$(db -q get hw.board.ethernetWanPort)
-	restart_port $wan
-	start
 }
