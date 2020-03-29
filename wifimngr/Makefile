@@ -41,8 +41,8 @@ TARGET_CFLAGS += \
 define Package/wifimngr/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/wifimngr.init $(1)/etc/init.d/wifimngr
-#	$(INSTALL_DIR) $(1)/lib/upgrade/post-rootfs-fixup.d
-#	$(INSTALL_BIN) ./files/*-uci-wireless $(1)/lib/upgrade/post-rootfs-fixup.d
+	$(INSTALL_DIR) $(1)/lib/upgrade/post-rootfs-fixup.d
+	$(INSTALL_BIN) ./files/*-uci-wireless $(1)/lib/upgrade/post-rootfs-fixup.d
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifimngr $(1)/usr/sbin/
 endef
