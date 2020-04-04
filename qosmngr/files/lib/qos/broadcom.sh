@@ -1,30 +1,25 @@
 #!/bin/sh
+. /lib/functions.sh
 
-for intf in $(db get hw.board.ethernetPortOrder); do
-	i=0
-	for i in 0 1 2 3 4 5 6 7; do
-		tmctl delqcfg --devtype 0 --if $intf --qid $i
-	done
-done
-
-for cmd in q pbit; do
-	i=0
-	while :
-	do
-		qid="q$i"
-		ifname=$(uci -q get qos.$qid.ifname)
+#function to handle a queue section
+handle_queue() {
+		qid="$1" #queue section ID
+		cmd=$2 #additional parameter
+                local ifname
+		local tc
+		local sc_alg
+		local wgt
+		local rate
+		local bs
+		config_get ifname "$qid" "ifname"
 
 		# if ifname is empty that is good enough to break
 		if [ -z "$ifname" ];then
 			break
 		fi
 
-		# it makes sense to read rest on the params only if port is present,
-		# which kind of indicates whether the config section is available
-		# or not
-
 		# lower the value, lower the priority of queue on this chip
-		order=$(uci -q get qos.$qid.precedence)
+		config_get order "$qid" "precedence"
 
 		# on this chip, 8 queues per port exist so values larger than this
 		# cannot be supported
@@ -32,16 +27,28 @@ for cmd in q pbit; do
 			continue
 		fi
 
-		tc=$(uci -q get qos.$qid.traffic_class)
-		sc_alg=$(uci -q get qos.$qid.scheduling)
-		wgt=$(uci -q get qos.$qid.weight)
-		rate=$(uci -q get qos.$qid.rate)
-		bs=$(uci -q get qos.$qid.burst_size)
+		config_get tc "$qid" "traffic_class"
+		config_get sc_alg "$qid" "scheduling"
+		config_get wgt "$qid" "weight"
+		config_get rate "$qid" "rate"
+		config_get bs "$qid" "burst_size"
 
 		salg=1
-		if [ $sc_alg == 'WRR' ]; then
-			salg=2
-		fi
+
+#		if [ $sc_alg == 'WRR' ]; then
+#			salg=2
+#		fi
+		
+		case "$sc_alg" in
+   			"SP") salg=1
+   			;;
+   			"WRR") salg=2
+   			;;
+   			"WDRR") salg=3
+   			;;
+   			"WFQ") salg=4
+   			;;
+		esac
 
 		if [ $cmd == q ]; then
 			# Call tmctl which is a broadcomm command to configure queues on a port.
@@ -53,23 +60,40 @@ for cmd in q pbit; do
 				tmctl setpbittoq --devtype 0 --if $ifname --pbit $word --qid $order
 			done
 		fi
-	
-		# Read the next configuration
-		i=$((i + 1))
-	done
-done
+}	
 
-i=0
-while :
-do
-	sid="s$i"
-	ifname=$(uci -q  get qos.$sid.ifname)
-
+#function to handle a shaper section
+handle_shaper() {
+	local sid
+	local ifname
+	local rate
+	local bs
+	sid="$1" #queue section ID
+	config_get ifname "$sid" "ifname"
 	# if ifname is empty that is good enough to break
 	if [ -z "$ifname" ];then
 		break
 	fi
-	rate=$(uci -q get qos.$sid.rate)
-	bs=$(uci -q get qos.$sid.burst_size)
+	config_get rate "$sid" "rate"
+	config_get bs "$sid" "burst_size"
 	tmctl setportshaper --devtype 0 --if $ifname --shapingrate $rate --burstsize $bs
+}
+
+for intf in $(db get hw.board.ethernetPortOrder); do
+        i=0
+        for i in 0 1 2 3 4 5 6 7; do
+                tmctl delqcfg --devtype 0 --if $intf --qid $i
+        done
 done
+
+#load UCI file
+config_load qos 
+
+#Processing shaper section(s)
+config_foreach handle_shaper shaper 
+
+#Processing queue section(s)
+for cmd in q pbit; do
+	config_foreach handle_queue queue $cmd
+done
+
