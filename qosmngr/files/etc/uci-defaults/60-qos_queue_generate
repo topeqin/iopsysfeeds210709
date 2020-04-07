@@ -27,7 +27,7 @@ generate_queue(){
 if [ -s "/etc/config/qos" ]; then
 	if uci -q get qos.@queue[0] >/dev/null; then
 		# return if there is any valid content
-		return 0
+		exit
 	else
 		rm -f /etc/config/qos
 	fi
