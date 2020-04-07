@@ -1,0 +1,38 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+qid=0
+
+generate_queue(){
+	section="$1"
+	config_get ifname "$section" "ifname"
+	i=0
+	for i in 0 1 2 3 4 5 6 7; do
+		uci add qos queue
+		uci rename qos.@queue[-1]="q$qid"
+		uci set qos.@queue[-1].ifname="$ifname"
+		uci set qos.@queue[-1].precedence="$i"
+		uci set qos.@queue[-1].scheduling="WRR"
+		uci set qos.@queue[-1].rate=0
+		uci set qos.@queue[-1].burst_size=-1
+		uci set qos.@queue[-1].traffic_class="$i"
+		uci set qos.@queue[-1].weight=1
+		qid=$((qid + 1))
+	done
+
+	uci commit qos
+}
+
+if [ -s "/etc/config/qos" ]; then
+	if uci -q get qos.@queue[0] >/dev/null; then
+		# return if there is any valid content
+		return 0
+	else
+		rm -f /etc/config/qos
+	fi
+fi
+touch /etc/config/qos
+
+config_load ports
+config_foreach generate_queue ethport
