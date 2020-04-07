@@ -79,21 +79,23 @@ handle_shaper() {
 	tmctl setportshaper --devtype 0 --if $ifname --shapingrate $rate --burstsize $bs
 }
 
-for intf in $(db get hw.board.ethernetPortOrder); do
-        i=0
-        for i in 0 1 2 3 4 5 6 7; do
-                tmctl delqcfg --devtype 0 --if $intf --qid $i
-        done
-done
+configure_qos() {
+	# Delete queues
+	for intf in $(db get hw.board.ethernetPortOrder); do
+		i=0
+		for i in 0 1 2 3 4 5 6 7; do
+		        tmctl delqcfg --devtype 0 --if $intf --qid $i
+		done
+	done
 
-#load UCI file
-config_load qos 
+	# Load UCI file
+	config_load qos
 
-#Processing shaper section(s)
-config_foreach handle_shaper shaper 
+	# Processing shaper section(s)
+	config_foreach handle_shaper shaper
 
-#Processing queue section(s)
-for cmd in q pbit; do
-	config_foreach handle_queue queue $cmd
-done
-
+	# Processing queue section(s)
+	for cmd in q pbit; do
+		config_foreach handle_queue queue $cmd
+	done
+}

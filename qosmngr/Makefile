@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2019 iopsys
+# Copyright (C) 2020 IOPSYS
 #
 
 include $(TOPDIR)/rules.mk
@@ -16,8 +16,10 @@ PKG_LICENSE_FILES:=LICENSE
 include $(INCLUDE_DIR)/package.mk
 
 define Package/qosmngr
-	CATEGORY:=Utilities
-	TITLE:=qos manager daemon
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=QoS Manager
+  DEPENDS:=@(TARGET_iopsys_brcm63xx_arm)
 endef
 
 define Package/qosmngr/description
