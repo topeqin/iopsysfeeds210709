@@ -100,8 +100,8 @@ build_mediatek_wifi_consumer() {
 	local ver commit
 	local chip=$1
 
-	ver=$(grep -w "PKG_VERSION:" ./feeds/iopsys/mt${chip}/Makefile | cut -d'=' -f2)
-	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/mt${chip}/Makefile | cut -d'=' -f2)
+	ver=$(grep -w "PKG_VERSION:" ./feeds/mediatek/mt${chip}/Makefile | cut -d'=' -f2)
+	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/mediatek/mt${chip}/Makefile | cut -d'=' -f2)
 	[ -n "$ver" -a -n "$commit" ] || return
 	ssh $SERVER "test -f $FPATH/mtk${chip}e-${ver}_${commit}.tar.xz" && return
 	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/mtk${chip}e-$ver/ipkg-*
