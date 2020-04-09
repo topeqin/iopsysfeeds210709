@@ -71,6 +71,7 @@ TMPL_QUEUE=$TEMPLATEDIR/queue.TEMPLATE
 TMPL_ASTERISK=$TEMPLATEDIR/asterisk.conf.TEMPLATE
 TMPL_CDR=$TEMPLATEDIR/cdr.conf.TEMPLATE
 TMPL_CDR_SYSLOG=$TEMPLATEDIR/cdr_syslog.conf.TEMPLATE
+TMPL_CDR_MANAGER=$TEMPLATEDIR/cdr_manager.conf.TEMPLATE
 TMPL_CDR_CUSTOM=$TEMPLATEDIR/cdr_custom.conf.TEMPLATE
 TMPL_INDICATIONS=$TEMPLATEDIR/indications.conf.TEMPLATE
 TMPL_CEL=$TEMPLATEDIR/cel.conf.TEMPLATE
@@ -160,6 +161,7 @@ assemble_and_copy_config()
 	[ -f $TMPL_ACL ]	        && cp $TMPL_ACL		        $WORKDIR/acl.conf
 	[ -f $TMPL_CDR_CUSTOM ]	        && cp $TMPL_CDR_CUSTOM	        $WORKDIR/cdr_custom.conf
 	[ -f $TMPL_CDR_SYSLOG ]	        && cp $TMPL_CDR_SYSLOG	        $WORKDIR/cdr_syslog.conf
+	[ -f $TMPL_CDR_MANAGER ]	&& cp $TMPL_CDR_MANAGER	        $WORKDIR/cdr_manager.conf
 	[ -f $TMPL_CONFBRIDGE ]	        && cp $TMPL_CONFBRIDGE	        $WORKDIR/confbridge.conf
 	[ -f $TMPL_UDPTL ]	        && cp $TMPL_UDPTL	        $WORKDIR/udptl.conf
 	[ -f $SPECRATECFG ]		&& cp $SPECRATECFG		$WORKDIR/special_rate_nr.cfg
