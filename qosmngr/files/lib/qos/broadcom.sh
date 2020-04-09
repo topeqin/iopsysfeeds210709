@@ -11,21 +11,21 @@ handle_queue() {
 		local wgt
 		local rate
 		local bs
-		config_get ifname "$qid" "ifname"
+		config_get is_enable "$qid" "enable"
 
+		# no need to configure disabled queues
+		if [ $is_enable == '0' ]; then
+			return
+		fi
+
+		config_get ifname "$qid" "ifname"
 		# if ifname is empty that is good enough to break
 		if [ -z "$ifname" ];then
-			break
+			return
 		fi
 
 		# lower the value, lower the priority of queue on this chip
 		config_get order "$qid" "precedence"
-
-		# on this chip, 8 queues per port exist so values larger than this
-		# cannot be supported
-		if [ $order -gt 7 ]; then
-			continue
-		fi
 
 		config_get tc "$qid" "traffic_class"
 		config_get sc_alg "$qid" "scheduling"
@@ -35,10 +35,6 @@ handle_queue() {
 
 		salg=1
 
-#		if [ $sc_alg == 'WRR' ]; then
-#			salg=2
-#		fi
-		
 		case "$sc_alg" in
    			"SP") salg=1
    			;;
@@ -54,6 +50,14 @@ handle_queue() {
 			# Call tmctl which is a broadcomm command to configure queues on a port.
 			tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
 		else
+			if [ $sc_alg == 'WRR' ]; then
+				return
+			fi
+
+			if [ -z "$tc" ]; then
+				return
+			fi
+
 			# Now the mapping of p bit to a queue happens
 			IFS=,
 			for word in $tc; do
@@ -69,11 +73,20 @@ handle_shaper() {
 	local rate
 	local bs
 	sid="$1" #queue section ID
+
+	config_get is_enable "$sid" "enable"
+	# no need to configure disabled queues
+	if [ $is_enable == '0' ]; then
+		return
+	fi
+
+
 	config_get ifname "$sid" "ifname"
 	# if ifname is empty that is good enough to break
 	if [ -z "$ifname" ];then
-		break
+		return
 	fi
+
 	config_get rate "$sid" "rate"
 	config_get bs "$sid" "burst_size"
 	tmctl setportshaper --devtype 0 --if $ifname --shapingrate $rate --burstsize $bs

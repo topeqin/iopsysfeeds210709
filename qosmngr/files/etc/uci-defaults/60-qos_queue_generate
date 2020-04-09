@@ -2,20 +2,34 @@
 
 . /lib/functions.sh
 
+ethwan="$(db -q get hw.board.ethernetWanPort)"
+is_l2="$(db -q get hw.board.layer2)"
 generate_queue(){
 	section="$1"
+
 	config_get ifname "$section" "ifname"
+
+	local is_lan=0
+	if [ "$ifname" != "$ethwan" ]; then
+		is_lan=1
+	fi
+
+	local no_of_q="0 1 2 3 4 5 6 7"
+        if [ $is_l2 -eq 1 -a $is_lan -eq 1 ]; then
+		no_of_q="0 1 2 3"
+	fi
+
 	i=0
-	for i in 0 1 2 3 4 5 6 7; do
+        for i in $no_of_q; do
 		uci add qos queue
-		uci rename qos.@queue[-1]="q${i}_${ifname}"
+		uci rename qos.@queue[-1]="q_${i}_${ifname}"
+		uci set qos.@queue[-1].enable="1"
 		uci set qos.@queue[-1].ifname="$ifname"
 		uci set qos.@queue[-1].precedence="$i"
-		uci set qos.@queue[-1].scheduling="WRR"
-		uci set qos.@queue[-1].rate=0
-		uci set qos.@queue[-1].burst_size=-1
-		uci set qos.@queue[-1].traffic_class="$i"
-		uci set qos.@queue[-1].weight=1
+		uci set qos.@queue[-1].scheduling="SP"
+		uci set qos.@queue[-1].rate="0"
+		uci set qos.@queue[-1].burst_size="-1"
+		uci set qos.@queue[-1].weight="1"
 	done
 
 	uci commit qos
