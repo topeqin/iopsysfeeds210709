@@ -5,12 +5,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uspd
-PKG_VERSION:=1.0.9
+PKG_VERSION:=1.0.10
 
+LOCAL_DEV:=0
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=4328f3ae9de121f0458c702dc2f07c279727a828
+PKG_SOURCE_VERSION:=4d7bccde18e37630343867abd044bf1cf1169049
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/uspd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_LICENSE:=GPL-2.0-only
@@ -34,9 +37,11 @@ TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
 	-D_GNU_SOURCE
 
-#define Build/Prepare
-#	$(CP) -rf ./uspd/* $(PKG_BUILD_DIR)/
-#endef
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+	$(CP) -rf ~/git/uspd/* $(PKG_BUILD_DIR)/
+endef
+endif
 
 define Package/uspd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
