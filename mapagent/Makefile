@@ -53,7 +53,6 @@ define Package/mapagent/install
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) -r ./files/* $(1)/
 	$(CP) $(PKG_BUILD_DIR)/src/utils/*.so* $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mapagent $(1)/usr/sbin/
 endef
