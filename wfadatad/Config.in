@@ -1,0 +1,16 @@
+if (PACKAGE_wfadatad)
+menu "configurations"
+
+config WFA_DELM_STANDALONE
+	bool "Build as standalone daemon instead of a plugin"
+	default y
+
+config WFA_DELM_MULTIAP_MODE
+	bool "Enable Multi-AP mode"
+	default y
+
+config WIFI_DELM_DEBUG
+	bool "Enable debug logs"
+	default n
+endmenu
+endif

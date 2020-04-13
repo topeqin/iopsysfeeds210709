@@ -1,10 +1,10 @@
 #!/bin/sh /etc/rc.common
 
-START=95
+START=98
 STOP=11
 
 USE_PROCD=1
-PROG=/usr/sbin/wfadatad
+PROG=/usr/sbin/wfa_delm
 
 start_service() {
 	procd_open_instance
