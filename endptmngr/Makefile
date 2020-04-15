@@ -19,7 +19,7 @@ PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
 PKG_NAME:=endptmngr-open
 PATCH_DIR:=
 else
-PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/endptmngr
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/endptmngr.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_NAME:=endptmngr

@@ -19,7 +19,7 @@ PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
 PKG_SOURCE:=$(PKG_NAME)-$(TARGET_PROD)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 else
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/wifilife.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wifilife.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 endif
 
