@@ -1,0 +1,48 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+generate_igmp_global_params(){
+	uci add mcast igmp
+	uci rename mcast.@igmp[-1]="igmp"
+	uci set mcast.@igmp[-1].max_groups="20"
+	uci set mcast.@igmp[-1].max_msf="10"
+	uci set mcast.@igmp[-1].max_membership="20"
+	uci set mcast.@igmp[-1].max_qrv="2"
+	uci set mcast.@igmp[-1].force_version="0"
+	uci commit mcast
+}
+
+generate_mcast_config(){
+	section="$1"
+
+	config_get type "$section" "type"
+	if [ "$type" != "bridge" ]; then
+		return
+	fi
+
+	uci add mcast snooping
+	uci rename mcast.@snooping[-1]="msnoop_1"
+	uci set mcast.@snooping[-1].enable="0"
+	uci set mcast.@snooping[-1].proto="igmp"
+	uci set mcast.@snooping[-1].version="2"
+	uci set mcast.@snooping[-1].robustness="2"
+	uci set mcast.@snooping[-1].aggregation="0"
+	uci set mcast.@snooping[-1].interface="br-$section"
+	uci commit mcast
+}
+
+if [ -s "/etc/config/mcast" ]; then
+	if uci -q get mcast.@snooping[0] >/dev/null; then
+		# return if there is any valid content
+		exit
+	else
+		rm -f /etc/config/mcast
+	fi
+fi
+touch /etc/config/mcast
+
+generate_igmp_global_params
+
+config_load network
+config_foreach generate_mcast_config interface
