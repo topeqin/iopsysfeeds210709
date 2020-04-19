@@ -62,7 +62,7 @@ bcom_get_queue_stats() {
 }
 
 get_queue_stats() {
-	if [ "$(db get hw.board.tm)" == "1" ]; then
+	if [ "$(which tmctl)" ]; then
 		bcom_get_queue_stats
 	fi
 }
