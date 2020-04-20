@@ -60,7 +60,7 @@ build_endptmngr_consumer() {
 }
 
 build_wifilife_consumer() {
-	local target="$"
+	local target="$1"
 	local ver commit
 	ver=$(grep -w "PKG_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
 	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
