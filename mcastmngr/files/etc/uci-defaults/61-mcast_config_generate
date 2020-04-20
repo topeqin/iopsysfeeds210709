@@ -5,9 +5,8 @@
 generate_igmp_global_params(){
 	uci add mcast igmp
 	uci rename mcast.@igmp[-1]="igmp"
-	uci set mcast.@igmp[-1].max_groups="20"
-	uci set mcast.@igmp[-1].max_msf="10"
 	uci set mcast.@igmp[-1].max_membership="20"
+	uci set mcast.@igmp[-1].max_msf="10"
 	uci set mcast.@igmp[-1].max_qrv="2"
 	uci set mcast.@igmp[-1].force_version="0"
 	uci commit mcast

@@ -212,14 +212,13 @@ config_global_igmp_params() {
 	local force_version
 
 	config_load mcast
-	config_get max_groups igmp max_groups 25
 	config_get max_msf igmp max_msf 10
-	config_get max_members igmp max_membership 25
+	config_get max_groups igmp max_membership 25
 	config_get qrv igmp qrv 2
 	config_get force_version igmp force_version 0
 
-	echo $max_members  >/proc/sys/net/ipv4/igmp_max_memberships
-	echo $max_msf > /proc/sys/net/ipv4/igmp_max_msf
+	# mcpd internally writes max_groups and max_msf, no need to modify
+	# here directly
 	echo $qrv > /proc/sys/net/ipv4/igmp_qrv
 	echo $force_version > /proc/sys/net/ipv4/conf/all/force_igmp_version
 
