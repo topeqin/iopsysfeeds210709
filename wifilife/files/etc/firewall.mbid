@@ -58,6 +58,11 @@ append_mbid_rules() {
 	done
 }
 
+finish() {
+	rm /tmp/mbid.lock
+}
+trap finish EXIT INT TERM
+
 while [ -f /tmp/mbid.lock ]; do
 	sleep 2
 done
