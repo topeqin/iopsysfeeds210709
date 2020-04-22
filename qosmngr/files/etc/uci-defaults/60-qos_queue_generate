@@ -3,7 +3,8 @@
 . /lib/functions.sh
 
 ethwan="$(db -q get hw.board.ethernetWanPort)"
-is_l2="$(db -q get hw.board.layer2)"
+cpu_model="$(grep Hardware /proc/cpuinfo  | awk '{print$NF}')"
+
 generate_queue(){
 	section="$1"
 
@@ -15,8 +16,11 @@ generate_queue(){
 	fi
 
 	local no_of_q="0 1 2 3 4 5 6 7"
-        if [ $is_l2 -eq 1 -a $is_lan -eq 1 ]; then
-		no_of_q="0 1 2 3"
+
+        if [ $is_lan -eq 1 ]; then
+		case $cpu_model in
+			BCM968*) no_of_q="0 1 2 3" ;;
+		esac
 	fi
 
 	i=0
