@@ -203,12 +203,12 @@ parse_owsd_iface() {
 		config_list_foreach "$1" "origin" append_str
 
 		# uncomment code below when implementing one vhost per origin fix
-		#[ -n "$2" ] && whitelist_all_origins=1
+		[ -n "$2" ] && whitelist_all_origins=1
 
-		#if [ "$whitelist_all_origins" -eq 1 ]; then
-		#	whitelist_dhcp_domains=1
-		#	whitelist_interface_as_origin=1
-		#fi
+		if [ "$whitelist_all_origins" -eq 1 ]; then
+			whitelist_dhcp_domains=1
+			whitelist_interface_as_origin=1
+		fi
 
 		if [ "$whitelist_dhcp_domains" -eq 1 ]; then
 			for domain in $DHCP_DOMAINS; do
