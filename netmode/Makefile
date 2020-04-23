@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=netmode
 PKG_VERSION:=0.2.0
 
-PKG_SOURCE_VERSION:=6406325e72d7ddd0ff7aaa3a87669519021bdb11
+PKG_SOURCE_VERSION:=5c8abbdf86e4651c7c6f14f784cfb52e69979f96
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/netmoded
 

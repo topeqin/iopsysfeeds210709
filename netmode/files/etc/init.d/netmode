@@ -9,6 +9,13 @@ NETMODED="/sbin/netmoded"
 . /lib/functions/netmode.sh
 
 start_netmoded() {
+	config_load netmode
+
+        config_get enabled netmoded enabled 0
+        if [ "$enabled" != "1" ]; then
+		return
+	fi
+
 	procd_open_instance
 	procd_set_param command $NETMODED
 
