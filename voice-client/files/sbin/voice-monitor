@@ -13,7 +13,7 @@ for peer in $(uci show voice_client | grep sip_service_provider | awk -F[.,=] '{
 done
 
 if [ $ACCOUNTENABLED -eq 0 ]; then
-	ubus call led.voice1 set '{"state":"off"}'
+	ubus call led.voice set '{"state":"off"}'
 	exit
 fi
 
@@ -26,11 +26,11 @@ asterisk -x 'sip show registry' | grep -q "Registered" && REGISTERED=1
 ubus call endpt status | grep -q "OFFHOOK" && OFFHOOK=1
 
 if [ $OFFHOOK -eq 1 ]; then
-	ubus call led.voice1 set '{"state":"notice"}'
+	ubus call led.voice set '{"state":"notice"}'
 elif [ $REGISTERED -eq 1 ]; then
-	ubus call led.voice1 set '{"state":"ok"}'
+	ubus call led.voice set '{"state":"ok"}'
 else
-	ubus call led.voice1 set '{"state":"error"}'
+	ubus call led.voice set '{"state":"error"}'
 fi
 
 ubus listen asterisk.registry asterisk.endpoint | \
@@ -41,10 +41,10 @@ while read event ; do
 		json_get_var status status
 		if [ "$status" == "Registered" ]; then
 			REGISTERED=1
-			[ $OFFHOOK -eq 0 ] && ubus call led.voice1 set '{"state":"ok"}'
+			[ $OFFHOOK -eq 0 ] && ubus call led.voice set '{"state":"ok"}'
 		else
 			REGISTERED=0
-			[ $OFFHOOK -eq 0 ] && ubus call led.voice1 set '{"state":"error"}'
+			[ $OFFHOOK -eq 0 ] && ubus call led.voice set '{"state":"error"}'
 		fi
 	elif json_select asterisk.endpoint >/dev/null; then
 		json_get_var event event
@@ -52,14 +52,14 @@ while read event ; do
 		case $event in
 		    OFFHOOK)
 			OFFHOOK=1
-			ubus call led.voice1 set '{"state":"notice"}'
+			ubus call led.voice set '{"state":"notice"}'
 			;;
 		    ONHOOK)
 			OFFHOOK=0
 			if [ $REGISTERED -eq 1 ]; then
-				ubus call led.voice1 set '{"state":"ok"}'
+				ubus call led.voice set '{"state":"ok"}'
 			else
-			        ubus call led.voice1 set '{"state":"error"}'
+			        ubus call led.voice set '{"state":"error"}'
 			fi
 			;;
 		    *)

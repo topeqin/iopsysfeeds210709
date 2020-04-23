@@ -2242,7 +2242,7 @@ stop_service() {
 reload_service() {
 	start
 	# turn off voice led; asterisk will turn it on if there is a registered account
-	ubus call led.voice1 set '{"state":"off"}'
+	ubus call led.voice set '{"state":"off"}'
 
 	# FXS channel module must be reloaded before sip module. Otherwise some attributes like
 	# line's registration state which is updated by SIP module through callback might be
