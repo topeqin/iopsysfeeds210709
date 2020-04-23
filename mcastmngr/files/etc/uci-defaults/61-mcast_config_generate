@@ -7,8 +7,16 @@ generate_igmp_global_params(){
 	uci rename mcast.@igmp[-1]="igmp"
 	uci set mcast.@igmp[-1].max_membership="20"
 	uci set mcast.@igmp[-1].max_msf="10"
-	uci set mcast.@igmp[-1].max_qrv="2"
+	uci set mcast.@igmp[-1].qrv="2"
 	uci set mcast.@igmp[-1].force_version="0"
+
+	uci add mcast mld
+	uci rename mcast.@mld[-1]="mld"
+	uci set mcast.@mld[-1].mldv1_unsolicited_report_interval="10"
+	uci set mcast.@mld[-1].mldv2_unsolicited_report_interval="1"
+	uci set mcast.@mld[-1].qrv="2"
+	uci set mcast.@mld[-1].force_version="0"
+
 	uci commit mcast
 }
 
