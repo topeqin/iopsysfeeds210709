@@ -150,7 +150,7 @@ validate_owsd_iface() {
 		'port:port' \
 		'interface:network' \
 		'origin:list(string)' \
-		'whitelist_interface_as_origin:bool:0' \
+		'whitelist_interface_as_origin:bool:1' \
 		'whitelist_dhcp_domains:bool:0' \
 		'whitelist_all_origins:bool:0' \
 		'ipv6:bool:1' \
