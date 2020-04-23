@@ -1,157 +1,14 @@
 #!/bin/sh
 
 . /lib/functions.sh
+. /lib/network/utils.sh
 
 NETCON=0
-TVCON=0
 WANIP=0
 LASTSTATUS=""
 CURSTATUS=""
-ETHWAN="$(db -q get hw.board.ethernetWanPort)"
 
 SLEEP_TIME=30
-enableCounter=0
-AccessPolicy=0
-
-get_wifi_iface_cfgstr() {
-	get_cfgno() {
-		config_get ifname "$1" ifname
-		[ "$ifname" == "$2" ] && echo "wireless.$1"
-	}
-	config_load wireless
-	config_foreach get_cfgno wifi-iface $1
-}
-
-ping_uplink()
-{
-	local hasip hasdev hasmode
-	local ipaddr=""
-	local device=""
-	local rready=""
-	local wetif=""
-	local assoclist=""
-	local rv=0
-
-	[ -f /tmp/wps_client_mode_active ] && {
-		ubus call led.internet  set '{"state" : "off"}'
-		return
-	}
-
-	ipaddr="$(ip r | grep default | awk '{print$3}')"
-	[ -n "$ipaddr" ] && hasip=1 || hasip=0
-
-	device="$(ip r | grep default | awk '{print$5}')"
-	[ -n "$device" ] && hasdev=1 || hasdev=0
-		
-	rready="$(uci -q get netmode.setup.repeaterready)"
-	[ "$rready" == "1" ] && hasmode=0 || hasmode=1
-	
-	if [ "$hasmode" == "1" ] && [ "$hasip" == "0" -o "$hasdev" == "0" ]; then
-		rv=0
-	elif [ "$hasmode" == "1" ]; then
-		arping -f -q -c1 -w3 -I $device $ipaddr
-		[ $? -eq 1 ] && rv=0 || rv=1
-
-		if [ "$rv" == "0" ]; then
-			ping -c2 -w5 $ipaddr >/dev/null
-			[ $? -eq 1 ] && rv=0 || rv=1
-		fi
-	else
-		SLEEP_TIME=5
-		ubus call led.internet  set '{"state" : "off"}'
-		return
-	fi
-
-	if [ $rv -eq 0 ]; then
-		echo "{ \"online\" : false }" > /tmp/internet_connection_status
-
-		SLEEP_TIME=10
-
-		wetif="$(uci -q get wireless.$(uci show wireless | grep 'mode=.*wet.*' | cut -d'.' -f2 | head -1).ifname)"
-		# If there is an uplink IP address but no connection for 5 minutes, reboot
-		if [ $enableCounter -gt 32 ]; then
-			logger -s -p user.info -t "testnet" "No uplink connection; reboot" >/dev/console
-			ubus call led.internet  set '{"state" : "error"}'
-			reboot &
-		elif [ $((enableCounter % 8)) -eq 0 -a $enableCounter -ge 8 -o $enableCounter -eq 0 ]; then
-			ps | grep -v grep | grep -q 'wifi reload\|wifi import\|wifi.credentials\|iwpriv' && return
-
-			logger -s -p user.info -t "testnet" "No uplink connection; try to re-connect" >/dev/console
-
-			if [ -f /usr/sbin/wlctl ]; then
-				assoclist="$(wlctl -i $wetif assoclist | head -1 | awk '{print$2}')"
-				wlctl -i $wetif reassoc $assoclsit
-			elif [ -f /usr/sbin/iwpriv ]; then
-				wetcfg="$(get_wifi_iface_cfgstr $wetif)"
-				wetssid="$(uci -q get $wetcfg.ssid)"
-				wetkey="$(uci -q get $wetcfg.key)"
-				if [ -n "$wetkey" ]; then
-					wetauth="WPA2PSK"
-					wetenc="AES"
-				else
-					wetauth="OPEN"
-					wetenc="NONE"
-				fi
-				iwpriv $wetif set ApCliEnable=0
-				iwpriv $wetif set ApCliSsid="$wetssid"
-				iwpriv $wetif set ApCliAuthMode="$wetauth"
-				iwpriv $wetif set ApCliEncrypType="$wetenc"
-				iwpriv $wetif set ApCliWPAPSK="$wetkey"
-				iwpriv $wetif set ApCliEnable=1
-				iwpriv $wetif set ApCliAutoConnect=1
-			fi
-			ubus call led.internet  set '{"state" : "notice"}'
-#			touch /tmp/netmodes/repeater_trying_to_connect
-#		else
-#			if [ -f /tmp/netmodes/repeater_trying_to_connect ]; then
-#				rm -f /tmp/netmodes/repeater_trying_to_connect
-#			else
-#				ubus call led.internet  set '{"state" : "error"}'
-#			fi
-		fi
-
-		enableCounter=$((enableCounter+1))
-
-		if [ $AccessPolicy -eq 1 ]; then
-			return
-		fi
-
-		AccessPolicy=1
-		if [ -f /usr/sbin/iwpriv ]; then
-			grep -q up /sys/class/net/$ETHWAN/operstate 2>/dev/null || {
-				logger -s -p user.info -t "testnet" "Disconnect all stations and disable WiFi access on downlink wireless interfaces" >/dev/console
-				# Do not allow clients to connect on 2.4GHz radio
-				iwpriv ra0 set AccessPolicy=$AccessPolicy
-				# Do not allow clients to connect on 5GHz radio
-				iwpriv rai0 set AccessPolicy=$AccessPolicy
-				# Disconnect clients on 2.4GHz radio
-				iwpriv ra0 set DisConnectAllSta=2
-				# Disconnect clients on 5GHz radio
-				iwpriv rai0 set DisConnectAllSta=2
-			}
-		fi
-	else
-		grep -q "true" /tmp/internet_connection_status 2>/dev/null || logger -s -p user.info -t "testnet" "Uplink connection is gained" >/dev/console
-		echo "{ \"online\" : true }" > /tmp/internet_connection_status
-		leden="$(uci -q get leds.internet.enable)"
-		[ "$leden" == "1" ] && ubus call led.internet  set '{"state" : "eok"}'
-
-		SLEEP_TIME=5
-
-		enableCounter=0
-		if [ $AccessPolicy -eq 0 ]; then
-			return
-		fi
-		# Uplink working, allow clients to connect
-		AccessPolicy=0
-
-		if [ -f /usr/sbin/iwpriv ]; then
-			logger -s -p user.info -t "testnet" "Enable WiFi access on downlink wireless interfaces" >/dev/console
-			iwpriv ra0 set AccessPolicy=$AccessPolicy
-			iwpriv rai0 set AccessPolicy=$AccessPolicy
-		fi
-	fi
-}
 
 test_connection() {
 	local addr="$1"
@@ -166,31 +23,25 @@ test_connection() {
 		for nmsrv in $(grep nameserver /var/resolv.conf.auto | awk '{print$2}'); do
 			ping -q -w 5 -c 1 $nmsrv >/dev/null 2>&1 && return 0
 		done
-	elif [ -n "$def6route" ] && [ -n "$ping6dev" ]; then
+	elif [ -n "$def6route" -a -n "$ping6dev" ]; then
 		ndisc6 -w 5 -1 $def6route $ping6dev >/dev/null 2>&1 && return 0
 	fi
 	return 1
 }
 
-wan_have_ip() {
-	[ -d /sys/class/net/$ETHWAN ] || return
-	ubus list led.wan >/dev/null 2>&1 || return
-
-	local addr=$(ip a show dev $ETHWAN | grep "inet "| awk '{print $2}')
-
-	if [ -n "$addr" ]; then
-		WANIP=1
+uplink_test() {
+	uplink_phy_connected
+	if [ $? -eq 0 ]; then
 		ubus call led.wan  set '{"state" : "ok"}'
 	else
-		WANIP=0
+		ubus call led.wan  set '{"state" : "off"}'
 	fi
-	# don't set wan here status is set from hotplug, only set when ip is detected.
 }
 
 internet_test() {
 	local link dest
 
-	dest="$(uci -q get system.@system[0].netping_addr)"
+	dest="$(uci -q get diagnostics.@connectivity[0].destination)"
 
 	test_connection $dest
 
@@ -205,41 +56,8 @@ internet_test() {
 	fi
 }
 
-iptv_test() {
-	local dest="$(uci -q get system.@system[0].tvping_addr)"
-
-	[ -n "$dest" ] || return
-
-	ubus list led.ext >/dev/null 2>&1 || return
-
-	test_connection $dest
-
-	if [ "$?" -eq 0 ]; then
-		TVCON=1
-		ubus call led.ext set '{"state" : "ok"}'
-	else
-		TVCON=0
-		ubus call led.ext set '{"state" : "off"}'
-	fi
-}
-
-netmode_check() {
-	local curmode="$(uci -q get netmode.setup.curmode)"
-	local uplinkband="$(uci -q get netmode.$curmode.uplink_band)"
-	local rready="$(uci -q get netmode.setup.repeaterready)"
-
-	[ "$rready" == "1" ] && uplinkband="a"
-
-	echo "$uplinkband"
-}
-
 connectivity_test() {
-	if [ "$(netmode_check)" != "" ]; then
-		ping_uplink
-		return
-	fi
-
-	SLEEP_TIME=30
+	uplink_test
 
 	internet_test
 

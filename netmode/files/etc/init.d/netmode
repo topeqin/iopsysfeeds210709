@@ -24,18 +24,12 @@ start_service() {
 	populate_netmodes
 
 	start_netmoded
-	start_netmode_tools
 }
 
 reload_service() {
         switch_netmode
 
 	start_netmoded
-	start_netmode_tools
-}
-
-stop_service() {
-	stop_netmode_tools
 }
 
 service_triggers()

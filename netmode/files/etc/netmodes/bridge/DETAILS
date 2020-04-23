@@ -1,0 +1,9 @@
+{
+	"description": [
+		{ "en" : "Bridge Mode" }
+	],
+	"explanation": [
+		{ "en" : "NAT is disabled." }
+	],
+	"reboot" : 0
+}

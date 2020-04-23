@@ -1,9 +1,8 @@
-config mode 'setup'
-        option dir '/etc/netmodes'
-        option detail ''
-        option curmode 'routed'
+config netmoded 'netmoded'
+	option enabled '0'
 
-config tools 'tools'
-	option wificontrol 0
-	option arp_discovery 1
+config setup 'setup'
+	option enabled '0'
+        option dir '/etc/netmodes'
+#	option mode 'router'
 

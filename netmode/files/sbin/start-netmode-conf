@@ -1,3 +1,0 @@
-#!/bin/sh
-
-netmode-conf "$1" "$2" &

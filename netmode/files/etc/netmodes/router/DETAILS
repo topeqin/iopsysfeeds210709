@@ -1,0 +1,9 @@
+{
+	"description": [
+		{ "en" : "Router Mode" }
+	],
+	"explanation": [
+		{ "en" : "NAT is enabled." }
+	],
+	"reboot" : 0
+}
