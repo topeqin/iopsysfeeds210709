@@ -12,7 +12,7 @@ PKG_NAME:=peripheral_manager
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=778735da4e25e2075a6ecb365850a61ceb4bd515
+PKG_SOURCE_VERSION:=69ee881dbff681151eb098ccd8a330af218575c0
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/peripheral-manager
 
@@ -39,7 +39,7 @@ define Package/peripheral_manager
 	CATEGORY:=Utilities
 	TITLE:=Application deamon for handling of peripheral
 	URL:=
-	DEPENDS:=+libuci +libubus +libblobmsg-json @+PACKAGE_bcmkernel:bcmkernel
+	DEPENDS:=+libuci +libubus +libblobmsg-json @+PACKAGE_bcmkernel:bcmkernel PACKAGE_bcmkernel:bcmkernel
 endef
 
 define Package/peripheral_manager/description
