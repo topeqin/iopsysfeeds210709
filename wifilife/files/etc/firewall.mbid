@@ -9,7 +9,7 @@ remove_mbid_rules() {
 		old_rule=${old_rule/-A /-D }
 		eval $old_rule 2>/dev/null
 	done
-	rm /tmp/mbid_rules
+	rm -f /tmp/mbid_rules
 }
 
 # read firewall parental rules and add repeated addresses
@@ -59,7 +59,7 @@ append_mbid_rules() {
 }
 
 finish() {
-	rm /tmp/mbid.lock
+	rm -f /tmp/mbid.lock
 }
 trap finish EXIT INT TERM
 
@@ -69,4 +69,4 @@ done
 touch /tmp/mbid.lock
 remove_mbid_rules
 append_mbid_rules
-rm /tmp/mbid.lock
+rm -f /tmp/mbid.lock
