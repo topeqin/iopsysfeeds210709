@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+case "$1" in
+	list)
+		echo '{ "status" : {} }'
+	;;
+	call)
+		case "$2" in
+			status)
+				json_load "$(cat /tmp/internet_connection_status 2>/dev/null)"
+				json_dump
+			;;
+		esac
+	;;
+esac
+
