@@ -1,5 +1,0 @@
-[syslog]
-
-facility = local0
-priority = info
-template = "callId:${CDR(clid)}, src:${CDR(src)}, dst:${CDR(dst)}, dstContext:${CDR(dcontext)}, chan:${CDR(channel)}, dstChan:${CDR(dstchannel)},$ app:${CDR(lastapp)}, arg:${CDR(lastdata)}, start:${CDR(start)}, answ:${CDR(answer)}, end:${CDR(end)}, duration:${CDR(duration)}, billsec:${CDR(billsec)}, dispos:${CDR(disposition)}, amaflag:${CDR(amaflags)}, accCode:${CDR(accountcode)}, uniqId:${CDR(uniqueid)}, userfield:${CDR(userfield)}"
