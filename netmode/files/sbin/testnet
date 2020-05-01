@@ -32,9 +32,9 @@ test_connection() {
 uplink_test() {
 	uplink_phy_connected
 	if [ $? -eq 0 ]; then
-		ubus call led.wan  set '{"state" : "ok"}'
+		ubus call led.wan set '{"state" : "ok"}' || ubus call led.broadband set '{"state" : "ok"}'
 	else
-		ubus call led.wan  set '{"state" : "off"}'
+		ubus call led.wan set '{"state" : "off"}' || ubus call led.broadband set '{"state" : "off"}'
 	fi
 }
 
@@ -70,8 +70,6 @@ connectivity_test() {
 		[ "$CURSTATUS" == "$LASTSTATUS" ] || ubus send internet '{"status" : "offline"}'
 		LASTSTATUS=0
 	fi
-
-	iptv_test
 }
 
 if [ "$1" == "once" ]; then
