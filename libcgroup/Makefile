@@ -100,6 +100,6 @@ define Package/libcgroup-utils/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin
 endef
 
-$(eval $(call BuildPackage,libcgroup))
-$(eval $(call BuildPackage,libcgroup-daemon))
-$(eval $(call BuildPackage,libcgroup-utils))
+#$(eval $(call BuildPackage,libcgroup))
+#$(eval $(call BuildPackage,libcgroup-daemon))
+#$(eval $(call BuildPackage,libcgroup-utils))
