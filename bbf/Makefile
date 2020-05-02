@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=1.2-2020-04-26
+PKG_VERSION:=1.2-2020-05-02
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
