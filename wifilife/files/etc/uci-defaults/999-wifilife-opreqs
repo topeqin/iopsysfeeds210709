@@ -27,8 +27,6 @@ add_firewall_mbid() {
 				uci -q set firewall.mbid=include
 				uci -q set firewall.mbid.path="/etc/firewall.mbid"
 				uci -q set firewall.mbid.reload=1
-				uci del_list firewall.mbid._access_w=root
-				uci add_list firewall.mbid._access_w=root
 				uci commit firewall
 		}
 	fi

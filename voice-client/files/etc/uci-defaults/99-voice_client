@@ -43,8 +43,6 @@ uci -q batch <<-EOT
         set firewall.sip=include
         set firewall.sip.path=/etc/firewall.sip
         set firewall.sip.reload=1
-	uci del_list firewall.sip._access_w="root"
-	uci add_list firewall.sip._access_w="root"
         commit firewall
 EOT
 
