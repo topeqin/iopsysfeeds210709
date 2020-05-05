@@ -6,10 +6,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=opkgd
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=d3da32eca6e50b6be6e846a7f82c8e93c74c45a4
+PKG_SOURCE_VERSION:=c5ead73a9c667ceaaba32826d27be53fdddaad24
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/opkgd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
