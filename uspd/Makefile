@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uspd
-PKG_VERSION:=1.0.12
+PKG_VERSION:=1.0.13
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=418daea81ebc3a93be35407562b354a51ac1758a
+PKG_SOURCE_VERSION:=5d1c78fd667c0c33257cf22206c3c3a755a363fd
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/uspd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -35,7 +35,14 @@ endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
-	-D_GNU_SOURCE
+	-D_GNU_SOURCE \
+	-fstrict-aliasing \
+	-Wall -Wextra -Werror \
+	-DDM_USE_LIBUBUS \
+	-Wformat \
+	-Wformat-signedness \
+	-Wsign-conversion
+
 
 ifeq ($(LOCAL_DEV),1)
 define Build/Prepare
