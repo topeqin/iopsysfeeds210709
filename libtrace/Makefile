@@ -34,7 +34,7 @@ define Package/libtrace
   CATEGORY:=Libraries
   TITLE:=Libtrace library for packet trace processing
   URL:=http://research.wand.net.nz/software/libtrace.php
-  DEPENDS:=+libpcap +libpthread +zlib +libbz2 +liblzo +librt +$(CXX_DEPENDS)
+  DEPENDS:=+libpcap +libpthread +zlib +libbz2 +liblzo +librt +liblzma +$(CXX_DEPENDS)
 endef
 
 define Package/libtrace/description
