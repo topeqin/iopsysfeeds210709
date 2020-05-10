@@ -1,14 +1,14 @@
 #
-# Copyright (C) 2013-2019 iopsys
+# Copyright (C) 2013-2020 iopsys
 #
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=5.1.5
+PKG_VERSION:=5.1.6
 
-PKG_SOURCE_VERSION:=be258b7f569155f0ff0b3c7491fab31ec2a602a7
+PKG_SOURCE_VERSION:=4bf40dd8e747f37c2565b7bb18e47ff0834a827f
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/questd
 
