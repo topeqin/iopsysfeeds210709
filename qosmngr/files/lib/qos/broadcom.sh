@@ -2,11 +2,12 @@
 . /lib/functions.sh
 
 IP_RULE=""
+BR_RULE=""
 
 #function to handle a queue section
 handle_queue() {
 	qid="$1" #queue section ID
-	cmd=$2 #additional parameter
+
 	config_get is_enable "$qid" "enable"
 
 	#no need to configure disabled queues
@@ -23,7 +24,6 @@ handle_queue() {
 	#lower the value, lower the priority of queue on this chip
 	config_get order "$qid" "precedence"
 
-	config_get tc "$qid" "traffic_class"
 	config_get sc_alg "$qid" "scheduling"
 	config_get wgt "$qid" "weight"
 	config_get rate "$qid" "rate"
@@ -32,36 +32,19 @@ handle_queue() {
 	salg=1
 
 	case "$sc_alg" in
-		   "SP") salg=1
-		   ;;
-		   "WRR") salg=2
-		   ;;
-		   "WDRR") salg=3
-		   ;;
-		   "WFQ") salg=4
-		   ;;
+		"SP") salg=1
+		;;
+		"WRR") salg=2
+		;;
+		"WDRR") salg=3
+		;;
+		"WFQ") salg=4
+		;;
 	esac
 
-	if [ $cmd == q ]; then
-		# Call tmctl which is a broadcomm command to configure queues on a port.
-		tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
-			
-	else
-		if [ $sc_alg == 'WRR' ]; then
-			return
-		fi
-
-		if [ -z "$tc" ]; then
-			return
-		fi
-
-		# Now the mapping of p bit to a queue happens
-		IFS=,
-		for word in $tc; do
-			tmctl setpbittoq --devtype 0 --if $ifname --pbit $word --qid $order
-		done
-	fi
-}	
+	# Call tmctl which is a broadcomm command to configure queues on a port.
+	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
+}
 
 #function to handle a shaper section
 handle_shaper() {
@@ -85,7 +68,66 @@ handle_shaper() {
 	tmctl setportshaper --devtype 0 --if $ifname --shapingrate $rate --burstsize $bs
 }
 
-#Below are the functions to construct iptables rules
+init_broute_rule() {
+	BR_RULE=""
+}
+
+broute_filter_on_src_if() {
+	BR_RULE="$BR_RULE --in-if $1"
+}
+
+broute_filter_on_src_mac() {
+	BR_RULE="$BR_RULE --src $1"
+}
+
+broute_filter_on_dst_mac() {
+	BR_RULE="$BR_RULE --dst $1"
+}
+
+broute_filter_on_pcp() {
+	BR_RULE="$BR_RULE --skbvlan-prio $1"
+}
+
+broute_filter_on_ether_type() {
+	BR_RULE="$BR_RULE --proto $1"
+}
+
+broute_filter_on_vid() {
+	BR_RULE="$BR_RULE --skbvlan-id $1"
+}
+
+broute_rule_set_traffic_class() {
+	BR_RULE="$BR_RULE -j mark --mark-or 0x$1 --mark-target ACCEPT"
+}
+
+broute_append_rule() {
+	echo "ebtables -t broute -A BROUTING $BR_RULE" >> /tmp/qos/classify.ebtables
+}
+
+handle_ebtables_rules() {
+	sid=$1
+
+	init_broute_rule
+
+	config_get src_if "$sid" "ifname"
+	[ -n "$src_if" ] && broute_filter_on_src_if $src_if
+	config_get src_mac "$sid" "src_mac"
+	[ -n "$src_mac" ] && broute_filter_on_src_mac $src_mac
+	config_get dst_mac "$sid" "dest_mac"
+	[ -n "$dst_mac" ] && broute_filter_on_dst_mac $dst_mac
+	config_get pcp_check "$sid" "pcp_check"
+	[ -n "$pcp_check" ] && broute_filter_on_pcp $pcp_check
+	config_get eth_type "$sid" "ethertype"
+	[ -n "$eth_type" ] && broute_filter_on_ether_type $eth_type
+	config_get vid "$sid" "vid_check"
+	[ -n "$vid" ] && broute_filter_on_vid $vid
+
+	config_get traffic_class "$sid" "traffic_class"
+	[ -n "$traffic_class" ] && broute_rule_set_traffic_class $traffic_class
+
+	[ -n "$BR_RULE" ] && broute_append_rule
+}
+
 init_iptables_rule() {
 	IP_RULE=""
 }
@@ -135,6 +177,7 @@ mangle_append_rule(){
 
 handle_iptables_rules() {
 	cid=$1
+
 	init_iptables_rule
 	config_get proto "$cid" "proto"
 	config_get dscp_mark "$cid" "dscp_mark"
@@ -148,15 +191,15 @@ handle_iptables_rules() {
 	config_get src_ip "$cid" "src_ip"
 	config_get src_mask "$cid" "src_mask"
 
-	# filter proto   
-	[ -n "$proto" ] && iptables_filter_proto $proto 
+	# filter proto
+	[ -n "$proto" ] && iptables_filter_proto $proto
 
 	#filter src. ip
 	[ -n "$src_ip" ] && iptables_filter_ip_src $src_ip
 
 	#filter dest. ip
 	[ -n "$dest_ip" ] && iptables_filter_ip_dest $dest_ip
-	
+
 	#filter src. ip mask
 	[ -n "$src_mask" ] && iptables_filter_ip_mask $src_mask
 
@@ -187,6 +230,14 @@ handle_iptables_rules() {
 #function to handle a classify section
 handle_classify() {
 	cid="$1" #classify section ID
+
+	config_get is_enable "$cid" "enable"
+	# no need to configure disabled classify rules
+	if [ $is_enable == '0' ]; then
+		return
+	fi
+
+	handle_ebtables_rules $cid
 	handle_iptables_rules $cid
 }
 
@@ -204,20 +255,26 @@ configure_qos() {
 	# Processing shaper section(s)
 	config_foreach handle_shaper shaper
 
-	# Processing queue section(s)
-	for cmd in q pbit; do
-		config_foreach handle_queue queue $cmd
-	done
+	config_foreach handle_queue queue
+
 	#processing classify section
-	# Flush the broute table before processing classify section
+	# First remove old files
+	rm -f /tmp/qos/classify.ebtables
 	rm -f /tmp/qos/classify.iptables
-	#create iptables script file if not present
-	mkdir -p /tmp/qos/ && touch /tmp/qos/classify.iptables
+
+	#create files that will contain the rules if not present already
+	mkdir -p /tmp/qos/
+	touch /tmp/qos/classify.iptables
+	touch /tmp/qos/classify.ebtables
+
+	echo "ebtables -t broute -F" > /tmp/qos/classify.ebtables
 	echo "iptables -t mangle -F FORWARD" > /tmp/qos/classify.iptables
 
 	config_foreach handle_classify classify
+
 	# For now qosmngr will execute the ebtables and iptables scripts
 	# that it generates, this can later be integrated with the include
 	# section of firewall uci bu execute for now
+	sh /tmp/qos/classify.ebtables
 	sh /tmp/qos/classify.iptables
 }
