@@ -1,5 +1,0 @@
-
-config testserver '1'
-	option server 'referens.sth.ip-performance.se'
-	option port '1641'
-
