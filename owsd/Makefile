@@ -57,7 +57,6 @@ define Package/owsd/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/owsd $(1)/usr/bin/owsd
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uproxyd $(1)/sbin/uproxyd
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/owsd.init $(1)/etc/init.d/owsd
 	$(INSTALL_DIR) $(1)/etc/config
@@ -65,6 +64,7 @@ define Package/owsd/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/owsd.hotplug $(1)/etc/hotplug.d/iface/55-owsd
 ifeq ($(CONFIG_OWSD_UPROXYD),y)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uproxyd $(1)/sbin/uproxyd
 	$(CP) ./uproxy-files/* $(1)/
 endif
 endef
