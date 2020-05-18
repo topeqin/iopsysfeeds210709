@@ -30,6 +30,10 @@ stop() {
 	echo ;
 }
 
+service_triggers() {
+	procd_add_reload_trigger qos
+}
+
 reload_service() {
 	# Call functions to configure QoS
 	start
@@ -37,3 +41,5 @@ reload_service() {
 	# reload the daemon responsible for reading qos stats
 	# ubus -t 5 call qos reload
 }
+
+
