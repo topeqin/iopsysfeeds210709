@@ -5,11 +5,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=easy-soc-events
-PKG_VERSION:=1.0
+PKG_VERSION:=1.1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/easy-soc-events.git
-PKG_SOURCE_VERSION:=f340418462d0aa119f8009d4321f18dc9c4e47b1
+PKG_SOURCE_VERSION:=5c582b0165b574dc94e4865f82e0bb91fa561754
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
@@ -21,13 +21,24 @@ LINUX_DIR=$(BUILD_DIR)/bcmkernel/bcm963xx/kernel/linux-4.1
 LINUXINCLUDE=-Iarch/$(LINUX_KARCH)/mach-bcm963xx/include
 endif
 
+define KernelPackage/easy-soc-events/default
+  SUBMENU:=Other modules
+endef
 
 define KernelPackage/easy-soc-events
-  SUBMENU:=Other modules
+  $(KernelPackage/easy-soc-events/default)
   TITLE:=Helper module for netlink event notification
   FILES:=$(PKG_BUILD_DIR)/easyevent.ko
   AUTOLOAD:=$(call AutoProbe,easyevent)
 endef
+
+define KernelPackage/easy-soc-events-test
+  $(KernelPackage/easy-soc-events/default)
+  TITLE:=Test module for event notification through easyevent
+  DEPENDS+=+kmod-easy-soc-events
+  FILES+=$(PKG_BUILD_DIR)/test/testevent.ko
+endef
+
 
 define KernelPackage/easy-soc-events/description
   This is a helper module to generate and pass netlink events from
@@ -35,6 +46,10 @@ define KernelPackage/easy-soc-events/description
 endef
 
 #NOSTDINC_FLAGS :=
+
+ifdef CONFIG_PACKAGE_kmod-easy-soc-events
+  PKG_MAKE_FLAGS += CONFIG_EASYEVENT=y
+endif
 
 LINUXINCLUDE += \
 		-I$(LINUX_DIR)/include -I$(LINUX_DIR)/include/$(LINUX_UAPI_DIR) \
@@ -53,6 +68,7 @@ endef
 define Build/Compile
 	$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
 		$(KERNEL_MAKE_FLAGS) V=1 \
+		$(PKG_MAKE_FLAGS) \
 		NOSTDINC_FLAGS="$(NOSTDINC_FLAGS)" \
 		LINUXINCLUDE="$(LINUXINCLUDE)" \
 		SUBDIRS="$(PKG_BUILD_DIR)" \
@@ -67,4 +83,5 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/wifievent.h $(LINUX_DIR)/include/generated/uapi
 endef
 
+$(eval $(call KernelPackage,easy-soc-events-test))
 $(eval $(call KernelPackage,easy-soc-events))
