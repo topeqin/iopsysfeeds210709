@@ -4,7 +4,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=mapagent
+PKG_NAME:=map-agent
 PKG_VERSION:=2.0.1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=362ddbaf2b9a5510c89b740fcc23d8425770da3d
@@ -19,18 +19,18 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/mapagent
+define Package/map-agent
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi multi-AP Agent (EasyMesh R2)
   DEPENDS:=+libwifi +libuci +libubox +ubus
 endef
 
-define Package/mapagent/description
+define Package/map-agent/description
  This package implements EasyMesh R2 compliant WiFi Agent.
 endef
 
-define Package/mapagent/config
+define Package/map-agent/config
 	#source "$(SOURCE)/Config.in"
 endef
 
@@ -49,7 +49,7 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/src/utils/*.so* $(1)/usr/lib/
 endef
 
-define Package/mapagent/install
+define Package/map-agent/install
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/sbin
@@ -57,4 +57,4 @@ define Package/mapagent/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mapagent $(1)/usr/sbin/
 endef
 
-$(eval $(call BuildPackage,mapagent))
+$(eval $(call BuildPackage,map-agent))
