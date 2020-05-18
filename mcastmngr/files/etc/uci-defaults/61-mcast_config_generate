@@ -29,7 +29,7 @@ generate_mcast_config(){
 	fi
 
 	uci add mcast snooping
-	uci rename mcast.@snooping[-1]="msnoop_1"
+	uci rename mcast.@snooping[-1]="igmp_snoop_1"
 	uci set mcast.@snooping[-1].enable="0"
 	uci set mcast.@snooping[-1].proto="igmp"
 	uci set mcast.@snooping[-1].version="2"
