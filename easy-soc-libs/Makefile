@@ -75,6 +75,9 @@ else ifeq ($(CONFIG_TARGET_iopsys_linksys),y)
 else ifeq ($(CONFIG_TARGET_intel_mips),y)
   TARGET_PLATFORM=INTEL
   TARGET_CFLAGS +=-DIOPSYS_INTEL
+else ifeq ($(CONFIG_TARGET_x86),y)
+  TARGET_PLATFORM=TEST
+  TARGET_CFLAGS +=-DIOPSYS_TEST
 else
   $(info Unexpected CONFIG_TARGET)
 endif
