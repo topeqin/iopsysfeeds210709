@@ -167,12 +167,36 @@ iptables_filter_dscp_filter() {
 	IP_RULE="$IP_RULE -m dscp --dscp $1"
 }
 
+iptables_filter_ip_len_min() {
+        IP_RULE="$IP_RULE -m length --length $1"
+}
+
+iptables_filter_ip_len_max() {
+        IP_RULE="$IP_RULE:$1"
+}
+
 iptables_set_dscp_mark() {
 	IP_RULE="$IP_RULE -j DSCP --set-dscp $1"
 }
 
-mangle_append_rule(){
-	echo "iptables -t mangle -A FORWARD $IP_RULE" >> /tmp/qos/classify.iptables
+iptables_set_traffic_class() {
+        IP_RULE="$IP_RULE -j MARK --set-xmark 0x$1/0x$1"
+}
+
+mangle_append_rule_dscp(){
+        echo "iptables -t mangle -A FORWARD $IP_RULE" >> /tmp/qos/classify.iptables
+}
+
+mangle_append_rule_queue(){
+	ifname=$1
+	# check if rule for internal traffic
+	if [[ ${ifname:0:2} == 'lo' ]]; then
+        	echo "iptables -t mangle -A OUTPUT $IP_RULE" >> /tmp/qos/classify.iptables
+	fi
+	# check if rule for LAN traffic
+	if [[ ${ifname:0:3} == 'eth' ]]; then
+        	echo "iptables -t mangle -A PREROUTING $IP_RULE" >> /tmp/qos/classify.iptables
+	fi
 }
 
 handle_iptables_rules() {
@@ -180,6 +204,7 @@ handle_iptables_rules() {
 
 	init_iptables_rule
 	config_get proto "$cid" "proto"
+        config_get traffic_class "$sid" "traffic_class"
 	config_get dscp_mark "$cid" "dscp_mark"
 	config_get dscp_filter "$cid" "dscp_filter"
 	config_get dest_port "$cid" "dest_port"
@@ -190,6 +215,9 @@ handle_iptables_rules() {
 	config_get dest_mask "$cid" "dest_mask"
 	config_get src_ip "$cid" "src_ip"
 	config_get src_mask "$cid" "src_mask"
+        config_get ip_len_min "$cid" "ip_len_min"
+        config_get ip_len_max "$cid" "ip_len_max"
+	config_get ifname "$cid" "ifname"
 
 	# filter proto
 	[ -n "$proto" ] && iptables_filter_proto $proto
@@ -221,10 +249,23 @@ handle_iptables_rules() {
 	#filter dscp
 	[ -n "$dscp_filter" ] && iptables_filter_dscp_filter $dscp_filter
 
+	#filter min. IP packet len.
+        [ -n "$ip_len_min" ] && iptables_filter_ip_len_min $ip_len_min
+
+        #filter max. IP packet len.
+        [ -n "$ip_len_max" ] && iptables_filter_ip_len_max $ip_len_max
+
 	#set dscp mark
 	[ -n "$dscp_mark" ] && iptables_set_dscp_mark $dscp_mark
 
-	[ -n "$IP_RULE" ] && mangle_append_rule
+	#set packet queue mark
+        [ -n "$traffic_class" ] && iptables_set_traffic_class  $traffic_class
+
+        #write iptables rule for dscp marking
+        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && mangle_append_rule_dscp
+
+        #write iptables rule for putting packets in different queue
+        [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ] && mangle_append_rule_queue $ifname
 }
 
 #function to handle a classify section
@@ -269,6 +310,8 @@ configure_qos() {
 
 	echo "ebtables -t broute -F" > /tmp/qos/classify.ebtables
 	echo "iptables -t mangle -F FORWARD" > /tmp/qos/classify.iptables
+        echo "iptables -t mangle -F PREROUTING" >> /tmp/qos/classify.iptables
+        echo "iptables -t mangle -F OUTPUT" >> /tmp/qos/classify.iptables
 
 	config_foreach handle_classify classify
 
