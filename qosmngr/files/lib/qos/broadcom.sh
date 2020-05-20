@@ -278,3 +278,129 @@ configure_qos() {
 	sh /tmp/qos/classify.ebtables
 	sh /tmp/qos/classify.iptables
 }
+
+get_queue_stats() {
+	json_init
+	json_add_array "queues"
+	i=0
+	while :
+	do
+		ifname=$(uci -q  get qos.@queue[$i].ifname)
+
+		# if ifname is empty that is good enough to break
+		if [ -z "$ifname" ];then
+			break
+		fi
+
+		order=$(uci -q get qos.@queue[$i].precedence)
+		stats="$(tmctl getqstats --devtype 0 --if $ifname --qid $order)"
+		ret="$(echo $stats | awk '{print substr($0,0,5)}')"
+
+		#check tmctl ERROR condition
+		if [ $ret == 'ERROR' ]; then
+			i=$((i + 1))
+			continue
+		fi
+		json_add_object ""
+		json_add_string "qid" "$order"
+		json_add_string "iface" "$ifname"
+
+		IFS=$'\n'
+		for stat in $stats; do
+			pname="$(echo $stat | awk '{print$1}')"
+			if [ $pname == 'ret' ]; then
+				continue
+			fi
+
+			val="$(echo $stat | awk '{print$2}')"
+
+			# remove trailing : from the name
+			pname="${pname::-1}"
+
+			# convert to iopsyswrt names
+			case "$pname" in
+				txPackets)
+					json_add_string "tx_packets" "$val"
+				;;
+				txBytes)
+					json_add_string "tx_bytes" "$val"
+				;;
+				droppedPackets)
+					json_add_string "tx_dropped_packets" "$val"
+				;;
+				droppedBytes)
+					json_add_string "tx_dropped_bytes" "$val"
+				;;
+			esac
+		done
+
+		json_close_object
+		i=$((i + 1))
+	done
+
+	json_close_array
+	json_dump
+}
+
+get_eth_q_stats() {
+	json_init
+	json_add_array "queues"
+
+	ifname="$1"
+
+	# if ifname is empty that is good enough to break
+	if [ -z "$ifname" ];then
+		return
+	fi
+
+	qid="$2"
+	if [ -z "$qid" ];then
+		return
+	fi
+
+	stats="$(tmctl getqstats --devtype 0 --if $ifname --qid $qid)"
+	ret="$(echo $stats | awk '{print substr($0,0,5)}')"
+
+	#check tmctl ERROR condition
+	if [ $ret == 'ERROR' ]; then
+		return
+	fi
+
+	json_add_object ""
+	json_add_string "qid" "$qid"
+	json_add_string "iface" "$ifname"
+
+	IFS=$'\n'
+	for stat in $stats; do
+		pname="$(echo $stat | awk '{print$1}')"
+		if [ $pname == 'ret' ]; then
+			continue
+		fi
+
+		val="$(echo $stat | awk '{print$2}')"
+
+		# remove trailing : from the name
+		pname="${pname::-1}"
+
+		# convert to iopsyswrt names
+		case "$pname" in
+			txPackets)
+				json_add_string "tx_packets" "$val"
+			;;
+			txBytes)
+				json_add_string "tx_bytes" "$val"
+			;;
+			droppedPackets)
+				json_add_string "tx_dropped_packets" "$val"
+			;;
+			droppedBytes)
+				json_add_string "tx_dropped_bytes" "$val"
+			;;
+		esac
+	done
+
+	json_close_object
+
+	json_close_array
+	json_dump
+}
