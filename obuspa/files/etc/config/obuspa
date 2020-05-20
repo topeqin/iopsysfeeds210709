@@ -7,7 +7,8 @@ config obuspa
 	option cert '/etc/obuspa/rootCA.pem'
 	option interface 'wan'
 	option debug 'false'
-	option log_level '1' 
+	option log_level '1'
+	option log_dest '/var/log/obuspa'
 
 config controller
 	option endpointid 'self::usp-controller.com'

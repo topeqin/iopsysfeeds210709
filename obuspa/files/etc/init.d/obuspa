@@ -30,7 +30,8 @@ validate_obuspa_section()
 		'cert:string:"/etc/obuspa/rootCA.pem"' \
 		'interface:string:wan' \
 		'debug:bool:false' \
-		'log_level:uinteger:2'
+		'log_level:uinteger:2' \
+		'log_dest:string:stdout'
 }
 
 validate_controller_section()
@@ -165,7 +166,7 @@ configure_connection() {
 }
 
 configure_obuspa() {
-	local enable cert interface debug log_level
+	local enable cert interface debug log_level log_dest
 
 	validate_obuspa_section "${1}" || {
 		log "Validation of section failed"
@@ -183,7 +184,7 @@ configure_obuspa() {
 		procd_set_param stderr 1
 		procd_append_param command -p
 	fi
-	procd_append_param command -v ${log_level} -l syslog
+	procd_append_param command -v ${log_level} -l ${log_dest}
 
 	# Get wan L3 interface
 	json_load "$(ubus -t 2 call network.interface.${interface} status)"
@@ -214,7 +215,7 @@ start_service() {
 	procd_set_param env USP_BOARD_IFNAME=${l3device}
 	procd_set_param command ${PROG}
 	db_init
-	procd_append_param command -r ${PARAM_FILE} 
+	procd_append_param command -r ${PARAM_FILE}
 	if [ -f "${certificate}" ]; then
 		procd_append_param command -t ${certificate}
 	fi
