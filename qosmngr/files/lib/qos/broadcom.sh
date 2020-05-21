@@ -68,6 +68,13 @@ handle_shaper() {
 	tmctl setportshaper --devtype 0 --if $ifname --shapingrate $rate --burstsize $bs
 }
 
+flush_chains() {
+	echo "ebtables -t broute -F" > /tmp/qos/classify.ebtables
+	echo "iptables -t mangle -F FORWARD" > /tmp/qos/classify.iptables
+        echo "iptables -t mangle -F PREROUTING" >> /tmp/qos/classify.iptables
+        echo "iptables -t mangle -F OUTPUT" >> /tmp/qos/classify.iptables
+}
+
 init_broute_rule() {
 	BR_RULE=""
 }
@@ -183,20 +190,8 @@ iptables_set_traffic_class() {
         IP_RULE="$IP_RULE -j MARK --set-xmark 0x$1/0x$1"
 }
 
-mangle_append_rule_dscp(){
-        echo "iptables -t mangle -A FORWARD $IP_RULE" >> /tmp/qos/classify.iptables
-}
-
-mangle_append_rule_queue(){
-	ifname=$1
-	# check if rule for internal traffic
-	if [[ ${ifname:0:2} == 'lo' ]]; then
-        	echo "iptables -t mangle -A OUTPUT $IP_RULE" >> /tmp/qos/classify.iptables
-	fi
-	# check if rule for LAN traffic
-	if [[ ${ifname:0:3} == 'eth' ]]; then
-        	echo "iptables -t mangle -A PREROUTING $IP_RULE" >> /tmp/qos/classify.iptables
-	fi
+append_rule_to_mangle_table() {
+        echo "iptables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.iptables
 }
 
 handle_iptables_rules() {
@@ -262,10 +257,13 @@ handle_iptables_rules() {
         [ -n "$traffic_class" ] && iptables_set_traffic_class  $traffic_class
 
         #write iptables rule for dscp marking
-        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && mangle_append_rule_dscp
+        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD"
 
-        #write iptables rule for putting packets in different queue
-        [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ] && mangle_append_rule_queue $ifname
+	#write iptables rule for putting WAN directed internal packets in different queue
+        [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ] && [ ${ifname:0:2} == "lo" ] && append_rule_to_mangle_table "OUTPUT"
+
+	#write iptables rule for putting WAN directed LAN packets in different queue
+        [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ] && [ ${ifname:0:3} == "eth" ] && append_rule_to_mangle_table "PREROUTING"
 }
 
 #function to handle a classify section
@@ -308,10 +306,8 @@ configure_qos() {
 	touch /tmp/qos/classify.iptables
 	touch /tmp/qos/classify.ebtables
 
-	echo "ebtables -t broute -F" > /tmp/qos/classify.ebtables
-	echo "iptables -t mangle -F FORWARD" > /tmp/qos/classify.iptables
-        echo "iptables -t mangle -F PREROUTING" >> /tmp/qos/classify.iptables
-        echo "iptables -t mangle -F OUTPUT" >> /tmp/qos/classify.iptables
+	#add flush chain rules
+	flush_chains
 
 	config_foreach handle_classify classify
 
