@@ -259,11 +259,15 @@ handle_iptables_rules() {
         #write iptables rule for dscp marking
         [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD"
 
-	#write iptables rule for putting WAN directed internal packets in different queue
-        [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ] && [ ${ifname:0:2} == "lo" ] && append_rule_to_mangle_table "OUTPUT"
-
-	#write iptables rule for putting WAN directed LAN packets in different queue
-        [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ] && [ ${ifname:0:3} == "eth" ] && append_rule_to_mangle_table "PREROUTING"
+	if [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ]; then
+		if [ ${ifname:0:2} == "lo" ]; then
+			#write iptables rule for putting WAN directed internal packets in different queue
+			append_rule_to_mangle_table "OUTPUT"
+		else
+			#write iptables rule for putting WAN directed LAN packets in different queue
+			append_rule_to_mangle_table "PREROUTING"
+		fi
+	fi
 }
 
 #function to handle a classify section
