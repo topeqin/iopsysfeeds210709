@@ -120,7 +120,7 @@ handle_ebtables_rules() {
 	[ -n "$src_if" ] && broute_filter_on_src_if $src_if
 	config_get src_mac "$sid" "src_mac"
 	[ -n "$src_mac" ] && broute_filter_on_src_mac $src_mac
-	config_get dst_mac "$sid" "dest_mac"
+	config_get dst_mac "$sid" "dst_mac"
 	[ -n "$dst_mac" ] && broute_filter_on_dst_mac $dst_mac
 	config_get pcp_check "$sid" "pcp_check"
 	[ -n "$pcp_check" ] && broute_filter_on_pcp $pcp_check
