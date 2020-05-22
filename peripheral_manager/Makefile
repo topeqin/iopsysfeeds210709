@@ -12,7 +12,7 @@ PKG_NAME:=peripheral_manager
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=4851bc6a0ee52a6f3399ac26a70e4ccced1b72cc
+PKG_SOURCE_VERSION:=6b951825da4d224ae557f17dd7364dd6b541744d
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/peripheral-manager
 
@@ -26,14 +26,12 @@ PKG_LICENSE_FILES:=LICENSE
 # support parallel build
 PKG_BUILD_PARALLEL:=1
 
-#re create configure scripts if not present.
-PKG_FIXUP:=autoreconf
-
 # run install target when cross compiling. basically, make install DESTDIR=$(PKG_INSTALL_DIR)
 # this way we don't need to pick out the resulting files from the build dir.
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/peripheral_manager
 	CATEGORY:=Utilities
@@ -46,10 +44,20 @@ define Package/peripheral_manager/description
 	Application handling peripheral
 endef
 
-TARGET_CPPFLAGS := \
+TARGET_CFLAGS := \
 	-I$(STAGING_DIR)/usr/include/bcm963xx/shared/opensource/include/bcm963xx \
 	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx \
-	$(TARGET_CPPFLAGS)
+	$(TARGET_CFLAGS)
+
+PERIPHERAL_OPTONS:=-DSELECT_BRCM_BOARD=0
+
+ifneq ($(CONFIG_TARGET_iopsys_brcm63xx_arm)$(CONFIG_TARGET_iopsys_brcm63xx_mips),)
+	PERIPHERAL_OPTONS:= -DSELECT_BRCM_BOARD=1
+endif
+
+CMAKE_OPTIONS +=  \
+		-DCMAKE_BUILD_TYPE:String="Release" \
+		$(PERIPHERAL_OPTONS) \
 
 define Package/peripheral_manager/install
 	$(CP) ./files/* $(1)/
