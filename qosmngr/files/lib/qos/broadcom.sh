@@ -117,7 +117,11 @@ handle_ebtables_rules() {
 	init_broute_rule
 
 	config_get src_if "$sid" "ifname"
-	[ -n "$src_if" ] && broute_filter_on_src_if $src_if
+	if [ -n "$src_if" ]; then
+		src_if="$src_if+"
+		broute_filter_on_src_if $src_if
+	fi
+
 	config_get src_mac "$sid" "src_mac"
 	[ -n "$src_mac" ] && broute_filter_on_src_mac $src_mac
 	config_get dst_mac "$sid" "dst_mac"
