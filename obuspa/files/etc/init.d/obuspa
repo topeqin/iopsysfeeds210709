@@ -223,6 +223,10 @@ start_service() {
 	procd_close_instance
 }
 
+stop_service() {
+	${PROG} -c stop 2>&1 >/dev/null
+}
+
 reload_service() {
 	stop
 	start
