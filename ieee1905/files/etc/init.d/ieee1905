@@ -47,12 +47,7 @@ validate_al_iface_section()
 	uci_validate_section ieee1905 al-iface "${1}" \
 		'enabled:bool:false' \
 		'ifname:string:br-lan' \
-		'media:string:bridge' \
-		'manufacturer_name:string' \
-		'model_name:string' \
-		'model_number:string:000000' \
-		'device_name:string' \
-		'serial_number:string'
+		'media:string:bridge'
 }
 
 get_ifindex()
@@ -112,24 +107,8 @@ configure_interface()
 		INTERFACE="${INTERFACE},${ifname}"
 	fi
 
-	if [ -z ${manufacturer_name} ]; then
-		manufacturer_name=$(db get hw.board.iopVerCustomer)
-	fi
-
-	if [ -z ${model_name} ]; then
-		model_name=$(db get hw.board.model_name)
-	fi
-
-	if [ -z ${device_name} ]; then
-		device_name=$(db get hw.board.model_name)
-	fi
-
-	if [ -z ${serial_number} ]; then
-		serial_number=$(db get hw.board.serial_number)
-	fi
-
-	if [ "${media}"=="bridge" ]; then
-		echo "Get interfaces from bridge"
+	if [ "${media}" = "bridge" ]; then
+		echo "Get interfaces from bridge">/dev/console
 		local lower=$(ls -1 /sys/class/net/${ifname}/|grep lower_|tr '_' ' '|awk '{printf $2" "}')
 		for intf in ${lower}
 		do
@@ -143,13 +122,6 @@ configure_interface()
 				json_add_string ifname ${intf}
 				json_add_string media "wifi"
 				json_add_string network_key ${key}
-				json_add_string manufacturer_name ${manufacturer_name}
-				json_add_string model_name ${model_name}
-				json_add_string model_number ${model_number}
-				json_add_string device_name ${device_name}
-				json_add_string serial_number ${serial_number}
-				json_add_string uuid ${uuid}
-				json_add_int ifindex ${ifindex}
 				json_close_object
 			fi
 		done
@@ -170,13 +142,6 @@ configure_interface()
 		json_add_string media ${media}
 	fi
 
-	json_add_string manufacturer_name ${manufacturer_name}
-	json_add_string model_name ${model_name}
-	json_add_string model_number ${model_number}
-	json_add_string device_name ${device_name}
-	json_add_string serial_number ${serial_number}
-	json_add_string uuid ${uuid}
-	json_add_int ifindex ${ifindex}
 	json_close_object
 }
 

@@ -29,10 +29,5 @@ menu "developer/debug options"
 			bool "ALME server over TCP port"
 
 	endchoice
-
-	config IEEE1905_REGISTER_EXTENSION_BBF
-		bool "Enable BBF extensions"
-		default n
-
 endmenu
 endif

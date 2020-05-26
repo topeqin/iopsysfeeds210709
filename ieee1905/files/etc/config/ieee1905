@@ -6,13 +6,11 @@ config al
         option enabled '1'
         option basemacint 'wan'
       # option almac ''
-        option mapall true
+        option mapall 0
       # option registrar true
         option debug_level  2
-      # option alme_port  8888
         option cmdu_event true
-        option discovery_timer 60
-        option map_plugin false
+        option map_plugin 0
 
 config al-iface
         option enabled '0'

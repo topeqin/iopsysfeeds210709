@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.15
+PKG_VERSION:=2.0.16
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=223e41d6d21ba519b8c14c9f6a4e65c57dc5cda2
+PKG_SOURCE_VERSION:=0eba5265bbf11b8e824dde9f51b85a2d75b653ca
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -23,7 +23,7 @@ define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 daemon
-  DEPENDS:= +libuci +libjson-c +lib1905al +lib1905ubus
+  DEPENDS:= +libuci +libjson-c +lib1905 +ubox +libpcap +libopenssl +libwifi +libeasy
 endef
 
 define Package/ieee1905/config
@@ -34,18 +34,10 @@ define Package/ieee1905/description
  IEEE1905 stack with extended functionalities.
 endef
 
-define Package/lib1905al
+define Package/lib1905
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=IEEE1905 stack library
-  DEPENDS:= +libpcap +libopenssl +libwifi +libeasy +libuci
-endef
-
-define Package/lib1905ubus
-  SECTION:=utils
-  CATEGORY:=Utilities
-  TITLE:=IEEE1905 ubus library
-  DEPENDS:= +ubox +libjson-c
+  TITLE:=IEEE1905 cmdu tlv utility library
 endef
 
 define Package/lib1905hle
@@ -79,9 +71,6 @@ endif
 ifeq ($(CONFIG_IEEE1905_ALME_OVER_UBUS),y)
 TARGET_CFLAGS += -DALME_OVER_UBUS
 endif
-ifeq ($(CONFIG_IEEE1905_REGISTER_EXTENSION_BBF),y)
-TARGET_CFLAGS += -DREGISTER_EXTENSION_BBF
-endif
 
 ifeq ($(LOCAL_DEV),1)
 define Build/Prepare
@@ -105,31 +94,23 @@ define Package/lib1905hle/install
 	$(CP) $(PKG_BUILD_DIR)/lib/lib1905hle.so $(1)/usr/lib/lib1905hle.so
 endef
 
-define Package/lib1905al/install
+define Package/lib1905/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905al.so $(1)/usr/lib/lib1905al.so
-endef
-
-define Package/lib1905ubus/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905ubus.so $(1)/usr/lib/lib1905ubus.so
+	$(CP) $(PKG_BUILD_DIR)/lib/lib1905.so $(1)/usr/lib/lib1905.so
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/include/lib1905al
+	$(INSTALL_DIR) $(1)/usr/include/lib1905
+	$(INSTALL_DIR) $(1)/usr/include/ieee1905
 	$(INSTALL_DIR) $(1)/usr/include/lib1905hle
-	$(INSTALL_DIR) $(1)/usr/include/lib1905ubus
-	$(CP) $(PKG_BUILD_DIR)/lib1905al/include/*.h $(1)/usr/include/lib1905al/
-	$(CP) $(PKG_BUILD_DIR)/lib1905ubus/include/*.h $(1)/usr/include/lib1905ubus/
+	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/ieee1905/
+	$(CP) $(PKG_BUILD_DIR)/lib1905/include/*.h $(1)/usr/include/lib1905/
 	$(CP) $(PKG_BUILD_DIR)/lib1905hle/include/*.h $(1)/usr/include/lib1905hle/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905al.so $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905ubus.so $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905hle.so $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/lib/lib1905.so $(1)/usr/lib
 endef
 
-$(eval $(call BuildPackage,lib1905al))
-$(eval $(call BuildPackage,lib1905ubus))
+$(eval $(call BuildPackage,lib1905))
 $(eval $(call BuildPackage,lib1905hle))
 $(eval $(call BuildPackage,ieee1905))
