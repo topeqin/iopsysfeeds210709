@@ -32,7 +32,7 @@ function feeds_update {
     fi
 
     # targets need to be installed explicitly
-    targets="iopsys-brcm63xx-mips iopsys-brcm63xx-arm iopsys-ramips intel_mips"
+    targets="iopsys-brcm63xx-mips iopsys-brcm63xx-arm iopsys-ramips intel_mips iopsys-x86"
     for target in $targets
     do
 	rm -f target/linux/$target
@@ -56,7 +56,4 @@ function feeds_update {
 }
 
 register_command "feeds_update" "Update feeds to point to commit hashes from feeds.conf"
-
-
-
 
