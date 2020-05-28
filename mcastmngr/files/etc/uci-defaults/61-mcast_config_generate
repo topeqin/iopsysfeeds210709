@@ -21,26 +21,33 @@ generate_igmp_global_params(){
 }
 
 generate_mcast_config(){
-	section="$1"
 
-	config_get type "$section" "type"
-	if [ "$type" != "bridge" ]; then
-		return
-	fi
+	up_itf="$(uci -q get network.wan.ifname)"
 
-	uci add mcast snooping
-	uci rename mcast.@snooping[-1]="igmp_snoop_1"
-	uci set mcast.@snooping[-1].enable="0"
-	uci set mcast.@snooping[-1].proto="igmp"
-	uci set mcast.@snooping[-1].version="2"
-	uci set mcast.@snooping[-1].robustness="2"
-	uci set mcast.@snooping[-1].aggregation="0"
-	uci set mcast.@snooping[-1].interface="br-$section"
+	uci add mcast proxy
+	uci rename mcast.@proxy[-1]="igmp_proxy_1"
+	uci set mcast.@proxy[-1].enable="1"
+	uci set mcast.@proxy[-1].proto="igmp"
+	uci set mcast.@proxy[-1].version="2"
+	uci set mcast.@proxy[-1].robustness="2"
+	uci set mcast.@proxy[-1].query_interval="125"
+	uci set mcast.@proxy[-1].query_response_interval="100"
+	uci set mcast.@proxy[-1].last_member_query_interval="10"
+	uci set mcast.@proxy[-1].fast_leave="1"
+	uci set mcast.@proxy[-1].snooping_mode="2"
+	uci add_list mcast.@proxy[-1].downstream_interface="br-lan"
+
+	IFS=" "
+	for itf in up_itf; do
+		uci add_list mcast.@proxy[-1].upstream_interface="$itf"
+	done
+
+	uci add_list mcast.@proxy[-1].filter="239.255.255.250"
 	uci commit mcast
 }
 
 if [ -s "/etc/config/mcast" ]; then
-	if uci -q get mcast.@snooping[0] >/dev/null; then
+	if uci -q get mcast.@proxy[0] >/dev/null; then
 		# return if there is any valid content
 		exit
 	else
@@ -51,5 +58,4 @@ touch /etc/config/mcast
 
 generate_igmp_global_params
 
-config_load network
-config_foreach generate_mcast_config interface
+generate_mcast_config

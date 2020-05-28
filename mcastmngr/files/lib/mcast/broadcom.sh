@@ -110,9 +110,9 @@ read_proxy() {
 	if [ "$proto" == "igmp" ]; then
 		igmp_p_enable=$sec_enable
 		config_get igmp_p_version "$config" version 2
-		config_get igmp_query_interval "$config" query_interval
-		config_get igmp_q_resp_interval "$config" query_response_interval
-		config_get igmp_last_mem_q_int "$config" last_member_query_interval
+		config_get igmp_query_interval "$config" query_interval 125
+		config_get igmp_q_resp_interval "$config" query_response_interval 100
+		config_get igmp_last_mem_q_int "$config" last_member_query_interval 10
 		config_get igmp_fast_leave "$config" fast_leave 1
 		config_get igmp_p_robustness "$config" robustness 2
 		config_get igmp_p_mode "$config" snooping_mode 0
@@ -125,9 +125,9 @@ read_proxy() {
 	if [ "$proto" == "mld" ]; then
 		mld_p_enable=$sec_enable
 		config_get mld_p_version "$config" version 2
-		config_get mld_query_interval "$config" query_interval
-		config_get mld_q_resp_interval "$config" query_response_interval
-		config_get mld_last_mem_q_int "$config" last_member_query_interval
+		config_get mld_query_interval "$config" query_interval 125
+		config_get mld_q_resp_interval "$config" query_response_interval 100
+		config_get mld_last_mem_q_int "$config" last_member_query_interval 10
 		config_get mld_fast_leave "$config" fast_leave 1
 		config_get mld_p_robustness "$config" robustness 2
 		config_get mld_p_mode "$config" snooping_mode 0
@@ -249,13 +249,13 @@ configure_mcpd_snooping() {
 	if [ "$protocol" == "igmp" ]; then
 		config_snooping_common_params $protocol $igmp_p_version $igmp_p_robustness $igmp_s_mode
 		config_mcast_querier_params $protocol $igmp_query_interval $igmp_q_resp_interval $igmp_last_mem_q_int
-		config_mcast_proxy_interface $protocol $igmp_s_iface
+		config_mcast_proxy_interface $protocol "$igmp_s_iface"
 		config_snooping_on_bridge $protocol $igmp_s_iface $igmp_s_mode
 		exceptions=$igmp_s_exceptions
 	elif [ "$protocol" == "mld" ]; then
 		config_snooping_common_params $protocol $mld_p_version $mld_p_robustness $mld_s_mode
 		config_mcast_querier_params $protocol $mld_query_interval $mld_q_resp_interval $mld_last_mem_q_int
-		config_mcast_proxy_interface $protocol $mld_s_iface
+		config_mcast_proxy_interface $protocol "$mld_s_iface"
 		config_snooping_on_bridge $protocol $mld_s_iface $mld_s_mode
 		exceptions=$mld_s_exceptions
 	fi
@@ -273,14 +273,14 @@ configure_mcpd_proxy() {
 	if [ "$protocol" == "igmp" ]; then
 		config_snooping_common_params $protocol $igmp_p_version $igmp_p_robustness $igmp_p_mode
 		config_mcast_querier_params $protocol $igmp_query_interval $igmp_q_resp_interval $igmp_last_mem_q_int
-		config_mcast_proxy_interface $protocol $igmp_p_up_interfaces
+		config_mcast_proxy_interface $protocol "$igmp_p_up_interfaces"
 		config_snooping_on_bridge $protocol $igmp_p_down_interfaces $igmp_p_mode
 		fast_leave=$igmp_fast_leave
 		exceptions=$igmp_p_exceptions
 	elif [ "$protocol" == "mld" ]; then
 		config_snooping_common_params $protocol $mld_p_version $mld_p_robustness $mld_p_mode
 		config_mcast_querier_params $protocol $mld_query_interval $mld_q_resp_interval $mld_last_mem_q_int
-		config_mcast_proxy_interface $protocol $mld_p_up_interfaces
+		config_mcast_proxy_interface $protocol "$mld_p_up_interfaces"
 		config_snooping_on_bridge $protocol $mld_p_down_interfaces $mld_p_mode
 		fast_leave=$mld_fast_leave
 		exceptions=$mld_p_exceptions
