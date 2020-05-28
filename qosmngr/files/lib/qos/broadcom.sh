@@ -327,6 +327,7 @@ configure_qos() {
 }
 
 get_queue_stats() {
+	local ifname
 	json_init
 	json_add_array "queues"
 	i=0
@@ -339,6 +340,13 @@ get_queue_stats() {
 			break
 		fi
 
+		if [ -n "$1" ]; then
+			if [ "$ifname" != "$1" ]; then
+				i=$((i + 1))
+				continue
+			fi
+		fi
+
 		order=$(uci -q get qos.@queue[$i].precedence)
 		stats="$(tmctl getqstats --devtype 0 --if $ifname --qid $order)"
 		ret="$(echo $stats | awk '{print substr($0,0,5)}')"
@@ -348,8 +356,9 @@ get_queue_stats() {
 			i=$((i + 1))
 			continue
 		fi
+
 		json_add_object ""
-		json_add_string "qid" "$order"
+		json_add_int "qid" "$order"
 		json_add_string "iface" "$ifname"
 
 		IFS=$'\n'
@@ -367,21 +376,22 @@ get_queue_stats() {
 			# convert to iopsyswrt names
 			case "$pname" in
 				txPackets)
-					json_add_string "tx_packets" "$val"
+					json_add_int "tx_packets" "$val"
 				;;
 				txBytes)
-					json_add_string "tx_bytes" "$val"
+					json_add_int "tx_bytes" "$val"
 				;;
 				droppedPackets)
-					json_add_string "tx_dropped_packets" "$val"
+					json_add_int "tx_dropped_packets" "$val"
 				;;
 				droppedBytes)
-					json_add_string "tx_dropped_bytes" "$val"
+					json_add_int "tx_dropped_bytes" "$val"
 				;;
 			esac
 		done
 
 		json_close_object
+
 		i=$((i + 1))
 	done
 
@@ -414,7 +424,7 @@ get_eth_q_stats() {
 	fi
 
 	json_add_object ""
-	json_add_string "qid" "$qid"
+	json_add_int "qid" "$qid"
 	json_add_string "iface" "$ifname"
 
 	IFS=$'\n'
@@ -432,16 +442,16 @@ get_eth_q_stats() {
 		# convert to iopsyswrt names
 		case "$pname" in
 			txPackets)
-				json_add_string "tx_packets" "$val"
+				json_add_int "tx_packets" "$val"
 			;;
 			txBytes)
-				json_add_string "tx_bytes" "$val"
+				json_add_int "tx_bytes" "$val"
 			;;
 			droppedPackets)
-				json_add_string "tx_dropped_packets" "$val"
+				json_add_int "tx_dropped_packets" "$val"
 			;;
 			droppedBytes)
-				json_add_string "tx_dropped_bytes" "$val"
+				json_add_int "tx_dropped_bytes" "$val"
 			;;
 		esac
 	done
@@ -450,4 +460,15 @@ get_eth_q_stats() {
 
 	json_close_array
 	json_dump
+}
+
+read_queue_stats() {
+	itf="$1"
+	q_idx="$2"
+
+	if [ -n "$itf" -a -n "$q_idx" ]; then
+		get_eth_q_stats $itf $q_idx
+	else
+		get_queue_stats $itf
+	fi
 }
