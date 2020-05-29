@@ -73,6 +73,9 @@ flush_chains() {
 	echo "iptables -t mangle -F FORWARD" > /tmp/qos/classify.iptables
         echo "iptables -t mangle -F PREROUTING" >> /tmp/qos/classify.iptables
         echo "iptables -t mangle -F OUTPUT" >> /tmp/qos/classify.iptables
+	echo "ip6tables -t mangle -F FORWARD" > /tmp/qos/classify.ip6tables
+        echo "ip6tables -t mangle -F PREROUTING" >> /tmp/qos/classify.ip6tables
+        echo "ip6tables -t mangle -F OUTPUT" >> /tmp/qos/classify.ip6tables
 }
 
 init_broute_rule() {
@@ -142,6 +145,11 @@ handle_ebtables_rules() {
 init_iptables_rule() {
 	IP_RULE=""
 }
+
+iptables_filter_intf() {
+	IP_RULE="$IP_RULE -i $1"
+}
+
 iptables_filter_proto() {
 	IP_RULE="$IP_RULE -p $1"
 }
@@ -195,11 +203,19 @@ iptables_set_traffic_class() {
 }
 
 append_rule_to_mangle_table() {
-        echo "iptables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.iptables
+	if [ $2 == 4 ]; then
+            echo "iptables -t mangle -A $1 $IP_RULE"  >> /tmp/qos/classify.iptables
+        elif [ $2 == 6 ]; then
+            echo "ip6tables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.ip6tables
+	elif [ $2 == 1 ]; then
+            echo "iptables -t mangle -A $1 $IP_RULE"  >> /tmp/qos/classify.iptables
+            echo "ip6tables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.ip6tables
+        fi
 }
 
 handle_iptables_rules() {
 	cid=$1
+	ipv=0
 
 	init_iptables_rule
 	config_get proto "$cid" "proto"
@@ -217,6 +233,23 @@ handle_iptables_rules() {
         config_get ip_len_min "$cid" "ip_len_min"
         config_get ip_len_max "$cid" "ip_len_max"
 	config_get ifname "$cid" "ifname"
+
+	#check version of ip
+	case $src_ip$dest_ip in
+		*.*)
+			ipv=4
+			;;
+		*:*)
+			ipv=6
+			;;
+		*)
+			ipv=1 #ip address not used
+	esac
+
+	#filter interface
+	if [ ${ifname:0:2} == "br" ]; then
+		iptables_filter_intf $ifname
+	fi
 
 	# filter proto
 	[ -n "$proto" ] && iptables_filter_proto $proto
@@ -261,15 +294,15 @@ handle_iptables_rules() {
         [ -n "$traffic_class" ] && iptables_set_traffic_class  $traffic_class
 
         #write iptables rule for dscp marking
-        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD"
+        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD" $ipv
 
-	if [ -n "$IP_RULE" -a -n "$traffic_class" -a -n "$ifname" ]; then
+	if [ -n "$IP_RULE" -a -n "$traffic_class" ]; then
 		if [ ${ifname:0:2} == "lo" ]; then
 			#write iptables rule for putting WAN directed internal packets in different queue
-			append_rule_to_mangle_table "OUTPUT"
+			append_rule_to_mangle_table "OUTPUT" $ipv
 		else
 			#write iptables rule for putting WAN directed LAN packets in different queue
-			append_rule_to_mangle_table "PREROUTING"
+			append_rule_to_mangle_table "PREROUTING" $ipv
 		fi
 	fi
 }
@@ -308,10 +341,12 @@ configure_qos() {
 	# First remove old files
 	rm -f /tmp/qos/classify.ebtables
 	rm -f /tmp/qos/classify.iptables
+	rm -f /tmp/qos/classify.ip6tables
 
 	#create files that will contain the rules if not present already
 	mkdir -p /tmp/qos/
 	touch /tmp/qos/classify.iptables
+	touch /tmp/qos/classify.ip6tables
 	touch /tmp/qos/classify.ebtables
 
 	#add flush chain rules
@@ -324,6 +359,7 @@ configure_qos() {
 	# section of firewall uci bu execute for now
 	sh /tmp/qos/classify.ebtables
 	sh /tmp/qos/classify.iptables
+	sh /tmp/qos/classify.ip6tables
 }
 
 get_queue_stats() {
