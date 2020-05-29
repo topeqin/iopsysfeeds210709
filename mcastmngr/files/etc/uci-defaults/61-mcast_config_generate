@@ -38,7 +38,7 @@ generate_mcast_config(){
 	uci add_list mcast.@proxy[-1].downstream_interface="br-lan"
 
 	IFS=" "
-	for itf in up_itf; do
+	for itf in $up_itf; do
 		uci add_list mcast.@proxy[-1].upstream_interface="$itf"
 	done
 
