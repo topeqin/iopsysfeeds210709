@@ -116,27 +116,52 @@ broute_append_rule() {
 
 handle_ebtables_rules() {
 	sid=$1
+	local is_l2_rule=0
 
 	init_broute_rule
 
 	config_get src_if "$sid" "ifname"
+	config_get src_mac "$sid" "src_mac"
+	config_get dst_mac "$sid" "dst_mac"
+	config_get pcp_check "$sid" "pcp_check"
+	config_get eth_type "$sid" "ethertype"
+	config_get vid "$sid" "vid_check"
+	config_get traffic_class "$sid" "traffic_class"
+
 	if [ -n "$src_if" ]; then
 		src_if="$src_if+"
 		broute_filter_on_src_if $src_if
 	fi
 
-	config_get src_mac "$sid" "src_mac"
-	[ -n "$src_mac" ] && broute_filter_on_src_mac $src_mac
-	config_get dst_mac "$sid" "dst_mac"
-	[ -n "$dst_mac" ] && broute_filter_on_dst_mac $dst_mac
-	config_get pcp_check "$sid" "pcp_check"
-	[ -n "$pcp_check" ] && broute_filter_on_pcp $pcp_check
-	config_get eth_type "$sid" "ethertype"
-	[ -n "$eth_type" ] && broute_filter_on_ether_type $eth_type
-	config_get vid "$sid" "vid_check"
-	[ -n "$vid" ] && broute_filter_on_vid $vid
+	if [ -n "$src_mac" ]; then
+		broute_filter_on_src_mac $src_mac
+		is_l2_rule=1
+	fi
 
-	config_get traffic_class "$sid" "traffic_class"
+	if [ -n "$dst_mac" ]; then
+		broute_filter_on_dst_mac $dst_mac
+		is_l2_rule=1
+	fi
+
+	if [ -n "$pcp_check" ]; then
+		broute_filter_on_pcp $pcp_check
+		is_l2_rule=1
+	fi
+
+	if [ -n "$eth_type" ]; then
+		broute_filter_on_ether_type $eth_type
+		is_l2_rule=1
+	fi
+
+	if [ -n "$vid" ]; then
+		broute_filter_on_vid $vid
+		is_l2_rule=1
+	fi
+
+	if [ $is_l2_rule -eq 0 ]; then
+		return
+	fi
+
 	[ -n "$traffic_class" ] && broute_rule_set_traffic_class $traffic_class
 
 	[ -n "$BR_RULE" ] && broute_append_rule
@@ -215,7 +240,8 @@ append_rule_to_mangle_table() {
 
 handle_iptables_rules() {
 	cid=$1
-	ipv=0
+	local ip_version=0
+	local is_l3_rule=0
 
 	init_iptables_rule
 	config_get proto "$cid" "proto"
@@ -237,55 +263,96 @@ handle_iptables_rules() {
 	#check version of ip
 	case $src_ip$dest_ip in
 		*.*)
-			ipv=4
+			ip_version=4
 			;;
 		*:*)
-			ipv=6
+			ip_version=6
 			;;
 		*)
-			ipv=1 #ip address not used
+			ip_version=1 #ip address not used
 	esac
 
 	#filter interface
-	if [ ${ifname:0:2} == "br" ]; then
-		iptables_filter_intf $ifname
+	if [ -n "$ifname" ]; then
+		if [ "$ifname" != "lo" ]; then
+			iptables_filter_intf $ifname
+		fi
 	fi
 
 	# filter proto
-	[ -n "$proto" ] && iptables_filter_proto $proto
+	if [ -n "$proto" ]; then
+		iptables_filter_proto $proto
+		is_l3_rule=1
+	fi
 
 	#filter src. ip
-	[ -n "$src_ip" ] && iptables_filter_ip_src $src_ip
+	if [ -n "$src_ip" ]; then
+		iptables_filter_ip_src $src_ip
+		is_l3_rule=1
+	fi
+
+	if [ -n "$src_mask" ]; then
+		iptables_filter_ip_mask $src_mask
+		is_l3_rule=1
+	fi
 
 	#filter dest. ip
-	[ -n "$dest_ip" ] && iptables_filter_ip_dest $dest_ip
-
-	#filter src. ip mask
-	[ -n "$src_mask" ] && iptables_filter_ip_mask $src_mask
+	if [ -n "$dest_ip" ]; then
+		iptables_filter_ip_dest $dest_ip
+		is_l3_rule=1
+	fi
 
 	#filter dest. ip mask
-	[ -n "$dest_mask" ] && iptables_filter_ip_mask $dest_mask
+	if [ -n "$dest_mask" ]; then
+		iptables_filter_ip_mask $dest_mask
+		is_l3_rule=1
+	fi
 
 	#filter dest. port
-	[ -n "$dest_port" -a -z "$dest_port_range" ] && iptables_filter_port_dest $dest_port
+	if [ -n "$dest_port" -a -z "$dest_port_range" ]; then
+		iptables_filter_port_dest $dest_port
+		is_l3_rule=1
+	fi
 
 	#filter src. port
-	[ -n "$src_port" -a -z "$src_port_range" ] && iptables_filter_port_src $src_port
+	if [ -n "$src_port" -a -z "$src_port_range" ]; then
+		iptables_filter_port_src $src_port
+		is_l3_rule=1
+	fi
 
 	#filter dest. port range
-	[ -n "$dest_port" -a -n "$dest_port_range" ] && iptables_filter_port_dest_range $dest_port $dest_port_range
+	if [ -n "$dest_port" -a -n "$dest_port_range" ]; then
+		iptables_filter_port_dest_range $dest_port $dest_port_range
+		is_l3_rule=1
+	fi
 
 	#filter src. port range
-	[ -n "$src_port" -a -n "$src_port_range" ] && iptables_filter_port_src_range $src_port $src_port_range
+	if [ -n "$src_port" -a -n "$src_port_range" ]; then
+		iptables_filter_port_src_range $src_port $src_port_range
+		is_l3_rule=1
+	fi
 
 	#filter dscp
-	[ -n "$dscp_filter" ] && iptables_filter_dscp_filter $dscp_filter
+	if [ -n "$dscp_filter" ]; then
+		iptables_filter_dscp_filter $dscp_filter
+		is_l3_rule=1
+	fi
 
 	#filter min. IP packet len.
-        [ -n "$ip_len_min" ] && iptables_filter_ip_len_min $ip_len_min
+        if [ -n "$ip_len_min" ]; then
+		iptables_filter_ip_len_min $ip_len_min
+		is_l3_rule=1
+	fi
 
         #filter max. IP packet len.
-        [ -n "$ip_len_max" ] && iptables_filter_ip_len_max $ip_len_max
+        if [ -n "$ip_len_max" ]; then
+		iptables_filter_ip_len_max $ip_len_max
+		is_l3_rule=1
+	fi
+
+	if [ $is_l3_rule -eq 0 ]; then
+		return
+	fi
 
 	#set dscp mark
 	[ -n "$dscp_mark" ] && iptables_set_dscp_mark $dscp_mark
@@ -294,15 +361,15 @@ handle_iptables_rules() {
         [ -n "$traffic_class" ] && iptables_set_traffic_class  $traffic_class
 
         #write iptables rule for dscp marking
-        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD" $ipv
+        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD" $ip_version
 
 	if [ -n "$IP_RULE" -a -n "$traffic_class" ]; then
-		if [ ${ifname:0:2} == "lo" ]; then
+		if [ "$ifname" == "lo" ]; then
 			#write iptables rule for putting WAN directed internal packets in different queue
-			append_rule_to_mangle_table "OUTPUT" $ipv
+			append_rule_to_mangle_table "OUTPUT" $ip_version
 		else
 			#write iptables rule for putting WAN directed LAN packets in different queue
-			append_rule_to_mangle_table "PREROUTING" $ipv
+			append_rule_to_mangle_table "PREROUTING" $ip_version
 		fi
 	fi
 }
