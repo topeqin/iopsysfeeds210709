@@ -228,7 +228,7 @@ config_mcast_proxy_interface() {
 				handle_bridged_proxy_interface $p1 $proxif
 			;;
 			*)
-				proxdevs="$proxdevs $proxif"
+				ifconfig $proxif | grep RUNNING >/dev/null && proxdevs="$proxdevs $proxif"
 			;;
 		esac
 	done
