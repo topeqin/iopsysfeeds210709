@@ -59,30 +59,6 @@ build_endptmngr_consumer() {
 	cd "$curdir"
 }
 
-build_wifilife_consumer() {
-	local target="$1"
-	local ver commit
-	ver=$(grep -w "PKG_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
-	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/wifilife/Makefile | cut -d'=' -f2)
-	[ -n "$ver" -a -n "$commit" ] || return
-	ssh $SERVER "test -f $FPATH/wifilife-$target-${ver}_${commit}.tar.xz" && return
-	if [ "$target" == "iopsys-ramips" ]; then
-		cd ./build_dir/target-mipsel_1004kc_musl/wifilife-$ver/ipkg-*
-	elif [ "$target" == "iopsys-brcm63xx-arm" ]; then
-		cd ./build_dir/target-arm_xscale_musl_eabi/wifilife-$ver/ipkg-*
-	else
-		return
-	fi
-	mkdir -p wifilife-$ver/src
-	cp -rf wifilife/usr/sbin/* wifilife-$ver/src/
-	tar Jcf wifilife-${target}-${ver}_${commit}.tar.xz wifilife-$ver
-	scp -pv wifilife-$target-${ver}_${commit}.tar.xz $SERVER:$FPATH/
-	cp wifilife-${target}-${ver}_${commit}.tar.xz $curdir/
-	rm -rf wifilife-$ver
-	rm -f wifilife-${target}-${ver}_${commit}.tar.xz
-	cd "$curdir"
-}
-
 build_mediatek_kernel() {
 	local mediatek_commit kernel
 
@@ -170,12 +146,10 @@ function generate_tarballs {
 		build_bcmkernel_consumer
 		build_natalie_consumer
 		build_endptmngr_consumer
-		build_wifilife_consumer "$target"
 	elif [ "$stk_target" == "mediatek" ]; then
 		build_mediatek_kernel
 		build_mediatek_wifi_consumer 7603
 		build_mediatek_wifi_consumer 7615
-		build_wifilife_consumer "$target"
 	else
 		echo "Invalid target: $stk_target"
 		print_usage

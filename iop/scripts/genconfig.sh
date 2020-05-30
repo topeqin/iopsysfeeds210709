@@ -153,13 +153,11 @@ function genconfig {
 		endptAllowed=0
 		natalieAllowed=0
 		mediatekAllowed=0
-		wifilifeAllowed=0
 
 		git ls-remote git@dev.iopsys.eu:broadcom/bcmcreator.git -q 2>/dev/null && bcmAllowed=1
 		git ls-remote git@dev.iopsys.eu:mediatek/linux.git -q 2>/dev/null && mediatekAllowed=1
 		git ls-remote git@dev.iopsys.eu:dialog/natalie-dect-12.26.git -q 2>/dev/null && natalieAllowed=1
 		git ls-remote git@dev.iopsys.eu:iopsys/endptmngr.git -q 2>/dev/null && endptAllowed=1
-		git ls-remote git@dev.iopsys.eu:iopsys/wifilife.git -q 2>/dev/null && wifilifeAllowed=1
 	}
 
 	v() {
@@ -180,7 +178,7 @@ function genconfig {
 		echo -e "  -a|--list-all\t\tList all Customers and their board types"
 		echo -e "  -b|--boards\t\tList all board types"
 		echo
-		echo "Example ./iop genconfig dg200 TELIA"
+		echo "Example ./iop genconfig eg400 OPERATORX"
 		echo "(if no customerconfig is chosen, iopsys config will be used)"
 		echo
 		exit 0
@@ -231,12 +229,12 @@ function genconfig {
 
 	generate_config()
 	{
-	DIFFFILE="$1"
-	MASTERFILE="$2"
-	while read p; do
-		v "$p"
-		sed -r -i "$p" $MASTERFILE
-	done < $DIFFFILE
+		DIFFFILE="$1"
+		MASTERFILE="$2"
+		while read p; do
+			v "$p"
+			sed -r -i "$p" $MASTERFILE
+		done < $DIFFFILE
 	}
 
 	setup_dirs()
@@ -372,14 +370,12 @@ function genconfig {
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
 			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
 			[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
-			[ $wifilifeAllowed -eq 0 ] && echo "CONFIG_WIFILIFE_OPEN=y" >> .config
 		else
 			echo "# CONFIG_GITMIRROR_REWRITE is not set" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
 			echo "CONFIG_NATALIE_OPEN=y" >> .config
 			echo "CONFIG_MEDIATEK_OPEN=y" >> .config
-			echo "CONFIG_WIFILIFE_OPEN=y" >> .config
 		fi
 
 		if [ -n "$BRCM_MAX_JOBS" ]
