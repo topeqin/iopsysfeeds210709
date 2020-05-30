@@ -28,6 +28,7 @@ handle_queue() {
 	config_get wgt "$qid" "weight"
 	config_get rate "$qid" "rate"
 	config_get bs "$qid" "burst_size"
+	config_get qsize "$qid" "queue_size" 1024
 
 	salg=1
 
@@ -43,7 +44,7 @@ handle_queue() {
 	esac
 
 	# Call tmctl which is a broadcomm command to configure queues on a port.
-	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
+	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs --qsize $qsize
 }
 
 #function to handle a shaper section
