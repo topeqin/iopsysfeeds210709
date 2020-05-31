@@ -19,6 +19,7 @@ function genconfig {
 	ramips="target/linux/iopsys-ramips"
 	intel_mips="target/linux/intel_mips"
 	x86="target/linux/iopsys-x86"
+	armvirt="target/linux/iopsys-armvirt"
 
 	Red='\033[0;31m'          # Red
 	Color_Off='\033[0m'       # Text Reset
@@ -93,9 +94,11 @@ function genconfig {
 			iopsys_intel_mips=$(cd $intel_mips; ./genconfig)
 		[ -e $x86/genconfig ] &&
 			iopsys_x86=$(cd $x86; ./genconfig)
+		[ -e $armvirt/genconfig ] &&
+			iopsys_armvirt=$(cd $armvirt; ./genconfig)
 
 	    if [ "$profile" == "LIST" ]; then
-			for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86; do
+			for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86 iopsys_armvirt; do
 				echo "$list based boards:"
 				for b in ${!list}; do
 					echo -e "\t$b"
@@ -140,6 +143,14 @@ function genconfig {
 		if [ $p == $profile ]; then
 		    target="iopsys_x86"
 			config_path="$x86/config"
+		    return
+		fi
+	    done
+
+	    for p in $iopsys_armvirt; do
+		if [ $p == $profile ]; then
+		    target="iopsys_armvirt"
+			config_path="$armvirt/config"
 		    return
 		fi
 	    done
