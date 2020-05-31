@@ -3,8 +3,7 @@
 # Uncomment this if functions need to called inside /lib/qos
 # include /lib/qos
 
-START=21
-STOP=90
+START=18
 
 USE_PROCD=1
 NAME=qosmngr
@@ -30,8 +29,12 @@ stop() {
 	echo ;
 }
 
+boot() {
+	start
+}
+
 service_triggers() {
-	procd_add_reload_trigger qos
+	procd_add_reload_trigger firewall qos
 }
 
 reload_service() {

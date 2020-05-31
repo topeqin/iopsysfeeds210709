@@ -130,8 +130,13 @@ handle_ebtables_rules() {
 	config_get traffic_class "$sid" "traffic_class"
 
 	if [ -n "$src_if" ]; then
-		src_if="$src_if+"
-		broute_filter_on_src_if $src_if
+		for interf in $(db -q get hw.board.ethernetPortOrder); do
+			if [ "$src_if" == "$interf" ]; then
+				src_if="$src_if+"
+				broute_filter_on_src_if $src_if
+				is_l2_rule=1
+			fi
+		done
 	fi
 
 	if [ -n "$src_mac" ]; then

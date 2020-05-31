@@ -1,0 +1,18 @@
+#!/bin/sh
+
+[ "$ACTION" = ifup ] || exit 0
+
+. /lib/functions/network.sh
+
+network_get_device l3device $INTERFACE
+
+[ -n "$l3device" ] || exit 0
+
+wan_if="$(uci -q get network.wan.ifname)"
+
+for intf in $wan_if; do
+	if [ "$intf" == "$l3device" ]; then
+		ubus call uci commit '{"config":"qos"}'
+		exit
+	fi
+done
