@@ -20,7 +20,7 @@ fill_in_default()
     /sbin/uci add system log
     /sbin/uci rename system.@log[-1]=corelog
     /sbin/uci set system.corelog.enable=no
-    /sbin/uci set system.corelog.server="crash.inteno.se"
+    /sbin/uci set system.corelog.server="corelog.iopsys.eu"
     /sbin/uci commit
 }
 

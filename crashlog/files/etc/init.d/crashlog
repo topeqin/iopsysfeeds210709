@@ -27,7 +27,7 @@ fill_in_default()
     /sbin/uci add system log
     /sbin/uci rename system.@log[-1]=crashlog
     /sbin/uci set system.crashlog.enable=no
-    /sbin/uci set system.crashlog.server="crash.inteno.se"
+    /sbin/uci set system.crashlog.server="crashlog.iopsys.eu"
     /sbin/uci commit
 }
 
