@@ -81,8 +81,33 @@ function genconfig {
 
 	# Takes a board name and returns the target name in global var $target
 	set_target() {
-	    local profile=$1
+		local profile=$1
 
+		[ -n "$profile" ] || return
+
+		if [ -n "$TARGET" -a -d "./target/linux/$TARGET" ]; then
+			local targetpath="./target/linux/$TARGET"
+			local profiles=
+			local pfound=0
+
+			if [ -e "$targetpath/genconfig" ]; then
+				profiles=$(cd $targetpath; ./genconfig)
+
+				for p in $profiles; do
+					if [ $p == $profile ]; then
+						pfound=1
+						break
+					fi
+				done
+			fi
+
+			if [ $pfound -eq 1 ]; then
+				target="$(echo $TARGET | tr '-' '_')"
+				config_path="$targetpath/config"
+			fi
+
+			return
+		fi
 
 		[ -e $brcm63xx_mips/genconfig ] &&
 			iopsys_brcm63xx_mips=$(cd $brcm63xx_mips; ./genconfig)
@@ -182,6 +207,7 @@ function genconfig {
 		echo -e "  -c|--clean\t\tRemove all files under ./files and import from config "
 		echo -e "  -v|--verbose\t\tVerbose"
 		echo -e "  -n|--no-update\tDo NOT! Update customer config before applying"
+		echo -e "  -t|--target\t\tExplicitly specify the linux target to build the board profile from"
 		echo -e "  -s|--override\t\tEnable 'Package source tree override'"
 		echo -e "  -S|--brcmsingle\tForce build of bcmkernel to use only one thread"
 		echo -e "  -h|--help\t\tShow this message"
@@ -439,6 +465,7 @@ function genconfig {
 			-c|--clean) export CLEAN=1;;
 			-n|--no-update) export IMPORT=0;;
 			-v|--verbose) export VERBOSE="$(($VERBOSE + 1))";;
+			-t|--target) export TARGET="$2"; shift;;
 			-p|--profile) export PROFILE="$2"; shift;;
 			-r|--repo) export CUSTREPO="$2"; shift;;
 			-s|--override) export SRCTREEOVERR=1;;
