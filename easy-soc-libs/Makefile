@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-soc-libs
-PKG_VERSION:=3.1.8
+PKG_VERSION:=3.1.9
 PKG_RELEASE:=1
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=8198d1141931c19e1cc90f36dbb05fbe80880fa6
+PKG_SOURCE_VERSION:=8196db52838a8bdf68715f21e58c6e646a39f101
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -54,7 +54,7 @@ endef
 define Package/libethernet
   $(call Package/easy-soc-libs)
   TITLE:= Ethernet library (libethernet)
-  DEPENDS+=+TARGET_iopsys_ramips:swconfig
+  DEPENDS+=+libnl +libnl-route +libeasy +TARGET_iopsys_ramips:swconfig
 endef
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
