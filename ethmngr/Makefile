@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ethmngr
-PKG_VERSION:=1.0.1
+PKG_VERSION:=1.0.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=9eb0f5bce7154b301966ea1e1b7addc25753b77d
+PKG_SOURCE_VERSION:=c119abb1d410794660657b57df08b9eaeaf8a38e
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ethmngr.git
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
