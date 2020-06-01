@@ -9,7 +9,7 @@ USE_PROCD=1
 PROG=/usr/bin/owsd
 UPROXYD="/sbin/uproxyd"
 CONFIGFILE="/etc/config/owsd"
-
+JSONFILE="/tmp/owsd/owsd.json"
 DHCP_DOMAINS=""
 
 USERS=""
@@ -113,6 +113,9 @@ validate_owsd_ubusproxy() {
 		'peer:list(string)' \
 		'object:list(string)' \
 		'prefix:string' \
+		'max_reconnect_time:string' \
+		'client_backoff_timeout:string' \
+		'reconnect_timeout:string' \
 		'peer_key:file' \
 		'peer_cert:file' \
 		'peer_ca:file' \
@@ -278,6 +281,37 @@ parse_owsd_iface() {
 	fi
 }
 
+parser_timeout()
+{
+	local flag data
+	local ret=0
+#data format is  digital with time unit
+#10s-10 seconds 10m-10 minutes 10h-10 hours 10d-10 days
+	if [ -n "$1" ]; then
+		flag=$(echo "$1"| tr -d [0-9] | tr '[A-Z]' '[a-z]')
+		data=$(echo "$1"| tr -cd [0-9])
+
+		case $flag in
+			m)
+			ret=$((data*1000*60))
+			;;
+			h)
+			ret=$((data*1000*60*60))
+			;;
+			d)
+			ret=$((data*1000*60*60*24))
+			;;
+			*)
+			# assume seconds if no format given
+			ret=$((data*1000))
+			;;
+		esac
+		echo "$ret"
+	else
+		echo "0"
+	fi
+}
+
 start_service() {
 	# update rpcd config according to owsd acl
 	handle_owsd_acl
@@ -296,6 +330,7 @@ start_service() {
 		echo "Global validation failed"
 		return 1
 	}
+
 	json_init
 	json_add_object "global"
 	[ -n "${sock}"       ] && json_add_string "socket" "$sock"
@@ -327,6 +362,8 @@ start_service() {
 			config_list_foreach "ubusproxy" "object" append_object
 			json_close_array
 
+			[ -n "${reconnect_timeout}"	] && json_add_int "reconnect_timeout" $(parser_timeout $reconnect_timeout)
+
 			[ "${prefix}" == "mac" ] && json_add_string "prefix" "mac"
 			json_close_object
 		fi
@@ -337,8 +374,8 @@ start_service() {
 	json_close_object
 
 	[ ! -d "/tmp/owsd" ] && mkdir /tmp/owsd
-	json_dump > /tmp/owsd/owsd_cfg.json
-	procd_append_param command -f "/tmp/owsd/owsd_cfg.json"
+	json_dump > "$JSONFILE"
+	procd_append_param command -f "$JSONFILE"
 
 #	procd_set_param stderr 1
 	procd_set_param respawn
@@ -349,6 +386,13 @@ start_service() {
 		# Start uproxyd
 		procd_open_instance
 		procd_set_param command $UPROXYD
+
+		config_get ctimeout ubusproxy   client_backoff_timeout
+		config_get reconn   ubusproxy   max_reconnect_time
+		[ -n "${reconn}" ] &&  procd_append_param command -r "${reconn}"
+		[ -n "${ctimeout}" ] && ctimeout=$(parser_timeout $ctimeout)
+		[ -n "${ctimeout}" ] && procd_append_param command -t "${ctimeout}"
+
 		procd_set_param respawn
 		procd_close_instance
 	fi
