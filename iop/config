@@ -45,6 +45,7 @@ CONFIG_PACKAGE_libreadline=y
 CONFIG_PACKAGE_libwifi=y
 CONFIG_PACKAGE_loop-detector=m
 CONFIG_PACKAGE_lscpu=y
+CONFIG_PACKAGE_map=y
 CONFIG_PACKAGE_miniupnpd=y
 CONFIG_PACKAGE_mwan3=y
 CONFIG_PACKAGE_nand-utils=y
