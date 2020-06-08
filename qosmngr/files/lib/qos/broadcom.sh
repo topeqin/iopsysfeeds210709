@@ -44,7 +44,7 @@ handle_queue() {
 	esac
 
 	# Call tmctl which is a broadcomm command to configure queues on a port.
-	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs --qsize $qsize
+	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --qsize 1024 --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
 }
 
 #function to handle a shaper section
@@ -69,14 +69,46 @@ handle_shaper() {
 	tmctl setportshaper --devtype 0 --if $ifname --shapingrate $rate --burstsize $bs
 }
 
+setup_qos() {
+	ebtables -t broute -N qos
+	ret=$?
+	[ $ret -eq 0 ] && ebtables -t broute -I BROUTING -j qos
+
+	iptables -t mangle -N qos_forward
+	ret=$?
+	[ $ret -eq 0 ] && iptables -t mangle -I FORWARD -j qos_forward
+
+	iptables -t mangle -N qos_prerouting
+	ret=$?
+	[ $ret -eq 0 ] && iptables -t mangle -I PREROUTING -j qos_prerouting
+
+	iptables -t mangle -N qos_output
+	ret=$?
+	[ $ret -eq 0 ] && iptables -t mangle -I OUTPUT -j qos_output
+
+	ip6tables -t mangle -N qos_forward
+	ret=$?
+	[ $ret -eq 0 ] && ip6tables -t mangle -I FORWARD -j qos_forward
+
+	ip6tables -t mangle -N qos_prerouting
+	ret=$?
+	[ $ret -eq 0 ] && ip6tables -t mangle -I PREROUTING -j qos_prerouting
+
+	ip6tables -t mangle -N qos_output
+	ret=$?
+	[ $ret -eq 0 ] && ip6tables -t mangle -I OUTPUT -j qos_output
+}
+
 flush_chains() {
-	echo "ebtables -t broute -F" > /tmp/qos/classify.ebtables
-	echo "iptables -t mangle -F FORWARD" > /tmp/qos/classify.iptables
-        echo "iptables -t mangle -F PREROUTING" >> /tmp/qos/classify.iptables
-        echo "iptables -t mangle -F OUTPUT" >> /tmp/qos/classify.iptables
-	echo "ip6tables -t mangle -F FORWARD" > /tmp/qos/classify.ip6tables
-        echo "ip6tables -t mangle -F PREROUTING" >> /tmp/qos/classify.ip6tables
-        echo "ip6tables -t mangle -F OUTPUT" >> /tmp/qos/classify.ip6tables
+	echo "ebtables -t broute -F qos" > /tmp/qos/classify.ebtables
+
+	echo "iptables -t mangle -F qos_forward" > /tmp/qos/classify.iptables
+	echo "iptables -t mangle -F qos_prerouting" >> /tmp/qos/classify.iptables
+	echo "iptables -t mangle -F qos_output" >> /tmp/qos/classify.iptables
+
+	echo "ip6tables -t mangle -F qos_forward" > /tmp/qos/classify.ip6tables
+	echo "ip6tables -t mangle -F qos_prerouting" >> /tmp/qos/classify.ip6tables
+	echo "ip6tables -t mangle -F qos_output" >> /tmp/qos/classify.ip6tables
 }
 
 init_broute_rule() {
@@ -112,7 +144,7 @@ broute_rule_set_traffic_class() {
 }
 
 broute_append_rule() {
-	echo "ebtables -t broute -A BROUTING $BR_RULE" >> /tmp/qos/classify.ebtables
+	echo "ebtables -t broute -A qos $BR_RULE" >> /tmp/qos/classify.ebtables
 }
 
 handle_ebtables_rules() {
@@ -193,10 +225,6 @@ iptables_filter_ip_dest() {
 	IP_RULE="$IP_RULE -d $1"
 }
 
-iptables_filter_ip_mask() {
-	IP_RULE="$IP_RULE$1"
-}
-
 iptables_filter_port_dest() {
 	IP_RULE="$IP_RULE --dport $1"
 }
@@ -218,11 +246,11 @@ iptables_filter_dscp_filter() {
 }
 
 iptables_filter_ip_len_min() {
-        IP_RULE="$IP_RULE -m length --length $1"
+	IP_RULE="$IP_RULE -m length --length $1"
 }
 
 iptables_filter_ip_len_max() {
-        IP_RULE="$IP_RULE:$1"
+	IP_RULE="$IP_RULE:$1"
 }
 
 iptables_set_dscp_mark() {
@@ -230,18 +258,18 @@ iptables_set_dscp_mark() {
 }
 
 iptables_set_traffic_class() {
-        IP_RULE="$IP_RULE -j MARK --set-xmark 0x$1/0x$1"
+	IP_RULE="$IP_RULE -j MARK --set-xmark 0x$1/0x$1"
 }
 
 append_rule_to_mangle_table() {
 	if [ $2 == 4 ]; then
-            echo "iptables -t mangle -A $1 $IP_RULE"  >> /tmp/qos/classify.iptables
-        elif [ $2 == 6 ]; then
-            echo "ip6tables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.ip6tables
+		echo "iptables -t mangle -A $1 $IP_RULE"  >> /tmp/qos/classify.iptables
+	elif [ $2 == 6 ]; then
+		echo "ip6tables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.ip6tables
 	elif [ $2 == 1 ]; then
-            echo "iptables -t mangle -A $1 $IP_RULE"  >> /tmp/qos/classify.iptables
-            echo "ip6tables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.ip6tables
-        fi
+		echo "iptables -t mangle -A $1 $IP_RULE"  >> /tmp/qos/classify.iptables
+		echo "ip6tables -t mangle -A $1 $IP_RULE" >> /tmp/qos/classify.ip6tables
+	fi
 }
 
 handle_iptables_rules() {
@@ -251,7 +279,7 @@ handle_iptables_rules() {
 
 	init_iptables_rule
 	config_get proto "$cid" "proto"
-        config_get traffic_class "$sid" "traffic_class"
+	config_get traffic_class "$sid" "traffic_class"
 	config_get dscp_mark "$cid" "dscp_mark"
 	config_get dscp_filter "$cid" "dscp_filter"
 	config_get dest_port "$cid" "dest_port"
@@ -259,11 +287,9 @@ handle_iptables_rules() {
 	config_get src_port "$cid" "src_port"
 	config_get src_port_range "$cid" "src_port_range"
 	config_get dest_ip "$cid" "dest_ip"
-	config_get dest_mask "$cid" "dest_mask"
 	config_get src_ip "$cid" "src_ip"
-	config_get src_mask "$cid" "src_mask"
-        config_get ip_len_min "$cid" "ip_len_min"
-        config_get ip_len_max "$cid" "ip_len_max"
+	config_get ip_len_min "$cid" "ip_len_min"
+	config_get ip_len_max "$cid" "ip_len_max"
 	config_get ifname "$cid" "ifname"
 
 	#check version of ip
@@ -297,20 +323,9 @@ handle_iptables_rules() {
 		is_l3_rule=1
 	fi
 
-	if [ -n "$src_mask" ]; then
-		iptables_filter_ip_mask $src_mask
-		is_l3_rule=1
-	fi
-
 	#filter dest. ip
 	if [ -n "$dest_ip" ]; then
 		iptables_filter_ip_dest $dest_ip
-		is_l3_rule=1
-	fi
-
-	#filter dest. ip mask
-	if [ -n "$dest_mask" ]; then
-		iptables_filter_ip_mask $dest_mask
 		is_l3_rule=1
 	fi
 
@@ -345,13 +360,13 @@ handle_iptables_rules() {
 	fi
 
 	#filter min. IP packet len.
-        if [ -n "$ip_len_min" ]; then
+	if [ -n "$ip_len_min" ]; then
 		iptables_filter_ip_len_min $ip_len_min
 		is_l3_rule=1
 	fi
 
-        #filter max. IP packet len.
-        if [ -n "$ip_len_max" ]; then
+	#filter max. IP packet len.
+	if [ -n "$ip_len_max" ]; then
 		iptables_filter_ip_len_max $ip_len_max
 		is_l3_rule=1
 	fi
@@ -364,18 +379,18 @@ handle_iptables_rules() {
 	[ -n "$dscp_mark" ] && iptables_set_dscp_mark $dscp_mark
 
 	#set packet queue mark
-        [ -n "$traffic_class" ] && iptables_set_traffic_class  $traffic_class
+	[ -n "$traffic_class" ] && iptables_set_traffic_class  $traffic_class
 
-        #write iptables rule for dscp marking
-        [ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "FORWARD" $ip_version
+	#write iptables rule for dscp marking
+	[ -n "$IP_RULE" -a -n "$dscp_mark" ] && append_rule_to_mangle_table "qos_forward" $ip_version
 
 	if [ -n "$IP_RULE" -a -n "$traffic_class" ]; then
 		if [ "$ifname" == "lo" ]; then
 			#write iptables rule for putting WAN directed internal packets in different queue
-			append_rule_to_mangle_table "OUTPUT" $ip_version
+			append_rule_to_mangle_table "qos_output" $ip_version
 		else
 			#write iptables rule for putting WAN directed LAN packets in different queue
-			append_rule_to_mangle_table "PREROUTING" $ip_version
+			append_rule_to_mangle_table "qos_prerouting" $ip_version
 		fi
 	fi
 }
@@ -394,22 +409,14 @@ handle_classify() {
 	handle_iptables_rules $cid
 }
 
-configure_qos() {
-	# Delete queues
-	for intf in $(db get hw.board.ethernetPortOrder); do
-		i=0
-		for i in 0 1 2 3 4 5 6 7; do
-			tmctl delqcfg --devtype 0 --if $intf --qid $i
-		done
-	done
-
+configure_shaper() {
 	# Load UCI file
 	config_load qos
 	# Processing shaper section(s)
 	config_foreach handle_shaper shaper
+}
 
-	config_foreach handle_queue queue
-
+configure_classify() {
 	#processing classify section
 	# First remove old files
 	rm -f /tmp/qos/classify.ebtables
@@ -425,14 +432,46 @@ configure_qos() {
 	#add flush chain rules
 	flush_chains
 
+	# Load UCI file
+	config_load qos
 	config_foreach handle_classify classify
 
-	# For now qosmngr will execute the ebtables and iptables scripts
-	# that it generates, this can later be integrated with the include
-	# section of firewall uci bu execute for now
 	sh /tmp/qos/classify.ebtables
 	sh /tmp/qos/classify.iptables
 	sh /tmp/qos/classify.ip6tables
+}
+
+configure_queue() {
+	# Delete queues
+	for intf in $(db get hw.board.ethernetPortOrder); do
+		i=0
+		for i in 0 1 2 3 4 5 6 7; do
+			tmctl delqcfg --devtype 0 --if $intf --qid $i &>/dev/null
+		done
+	done
+
+	# Load UCI file
+	config_load qos
+	config_foreach handle_queue queue
+}
+
+configure_qos() {
+	configure_queue
+	configure_shaper
+	configure_classify
+}
+
+reload_qos() {
+	local service_name="$1"
+	if [ -z "$service_name" ]; then
+		configure_qos
+	elif [ "$service_name" == "shaper" ]; then
+		configure_shaper
+	elif [ "$service_name" == "queue" ]; then
+		configure_queue
+	elif [ "$service_name" == "classify" ]; then
+		configure_classify
+	fi
 }
 
 get_queue_stats() {

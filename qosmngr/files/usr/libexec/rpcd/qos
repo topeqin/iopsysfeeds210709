@@ -6,9 +6,8 @@ include /lib/qos
 
 case "$1" in
 	list)
-		echo '{ "queue_stats": { "ifname":"String", "qid":"Integer" } }'
-
-	;;
+		echo '{ "queue_stats": { "ifname":"String", "qid":"Integer" }, "reload": { "section":"String" } }'
+		;;
 	call)
 		case "$2" in
 			queue_stats)
@@ -18,8 +17,14 @@ case "$1" in
 				json_get_var qid qid
 
 				read_queue_stats $iface $qid
-			;;
+				;;
+			reload)
+				read input;
+				json_load "$input"
+				json_get_var service section
+				reload_qos $service
+				;;
 		esac
-	;;
+		;;
 esac
 

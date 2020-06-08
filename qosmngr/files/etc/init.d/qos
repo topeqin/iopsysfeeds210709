@@ -3,7 +3,7 @@
 # Uncomment this if functions need to called inside /lib/qos
 # include /lib/qos
 
-START=18
+START=21
 
 USE_PROCD=1
 NAME=qosmngr
@@ -12,16 +12,10 @@ NAME=qosmngr
 include /lib/qos
 
 start_service() {
-	# Call functions to configure QoS
 	if [ -f "/etc/config/qos" ]; then
-		configure_qos
+		ubus -S call qos reload
 	fi
 
-	# procd_open_instance
-	# start the daemon responsible for reading qos stats
-	# procd_set_param command "/sbin/qosmngr"
-	# procd_set_param respawn
-	# procd_close_instance
 }
 
 stop() {
@@ -30,19 +24,20 @@ stop() {
 }
 
 boot() {
+	setup_qos
 	start
 }
 
 service_triggers() {
-	procd_add_reload_trigger firewall qos
+	procd_add_reload_trigger qos
 }
 
 reload_service() {
 	# Call functions to configure QoS
 	start
-	
-	# reload the daemon responsible for reading qos stats
-	# ubus -t 5 call qos reload
 }
 
-
+restart() {
+	setup_qos
+	start
+}
