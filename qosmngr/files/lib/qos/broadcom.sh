@@ -44,7 +44,7 @@ handle_queue() {
 	esac
 
 	# Call tmctl which is a broadcomm command to configure queues on a port.
-	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --qsize 1024 --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
+	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --qsize $qsize --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
 }
 
 #function to handle a shaper section

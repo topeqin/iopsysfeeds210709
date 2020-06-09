@@ -42,7 +42,7 @@ generate_mcast_config(){
 		uci add_list mcast.@proxy[-1].upstream_interface="$itf"
 	done
 
-	uci add_list mcast.@proxy[-1].filter="239.255.255.250"
+	uci add_list mcast.@proxy[-1].filter="239.0.0.0/8"
 	uci commit mcast
 }
 

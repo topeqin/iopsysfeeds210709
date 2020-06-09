@@ -243,7 +243,7 @@ config_mcast_proxy_interface() {
 configure_mcpd_snooping() {
 	local protocol="$1"
 	local exceptions
-
+	local filter_ip=""
 	
 	# Configure snooping related params
 	if [ "$protocol" == "igmp" ]; then
@@ -261,7 +261,22 @@ configure_mcpd_snooping() {
 	fi
 
 	echo "${protocol}-proxy-enable 0" >> $CONFFILE
-	[ -n "$exceptions" ] && echo "${protocol}-mcast-snoop-exceptions $exceptions" >> $CONFFILE
+	if [ -n "$exceptions" ]; then
+		IFS=" "
+		for excp in $exceptions; do
+			case $excp in
+			*/*)
+				tmp="$(ipcalc.sh $excp | grep IP | awk '{print substr($0,4)}')"
+				tmp1="$(ipcalc.sh $excp | grep NETMASK | awk '{print substr($0,9)}')"
+				filter_ip="$filter_ip $tmp/$tmp1"
+				;;
+			*)
+				filter_ip="$filter_ip $excp"
+				;;
+			esac
+		done
+		echo "${protocol}-mcast-snoop-exceptions $filter_ip" >> $CONFFILE
+	fi
 }
 
 configure_mcpd_proxy() {
@@ -291,7 +306,22 @@ configure_mcpd_proxy() {
 	echo "${protocol}-proxy-enable 1" >> $CONFFILE
 	echo "${protocol}-fast-leave $fast_leave" >> $CONFFILE
 
-	[ -n "$exceptions" ] && echo "$protocol-mcast-snoop-exceptions $exceptions" >> $CONFFILE
+	if [ -n "$exceptions" ]; then
+		IFS=" "
+		for excp in $exceptions; do
+			case $excp in
+			*/*)
+				tmp="$(ipcalc.sh $excp | grep IP | awk '{print substr($0,4)}')"
+				tmp1="$(ipcalc.sh $excp | grep NETMASK | awk '{print substr($0,9)}')"
+				filter_ip="$filter_ip $tmp/$tmp1"
+				;;
+			*)
+				filter_ip="$filter_ip $excp"
+				;;
+			esac
+		done
+		echo "${protocol}-mcast-snoop-exceptions $filter_ip" >> $CONFFILE
+	fi
 }
 
 disable_snooping() {
