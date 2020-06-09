@@ -1,0 +1,37 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+wifi_onoff() {
+	local devices="$(uci show wireless | grep '=wifi-device' | awk -F'[.,=]' '{print$2}')"
+	local wldisabled="0"
+
+	for dev in $devices; do
+		wldisabled="$(uci -q get wireless.$dev.disabled)"
+		wldisabled=${wldisabled:-0}
+		if [ "$wldisabled" == "1" ]; then
+			uci -q set wireless.$dev.disabled=0
+		else
+			uci -q set wireless.$dev.disabled=1
+		fi
+	done
+	uci commit wireless
+	killall -9 wifi 2>/dev/null
+	/sbin/wifi reload &
+}
+
+case "$ACTION" in
+        add|register)
+		[ "wifibutton" == "$INTERFACE" ] && {
+			[ -e "/tmp/wps_active" ] && return
+			echo "WiFi button is pressed" > /dev/console
+			wifi_onoff
+		}
+		[ "wpsbutton" == "$INTERFACE" ] && {
+			[ -e "/tmp/wps_active" ] && return
+			echo "WPS button is pressed" > /dev/console
+			ubus call wifi.wps start
+		}
+        ;;
+esac
+

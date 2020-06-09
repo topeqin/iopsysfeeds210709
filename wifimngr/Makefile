@@ -45,6 +45,8 @@ define Package/wifimngr/install
 #	$(INSTALL_BIN) ./files/*-uci-wireless $(1)/lib/upgrade/post-rootfs-fixup.d
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifimngr $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
+	$(INSTALL_BIN) ./files/wifi.button.hotplug $(1)/etc/hotplug.d/button/05-wifi
 endef
 
 $(eval $(call BuildPackage,wifimngr))
