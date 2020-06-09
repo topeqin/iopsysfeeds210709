@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=inbd
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=53ca7f58edb87976b5897ccaf487bb0cbbf39d07
+PKG_SOURCE_VERSION:=3135944f3357a7a2c1c206be7b65bbb7ac6d1e58
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/inbd
 
