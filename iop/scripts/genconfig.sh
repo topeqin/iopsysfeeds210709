@@ -346,7 +346,7 @@ function genconfig {
 		    cat $config_path/$BOARDTYPE/config >> .config
 		fi
 
-		#special handling for intel_mips which use TARGET_DEVICES
+		#special handling for intel_mips/iopsys_ramips which use TARGET_DEVICES
 		if [ "$target" = "intel_mips" ]; then
 			subtarget="xrx500"
 			echo "CONFIG_TARGET_${target}=y" >> .config
@@ -355,6 +355,11 @@ function genconfig {
 			echo "CONFIG_TARGET_PER_DEVICE_ROOTFS=y" >> .config
 			device=$(echo $BOARDTYPE | tr a-z A-Z)
 			echo "CONFIG_TARGET_DEVICE_${target}_${subtarget}_DEVICE_${device}=y" >> .config
+		elif [ "$target" = "iopsys_ramips" ]; then
+			subtarget="mt7621"
+			echo "CONFIG_TARGET_${target}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
 		else
 			echo "CONFIG_TARGET_${target}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${BOARDTYPE}=y" >> .config
