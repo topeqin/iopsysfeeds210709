@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dslmngr
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=fcad1331eb134b5f0cc05526aa897df61fc4fec0
+PKG_SOURCE_VERSION:=63525fe43aa57a710bb097e4c0ed496c4032db6d
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dslmngr.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 endif
