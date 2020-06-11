@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=obuspa
-PKG_VERSION:=2.1.0
+PKG_VERSION:=2.0.13
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
