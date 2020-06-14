@@ -16,9 +16,9 @@ populate_config(){
 	local portorder="$(db -q get hw.board.ethernetPortOrder)"
 	for port in $portorder; do
 		uci add ports ethport
-		uci rename ports.@ethport[-1]="$(interfacename $port)"
+		uci rename ports.@ethport[-1]="$(get_port_name $port)"
 		uci set ports.@ethport[-1].enabled=1
-		uci set ports.@ethport[-1].name="$(interfacename $port)"
+		uci set ports.@ethport[-1].name="$(get_port_name $port)"
 		uci set ports.@ethport[-1].ifname="$port"
 		uci set ports.@ethport[-1].speed=1000
 		uci set ports.@ethport[-1].duplex="full"
@@ -30,19 +30,6 @@ populate_config(){
 		else
 			uci set ports.@ethport[-1].pause=0
 		fi
-	done
-
-	local fiberorder="$(db -q get hw.board.fiberPortOrder)"
-	for fiber in $fiberorder; do
-		uci add ports sfpport
-		uci rename ports.@sfpport[-1]="$(fibername $fiber)"
-		uci set ports.@sfpport[-1].enabled=1
-		uci set ports.@sfpport[-1].name="$(fibername $fiber)"
-		uci set ports.@sfpport[-1].ifname="$fiber"
-		uci set ports.@sfpport[-1].speed=1000
-		uci set ports.@sfpport[-1].duplex="full"
-		uci set ports.@sfpport[-1].autoneg=1
-		uci set ports.@sfpport[-1].eee=0
 	done
 
 	uci commit ports
