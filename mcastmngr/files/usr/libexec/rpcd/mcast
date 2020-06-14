@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+. /lib/functions.sh
+include /lib/mcast
+
+case "$1" in
+	list)
+		echo '{ "stats":{} }'
+		;;
+	call)
+		case "$2" in
+			stats)
+				read_mcast_stats
+				;;
+		esac
+		;;
+esac

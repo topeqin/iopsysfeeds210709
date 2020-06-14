@@ -402,3 +402,126 @@ configure_mcast() {
 
 	configure_mcpd
 }
+
+read_mcast_stats() {
+	cat /proc/net/igmp_snooping > /tmp/igmp_stats
+	local mcast_addrs=""
+	local ifaces=""
+
+	while read line; do
+	# reading each line
+		case $line in
+		br-*)
+			found_iface=0
+			snoop_iface="$(echo $line | awk -F ' ' '{ print $1 }')"
+			if [ -z "$ifaces" ]; then
+				ifaces="$snoop_iface"
+				continue
+			fi
+
+			IFS=" "
+			for ifx in $ifaces; do
+				if [ $ifx == $snoop_iface ]; then
+					found_iface=1
+					break
+				fi
+			done
+
+			if [ $found_iface -eq 0 ]; then
+				ifaces="$ifaces $snoop_iface"
+				continue
+			fi
+			;;
+		esac
+	done < /tmp/igmp_stats
+
+	while read line; do
+	# reading each line
+		case $line in
+		br-*)
+			found_ip=0
+			grp_ip="$(echo $line | awk -F ' ' '{ print $9 }')"
+			if [ -z "$mcast_addrs" ]; then
+				mcast_addrs="$grp_ip"
+				continue
+			fi
+
+			IFS=" "
+			for ip_addr in $mcast_addrs; do
+				if [ $ip_addr == $grp_ip ]; then
+					found_ip=1
+					break
+				fi
+			done
+
+			if [ $found_ip -eq 0 ]; then
+				mcast_addrs="$mcast_addrs $grp_ip"
+				continue
+			fi
+			;;
+		esac
+	done < /tmp/igmp_stats
+
+	json_init
+	json_add_array "snooping"
+	json_add_object ""
+	IFS=" "
+	for intf in $ifaces; do
+		while read line; do
+		# reading each line
+			case $line in
+			br-*)
+				snoop_iface="$(echo $line | awk -F ' ' '{ print $1 }')"
+				if [ "$snoop_iface" != "$intf" ]; then
+					continue
+				fi
+				json_add_string "interface" "$intf"
+				json_add_array "groups"
+				break
+				;;
+			esac
+		done < /tmp/igmp_stats
+		IFS=" "
+		for gip_addr in $mcast_addrs; do
+			grp_obj_added=0
+			while read line; do
+			# reading each line
+				case $line in
+				br-*)
+					snoop_iface="$(echo $line | awk -F ' ' '{ print $1 }')"
+					if [ "$snoop_iface" != "$intf" ]; then
+						continue
+					fi
+					grp_ip="$(echo $line | awk -F ' ' '{ print $9 }')"
+					if [ "$grp_ip" != "$gip_addr" ]; then
+						continue
+					fi
+					if [ $grp_obj_added -eq 0 ]; then
+						json_add_object ""
+						gip="$(ipcalc.sh $gip_addr | grep IP | awk '{print substr($0,4)}')"
+						json_add_string "group_address" "$gip"
+						json_add_array "associated_devices"
+						grp_obj_added=1
+					fi
+
+					json_add_object ""
+					host_ip="$(echo $line | awk -F ' ' '{ print $13 }')"
+					h_ip="$(ipcalc.sh $host_ip | grep IP | awk '{print substr($0,4)}')"
+					json_add_string "host_address" "$h_ip"
+					src_port="$(echo $line | awk -F ' ' '{ print $2 }')"
+					json_add_string "source_interface" "$src_port"
+					timeout="$(echo $line | awk -F ' ' '{ print $14 }')"
+					json_add_string "timeout" "$timeout"
+					json_close_object #close the associated device object
+					;;
+				esac
+			done < /tmp/igmp_stats
+			json_close_array #close the associated devices array
+			json_close_object # close the groups object
+		done # close the loop for group addresses
+		json_close_array #close the groups array
+	done # close the loop for interfaces
+	json_close_object # close the snooping object
+	json_close_array # close the snooping array
+	json_dump
+}
