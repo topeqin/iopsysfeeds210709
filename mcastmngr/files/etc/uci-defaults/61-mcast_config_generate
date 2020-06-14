@@ -35,6 +35,7 @@ generate_mcast_config(){
 	uci set mcast.@proxy[-1].last_member_query_interval="10"
 	uci set mcast.@proxy[-1].fast_leave="1"
 	uci set mcast.@proxy[-1].snooping_mode="2"
+	uci set mcast.@proxy[-1].lan_to_lan="0"
 	uci add_list mcast.@proxy[-1].downstream_interface="br-lan"
 
 	IFS=" "

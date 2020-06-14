@@ -81,6 +81,7 @@ read_snooping() {
 		config_get igmp_s_mode "$config" snooping_mode 0
 		config_get igmp_s_iface "$config" interface
 		config_get igmp_s_exceptions "$config" filter
+		config_get l_2_l_mcast "$config" lan_to_lan
 		return
 	fi
 
@@ -91,6 +92,7 @@ read_snooping() {
 		config_get mld_s_mode "$config" snooping_mode 0
 		config_get mld_s_iface "$config" interface
 		config_get mld_s_exceptions "$config" filter
+		config_get l_2_l_mcast "$config" lan_to_lan
 		return
 	fi
 }
@@ -119,6 +121,7 @@ read_proxy() {
 		config_get igmp_p_up_interfaces "$config" upstream_interface
 		config_get igmp_p_down_interfaces "$config" downstream_interface
 		config_get igmp_p_exceptions "$config" filter
+		config_get l_2_l_mcast "$config" lan_to_lan
 		return
 	fi
 
@@ -134,6 +137,7 @@ read_proxy() {
 		config_get mld_p_up_interfaces "$config" upstream_interface
 		config_get mld_p_down_interfaces "$config" downstream_interface
 		config_get mld_p_exceptions "$config" filter
+		config_get l_2_l_mcast "$config" lan_to_lan
 		return
 	fi
 }
@@ -499,19 +503,19 @@ read_mcast_stats() {
 					if [ $grp_obj_added -eq 0 ]; then
 						json_add_object ""
 						gip="$(ipcalc.sh $gip_addr | grep IP | awk '{print substr($0,4)}')"
-						json_add_string "group_address" "$gip"
-						json_add_array "associated_devices"
+						json_add_string "groupaddr" "$gip"
+						json_add_array "clients"
 						grp_obj_added=1
 					fi
 
 					json_add_object ""
 					host_ip="$(echo $line | awk -F ' ' '{ print $13 }')"
 					h_ip="$(ipcalc.sh $host_ip | grep IP | awk '{print substr($0,4)}')"
-					json_add_string "host_address" "$h_ip"
+					json_add_string "ipaddr" "$h_ip"
 					src_port="$(echo $line | awk -F ' ' '{ print $2 }')"
-					json_add_string "source_interface" "$src_port"
+					json_add_string "device" "$src_port"
 					timeout="$(echo $line | awk -F ' ' '{ print $14 }')"
-					json_add_string "timeout" "$timeout"
+					json_add_int "timeout" "$timeout"
 					json_close_object #close the associated device object
 					;;
 				esac
@@ -524,4 +528,6 @@ read_mcast_stats() {
 	json_close_object # close the snooping object
 	json_close_array # close the snooping array
 	json_dump
+
+	rm -f /tmp/igmp_stats
 }
