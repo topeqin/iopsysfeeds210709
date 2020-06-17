@@ -22,7 +22,7 @@ define Package/wfadatad
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi Data Elements-1.0 Agent
-  DEPENDS:=+libwifi +mapagent +libuci +libubox +ubus +libpthread +libnl-genl
+  DEPENDS:=+libwifi +map-agent +libuci +libubox +ubus +libpthread +libnl-genl
 endef
 
 define Package/wfadatad/description
