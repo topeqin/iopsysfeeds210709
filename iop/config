@@ -195,3 +195,5 @@ CONFIG_TARGET_PREINIT_BROADCAST=""
 # CONFIG_PACKAGE_urandom-seed is not set
 # CONFIG_PACKAGE_urngd is not set
 
+CONFIG_PACKAGE_sysstat=y
+CONFIG_PACKAGE_hostapd-utils=y
