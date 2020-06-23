@@ -182,7 +182,7 @@ function genconfig {
 
 	}
 
-	git remote -v | grep -q http || {
+	git remote -v | grep -qE '(git@|ssh://)' && {
 		DEVELOPER=1
 
 		bcmAllowed=0
