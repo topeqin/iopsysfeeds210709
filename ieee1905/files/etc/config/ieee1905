@@ -1,18 +1,20 @@
-config ieee1905
+config ieee1905 'ieee1905'
         option enabled '1'
         option debug  true
-
-config al
-        option enabled '1'
-        option basemacint 'wan'
-      # option almac ''
-        option mapall 0
-      # option registrar true
         option debug_level  2
-        option cmdu_event true
+        option macaddress 'auto'
+        option registrar 0
+        option cmdu_event 1
         option map_plugin 0
 
+config security 'security'
+        list method 'PBC'
+	option ssid ''
+	option encryption ''
+        option key 'TESTPASSWORD'
+
 config al-iface
-        option enabled '0'
+        option enabled 1
         option ifname 'br-lan'
         option media 'bridge'
+

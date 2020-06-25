@@ -5,220 +5,12 @@ STOP=10
 
 USE_PROCD=1
 PROG=/usr/sbin/ieee1905d
-AL_CONF=/tmp/ieee1905.config
-INTERFACE=""
 
 validate_ieee1905_section()
 {
 	uci_validate_section ieee1905 ieee1905 "${1}" \
 		'debug:bool:false' \
 		'enabled:bool:false'
-}
-
-get_device_name() {
-	local device
-	# Get wan L3 interface
-	ubus list |grep -iq network.interface.${1}
-	if [ "$?" -eq 0 ]; then
-		json_load "$(ubus -t 2 call network.interface.${1} status)"
-		json_get_var device device
-		echo ${device}
-	fi
-}
-
-get_interface_mac() {
-	local l3 basemac
-	l3=$(get_device_name ${1})
-	if [ -n ${l3} ]; then
-		json_load "$(ubus -t 2 call network.device status "{\"name\":\"${l3}\"}")"
-		json_get_var basemac macaddr
-	fi
-	local first=0x$(echo $basemac |cut -d : -f 1)
-	local rest=$(echo $basemac |cut -d : -f 2-)
-	# Set local bit
-	first=$((first|2))
-	first=$(printf "%02x" $first)
-	basemac="${first}:${rest}"
-	echo ${basemac}
-}
-
-validate_al_iface_section()
-{
-	uci_validate_section ieee1905 al-iface "${1}" \
-		'enabled:bool:false' \
-		'ifname:string:br-lan' \
-		'media:string:bridge'
-}
-
-get_ifindex()
-{
-	local ifname=${1}
-	local ifindex=$(cat /sys/class/net/${ifname}/upper_*/ifindex 2>/dev/null)
-	if [ -z ${ifindex} ]; then
-		ifindex=$(cat /sys/class/net/${ifname}/ifindex)
-	fi
-	echo ${ifindex}
-}
-
-get_wlan_passkey()
-{
-	local ifname=${1}
-	local pass=""
-	local count=0
-
-	while true
-	do
-		local devname=$(uci get wireless.@wifi-iface[${count}].ifname 2>/dev/null)
-		if [ $? -ne 0 ]; then
-			break;
-		fi
-		if [ "${devname}"=="${ifname}" ]; then
-			pass=$(uci get wireless.@wifi-iface[${count}].key 2>/dev/null)
-			break;
-		fi
-		count=$((count+1))
-	done
-	echo ${pass}
-}
-
-configure_interface()
-{
-	local ifname media enabled manufacturer_name model_name model_number device_name serial_number
-	local uuid ifindex
-
-	validate_al_iface_section ${1} || {
-		echo "Validation of al-iface sec failed"
-		exit 1;
-	}
-
-	if [ ${enabled} -eq 0 ]; then
-		return;
-	fi
-
-	# Only continue if interface exists
-	ifconfig ${ifname} 2>/dev/null 1>/dev/null
-	if [ $? -ne 0 ]; then
-		return;
-	fi
-
-	if [ -z ${INTERFACE} ]; then
-		INTERFACE=${ifname}
-	else
-		INTERFACE="${INTERFACE},${ifname}"
-	fi
-
-	if [ "${media}" = "bridge" ]; then
-		echo "Get interfaces from bridge">/dev/console
-		local lower=$(ls -1 /sys/class/net/${ifname}/|grep lower_|tr '_' ' '|awk '{printf $2" "}')
-		for intf in ${lower}
-		do
-			ubus list wifi.ap.${intf} 2>/dev/null 1>/dev/null
-			if [ $? -eq 0 ]; then
-				INTERFACE="${INTERFACE},${intf}"
-				uuid=$(cat /proc/sys/kernel/random/uuid)
-				ifindex=$(get_ifindex ${intf})
-				local key=$(get_wlan_passkey ${ifname})
-				json_add_object
-				json_add_string ifname ${intf}
-				json_add_string media "wifi"
-				json_add_string network_key ${key}
-				json_close_object
-			fi
-		done
-	fi
-	uuid=$(cat /proc/sys/kernel/random/uuid)
-	ifindex=$(get_ifindex ${ifname})
-
-	json_add_object
-	json_add_string ifname ${ifname}
-
-	if [ "${media}"=="bridge" ]; then
-		json_add_string media "eth"
-	elif [ "${media}"=="wifi" ]; then
-		local key=$(get_wlan_passkey ${ifname})
-		json_add_string media "wifi"
-		json_add_string network_key ${key}
-	else
-		json_add_string media ${media}
-	fi
-
-	json_close_object
-}
-
-validate_al_section()
-{
-	uci_validate_section ieee1905 meshcomms "${1}" \
-		'enabled:bool:false' \
-		'basemacint:string:wan' \
-		'almac:string' \
-		'registrar:bool:false' \
-		'mapall:bool:true' \
-		'debug_level:uinteger:1' \
-		'alme_port:port:8888' \
-		'cmdu_event:bool:true' \
-		'discovery_timer:uinteger:60' \
-		'map_plugin:bool:false'
-}
-
-
-configure_al_entity()
-{
-	local enabled almac basemacint mapall debug_level alme_port l3device basemac intf
-	local registrar cmdu_event discovery_timer map_plugin
-
-	validate_al_section ${1} || {
-		echo "Validation of al section failed"
-		exit 1;
-	}
-
-	if [ -z ${almac} ]; then
-		basemac=$(get_interface_mac ${basemacint})
-	else
-		basemac=${almac}
-	fi
-
-
-	local fname cname model cUrl
-	fname=$(db get hw.board.boardId)
-	cname=$(db get hw.board.iopVerCustomer)
-	model=$(db get hw.board.routerModel)
-	# get ip from lan bridge first
-	cUrl=$(ifconfig br-lan 2>/dev/null|grep "inet addr:"|tr ':' ' '|awk '{printf $3}')
-	if [ -z ${cUrl} ]; then
-		cUrl=$(ifconfig br-wan 2>/dev/null|grep "inet addr:"|tr ':' ' '|awk '{printf $3}')
-	fi
-	if [ -z ${cUrl} ]; then
-		cUrl="http://192.168.1.1"
-	fi
-
-	json_init
-	# fill the al-iface info
-	json_add_array al-iface
-	config_foreach configure_interface al-iface
-	json_close_array
-
-	json_add_object deviceInfo
-	json_add_string friendly_name ${fname}
-	json_add_string manufacturer_name ${cname}
-	json_add_string model ${model}
-	json_add_string control_url ${cUrl}
-	json_close_object
-
-	json_add_object al
-	json_add_int enabled ${enabled}
-	json_add_string mac ${basemac}
-	json_add_string interfaces ${INTERFACE}
-	json_add_int map ${mapall}
-	json_add_int registrar ${registrar}
-	json_add_int debug_level ${debug_level}
-	json_add_int alme_port ${alme_port}
-	json_add_int cmdu_event ${cmdu_event}
-	json_add_int discovery_timer ${discovery_timer}
-	json_add_int map_plugin ${map_plugin}
-	json_close_object
-
-	json_dump >${AL_CONF}
-	sync
 }
 
 configure_ieee1905()
@@ -242,25 +34,21 @@ configure_ieee1905()
 	fi
 }
 
-configure_network() {
-	[ -f ${AL_CONF} ] && rm ${AL_CONF}
-
+configure_network()
+{
 	ebtables -L FORWARD|grep -iqE "1:80:C2:(0)+:(0)+:13.*-j.*DROP"
 	if [ "$?" -ne 0 ]; then
 		echo "Applying drop rule to drop pkts forwared by kernel to 1905.1 multicast mac"
 		ebtables -A FORWARD -d 01:80:c2:00:00:13 -j DROP
 	fi
-
-	config_load ieee1905
-	config_foreach configure_ieee1905 ieee1905
-	config_foreach configure_al_entity al
 }
 
 start_service() {
 	procd_open_instance ieee1905
 	procd_set_param command ${PROG}
+	configure_ieee1905 "ieee1905"
 	configure_network
-	# procd_set_param respawn
+	procd_set_param respawn
 	procd_close_instance
 }
 

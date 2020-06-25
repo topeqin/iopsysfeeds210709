@@ -2,13 +2,9 @@ if PACKAGE_ieee1905 || PACKAGE_lib1905al
 
 menu "developer/debug options"
 
-	config IEEE1905_SEND_EMPTY_TLVS
-		bool "Allow sending of empty TLVs"
-		default y
-
-	config IEEE1905_FIX_BROKEN_TLVS
-		bool "Allow reception of missing TLVs"
-		default y
+	config IEEE1905_MAP_COMPLETE_NETWORK
+		bool "Create network topology for complete network"
+		default n
 
 	config IEEE1905_SPEED_UP_DISCOVERY
 		bool "Speed up discovery of an AL in network"
