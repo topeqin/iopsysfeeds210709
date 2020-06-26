@@ -17,6 +17,8 @@ function genconfig_min {
 	brcm63xx_arm="target/linux/iopsys-brcm63xx-arm"
 	ramips="target/linux/iopsys-ramips"
 	intel_mips="target/linux/intel_mips"
+	x86="target/linux/iopsys-x86"
+	armvirt="target/linux/iopsys-armvirt"
 
 	Red='\033[0;31m'          # Red
 	Color_Off='\033[0m'       # Text Reset
@@ -80,6 +82,32 @@ function genconfig_min {
 	set_target() {
 	    local profile=$1
 
+		[ -n "$profile" ] || return
+
+		if [ -n "$TARGET" -a -d "./target/linux/$TARGET" ]; then
+			local targetpath="./target/linux/$TARGET"
+			local profiles=
+			local pfound=0
+
+			if [ -e "$targetpath/genconfig" ]; then
+				profiles=$(cd $targetpath; ./genconfig)
+
+				for p in $profiles; do
+					if [ $p == $profile ]; then
+						pfound=1
+						break
+					fi
+				done
+			fi
+
+			if [ $pfound -eq 1 ]; then
+				target="$(echo $TARGET | tr '-' '_')"
+				config_path="$targetpath/config"
+			fi
+
+			return
+		fi
+
 		[ -e $brcm63xx_mips/genconfig ] &&
 			iopsys_brcm63xx_mips=$(cd $brcm63xx_mips; ./genconfig)
 		[ -e $brcm63xx_arm/genconfig ] &&
@@ -88,9 +116,13 @@ function genconfig_min {
 			iopsys_ramips=$(cd $ramips; ./genconfig)
 		[ -e $intel_mips/genconfig ] &&
 			iopsys_intel_mips=$(cd $intel_mips; ./genconfig)
+		[ -e $x86/genconfig ] &&
+			iopsys_x86=$(cd $x86; ./genconfig)
+		[ -e $armvirt/genconfig ] &&
+			iopsys_armvirt=$(cd $armvirt; ./genconfig)
 
 	    if [ "$profile" == "LIST" ]; then
-			for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips; do
+			for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86 iopsys_armvirt; do
 				echo "$list based boards:"
 				for b in ${!list}; do
 					echo -e "\t$b"
@@ -131,6 +163,36 @@ function genconfig_min {
 		fi
 	    done
 
+	    for p in $iopsys_x86; do
+		if [ $p == $profile ]; then
+		    target="iopsys_x86"
+			config_path="$x86/config"
+		    return
+		fi
+	    done
+
+	    for p in $iopsys_armvirt; do
+		if [ $p == $profile ]; then
+		    target="iopsys_armvirt"
+			config_path="$armvirt/config"
+		    return
+		fi
+	    done
+
+	}
+
+	git remote -v | grep -q http || {
+		DEVELOPER=1
+
+		bcmAllowed=0
+		endptAllowed=0
+		natalieAllowed=0
+		mediatekAllowed=0
+
+		git ls-remote git@dev.iopsys.eu:broadcom/bcmcreator.git -q 2>/dev/null && bcmAllowed=1
+		git ls-remote git@dev.iopsys.eu:mediatek/linux.git -q 2>/dev/null && mediatekAllowed=1
+		git ls-remote git@dev.iopsys.eu:dialog/natalie-dect-12.26.git -q 2>/dev/null && natalieAllowed=1
+		git ls-remote git@dev.iopsys.eu:iopsys/endptmngr.git -q 2>/dev/null && endptAllowed=1
 	}
 
 	v() {
@@ -141,7 +203,10 @@ function genconfig_min {
 		echo
 		echo 1>&2 "Usage: $0 [ OPTIONS ] < Board_Type > [ Customer [customer2 ]...]"
 		echo
+		echo -e "  -c|--clean\t\tRemove all files under ./files and import from config "
 		echo -e "  -v|--verbose\t\tVerbose"
+		echo -e "  -n|--no-update\tDo NOT! Update customer config before applying"
+		echo -e "  -t|--target\t\tExplicitly specify the linux target to build the board profile from"
 		echo -e "  -s|--override\t\tEnable 'Package source tree override'"
 		echo -e "  -S|--brcmsingle\tForce build of bcmkernel to use only one thread"
 		echo -e "  -h|--help\t\tShow this message"
@@ -258,7 +323,7 @@ function genconfig_min {
 		    cat $config_path/$BOARDTYPE/config >> .config
 		fi
 
-		#special handling for intel_mips which use TARGET_DEVICES
+		#special handling for intel_mips/iopsys_ramips which use TARGET_DEVICES
 		if [ "$target" = "intel_mips" ]; then
 			subtarget="xrx500"
 			echo "CONFIG_TARGET_${target}=y" >> .config
@@ -267,6 +332,11 @@ function genconfig_min {
 			echo "CONFIG_TARGET_PER_DEVICE_ROOTFS=y" >> .config
 			device=$(echo $BOARDTYPE | tr a-z A-Z)
 			echo "CONFIG_TARGET_DEVICE_${target}_${subtarget}_DEVICE_${device}=y" >> .config
+		elif [ "$target" = "iopsys_ramips" ]; then
+			subtarget="mt7621"
+			echo "CONFIG_TARGET_${target}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
 		else
 			echo "CONFIG_TARGET_${target}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${BOARDTYPE}=y" >> .config
@@ -278,8 +348,7 @@ function genconfig_min {
 		if [ -n "$CUSTOMERS" ]; then
 			for CUSTOMER in $CUSTOMERS; do
 				if [ -d "$CUSTCONF/$CUSTOMER/common/fs" ]; then
-					v "cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR"		CUSTREPO="${CUSTREPO:-}"
-
+					v "cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR"
 					cp -ar $CUSTCONF/$CUSTOMER/common/fs/* $FILEDIR
 				fi
 				if [ -d "$CUSTCONF/$CUSTOMER/$BOARDTYPE/fs" ]; then
@@ -354,7 +423,10 @@ function genconfig_min {
 		while [ -n "$1" ]; do
 			case "$1" in
 
+			-c|--clean) export CLEAN=1;;
+			-n|--no-update) export IMPORT=0;;
 			-v|--verbose) export VERBOSE="$(($VERBOSE + 1))";;
+			-t|--target) export TARGET="$2"; shift;;
 			-p|--profile) export PROFILE="$2"; shift;;
 			-r|--repo) export CUSTREPO="$2"; shift;;
 			-s|--override) export SRCTREEOVERR=1;;
