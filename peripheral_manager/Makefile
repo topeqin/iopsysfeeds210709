@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=peripheral_manager
-PKG_VERSION:=1.0.4
+PKG_VERSION:=1.0.5
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=f702bbdcc270cb878588846c7e675f5e4ca53740
+PKG_SOURCE_VERSION:=0513e171013512bc14ef8b650c715e3fd9c59820
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/peripheral-manager
 
