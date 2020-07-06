@@ -395,6 +395,11 @@ config_global_params() {
 	echo $mldv2_unsolicited_report_interval > /proc/sys/net/ipv6/conf/all/mldv2_unsolicited_report_interval
 }
 
+setup_mcast_mode() {
+	# set the mode at chip to allow both tagged and untagged multicast forwarding
+	bs /b/c iptv lookup_method=group_ip_src_ip
+}
+
 configure_mcast() {
 	rm -f $CONFFILE
 	touch $CONFFILE

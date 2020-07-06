@@ -9,6 +9,7 @@ NAME=mcast
 include /lib/network
 include /lib/mcast
 
+
 service_triggers() {
 	procd_add_reload_trigger network $NAME
 }
@@ -22,6 +23,11 @@ start_service() {
 	procd_set_param command "$PROG_EXE"
 	procd_set_param respawn
 	procd_close_instance
+}
+
+boot() {
+	setup_mcast_mode
+	start
 }
 
 stop_service() {
