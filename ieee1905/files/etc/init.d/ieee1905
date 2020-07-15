@@ -44,6 +44,9 @@ configure_network()
 }
 
 start_service() {
+
+	[ -d /etc/ieee1905 ] || mkdir -p /etc/ieee1905
+
 	procd_open_instance ieee1905
 	procd_set_param command ${PROG}
 	configure_ieee1905 "ieee1905"

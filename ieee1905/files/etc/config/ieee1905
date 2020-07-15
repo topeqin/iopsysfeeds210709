@@ -9,8 +9,6 @@ config ieee1905 'ieee1905'
 
 config security 'security'
         list method 'PBC'
-	option ssid ''
-	option encryption ''
         option key 'TESTPASSWORD'
 
 config al-iface
