@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-1905
-PKG_VERSION:=0.0.5
+PKG_VERSION:=0.0.6
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
@@ -63,8 +63,9 @@ endef
 endif
 
 define Package/map-1905/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libwifimap2.so $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/etc/
+	$(INSTALL_DIR) $(1)/etc/ieee1905
+	$(CP) $(PKG_BUILD_DIR)/libwifimap2.so $(1)/etc/ieee1905/
 endef
 
 define Package/libmaputils/install
@@ -77,7 +78,6 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/map1905
 	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/map1905/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libwifimap2.so $(1)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/libmaputils.so $(1)/usr/lib/
 endef
 
