@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-1905
-PKG_VERSION:=0.0.6
+PKG_VERSION:=0.0.7
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
@@ -43,18 +43,6 @@ TARGET_CFLAGS += \
 	-Wall \
 	-Wextra
 
-ifeq ($(CONFIG_IEEE1905_SEND_EMPTY_TLVS),y)
-TARGET_CFLAGS += -DSEND_EMPTY_TLVS
-endif
-ifeq ($(CONFIG_IEEE1905_FIX_BROKEN_TLVS),y)
-TARGET_CFLAGS += -DFIX_BROKEN_TLVS
-endif
-ifeq ($(CONFIG_IEEE1905_SPEED_UP_DISCOVERY),y)
-TARGET_CFLAGS += -DSPEED_UP_DISCOVERY
-endif
-ifeq ($(CONFIG_IEEE1905_DO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS),y)
-TARGET_CFLAGS += -DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
-endif
 
 ifeq ($(LOCAL_DEV),1)
 define Build/Prepare
@@ -63,9 +51,10 @@ endef
 endif
 
 define Package/map-1905/install
-	$(INSTALL_DIR) $(1)/etc/
-	$(INSTALL_DIR) $(1)/etc/ieee1905
-	$(CP) $(PKG_BUILD_DIR)/libwifimap2.so $(1)/etc/ieee1905/
+	$(INSTALL_DIR) $(1)/usr/
+	$(INSTALL_DIR) $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/ieee1905
+	$(CP) $(PKG_BUILD_DIR)/libwifimap2.so $(1)/usr/lib/ieee1905/
 endef
 
 define Package/libmaputils/install
