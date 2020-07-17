@@ -45,7 +45,7 @@ configure_network()
 
 start_service() {
 
-	[ -d /etc/ieee1905 ] || mkdir -p /etc/ieee1905
+	[ -d /usr/lib/ieee1905 ] || mkdir -p /usr/lib/ieee1905
 
 	procd_open_instance ieee1905
 	procd_set_param command ${PROG}
