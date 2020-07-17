@@ -10,16 +10,22 @@ network_get_device l3device $INTERFACE
 
 compare_mcast_proxy_upstream() {
         local upstream
+	local mode="$2"
 
-        config_get upstream $1 upstream_interface
+	if [ "$mode" == "proxy" ]; then
+		config_get upstream $1 upstream_interface
+	else
+		config_get upstream $1 interface
+	fi
 
-		for dev in $upstream; do
-			if [ "$l3device" == "$dev" ]; then
-				ubus call uci commit '{"config":"mcast"}'
-				exit
-			fi
-		done
+	for dev in $upstream; do
+		if [ "$l3device" == "$dev" ]; then
+			ubus call uci commit '{"config":"mcast"}'
+			exit
+		fi
+	done
 }
 
 config_load mcast
-config_foreach compare_mcast_proxy_upstream "proxy"
+config_foreach compare_mcast_proxy_upstream "proxy" "proxy"
+config_foreach compare_mcast_proxy_upstream "snooping" "snooping"
