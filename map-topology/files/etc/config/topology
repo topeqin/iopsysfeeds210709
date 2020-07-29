@@ -1,0 +1,6 @@
+
+config topology
+	option enabled '1'
+	option depth '8'
+	option interval '60'
+	option maxlog '32'
