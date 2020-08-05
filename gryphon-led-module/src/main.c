@@ -129,6 +129,8 @@ static int canyon_led_probe(struct platform_device *pdev)
 	if (ret < 0) {
 		dev_warn(&pdev->dev, "Could not read led-count property\n");
 		leds->led_count = SK9822_DEFAULT_NUM_LEDS;
+	} else {
+		printk(KERN_INFO "Got led count: %u\n", leds->led_count);
 	}
 
 	leds->led_colors = devm_kzalloc(&pdev->dev,
@@ -140,7 +142,7 @@ static int canyon_led_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, leds);
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 16, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0)
 	leds->clock_gpio = gpiod_get_index(&pdev->dev, "led", 0);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 3, 0)
 	leds->clock_gpio = gpiod_get_index(&pdev->dev, "led", 0, GPIOD_OUT_HIGH);
@@ -148,6 +150,12 @@ static int canyon_led_probe(struct platform_device *pdev)
 	dev_warn(&pdev->dev, "Kernel version Not supported\n");
 	exit(1);
 #endif
+	if (IS_ERR(leds->clock_gpio)) {
+		dev_err(&pdev->dev, "Failed to acquire clock GPIO %ld\n",
+				PTR_ERR(leds->clock_gpio));
+		leds->clock_gpio = NULL;
+		return PTR_ERR(leds->clock_gpio);
+	}
 
 	gpiod_direction_output(leds->clock_gpio, 1);
 	if (IS_ERR(leds->clock_gpio)) {
@@ -160,7 +168,7 @@ static int canyon_led_probe(struct platform_device *pdev)
 		gpiod_set_value(leds->clock_gpio, 0);
 	}
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 16, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0)
 	leds->data_gpio = gpiod_get_index(&pdev->dev, "led", 1);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 3, 0)
 	leds->data_gpio = gpiod_get_index(&pdev->dev, "led", 1, GPIOD_OUT_HIGH);
@@ -168,6 +176,12 @@ static int canyon_led_probe(struct platform_device *pdev)
 	dev_warn(&pdev->dev, "Kernel version Not supported\n");
 	exit(1);
 #endif
+	if (IS_ERR(leds->data_gpio)) {
+		dev_err(&pdev->dev, "Failed to acquire data GPIO %ld\n",
+				PTR_ERR(leds->data_gpio));
+		leds->data_gpio = NULL;
+		return PTR_ERR(leds->data_gpio);
+	}
 
 	gpiod_direction_output(leds->data_gpio, 1);
 	if (IS_ERR(leds->data_gpio)) {
