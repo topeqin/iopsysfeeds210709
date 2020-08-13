@@ -18,6 +18,7 @@ PKG_SOURCE:=endptmngr-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION
 PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
 PKG_NAME:=endptmngr-open
 PATCH_DIR:=
+PKG_HASH:=skip
 else
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/endptmngr.git
 PKG_SOURCE_PROTO:=git
