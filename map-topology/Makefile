@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=map-topology
-PKG_VERSION:=1.1.0
+PKG_VERSION:=1.2.0
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
@@ -23,7 +23,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/map-topology
 	CATEGORY:=Utilities
-	DEPENDS:=+libubox +ubus +libpthread +libuci +libeasy +libmaputils
+	DEPENDS:=+libubox +ubus +libpthread +libuci +libeasy +lib1905
 	TITLE:=Utility to build topology of a multi-AP network
 endef
 
