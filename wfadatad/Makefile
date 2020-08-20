@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfadatad
-PKG_VERSION:=2.0.1
+PKG_VERSION:=2.2.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=578cad4e52235fa3eb979859fcabddd785ea3fc5
+PKG_SOURCE_VERSION:=3e40930fbd84dcf796ddb8e7071eaf526cf5481e
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfadatad.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -22,17 +22,18 @@ define Package/wfadatad
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi Data Elements-1.0 Agent
-  DEPENDS:=+libwifi +map-agent +libuci +libubox +ubus +libpthread +libnl-genl
+  DEPENDS:=+libwifi +libuci +libubox +ubus +libpthread +libnl-genl \
+	  +!WFA_DELM_STANDALONE:map-agent +WFA_DELM_MULTIAP_MODE:libmaputils
 endef
 
 define Package/wfadatad/description
- This package implements WiFi Alliance's Data Elements Agent.
+ This package implements WiFi Alliance's Data Elements v.1.0.
  It collects WiFi network's diagnostic data and reports them
  to the Data Elements Collector.
- By default, the package is built as a dynamically loadable
- plugin module to the MultiAP Agent.
- Alternatively, for debugging purpose, the package can be built
- as a standalone daemon.
+ In Data Elements Agent mode, the package by default is built
+ as a loadable plugin module to the MultiAP Agent.
+ The package can also be built as a standalone daemon running
+ independently of a MultiAP Agent.
 endef
 
 
@@ -52,9 +53,6 @@ TARGET_CFLAGS += \
 
 MAKE_PATH:=src
 
-#define Build/Prepare
-#        $(CP) -rf ./wfadatad/src/* $(PKG_BUILD_DIR)/
-#endef
 
 define Package/wfadatad/install
 
