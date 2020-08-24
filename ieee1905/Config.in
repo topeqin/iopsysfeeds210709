@@ -21,8 +21,8 @@ menu "developer/debug options"
 		config IEEE1905_ALME_OVER_UBUS
 			bool "ALME methods supported over ubus"
 
-		config IEEE1905_ALME_OVER_TCP
-			bool "ALME server over TCP port"
+		#config IEEE1905_ALME_OVER_TCP
+		#	bool "ALME server over TCP port"
 
 	endchoice
 endmenu

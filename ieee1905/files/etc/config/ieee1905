@@ -9,7 +9,6 @@ config ieee1905 'ieee1905'
 
 config security 'security'
         list method 'PBC'
-        option key 'TESTPASSWORD'
 
 config al-iface
         option enabled 1

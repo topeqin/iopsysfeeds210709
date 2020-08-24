@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.23
+PKG_VERSION:=2.0.24
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=53e3a994e160c8de987a2b3b8538ec60f4aa4a5c
+PKG_SOURCE_VERSION:=22a71ea12556cdfe8b5fa2b894964818ca65afff
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -23,7 +23,7 @@ define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 daemon
-  DEPENDS:= +libuci +libjson-c +lib1905 +ubox +libpcap +libopenssl +libwifi +libeasy
+  DEPENDS:= +libuci +libjson-c +libieee1905 +ubox +libpcap +libopenssl +libwifi +libeasy
 endef
 
 define Package/ieee1905/config
@@ -34,7 +34,7 @@ define Package/ieee1905/description
  IEEE1905 stack with extended functionalities.
 endef
 
-define Package/lib1905
+define Package/libieee1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 cmdu tlv utility library
@@ -92,23 +92,23 @@ define Package/lib1905hle/install
 	$(CP) $(PKG_BUILD_DIR)/lib/lib1905hle.so $(1)/usr/lib/lib1905hle.so
 endef
 
-define Package/lib1905/install
+define Package/libieee1905/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905.so $(1)/usr/lib/lib1905.so
+	$(CP) $(PKG_BUILD_DIR)/lib/libieee1905.so $(1)/usr/lib/libieee1905.so
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/include/lib1905
+	$(INSTALL_DIR) $(1)/usr/include/ieee1905
 	$(INSTALL_DIR) $(1)/usr/include/ieee1905
 	$(INSTALL_DIR) $(1)/usr/include/lib1905hle
 	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/ieee1905/
-	$(CP) $(PKG_BUILD_DIR)/lib1905/include/*.h $(1)/usr/include/lib1905/
+	$(CP) $(PKG_BUILD_DIR)/libieee1905/include/*.h $(1)/usr/include/ieee1905/
 	$(CP) $(PKG_BUILD_DIR)/lib1905hle/include/*.h $(1)/usr/include/lib1905hle/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/lib1905.so $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/lib/libieee1905.so $(1)/usr/lib
 endef
 
-$(eval $(call BuildPackage,lib1905))
+$(eval $(call BuildPackage,libieee1905))
 $(eval $(call BuildPackage,lib1905hle))
 $(eval $(call BuildPackage,ieee1905))
