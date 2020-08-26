@@ -59,8 +59,8 @@ define Package/wfadatad/install
 ifeq ($(CONFIG_WFA_DELM_STANDALONE),y)
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/wfa_delm.init $(1)/etc/init.d/wfa_delm
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wfa_delm $(1)/usr/sbin/
+	$(INSTALL_BIN) ./files/wfa_delm.init $(1)/etc/init.d/wfadatad
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wfadatad $(1)/usr/sbin/
 else
 	$(INSTALL_DIR) $(1)/usr/lib/map-plugins
 	$(CP) $(PKG_BUILD_DIR)/src/wfa_delm.so $(1)/usr/lib/map-plugins
