@@ -90,7 +90,12 @@ handle_shaper() {
 setup_qos() {
 	ebtables -t broute -N qos
 	ret=$?
-	[ $ret -eq 0 ] && ebtables -t broute -I BROUTING -j qos
+	if [ $ret -eq 0 ]; then
+		ebtables -t broute -I BROUTING -j qos
+	else
+		ebtables -t broute -D BROUTING -j qos
+		ebtables -t broute -I BROUTING -j qos
+	fi
 
 	iptables -t mangle -N qos_forward
 	ret=$?
