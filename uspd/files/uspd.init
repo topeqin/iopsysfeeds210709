@@ -20,6 +20,5 @@ reload_service() {
 
 service_triggers()
 {
-	procd_add_reload_trigger "cwmp"
 	procd_add_config_trigger "config.change" "uspd" /etc/init.d/uspd restart
 }
