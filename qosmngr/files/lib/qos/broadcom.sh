@@ -433,6 +433,10 @@ handle_classify() {
 }
 
 configure_shaper() {
+	# Delete existing shaper
+	for intf in $(db get hw.board.ethernetPortOrder); do
+		tmctl setportshaper --devtype 0 --if $intf --shapingrate 0 --burstsize -1
+	done
 	# Load UCI file
 	config_load qos
 	# Processing shaper section(s)
