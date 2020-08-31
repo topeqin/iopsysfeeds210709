@@ -466,6 +466,11 @@ configure_classify() {
 	sh /tmp/qos/classify.ebtables
 	sh /tmp/qos/classify.iptables
 	sh /tmp/qos/classify.ip6tables
+	# broadcom recommends that each time traffic class is set,
+	# the flows should be flushed for the new mapping to take
+	# effect, it then makes sense to make it a part of the
+	# qosmngr package itself.
+	fcctl flush
 }
 
 configure_queue() {
