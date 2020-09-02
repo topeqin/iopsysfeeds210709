@@ -11,6 +11,10 @@ PROG_EXE=/usr/sbin/mcpd
 # Parameters available in snooping configuration
 igmp_s_enable=0
 igmp_s_version=2
+igmp_s_query_interval=125
+igmp_s_q_resp_interval=100
+igmp_s_last_mem_q_int=10
+igmp_s_fast_leave=1
 igmp_s_robustness=2
 igmp_s_mode=0
 igmp_s_iface=""
@@ -77,6 +81,10 @@ read_snooping() {
 	if [ "$proto" == "igmp" ]; then
 		igmp_s_enable=$sec_enable
 		config_get igmp_s_version "$config" version 2
+		config_get igmp_s_query_interval "$config" query_interval 125
+		config_get igmp_s_q_resp_interval "$config" query_response_interval 100
+		config_get igmp_s_last_mem_q_int "$config" last_member_query_interval 10
+		config_get igmp_s_fast_leave "$config" fast_leave 1
 		config_get igmp_s_robustness "$config" robustness 2
 		config_get igmp_s_mode "$config" snooping_mode 0
 		config_get igmp_s_iface "$config" interface
@@ -88,6 +96,10 @@ read_snooping() {
 	if [ "$proto" == "mld" ]; then
 		mld_s_enable=$sec_enable
 		config_get mld_s_version "$config" version 2
+		config_get mld_s_query_interval "$config" query_interval 125
+		config_get mld_s_q_resp_interval "$config" query_response_interval 100
+		config_get mld_s_last_mem_q_int "$config" last_member_query_interval 10
+		config_get mld_s_fast_leave "$config" fast_leave 1
 		config_get mld_s_robustness "$config" robustness 2
 		config_get mld_s_mode "$config" snooping_mode 0
 		config_get mld_s_iface "$config" interface
@@ -248,23 +260,28 @@ configure_mcpd_snooping() {
 	local protocol="$1"
 	local exceptions
 	local filter_ip=""
+	local fast_leave=0
 	
 	# Configure snooping related params
 	if [ "$protocol" == "igmp" ]; then
-		config_snooping_common_params $protocol $igmp_p_version $igmp_p_robustness $igmp_s_mode
-		config_mcast_querier_params $protocol $igmp_query_interval $igmp_q_resp_interval $igmp_last_mem_q_int
+		config_snooping_common_params $protocol $igmp_s_version $igmp_s_robustness $igmp_s_mode
+		config_mcast_querier_params $protocol $igmp_s_query_interval $igmp_s_q_resp_interval $igmp_s_last_mem_q_int
 		config_mcast_proxy_interface $protocol "$igmp_s_iface"
 		config_snooping_on_bridge $protocol $igmp_s_iface $igmp_s_mode
 		exceptions=$igmp_s_exceptions
+		fast_leave=$igmp_s_fast_leave
 	elif [ "$protocol" == "mld" ]; then
-		config_snooping_common_params $protocol $mld_p_version $mld_p_robustness $mld_s_mode
-		config_mcast_querier_params $protocol $mld_query_interval $mld_q_resp_interval $mld_last_mem_q_int
+		config_snooping_common_params $protocol $mld_s_version $mld_s_robustness $mld_s_mode
+		config_mcast_querier_params $protocol $mld_s_query_interval $mld_s_q_resp_interval $mld_s_last_mem_q_int
 		config_mcast_proxy_interface $protocol "$mld_s_iface"
 		config_snooping_on_bridge $protocol $mld_s_iface $mld_s_mode
 		exceptions=$mld_s_exceptions
+		fast_leave=$mld_s_fast_leave
 	fi
 
 	echo "${protocol}-proxy-enable 0" >> $CONFFILE
+	echo "${protocol}-fast-leave $fast_leave" >> $CONFFILE
+
 	if [ -n "$exceptions" ]; then
 		IFS=" "
 		for excp in $exceptions; do
