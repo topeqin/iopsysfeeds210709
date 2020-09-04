@@ -64,4 +64,5 @@ service_triggers() {
 	procd_add_reload_trigger "network"
 	procd_add_reload_trigger "wireless"
 	procd_add_reload_trigger "netmode"
+	procd_add_config_trigger "config.change" "ieee1905" /etc/init.d/ieee1905 restart
 }
