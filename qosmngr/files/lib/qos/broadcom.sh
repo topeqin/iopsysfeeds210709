@@ -22,6 +22,7 @@ handle_queue() {
 		return
 	fi
 
+	local q_no=$(cat /tmp/qos/queue_stats/$ifname/q_idx)
 	#lower the value, lower the priority of queue on this chip
 	config_get order "$qid" "precedence"
 
@@ -45,11 +46,11 @@ handle_queue() {
 	esac
 
 	# Call tmctl which is a broadcomm command to configure queues on a port.
-	tmctl setqcfg --devtype 0 --if $ifname --qid $order --priority $order --qsize $qsize --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
+	tmctl setqcfg --devtype 0 --if $ifname --qid $q_no --priority $order --qsize $qsize --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
 
 	# In BCM968 chips, the counters for queues are read, on other model, its read and reset. So, to maintain counter
 	# value and uniform behaviour, we are storing counter value for each queue in files
-	local d_name="/tmp/qos/queue_stats/${ifname}_${order}"
+	local d_name="/tmp/qos/queue_stats/${ifname}/q_${q_no}"
 	mkdir $d_name
 	local f_name="$d_name/txPackets"
 	touch $f_name
@@ -63,6 +64,9 @@ handle_queue() {
 	f_name="$d_name/droppedBytes"
 	touch $f_name
 	echo 0 > $f_name
+
+	q_no=$((q_no + 1))
+	echo $q_no > /tmp/qos/queue_stats/$ifname/q_idx
 }
 
 #function to handle a shaper section
@@ -475,15 +479,18 @@ configure_classify() {
 
 configure_queue() {
 	# Delete queues
+	rm -rf /tmp/qos/queue_stats
+
 	for intf in $(db get hw.board.ethernetPortOrder); do
+		mkdir -p /tmp/qos/queue_stats/$intf
+		touch /tmp/qos/queue_stats/$intf/q_idx
+		echo 0 > /tmp/qos/queue_stats/$intf/q_idx
 		i=0
 		for i in 0 1 2 3 4 5 6 7; do
 			tmctl delqcfg --devtype 0 --if $intf --qid $i &>/dev/null
 		done
 	done
 
-	rm -rf /tmp/qos/queue_stats
-	mkdir /tmp/qos/queue_stats
 	# Load UCI file
 	config_load qos
 	config_foreach handle_queue queue
@@ -510,83 +517,136 @@ reload_qos() {
 
 get_queue_stats() {
 	local ifname
+	local f_name
 	local tmp_val
+	local q_index=0
+	local max_q_index=0
 
 	json_init
 	json_add_array "queues"
 
-	i=0
-	while :
-	do
-		ifname=$(uci -q  get qos.@queue[$i].ifname)
-
-		# if ifname is empty that is good enough to break
-		if [ -z "$ifname" ];then
-			break
-		fi
-
-		if [ -n "$1" ]; then
-			if [ "$ifname" != "$1" ]; then
-				i=$((i + 1))
+	if [ -n "$1" ]; then
+		ifname=$1
+		max_q_index=$(cat /tmp/qos/queue_stats/${ifname}/q_idx)
+		while :
+		do
+			if [ $q_index -eq $max_q_index ]; then
+				break
+			fi
+			stats="$(tmctl getqstats --devtype 0 --if $ifname --qid $q_index)"
+			ret="$(echo $stats | awk '{print substr($0,0,5)}')"
+			#check tmctl ERROR condition
+			if [ $ret == 'ERROR' ]; then
+				q_index=$((q_index + 1))
 				continue
 			fi
-		fi
+			json_add_object ""
+			json_add_int "qid" "$q_index"
+			json_add_string "iface" "$ifname"
 
-		order=$(uci -q get qos.@queue[$i].precedence)
-		stats="$(tmctl getqstats --devtype 0 --if $ifname --qid $order)"
-		ret="$(echo $stats | awk '{print substr($0,0,5)}')"
+			IFS=$'\n'
+			for stat in $stats; do
+				pname="$(echo $stat | awk '{print$1}')"
+				if [ $pname == 'ret' ]; then
+					continue
+				fi
 
-		#check tmctl ERROR condition
-		if [ $ret == 'ERROR' ]; then
-			i=$((i + 1))
-			continue
-		fi
+				val="$(echo $stat | awk '{print$2}')"
 
-		json_add_object ""
-		json_add_int "qid" "$order"
-		json_add_string "iface" "$ifname"
+				# remove trailing : from the name
+				pname="${pname::-1}"
+				local f_name="/tmp/qos/queue_stats/${ifname}/q_${q_index}/${pname}"
+				# In non BCM968* chips, read operation on queues is actually a read and reset,
+				# so values need to be maintained to present cumulative value
+				if [ $is_bcm968 -eq 0 ]; then
+					tmp_val=$(cat $f_name)
+					val=$((val + tmp_val))
+				fi
+				echo $val > $f_name
 
-		IFS=$'\n'
-		for stat in $stats; do
-			pname="$(echo $stat | awk '{print$1}')"
-			if [ $pname == 'ret' ]; then
-				continue
-			fi
+				# convert to iopsyswrt names
+				case "$pname" in
+					txPackets)
+						json_add_int "tx_packets" "$val"
+						;;
+					txBytes)
+						json_add_int "tx_bytes" "$val"
+						;;
+					droppedPackets)
+						json_add_int "tx_dropped_packets" "$val"
+						;;
+					droppedBytes)
+						json_add_int "tx_dropped_bytes" "$val"
+						;;
+				esac
+			done
+			json_close_object
 
-			val="$(echo $stat | awk '{print$2}')"
-
-			# remove trailing : from the name
-			pname="${pname::-1}"
-			local f_name="/tmp/qos/queue_stats/${ifname}_${order}/${pname}"
-			# In non BCM968* chips, read operation on queues is actually a read and reset,
-			# so values need to be maintained to present cumulative value
-			if [ $is_bcm968 -eq 0 ]; then
-				tmp_val=$(cat $f_name)
-				val=$((val + tmp_val))
-			fi
-			echo $val > $f_name
-
-			# convert to iopsyswrt names
-			case "$pname" in
-				txPackets)
-					json_add_int "tx_packets" "$val"
-				;;
-				txBytes)
-					json_add_int "tx_bytes" "$val"
-				;;
-				droppedPackets)
-					json_add_int "tx_dropped_packets" "$val"
-				;;
-				droppedBytes)
-					json_add_int "tx_dropped_bytes" "$val"
-				;;
-			esac
+			q_index=$((q_index + 1))
 		done
+	else
+		for intf in $(db get hw.board.ethernetPortOrder); do
+			ifname=$intf
+			q_index=0
+			max_q_index=$(cat /tmp/qos/queue_stats/${ifname}/q_idx)
+			while :
+			do
+				if [ $q_index -eq $max_q_index ]; then
+					break
+				fi
+				stats="$(tmctl getqstats --devtype 0 --if $ifname --qid $q_index)"
+				ret="$(echo $stats | awk '{print substr($0,0,5)}')"
+				#check tmctl ERROR condition
+				if [ $ret == 'ERROR' ]; then
+					q_index=$((q_index + 1))
+					continue
+				fi
+				json_add_object ""
+				json_add_int "qid" "$q_index"
+				json_add_string "iface" "$ifname"
 
-		json_close_object
+				IFS=$'\n'
+				for stat in $stats; do
+					pname="$(echo $stat | awk '{print$1}')"
+					if [ $pname == 'ret' ]; then
+						continue
+					fi
 
-		i=$((i + 1))
-	done
+					val="$(echo $stat | awk '{print$2}')"
+
+					# remove trailing : from the name
+					pname="${pname::-1}"
+					local f_name="/tmp/qos/queue_stats/${ifname}/q_${q_index}/${pname}"
+					# In non BCM968* chips, read operation on queues is actually a read and reset,
+					# so values need to be maintained to present cumulative value
+					if [ $is_bcm968 -eq 0 ]; then
+						tmp_val=$(cat $f_name)
+						val=$((val + tmp_val))
+					fi
+					echo $val > $f_name
+
+					# convert to iopsyswrt names
+					case "$pname" in
+						txPackets)
+							json_add_int "tx_packets" "$val"
+							;;
+						txBytes)
+							json_add_int "tx_bytes" "$val"
+							;;
+						droppedPackets)
+							json_add_int "tx_dropped_packets" "$val"
+							;;
+						droppedBytes)
+							json_add_int "tx_dropped_bytes" "$val"
+							;;
+					esac
+				done
+				json_close_object
+
+				q_index=$((q_index + 1))
+			done
+		done
+	fi
 
 	json_close_array
 	json_dump
@@ -632,7 +692,7 @@ get_eth_q_stats() {
 
 		# remove trailing : from the name
 		pname="${pname::-1}"
-		local f_name="/tmp/qos/queue_stats/${ifname}_${qid}/${pname}"
+		local f_name="/tmp/qos/queue_stats/${ifname}/q_${qid}/${pname}"
 		# In non BCM968* chips, read operation on queues is actually a read and reset,
 		# so values need to be maintained to present cumulative value
 		if [ $is_bcm968 -eq 0 ]; then
