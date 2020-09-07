@@ -37,4 +37,4 @@ populate_config(){
 	[ $DEBUG ] && cat /etc/config/ports
 }
 
-[ -f /sbin/db -a -f /lib/db/config/hw ] && populate_config
+[ -f /sbin/db -a -f /etc/board-db/config/hw ] && populate_config
