@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2020-07-07
+PKG_VERSION:=4.0-2020-09-08
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=03a438d926247ac3eff5df1c5eeea3d6d2babd2b
+PKG_SOURCE_VERSION:=3499487844071f83116df520f09a1144d24028ed
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -72,6 +72,13 @@ define Package/icwmp-tr098
   CATEGORY:=Utilities
   TITLE:=CWMP client for TR-098 Data Model
   DEPENDS:=+PACKAGE_icwmp-tr098:libuci +PACKAGE_icwmp-tr098:libmicroxml +PACKAGE_icwmp-tr098:libubox +PACKAGE_icwmp-tr098:jshn +PACKAGE_icwmp-tr098:libubus +PACKAGE_icwmp-tr098:libblobmsg-json +PACKAGE_icwmp-tr098:libpthread +PACKAGE_icwmp-tr098:ubusd +PACKAGE_icwmp-tr098:shflags +PACKAGE_icwmp-tr098:getopt +PACKAGE_icwmp-tr098:zlib +PACKAGE_icwmp-tr098:libjson-c +PACKAGE_icwmp-tr098:libopenssl +PACKAGE_icwmp-tr098:curl +PACKAGE_icwmp-tr098:libcurl +PACKAGE_icwmp-tr098:libtr098
+endef
+
+define Package/icwmp_notifd
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=CWMP Active Notifications Detect tool
+  DEPENDS:=+PACKAGE_icwmp_notifd:libubox +PACKAGE_icwmp_notifd:libuci +PACKAGE_icwmp_notifd:libbbfdm +PACKAGE_icwmp_notifd:libjson-c +PACKAGE_icwmp_notifd:libubus +PACKAGE_icwmp_notifd:libblobmsg-json
 endef
 
 define Package/icwmp/Default
@@ -141,6 +148,11 @@ endif
 ifeq ($(CONFIG_PACKAGE_icwmp_bulkdata),y)
 CONFIGURE_ARGS += \
 	--enable-icwmp_bulkdata
+endif
+
+ifeq ($(CONFIG_PACKAGE_icwmp_notifd),y)
+CONFIGURE_ARGS += \
+	--enable-icwmp_notifd
 endif
 
 ifneq ($(CWMP_REVISION)_,_)
@@ -263,6 +275,15 @@ define Package/icwmp_bulkdata/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/cwmp_bulkdata $(1)/etc/config
 endef
 
+define Package/icwmp_notifd/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_notifd $(1)/usr/sbin/icwmp_notifd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_notifd $(1)/etc/init.d/icwmp_notifd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/icwmp_notifd $(1)/etc/config
+endef
+
 define Package/icwmp-$(BUILD_VARIANT)/postinst
 	#!/bin/sh
 	echo "$(CWMP_BKP_FILE)" >> $${IPKG_INSTROOT}/etc/sysupgrade.conf
@@ -289,4 +310,5 @@ $(eval $(call BuildPackage,icwmp_udpechoserver))
 $(eval $(call BuildPackage,icwmp_twamp))
 $(eval $(call BuildPackage,icwmp_bulkdata))
 $(eval $(call BuildPackage,icwmp-tr098))
+$(eval $(call BuildPackage,icwmp_notifd))
 #$(eval $(call BuildPackage,icwmp-zstream))
