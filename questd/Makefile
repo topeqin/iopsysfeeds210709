@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=questd
-PKG_VERSION:=5.1.11
+PKG_VERSION:=5.2.1
 
-PKG_SOURCE_VERSION:=6b64dafae52d0cd28a31d364aeed80380875293b
+PKG_SOURCE_VERSION:=d4ac29b535bf1ec0f58c4c9eea08ec7db08775d1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/questd
 
