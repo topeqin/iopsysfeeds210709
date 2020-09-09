@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=4.0-2020-09-08
+PKG_VERSION:=4.0-2020-09-09
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=3499487844071f83116df520f09a1144d24028ed
+PKG_SOURCE_VERSION:=bbb2a21e8ffdbf15541ab4ab5aeb13b1fc297a85
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -278,10 +278,6 @@ endef
 define Package/icwmp_notifd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_notifd $(1)/usr/sbin/icwmp_notifd
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/init/icwmp_notifd $(1)/etc/init.d/icwmp_notifd
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/icwmp_notifd $(1)/etc/config
 endef
 
 define Package/icwmp-$(BUILD_VARIANT)/postinst
