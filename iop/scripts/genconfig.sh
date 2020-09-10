@@ -341,9 +341,11 @@ function genconfig {
 
 		if [ -f $config_path/config ]; then
 		    cat $config_path/config >> .config
+		    echo "" >> .config
 		fi
 		if [ -f $config_path/$BOARDTYPE/config ]; then
 		    cat $config_path/$BOARDTYPE/config >> .config
+		    echo "" >> .config
 		fi
 
 		#special handling for intel_mips/iopsys_ramips which use TARGET_DEVICES
@@ -386,10 +388,12 @@ function genconfig {
 				if [ -e "$CUSTCONF/$CUSTOMER/common/common.diff" ]; then
 					v "Apply $CUSTCONF/$CUSTOMER/common/common.diff"
 					cat $CUSTCONF/$CUSTOMER/common/common.diff >> .config
+					echo "" >> .config
 				fi
 				if [ -e "$CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff" ]; then
 					v "Apply $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff"
 					cat $CUSTCONF/$CUSTOMER/$BOARDTYPE/$BOARDTYPE.diff >> .config
+					echo "" >> .config
 				fi
 			done
 		fi
