@@ -1,21 +1,32 @@
 #!/bin/bash
-
+# shellcheck disable=SC2029
 
 build_bcmkernel_consumer() {
-	local tarfile bcmkernelcommith sdkversion
-	sdkversion=$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')
-	sdkversion=${sdkversion:0:4}${sdkversion:(-1)}
-	bcmkernelcommith=$(grep -w "PKG_SOURCE_VERSION:" $curdir/feeds/broadcom/bcmkernel/${sdkversion:0:5}*.mk | cut -d'=' -f2)
+	local tarfile bcmkernelcommith sdkversion serverpath serverlink
+
+	sdkversion="$(grep "CONFIG_BRCM_SDK_VER.*=y" .config | awk -F'[_,=]' '{print$5}')"
+	sdkversion="${sdkversion:0:4}${sdkversion:(-1)}"
+	bcmkernelcommith="$(grep -w "PKG_SOURCE_VERSION:" "$curdir/feeds/broadcom/bcmkernel/${sdkversion:0:5}"*".mk" | cut -d'=' -f2)"
+
+	[ -n "$board" ] && [ -n "$bcmkernelcommith" ] || return
+
+	serverpath="$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz"
+	serverlink="$FPATH/bcmopen-$board-$majver.$minver-latest"
+
 	# do not build bcmopen sdk if it was already built before
-	[ -n "$board" -a -n "$bcmkernelcommith" ] || return
-	ssh $SERVER "test -f $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz" && return
-	cd ./build_dir/target-*/bcmkernel-*-${sdkversion:0:4}*/bcm963xx/release
-	bash do_consumer_release -p $profile -y -F
+	# if it was, check if there's a symlink in place and create it if missing
+	ssh "$SERVER" "test -f '$serverpath' && { test -L '$serverlink' || ln -sf '$serverpath' '$serverlink'; }" && return
+
+	cd "./build_dir/target-"*"/bcmkernel-"*"-${sdkversion:0:4}"*"/bcm963xx/release"
+	bash do_consumer_release -p "$profile" -y -F
+
 	tarfile='out/bcm963xx_*_consumer.tar.gz'
-	[ $(ls -1 $tarfile |wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
-	scp -pv $tarfile $SERVER:$FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz
-	ssh $SERVER "[ -f $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz ] && ln -sf $FPATH/bcmopen-$board-$bcmkernelcommith.tar.gz $FPATH/bcmopen-$board-$majver.$minver-latest"
+	[ $(ls -1 $tarfile | wc -l) -ne 1 ] && echo "Too many tar files: '$tarfile'" && return
+
+	scp -pv $tarfile "$SERVER":"$serverpath"
+	ssh "$SERVER" "test -f '$serverpath' && ln -sf '$serverpath' '$serverlink'"
 	rm -f $tarfile
+
 	cd "$curdir"
 }
 
@@ -25,7 +36,7 @@ build_natalie_consumer() {
 	grep -q "CONFIG_TARGET_NO_DECT=y" .config && return
 	natalieversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
 	nataliecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
-	[ -n "$profile" -a -n "$natalieversion" -a -n "$nataliecommith" ] || return
+	[ -n "$profile" ] && [ -n "$natalieversion" ] && [ -n "$nataliecommith" ] || return
 	ssh $SERVER "test -f $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
 	cd ./build_dir/target-*/natalie-dect-$natalieversion/
 	mkdir natalie-dect-open-$natalieversion
@@ -44,7 +55,7 @@ build_endptmngr_consumer() {
 	grep -q "CONFIG_TARGET_NO_VOICE=y" .config && return
 	endptversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/endptmngr/Makefile | cut -d'=' -f2)
 	endptcommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/endptmngr/Makefile | cut -d'=' -f2)
-	[ -n "$profile" -a -n "$endptversion" -a -n "$endptcommith" ] || return
+	[ -n "$profile" ] && [ -n "$endptversion" ] && [ -n "$endptcommith" ] || return
 	ssh $SERVER "test -f $FPATH/endptmngr-$profile-$endptversion-$endptcommith.tar.gz" && return
 	cd ./build_dir/target-*/endptmngr-$endptversion/
 	mkdir endptmngr-open-$endptversion
@@ -85,7 +96,7 @@ build_mediatek_wifi_consumer() {
 
 	ver=$(grep -w "PKG_VERSION:" ./feeds/mediatek/mt${chip}/Makefile | cut -d'=' -f2)
 	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/mediatek/mt${chip}/Makefile | cut -d'=' -f2)
-	[ -n "$ver" -a -n "$commit" ] || return
+	[ -n "$ver" ] && [ -n "$commit" ] || return
 	ssh $SERVER "test -f $FPATH/mtk${chip}e-${ver}_${commit}.tar.xz" && return
 	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/mtk${chip}e-$ver/ipkg-*
 	mkdir -p mtk${chip}e-$ver/src
@@ -112,7 +123,6 @@ function generate_tarballs {
     set -e
     git remote -v | grep -q http && return # do not continue if this is an open SDK environment
 
-    target=$(grep CONFIG_TARGET_BOARD .config | cut -d'=' -f2 | tr -d '"')
     board=$(grep CONFIG_TARGET_FAMILY .config | cut -d'=' -f2 | tr -d '"')
     profile=$(grep CONFIG_BCM_KERNEL_PROFILE .config | cut -d'=' -f2 | tr -d '"')
     majver=$(grep CONFIG_TARGET_VERSION .config | cut -d'=' -f2 | tr -d '"' | cut -f1 -d .)
@@ -137,7 +147,7 @@ function generate_tarballs {
 		esac
 	done
 
-	if [ ! -n "$stk_target" ]; then
+	if [ -z "$stk_target" ]; then
 		print_usage
 		exit 1
 	fi
