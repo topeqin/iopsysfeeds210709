@@ -1,0 +1,13 @@
+
+config twamp 'twamp'
+	option id '1'
+	#Log levels: Critical=0, Warning=1, Notice=2, Info=3, Debug=4
+	option log_level '3'
+
+config twamp_reflector
+	option id '1'
+	option enable '0'
+	option interface 'lan'
+	option port '862'
+	option max_ttl '1'
+
