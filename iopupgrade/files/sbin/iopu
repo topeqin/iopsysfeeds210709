@@ -163,6 +163,7 @@ function usage {
     echo "	-x		Force install even if firmware is not for this board"
     echo "	-b		Force install of bootloader regardless of version installed"
     echo "	-r		Jump into chroot env of other system"
+    echo "	-f		Firmware file to use"
     echo "	-C \"command\"	Execute command in chroot env of other system"
 }
 
@@ -175,6 +176,64 @@ function newroot_exec {
     echo ""
     umount_newroot
 
+}
+
+function system_is_y_image {
+
+    # find out what rootfs volume is active.
+    cur_vol=$(get_flashbank_current)
+    upd_vol=$(get_flashbank_next)
+
+    # convert volume name "rootfs_$upd_vol" into ubi volume id
+    upd_ubi_id=$(ubinfo -d 0 -N rootfs_$upd_vol | awk "/Volume ID:/ {print \$3}")
+    log "installing Root Fileystem into UBI volume rootfs_$upd_vol"
+
+    # prepare to match dsl.
+    function_call upd_conf_dsl
+
+    log "now starting writing data to flash with [ iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id ]"
+    run_cleanup=1	# When we start to actually write data there might be some
+                        # things that need cleanup if we get an error/crash
+    if ! iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id; then
+	log "iopupgrade program Failed"
+	exit 1
+    fi
+
+    log "Firmware programmed to flash."
+
+    # Force upgrade of boot loader
+    [ $upd_forceboot -eq 1 ] && chroot_cmdline="$chroot_cmdline -b"
+
+    if [ $upd_keepconfig -eq 1 ]; then
+	log "Transfering configuration to new system."
+	chroot_cmdline="$chroot_cmdline -c"
+    fi
+
+    mount_newroot
+    if ! chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline; then
+	log "Configuration migration failed!"
+	exit 1
+    fi
+    umount_newroot
+
+    log "New firmware fully installed."
+    run_cleanup=0
+
+
+    # Now make sure that we actually boot the new system on the next reboot
+    upd_finnish
+
+}
+
+function system_is_FIT_image {
+
+    # prepare to match dsl.
+    #function_call upd_conf_dsl
+
+    #here we write data 
+    bcm_flasher $firmware_file
+    bcm_bootstate 1
+    log "Firmware programmed to flash."
 }
 
 ###############################################################################
@@ -194,7 +253,7 @@ trap ctrl_c INT
 trap timeout SIGALRM
 trap sig_pipe SIGPIPE
 
-while getopts "nrxbhcC:" opt; do
+while getopts "nrxbhcC:f:" opt; do
     case $opt in
 	n)
 	    upd_noreboot=1
@@ -216,6 +275,9 @@ while getopts "nrxbhcC:" opt; do
 	    newroot_exec "${OPTARG}"
 	    exit
 	    ;;
+	f)
+	    firmware_file="${OPTARG}"
+	    ;;
 	h)
 	    usage
 	    exit 1
@@ -235,58 +297,17 @@ log "Firmware upgrade started"
 # Should board name be checked
 if [ $upd_forceimage -eq 0 ]
 then
-   board=$(db get hw.board.iopVerBoard)
+   board=$(db get hw.board.model_name)
    cmdline_match="board=$board"
 fi
 
-# find out what rootfs volume is active. 
-cur_vol=$(get_flashbank_current)
-upd_vol=$(get_flashbank_next)
-
-# convert volume name "rootfs_$upd_vol" into ubi volume id
-upd_ubi_id=$(ubinfo -d 0 -N rootfs_$upd_vol | awk "/Volume ID:/ {print \$3}")
-log "installing Root Fileystem into UBI volume rootfs_$upd_vol"
-
-# prepare to match dsl.
-function_call upd_conf_dsl
-
-# prepare to update CFE if it exists
-function_call upd_conf_cfe
-
-# prepare to update kernel if it is stored in MTD/JFFS2 
-function_call upd_conf_kernel
-
-log "now starting writing data to flash with [ iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id ]"
-run_cleanup=1	# When we start to actually write data there might be some
-		# things that need cleanup if we get an error/crash
-if ! iopupgrade $cmdline -M "$cmdline_match" -u ubi0_$upd_ubi_id; then
-	log "iopupgrade program Failed"
-	exit 1
+# BUG: should probably read a config file.
+if [ -f /proc/nvram/boardid ]
+then
+    system_is_FIT_image
+else
+    system_is_y_image
 fi
-
-log "Firmware programmed to flash."
-
-# Force upgrade of boot loader
-[ $upd_forceboot -eq 1 ] && chroot_cmdline="$chroot_cmdline -b"
-
-if [ $upd_keepconfig -eq 1 ]; then
-	log "Transfering configuration to new system."
-	chroot_cmdline="$chroot_cmdline -c"
-fi
-
-mount_newroot
-if ! chroot /tmp/newroot_overlay /sbin/iopu_chroot $chroot_cmdline; then
-	log "Configuration migration failed!"
-	exit 1
-fi
-umount_newroot
-
-log "New firmware fully installed."
-run_cleanup=0
-
-
-# Now make sure that we actually boot the new system on the next reboot
-upd_finnish
 
 # spawn the reboot to a subshell to allow the main program to quit before reset
 # to avoid any hanged network connection like ssh

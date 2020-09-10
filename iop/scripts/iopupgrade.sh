@@ -280,6 +280,14 @@ function ssh_upgrade {
 	set_config_string CONFIG_TARGET_BOARD
 	firmwares=$(cd bin/targets/$CONFIG_TARGET_BOARD/generic/; ls -t *[0-9].y[3])
 
+	# if target uses pkgtb
+	if [ -z "$firmwares"]
+	then
+	    # pkgtb files can not be streamed so copy over the file witch scp
+	    use_scp=1
+	    firmwares=$(cd bin/targets/$CONFIG_TARGET_BOARD/generic/; ls -t *[0-9].pkgtb)
+	fi
+
 	for upd_fw_base in $firmwares
 	do
 	    #echo "firmware $upd_fw"
@@ -313,7 +321,16 @@ function ssh_upgrade {
 	[ $upd_forceboot  -eq 1 ] && extra_args="$extra_args -b"
 
 	file_size_kb=`du -k "$upd_fw" | cut -f1`
-	cat $upd_fw | pv -s ${file_size_kb}k | ssh root@$upd_host "iopu $extra_args"
+	if [ "$use_scp" == "1" ]
+	then
+	    echo "ken"
+	    echo "iopu $extra_arg -f /tmp/$upd_fw_base"
+	    echo "ken"
+	    scp $upd_fw root@$upd_host:/tmp/ &&
+		ssh -o ConnectTimeout=60 root@$upd_host "iopu $extra_arg -f /tmp/$upd_fw_base"
+	else
+	    cat $upd_fw | pv -s ${file_size_kb}k | ssh root@$upd_host "iopu $extra_args"
+	fi
     else
 	scp $upd_fw root@$upd_host:/tmp/ &&
 	    ssh -o ConnectTimeout=60 root@$upd_host "sysupgrade -v $3 /tmp/$upd_fw_base" &&
