@@ -1,5 +1,5 @@
 
-config topology
+config topology 'topology'
 	option enabled '1'
 	option depth '8'
 	option interval '60'
