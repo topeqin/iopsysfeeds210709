@@ -1,6 +1,6 @@
 config acs 'acs'
 	option url ''
-	option userid '$OUI-$SER'
+	option userid '' #$OUI-$SER
 	option passwd 'iopsys'
 	option periodic_inform_enable 'true'
 	option periodic_inform_interval '1800'
@@ -26,7 +26,7 @@ config cpe 'cpe'
 	option log_severity 'INFO'
 	option log_file_name '/var/log/icwmpd.log'
 	option log_max_size '102400'
-	option userid '$OUI-$SER'
+	option userid '' #$OUI-$SER
 	option passwd 'iopsys'
 	option port '7547'
 	option ubus_socket '/var/run/ubus.sock'
