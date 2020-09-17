@@ -4,7 +4,7 @@ LIB = libxmpp.so
 PROG_OBJS = xmpp.o xuci.o cmd.o log.o
 LIB_OBJS = datamodel.o
 
-PROG_CFLAGS = $(CFLAGS) -Wall -Werror
+PROG_CFLAGS = $(CFLAGS) -Wall -Werror -fPIC
 PROG_LDFLAGS = $(LDFLAGS) -luci -lubox -lstrophe
 LIB_LDFLAGS = $(LDFLAGS) -lbbf_api
 

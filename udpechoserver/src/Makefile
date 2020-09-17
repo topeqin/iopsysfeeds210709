@@ -4,7 +4,7 @@ LIB = libudpechoserver.so
 PROG_OBJS = udpechoserver.o udpechoserverlog.o udpechoserveruci.o
 LIB_OBJS = datamodel.o
 
-PROG_CFLAGS = $(CFLAGS) -Wall -Werror
+PROG_CFLAGS = $(CFLAGS) -Wall -Werror -fPIC
 PROG_LDFLAGS = $(LDFLAGS) -luci
 LIB_LDFLAGS = $(LDFLAGS) -lbbf_api
 

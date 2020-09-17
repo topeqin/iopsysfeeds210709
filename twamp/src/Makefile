@@ -4,7 +4,7 @@ LIB = libtwamp.so
 PROG_OBJS = twamp.o twamplog.o twampuci.o twamptimestamp.o
 LIB_OBJS = datamodel.o
 
-PROG_CFLAGS = $(CFLAGS) -Wall -Werror
+PROG_CFLAGS = $(CFLAGS) -Wall -Werror -fPIC
 PROG_LDFLAGS = $(LDFLAGS) -luci
 LIB_LDFLAGS = $(LDFLAGS) -lbbf_api
 
