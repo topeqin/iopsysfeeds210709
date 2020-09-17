@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=2.0-2020-09-12
+PKG_VERSION:=2.1-2020-09-17
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a5ab6cefc5d5e6a6c1fc164881ef23aa7806a5b4
+PKG_SOURCE_VERSION:=affcc1f42a1071df250a15b7fcad929309cfd3c3
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -102,12 +102,23 @@ endef
 define Package/libbbfdm/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.so* $(1)/lib/
-	$(INSTALL_DIR) $(1)/etc/bbfdm
-	$(INSTALL_DIR) $(1)/etc/bbfdm/json
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/config/dmmap $(1)/etc/bbfdm
 	$(INSTALL_DIR) $(1)/usr/share/bbfdm
 	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/bbfdm
+	$(INSTALL_DIR) $(1)/etc/bbfdm
+	$(INSTALL_DIR) $(1)/etc/bbfdm/json
 	$(INSTALL_DIR) $(1)/usr/lib/bbfdm
+endef
+
+define Package/libbbfdm/postinst
+	#!/bin/sh
+	echo "" > /etc/bbfdm/dmmap
+	exit 0
+endef
+
+define Package/libbbfdm/prerm
+	#!/bin/sh
+	rm -rf /etc/bbfdm/*
+	exit 0
 endef
 
 define Build/InstallDev
