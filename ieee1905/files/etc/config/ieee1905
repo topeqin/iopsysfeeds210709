@@ -5,7 +5,7 @@ config ieee1905 'ieee1905'
         option macaddress 'auto'
         option registrar 0
         option cmdu_event 1
-        option map_plugin 0
+        option map_plugin 1
 
 config security 'security'
         list method 'PBC'
