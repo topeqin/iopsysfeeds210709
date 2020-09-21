@@ -13,7 +13,7 @@ function genconfig {
 	export VERBOSE=0
 	export DEVELOPER=0
 	target="bogus"
-	config_path=""
+	target_config_path=""
 	brcm63xx_mips="target/linux/iopsys-brcm63xx-mips"
 	brcm63xx_arm="target/linux/iopsys-brcm63xx-arm"
 	ramips="target/linux/iopsys-ramips"
@@ -103,7 +103,7 @@ function genconfig {
 
 			if [ $pfound -eq 1 ]; then
 				target="$(echo $TARGET | tr '-' '_')"
-				config_path="$targetpath/config"
+				target_config_path="$targetpath/config"
 			fi
 
 			return
@@ -135,7 +135,7 @@ function genconfig {
 	    for p in $iopsys_brcm63xx_mips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_brcm63xx_mips"
-			config_path="$brcm63xx_mips/config"
+			target_config_path="$brcm63xx_mips/config"
 		    return
 		fi
 	    done
@@ -143,7 +143,7 @@ function genconfig {
 	    for p in $iopsys_brcm63xx_arm; do
 		if [ $p == $profile ]; then
 		    target="iopsys_brcm63xx_arm"
-			config_path="$brcm63xx_arm/config"
+			target_config_path="$brcm63xx_arm/config"
 		    return
 		fi
 	    done
@@ -151,7 +151,7 @@ function genconfig {
 	    for p in $iopsys_ramips; do
 		if [ $p == $profile ]; then
 		    target="iopsys_ramips"
-			config_path="$ramips/config"
+			target_config_path="$ramips/config"
 		    return
 		fi
 	    done
@@ -159,7 +159,7 @@ function genconfig {
 	    for p in $iopsys_intel_mips; do
 		if [ $p == $profile ]; then
 		    target="intel_mips"
-			config_path="$intel_mips/config"
+			target_config_path="$intel_mips/config"
 		    return
 		fi
 	    done
@@ -167,7 +167,7 @@ function genconfig {
 	    for p in $iopsys_x86; do
 		if [ $p == $profile ]; then
 		    target="iopsys_x86"
-			config_path="$x86/config"
+			target_config_path="$x86/config"
 		    return
 		fi
 	    done
@@ -175,7 +175,7 @@ function genconfig {
 	    for p in $iopsys_armvirt; do
 		if [ $p == $profile ]; then
 		    target="iopsys_armvirt"
-			config_path="$armvirt/config"
+			target_config_path="$armvirt/config"
 		    return
 		fi
 	    done
@@ -339,12 +339,12 @@ function genconfig {
 		v "cp $CONFIGPATH/config .config"
 		cp $CONFIGPATH/config .config
 
-		if [ -f $config_path/config ]; then
-		    cat $config_path/config >> .config
+		if [ -f $target_config_path/config ]; then
+		    cat $target_config_path/config >> .config
 		    echo "" >> .config
 		fi
-		if [ -f $config_path/$BOARDTYPE/config ]; then
-		    cat $config_path/$BOARDTYPE/config >> .config
+		if [ -f $target_config_path/$BOARDTYPE/config ]; then
+		    cat $target_config_path/$BOARDTYPE/config >> .config
 		    echo "" >> .config
 		fi
 
