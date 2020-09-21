@@ -6,8 +6,11 @@ STOP=11
 USE_PROCD=1
 PROG=/usr/sbin/wfadatad
 
-start_service() {
+service_running() {
 	ubus -t 2 wait_for ieee1905
+}
+
+start_service() {
 	procd_open_instance
 	procd_set_param command ${PROG}
 	procd_set_param respawn
