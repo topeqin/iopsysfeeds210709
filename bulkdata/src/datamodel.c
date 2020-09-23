@@ -65,7 +65,7 @@ static int browseBulkDataProfileParameterInst(struct dmctx *dmctx, DMNODE *paren
 		browse_args.option = "profile_id";
 		browse_args.value = prev_profile_id;
 
-		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 7,
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 7,
 			   p->dmmap_section, "parameter_instance", "parameter_alias", "dmmap_bulkdata", "profile_parameter",
 			   check_browse_section, (void *)&browse_args);
 
@@ -95,7 +95,7 @@ static int browseBulkDataProfileHTTPRequestURIParameterInst(struct dmctx *dmctx,
 		browse_args.option = "profile_id";
 		browse_args.value = prev_profile_id;
 
-		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 7,
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 7,
 			   p->dmmap_section, "requesturiparameter_instance", "requesturiparameter_alias", "dmmap_bulkdata", "profile_http_request_uri_parameter",
 			   check_browse_section, (void *)&browse_args);
 

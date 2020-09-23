@@ -578,7 +578,7 @@ static int browsexmpp_connection_serverInst(struct dmctx *dmctx, DMNODE *parent_
 
 	list_for_each_entry(p, &dup_list, list) {
 
-		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 5,
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 5,
 				p->dmmap_section, "con_srv_inst", "con_srv_alias", "xmpp", "connection_server");
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)p->config_section, inst) == DM_STOP)
