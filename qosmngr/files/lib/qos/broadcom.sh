@@ -5,6 +5,8 @@ IP_RULE=""
 BR_RULE=""
 is_bcm968=0
 
+POLICER_COUNT=0
+
 #function to handle a queue section
 handle_queue() {
 	qid="$1" #queue section ID
@@ -67,6 +69,31 @@ handle_queue() {
 
 	q_no=$((q_no + 1))
 	echo $q_no > /tmp/qos/queue_stats/$ifname/q_idx
+}
+
+#function to handle a policer section
+handle_policer() {
+	local p_sec="$1" # policer section ID
+	local dir=1 # default direction, upstream
+
+	config_get is_enable "$p_sec" "enable"
+
+	#no need to configure disabled policer
+	if [ $is_enable == '0' ]; then
+		return
+	fi
+
+	config_get cir "$p_sec" "committed_rate"
+	config_get cbs "$p_sec" "committed_burst_size" -1
+	config_get ebs "$p_sec" "excess_burst_size" 0
+	config_get pir "$p_sec" "peak_rate" 0
+	config_get pbs "$p_sec" "peak_burst_size" 0
+	config_get meter "$p_sec" "meter_type" 0
+
+	# Call tmctl which is a broadcomm command to configure policer.
+	tmctl createpolicer --dir $dir --pid $POLICER_COUNT --ptype $meter --cir $cir --cbs $cbs --ebs $ebs --pir $pir --pbs $pbs
+
+	POLICER_COUNT=$((POLICER_COUNT + 1))
 }
 
 #function to handle a shaper section
@@ -422,6 +449,64 @@ handle_iptables_rules() {
 	fi
 }
 
+handle_policer_rules() {
+	local c_sec=$1
+	local policer_name
+	local ifname
+	local pname
+	local pindex=-1
+
+	config_get policer_name "$c_sec" "policer"
+	if [ -z "$policer_name" ];then
+		# no need to apply policer if policer not present in this
+		# classification rule
+		return
+	fi
+
+	config_get ifname "$c_sec" "ifname"
+	if [ -z "$ifname" ]; then
+		# cannot associate policer as interface is not mentioned
+		return
+	fi
+
+	local i=0
+	local max_policer_inst=$(cat /tmp/qos/max_policer_inst)
+	while :
+	do
+		if [ $i -eq $max_policer_inst ]; then
+			break
+		fi
+
+		pname="$(uci -q get qos.@policer[$i].name)"
+		if [ "$policer_name" == "$pname" ]; then
+			pindex=$i
+			break
+		fi
+		i=$((i + 1))
+	done
+
+	if [ $pindex -lt 0 ]; then
+		# policer not found, no need to proceed further
+		return
+	fi
+
+	local portorder="$(db -q get hw.board.ethernetPortOrder)"
+	local wanport="$(db -q get hw.board.ethernetWanPort)"
+
+	i=0
+	for port in $portorder; do
+		if [ "$ifname" == "$port" ]; then
+			if [ "$wanport" == "$port" ]; then
+				bs /b/configure port/index=wan0 ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
+			else
+				bs /b/configure port/index=lan$i ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
+			fi
+			break
+		fi
+		i=$((i + 1))
+	done
+}
+
 #function to handle a classify section
 handle_classify() {
 	cid="$1" #classify section ID
@@ -434,6 +519,7 @@ handle_classify() {
 
 	handle_ebtables_rules $cid
 	handle_iptables_rules $cid
+	handle_policer_rules $cid
 }
 
 configure_shaper() {
@@ -496,9 +582,35 @@ configure_queue() {
 	config_foreach handle_queue queue
 }
 
+configure_policer() {
+	# Delete policer
+	local i=0
+	local max_p_inst=0
+	if [ -f "/tmp/qos/max_policer_inst" ]; then
+		max_p_inst=$(cat /tmp/qos/max_policer_inst)
+	fi
+
+	while :
+	do
+		if [ $i -eq $max_p_inst ]; then
+			break
+		fi
+		tmctl deletepolicer --dir 1 --pid $i &>/dev/null
+		i=$((i + 1))
+	done
+
+	# reset the policer counter
+	echo 0 > /tmp/qos/max_policer_inst
+	# Load UCI file
+	config_load qos
+	config_foreach handle_policer policer
+	echo $POLICER_COUNT > /tmp/qos/max_policer_inst
+}
+
 configure_qos() {
 	configure_queue
 	configure_shaper
+	configure_policer
 	configure_classify
 }
 
@@ -512,6 +624,8 @@ reload_qos() {
 		configure_queue
 	elif [ "$service_name" == "classify" ]; then
 		configure_classify
+	elif [ "$service_name" == "policer" ]; then
+		configure_policer
 	fi
 }
 
