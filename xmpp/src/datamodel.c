@@ -32,14 +32,14 @@ static int add_xmpp_connection(char *refparam, struct dmctx *ctx, void *data, ch
 	last_inst = get_last_instance_bbfdm("dmmap_xmpp", "connection", "con_inst");
 	dmasprintf(&id, "%d", (last_inst) ? atoi(last_inst) + 1 : 1);
 
-	dmuci_add_section_and_rename("xmpp", "connection", &xmpp_con, &con_name);
+	dmuci_add_section("xmpp", "connection", &xmpp_con, &con_name);
 	dmuci_set_value_by_section(xmpp_con, "xmpp_id", id);
 	dmuci_set_value_by_section(xmpp_con, "enable", "0");
 	dmuci_set_value_by_section(xmpp_con, "interval", "30");
 	dmuci_set_value_by_section(xmpp_con, "attempt", "16");
 	dmuci_set_value_by_section(xmpp_con, "serveralgorithm", "DNS-SRV");
 
-	dmuci_add_section_and_rename("xmpp", "connection_server", &xmpp_con_srv, &con_srv_name);
+	dmuci_add_section("xmpp", "connection_server", &xmpp_con_srv, &con_srv_name);
 	dmuci_set_value_by_section(xmpp_con_srv, "con_id", id);
 	dmuci_set_value_by_section(xmpp_con_srv, "enable", "0");
 	dmuci_set_value_by_section(xmpp_con_srv, "port", "5222");

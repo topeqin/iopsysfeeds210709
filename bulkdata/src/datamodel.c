@@ -118,7 +118,7 @@ static int addObjBulkDataProfile(char *refparam, struct dmctx *ctx, void *data, 
 	last_inst = get_last_instance_bbfdm("dmmap_bulkdata", "profile", "profile_instance");
 	snprintf(prof_id, sizeof(prof_id), "%d", last_inst ? atoi(last_inst)+1 : 1);
 
-	dmuci_add_section_and_rename("bulkdata", "profile", &profile, &value);
+	dmuci_add_section("bulkdata", "profile", &profile, &value);
 	dmuci_set_value_by_section(profile, "profile_id", prof_id);
 	dmuci_set_value_by_section(profile, "enable", "0");
 	dmuci_set_value_by_section(profile, "nbre_of_retained_failed_reports", "0");
@@ -228,7 +228,7 @@ static int addObjBulkDataProfileParameter(char *refparam, struct dmctx *ctx, voi
 
 	last_inst = get_last_instance_lev2_bbfdm_dmmap_opt("dmmap_bulkdata", "profile_parameter", "parameter_instance", "profile_id", prev_profile_id);
 
-	dmuci_add_section_and_rename("bulkdata", "profile_parameter", &profile_parameter, &value);
+	dmuci_add_section("bulkdata", "profile_parameter", &profile_parameter, &value);
 	dmuci_set_value_by_section(profile_parameter, "profile_id", prev_profile_id);
 
 	browse_args.option = "profile_id";
@@ -282,7 +282,7 @@ static int addObjBulkDataProfileHTTPRequestURIParameter(char *refparam, struct d
 
 	last_inst = get_last_instance_lev2_bbfdm_dmmap_opt("dmmap_bulkdata", "profile_http_request_uri_parameter", "requesturiparameter_instance", "profile_id", prev_profile_id);
 
-	dmuci_add_section_and_rename("bulkdata", "profile_http_request_uri_parameter", &profile_http_request_uri_parameter, &value);
+	dmuci_add_section("bulkdata", "profile_http_request_uri_parameter", &profile_http_request_uri_parameter, &value);
 	dmuci_set_value_by_section(profile_http_request_uri_parameter, "profile_id", prev_profile_id);
 
 	browse_args.option = "profile_id";

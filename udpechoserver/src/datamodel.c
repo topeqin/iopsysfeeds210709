@@ -144,7 +144,7 @@ static int get_IPDiagnosticsUDPEchoConfig_EchoPlusSupported(char *refparam, stru
 static inline char *udpechoconfig_get(char *option, char *def)
 {
 	char *tmp;
-	dmuci_get_varstate_string("udpechoserver", "udpechoserver", option, &tmp);
+	varstate_get_value_string("udpechoserver", "udpechoserver", option, &tmp);
 	if(tmp && tmp[0] == '\0')
 		return dmstrdup(def);
 	else
