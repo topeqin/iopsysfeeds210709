@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.0.28
+PKG_VERSION:=2.0.29
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=bcbeae0a8bc09102a8b809cdcbcab0d956880ce0
+PKG_SOURCE_VERSION:=d4b3604b242bc1dbbf401d1e6fa5ffe76a8745fd
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
