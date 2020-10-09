@@ -40,14 +40,6 @@ define Package/icwmp-tr098
   DEPENDS:=+PACKAGE_icwmp-tr098:libuci +PACKAGE_icwmp-tr098:libmicroxml +PACKAGE_icwmp-tr098:libubox +PACKAGE_icwmp-tr098:jshn +PACKAGE_icwmp-tr098:libubus +PACKAGE_icwmp-tr098:libblobmsg-json +PACKAGE_icwmp-tr098:libpthread +PACKAGE_icwmp-tr098:ubusd +PACKAGE_icwmp-tr098:shflags +PACKAGE_icwmp-tr098:getopt +PACKAGE_icwmp-tr098:zlib +PACKAGE_icwmp-tr098:libjson-c +PACKAGE_icwmp-tr098:libopenssl +PACKAGE_icwmp-tr098:curl +PACKAGE_icwmp-tr098:libcurl +PACKAGE_icwmp-tr098:libtr098
 endef
 
-define Package/icwmp-notifd
-  SECTION:=utils
-  CATEGORY:=Utilities
-  SUBMENU:=TRx69
-  TITLE:=CWMP Active Notifications Detect tool
-  DEPENDS:=+libubox +libuci +libbbfdm +libjson-c +libubus +libblobmsg-json
-endef
-
 define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
@@ -77,11 +69,6 @@ TARGET_CFLAGS += \
 ifeq ($(CONFIG_PACKAGE_icwmp-tr098),y)
 CONFIGURE_ARGS += \
 	--enable-icwmp_tr098
-endif
-
-ifeq ($(CONFIG_PACKAGE_icwmp-notifd),y)
-CONFIGURE_ARGS += \
-	--enable-icwmp_notifd
 endif
 
 ifneq ($(CWMP_REVISION)_,_)
@@ -140,11 +127,6 @@ define Package/icwmp-tr098/install
 	$(CP) $(PKG_BUILD_DIR)/bin/icwmp_tr098d $(1)/usr/sbin
 endef
 
-define Package/icwmp-notifd/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmp_notifd $(1)/usr/sbin/icwmp_notifd
-endef
-
 define Package/$(PKG_NAME)/postinst
 	#!/bin/sh
 	if [ -z "$${IPKG_INSTROOT}" ]; then
@@ -165,4 +147,3 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,icwmp-tr098))
-$(eval $(call BuildPackage,icwmp-notifd))
