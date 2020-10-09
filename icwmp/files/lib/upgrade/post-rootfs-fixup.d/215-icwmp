@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# As part of sysupgrade we copy CWMP Backup Session XML file.
+
+
+# Abort on any error.
+set -e
+
+
+# Do nothing if user want to discard old settings.
+if [ -n "$SAVE_CONFIG" ] && [ $SAVE_CONFIG -eq 0 ]; then
+	exit 0
+fi
+
+# Source functions.
+for f in /lib/upgrade/iopsys*.sh; do
+	[ -r "$f" -a -s "$f" ] || continue
+	source $f
+done
+
+
+if [ -s "${2}/etc/icwmpd/.icwmpd_backup_session.xml" ]; then
+	cat "${2}/etc/icwmpd/.icwmpd_backup_session.xml" > "/etc/icwmpd/.icwmpd_backup_session.xml"
+fi
+
+# Report success.
+log "post-hooks" "CWMP Backup Session XML file migrated"
+
+exit 0
