@@ -449,12 +449,34 @@ handle_iptables_rules() {
 	fi
 }
 
+assign_policer_to_port() {
+	local ifname="$1"
+	local pindex="$2"
+	local portorder="$(db -q get hw.board.ethernetPortOrder)"
+	local wanport="$(db -q get hw.board.ethernetWanPort)"
+
+	local i=0
+	for port in $portorder; do
+		if [ "$ifname" == "$port" ]; then
+			if [ "$wanport" == "$port" ]; then
+				bs /b/configure port/index=wan0 ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
+			else
+				bs /b/configure port/index=lan$i ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
+			fi
+			break
+		fi
+		i=$((i + 1))
+	done
+}
+
 handle_policer_rules() {
 	local c_sec=$1
 	local policer_name
 	local ifname
 	local pname
 	local pindex=-1
+	local ingress_rate=0
+	local in_burst_size=0
 
 	config_get policer_name "$c_sec" "policer"
 	if [ -z "$policer_name" ];then
@@ -480,6 +502,8 @@ handle_policer_rules() {
 		pname="$(uci -q get qos.@policer[$i].name)"
 		if [ "$policer_name" == "$pname" ]; then
 			pindex=$i
+			ingress_rate=$(uci -q get qos.@policer[$i].committed_rate)
+			in_burst_rate=$(uci -q get qos.@policer[$i].committed_burst_size)
 			break
 		fi
 		i=$((i + 1))
@@ -490,21 +514,34 @@ handle_policer_rules() {
 		return
 	fi
 
-	local portorder="$(db -q get hw.board.ethernetPortOrder)"
-	local wanport="$(db -q get hw.board.ethernetWanPort)"
+	# The policer object is not available on non BCM968* chips
+	if [ $is_bcm968 -eq 1 ]; then
+		assign_policer_to_port $ifname $pindex
+	else
+		config_ingress_rate_limit $ifname $ingress_rate $in_burst_size
+	fi
 
-	i=0
-	for port in $portorder; do
-		if [ "$ifname" == "$port" ]; then
-			if [ "$wanport" == "$port" ]; then
-				bs /b/configure port/index=wan0 ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
-			else
-				bs /b/configure port/index=lan$i ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
-			fi
-			break
-		fi
-		i=$((i + 1))
-	done
+}
+
+config_ingress_rate_limit() {
+	local ifname="$1"
+	local ingress_rate=$2
+	local in_burst_size=$3
+
+	# Unit in uci file is in bps while that accepted by ethswctl is kbits
+	if [ $ingress_rate -lt 1000 ]; then
+		return
+	fi
+
+	ingress_rate=$((ingress_rate / 1000))
+
+	if [ $in_burst_size -eq 0 ]; then
+		in_burst_size=$ingress_rate
+	else
+		in_burst_size=$((in_burst_size / 1000))
+	fi
+
+	ethswctl -c rxratectrl -n 1 -p $ifname -x $ingress_rate -y $in_burst_size
 }
 
 #function to handle a classify section
@@ -583,6 +620,16 @@ configure_queue() {
 }
 
 configure_policer() {
+	# The policer object is not available on non BCM968* chips, just clean up
+	# the old config if any and return
+	if [ $is_bcm968 -eq 0 ]; then
+		for intf in $(db get hw.board.ethernetPortOrder); do
+			# setting rate and burst size to 0 disables rate limiting
+			ethswctl -c rxratectrl -n 1 -p $intf -x 0 -y 0
+		done
+		return
+	fi
+
 	# Delete policer
 	local i=0
 	local max_p_inst=0
@@ -616,6 +663,12 @@ configure_qos() {
 
 reload_qos() {
 	local service_name="$1"
+	local cpu_model="$(grep Hardware /proc/cpuinfo  | awk '{print$NF}')"
+
+	case $cpu_model in
+		BCM968*) is_bcm968=1 ;;
+	esac
+
 	if [ -z "$service_name" ]; then
 		configure_qos
 	elif [ "$service_name" == "shaper" ]; then
@@ -842,6 +895,7 @@ read_queue_stats() {
 	itf="$1"
 	q_idx="$2"
 	local cpu_model="$(grep Hardware /proc/cpuinfo  | awk '{print$NF}')"
+
 	case $cpu_model in
 		BCM968*) is_bcm968=1 ;;
 	esac
