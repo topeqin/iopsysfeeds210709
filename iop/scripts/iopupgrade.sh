@@ -323,9 +323,6 @@ function ssh_upgrade {
 	file_size_kb=`du -k "$upd_fw" | cut -f1`
 	if [ "$use_scp" == "1" ]
 	then
-	    echo "ken"
-	    echo "iopu $extra_arg -f /tmp/$upd_fw_base"
-	    echo "ken"
 	    scp $upd_fw root@$upd_host:/tmp/ &&
 		ssh -o ConnectTimeout=60 root@$upd_host "iopu $extra_arg -f /tmp/$upd_fw_base"
 	else
