@@ -285,7 +285,7 @@ function ssh_upgrade {
 	then
 	    # pkgtb files can not be streamed so copy over the file witch scp
 	    use_scp=1
-	    firmwares=$(cd bin/targets/$CONFIG_TARGET_BOARD/generic/; ls -t *[0-9].pkgtb)
+	    firmwares=$(cd bin/targets/$CONFIG_TARGET_BOARD/generic/; ls -t last.pkgtb)
 	fi
 
 	for upd_fw_base in $firmwares
