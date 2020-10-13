@@ -177,13 +177,13 @@ static int get_IPDiagnosticsUDPEchoConfig_BytesResponded(char *refparam, struct 
 
 static int get_IPDiagnosticsUDPEchoConfig_TimeFirstPacketReceived(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	*value = udpechoconfig_get("TimeFirstPacketReceived", "0");
+	*value = udpechoconfig_get("TimeFirstPacketReceived", "0001-01-01T00:00:00.000000Z");
 	return 0;
 }
 
 static int get_IPDiagnosticsUDPEchoConfig_TimeLastPacketReceived(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	*value = udpechoconfig_get("TimeLastPacketReceived", "0");
+	*value = udpechoconfig_get("TimeLastPacketReceived", "0001-01-01T00:00:00.000000Z");
 	return 0;
 }
 
