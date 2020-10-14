@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uspd
-PKG_VERSION:=2.0.5
+PKG_VERSION:=2.0.6
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=31f7beca9175b1503aa49fd9d762fc917c9b736f
+PKG_SOURCE_VERSION:=f8ff8f16d63bf3f1e32aa1a6cfd1cb50f8cbf73e
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/uspd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
