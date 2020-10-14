@@ -204,6 +204,8 @@ broute_append_rule() {
 handle_ebtables_rules() {
 	sid=$1
 	local is_l2_rule=0
+	local src_dhcp_options=""
+	local dst_dhcp_options=""
 
 	init_broute_rule
 
@@ -213,6 +215,14 @@ handle_ebtables_rules() {
 	config_get pcp_check "$sid" "pcp_check"
 	config_get eth_type "$sid" "ethertype"
 	config_get vid "$sid" "vid_check"
+	config_get dhcp_type "$sid" "dhcp_type" # dhcpv4 or v6
+	config_get src_vcid "$sid" "src_vendor_class_id" # dhcp option 60
+	config_get dst_vcid "$sid" "dst_vendor_class_id" # dhcp option 60
+	config_get src_clid "$sid" "src_client_id" # dhcp option 61
+	config_get dst_clid "$sid" "dst_client_id" # dhcp option 61
+	config_get src_ucid "$sid" "src_user_class_id" # dhcp option 77
+	config_get dst_ucid "$sid" "dst_user_class_id" # dhcp option 77
+
 	config_get traffic_class "$sid" "traffic_class"
 
 	if [ -n "$src_if" ]; then
@@ -248,6 +258,70 @@ handle_ebtables_rules() {
 	if [ -n "$vid" ]; then
 		broute_filter_on_vid $vid
 		is_l2_rule=1
+	fi
+
+	# first process options that will help figure our source mac address
+	# dhcp option for "vendor class id"
+	if [ -n "$src_vcid" ]; then
+		src_dhcp_options="$src_dhcp_options vcid=$src_vcid"
+		is_l2_rule=1
+	fi
+
+	# dhcp option for "client id"
+	if [ -n "$src_clid" ]; then
+		src_dhcp_options="$src_dhcp_options clid=$src_clid"
+		is_l2_rule=1
+	fi
+
+	# dhcp option for "user class id"
+	if [ -n "$src_ucid" ]; then
+		src_dhcp_options="$src_dhcp_options ucid=$src_ucid"
+		is_l2_rule=1
+	fi
+
+	# if src mac is already a classification criteria, then it
+	# does not really make sense to add it as a criteria to
+	# filter packets again based on source mac
+	if [ -n "$src_dhcp_options" -a -z "$src_mac" ]; then
+		comp="$(grep -i "$src_dhcp_options" /tmp/dhcp.client.options)"
+		if [ -n "$comp" ]; then
+			s_mac_add="$(echo $comp | head -n1 | awk '{print $1;}')"
+			if [ -n "$s_mac_add" ]; then
+				broute_filter_on_src_mac $s_mac_add
+			fi
+		fi
+	fi
+
+	# Now process options that will help figure our destination mac address
+	# dhcp option for "vendor class id"
+	if [ -n "$dst_vcid" ]; then
+		dst_dhcp_options="$dst_dhcp_options vcid=$dst_vcid"
+		is_l2_rule=1
+	fi
+
+	# dhcp option for "client id"
+	if [ -n "$dst_clid" ]; then
+		dst_dhcp_options="$dst_dhcp_options clid=$dst_clid"
+		is_l2_rule=1
+	fi
+
+	# dhcp option for "user class id"
+	if [ -n "$dst_ucid" ]; then
+		dst_dhcp_options="$dst_dhcp_options ucid=$dst_ucid"
+		is_l2_rule=1
+	fi
+
+	# if dst mac is already a classification criteria, then it
+	# does not really make sense to add it as a criteria to
+	# filter packets again based on dstination mac
+	if [ -n "$dst_dhcp_options" -a -z "$dst_mac" ]; then
+		comp="$(grep -i "$dst_dhcp_options" /tmp/dhcp.client.options)"
+		if [ -n "$comp" ]; then
+			d_mac_add="$(echo $comp | head -n1 | awk '{print $1;}')"
+			if [ -n "$d_mac_add" ]; then
+				broute_filter_on_dst_mac $d_mac_add
+			fi
+		fi
 	fi
 
 	if [ $is_l2_rule -eq 0 ]; then
