@@ -597,7 +597,7 @@ DMOBJ tDeviceXMPPObj[] = {
 
 DMOBJ tXMPPObj[] = {
 /* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, NULL, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH},
+{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, NULL, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", "Username", "Domain", "Resource", NULL}},
 {0}
 };
 
@@ -611,7 +611,7 @@ DMLEAF tXMPPParams[] = {
 /* *** Device.XMPP.Connection.{i}. *** */
 DMOBJ tXMPPConnectionObj[] = {
 /* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH},
+{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", "ServerAddress", "Port", NULL}},
 {0}
 };
 

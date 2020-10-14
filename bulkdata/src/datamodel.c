@@ -1181,7 +1181,7 @@ DMOBJ tDeviceBulkDataObj[] = {
 
 DMOBJ tBulkDataObj[] = {
 /* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, NULL, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH},
+{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, NULL, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", NULL}},
 {0}
 };
 
