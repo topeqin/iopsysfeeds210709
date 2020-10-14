@@ -601,6 +601,12 @@ config_ingress_rate_limit() {
 	local ifname="$1"
 	local ingress_rate=$2
 	local in_burst_size=$3
+	local wanport="$(db -q get hw.board.ethernetWanPort)"
+
+	if [ "$ifname" == "$wanport" ]; then
+		logger -t qosmngr "policing is not support on port $ifname"
+		return
+	fi
 
 	# Unit in uci file is in bps while that accepted by ethswctl is kbits
 	if [ $ingress_rate -lt 1000 ]; then
