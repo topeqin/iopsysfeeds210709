@@ -103,7 +103,7 @@ static int delObjIPInterfaceTWAMPReflector(char *refparam, struct dmctx *ctx, vo
 
 static int get_IPInterfaceTWAMPReflector_Enable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "enable", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "enable", "1");
 	return 0;
 }
 
@@ -194,7 +194,7 @@ static int set_IPInterfaceTWAMPReflector_Alias(char *refparam, struct dmctx *ctx
 
 static int get_IPInterfaceTWAMPReflector_Port(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "port", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "port", "862");
 	return 0;
 }
 
@@ -214,7 +214,7 @@ static int set_IPInterfaceTWAMPReflector_Port(char *refparam, struct dmctx *ctx,
 
 static int get_IPInterfaceTWAMPReflector_MaximumTTL(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "max_ttl", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "max_ttl", "1");
 	return 0;
 }
 
@@ -290,8 +290,8 @@ static int browseIPInterfaceTWAMPReflectorInst(struct dmctx *dmctx, DMNODE *pare
 
 /* *** Device.IP.Interface. *** */
 DMOBJ tDeviceTWAMPReflectorObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"TWAMPReflector", &DMWRITE, addObjIPInterfaceTWAMPReflector, delObjIPInterfaceTWAMPReflector, NULL, browseIPInterfaceTWAMPReflectorInst, NULL, NULL, NULL, NULL, tIPInterfaceTWAMPReflectorParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", "Port", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"TWAMPReflector", &DMWRITE, addObjIPInterfaceTWAMPReflector, delObjIPInterfaceTWAMPReflector, NULL, browseIPInterfaceTWAMPReflectorInst, NULL, NULL, NULL, NULL, tIPInterfaceTWAMPReflectorParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Port", NULL}},
 {0}
 };
 

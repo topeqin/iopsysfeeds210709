@@ -25,7 +25,7 @@ LIB_MAP_OBJ tRootDynamicObj[] = {
 
 static int get_IPDiagnosticsUDPEchoConfig_Enable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_option_value_string("udpechoserver", "udpechoserver", "enable", value);
+	*value = dmuci_get_option_value_fallback_def("udpechoserver", "udpechoserver", "enable", "1");
 	return 0;
 }
 
@@ -94,7 +94,7 @@ static int set_IPDiagnosticsUDPEchoConfig_SourceIPAddress(char *refparam, struct
 
 static int get_IPDiagnosticsUDPEchoConfig_UDPPort(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_option_value_string("udpechoserver", "udpechoserver", "server_port", value);
+	*value = dmuci_get_option_value_fallback_def("udpechoserver", "udpechoserver", "server_port", "0");
 	return 0;
 }
 
@@ -114,7 +114,7 @@ static int set_IPDiagnosticsUDPEchoConfig_UDPPort(char *refparam, struct dmctx *
 
 static int get_IPDiagnosticsUDPEchoConfig_EchoPlusEnabled(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_option_value_string("udpechoserver", "udpechoserver", "plus", value);
+	*value = dmuci_get_option_value_fallback_def("udpechoserver", "udpechoserver", "plus", "1");
 	return 0;
 }
 
@@ -189,7 +189,7 @@ static int get_IPDiagnosticsUDPEchoConfig_TimeLastPacketReceived(char *refparam,
 
 /* *** Device.IP.Diagnostics. *** */
 DMOBJ tDeviceUDPEchoConfigObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
 {"UDPEchoConfig", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tIPDiagnosticsUDPEchoConfigParams, NULL, BBFDM_BOTH},
 {0}
 };

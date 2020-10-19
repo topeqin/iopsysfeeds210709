@@ -133,7 +133,7 @@ static int get_xmpp_connection_supported_server_connect_algorithms(char *refpara
 /*#Device.XMPP.Connection.{i}.Enable!UCI:xmpp/xmpp_connection,@i-1/enable*/
 static int get_connection_enable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "enable", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "enable", "1");
 	return 0;
 }
 
@@ -291,7 +291,7 @@ static int set_xmpp_connection_server_connect_algorithm(char *refparam, struct d
 /*#Device.XMPP.Connection.{i}.KeepAliveInterval!UCI:xmpp/xmpp_connection,@i-1/interval*/
 static int get_xmpp_connection_keepalive_interval(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "interval", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "interval", "-1");
 	return 0;
 }
 
@@ -312,7 +312,7 @@ static int set_xmpp_connection_keepalive_interval(char *refparam, struct dmctx *
 /*#Device.XMPP.Connection.{i}.ServerConnectAttempts!UCI:xmpp/xmpp_connection,@i-1/attempt*/
 static int get_xmpp_connection_server_attempts(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "attempt", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "attempt", "16");
 	return 0;
 }
 
@@ -333,7 +333,7 @@ static int set_xmpp_connection_server_attempts(char *refparam, struct dmctx *ctx
 /*#Device.XMPP.Connection.{i}.ServerRetryInitialInterval!UCI:xmpp/xmpp_connection,@i-1/initial_retry_interval*/
 static int get_xmpp_connection_retry_initial_interval(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "initial_retry_interval", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "initial_retry_interval", "60");
 	return 0;
 }
 
@@ -354,7 +354,7 @@ static int set_xmpp_connection_retry_initial_interval(char *refparam, struct dmc
 /*#Device.XMPP.Connection.{i}.ServerRetryIntervalMultiplier!UCI:xmpp/xmpp_connection,@i-1/retry_interval_multiplier*/
 static int get_xmpp_connection_retry_interval_multiplier(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "retry_interval_multiplier", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "retry_interval_multiplier", "2000");
 	return 0;
 }
 
@@ -375,7 +375,7 @@ static int set_xmpp_connection_retry_interval_multiplier(char *refparam, struct 
 /*#Device.XMPP.Connection.{i}.ServerRetryMaxInterval!UCI:xmpp/xmpp_connection,@i-1/retry_max_interval*/
 static int get_xmpp_connection_retry_max_interval(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "retry_max_interval", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "retry_max_interval", "30720");
 	return 0;
 }
 
@@ -396,7 +396,7 @@ static int set_xmpp_connection_retry_max_interval(char *refparam, struct dmctx *
 /*#Device.XMPP.Connection.{i}.UseTLS!UCI:xmpp/xmpp_connection,@i-1/usetls*/
 static int get_xmpp_connection_server_usetls(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "usetls", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "usetls", "1");
 	return 0;
 }
 
@@ -450,7 +450,7 @@ static int get_xmpp_connection_server_number_of_entries(char *refparam, struct d
 /*#Device.XMPP.Connection.{i}.Server.{i}.Enable!UCI:xmpp/xmpp_connection,@i-1/enable*/
 static int get_xmpp_connection_server_enable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "enable", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "enable", "1");
 	return 0;
 }
 
@@ -524,7 +524,7 @@ static int set_xmpp_connection_server_server_address(char *refparam, struct dmct
 /*#Device.XMPP.Connection.{i}.Server.{i}.Port!UCI:xmpp/xmpp_connection,@i-1/port*/
 static int get_xmpp_connection_server_port(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "port", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "port", "5222");
 	return 0;
 }
 
@@ -590,14 +590,14 @@ static int browsexmpp_connection_serverInst(struct dmctx *dmctx, DMNODE *parent_
 
 /* *** Device.XMPP. *** */
 DMOBJ tDeviceXMPPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
 {"XMPP", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tXMPPObj, tXMPPParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMOBJ tXMPPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, NULL, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", "Username", "Domain", "Resource", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, NULL, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Username", "Domain", "Resource", NULL}},
 {0}
 };
 
@@ -610,8 +610,8 @@ DMLEAF tXMPPParams[] = {
 
 /* *** Device.XMPP.Connection.{i}. *** */
 DMOBJ tXMPPConnectionObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", "ServerAddress", "Port", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "ServerAddress", "Port", NULL}},
 {0}
 };
 

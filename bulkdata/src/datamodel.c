@@ -332,7 +332,7 @@ static int delObjBulkDataProfileHTTPRequestURIParameter(char *refparam, struct d
 /*#Device.BulkData.Enable!UCI:bulkdata/bulkdata,bulkdata/enable*/
 static int get_BulkData_Enable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_option_value_string("bulkdata", "bulkdata", "enable", value);
+	*value = dmuci_get_option_value_fallback_def("bulkdata", "bulkdata", "enable", "1");
 	return 0;
 }
 
@@ -416,7 +416,7 @@ static int get_BulkData_ProfileNumberOfEntries(char *refparam, struct dmctx *ctx
 /*#Device.BulkData.Profile.{i}.Enable!UCI:bulkdata/profile,@i-1/enable*/
 static int get_BulkDataProfile_Enable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "enable", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "enable", "1");
 	return 0;
 }
 
@@ -563,7 +563,7 @@ static int set_BulkDataProfile_EncodingType(char *refparam, struct dmctx *ctx, v
 /*#Device.BulkData.Profile.{i}.ReportingInterval!UCI:bulkdata/profile,@i-1/reporting_interval*/
 static int get_BulkDataProfile_ReportingInterval(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "reporting_interval", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "reporting_interval", "86400");
 	return 0;
 }
 
@@ -1001,7 +1001,7 @@ static int set_BulkDataProfileHTTP_Method(char *refparam, struct dmctx *ctx, voi
 /*#Device.BulkData.Profile.{i}.HTTP.UseDateHeader!UCI:bulkdata/profile,@i-1/http_use_date_header*/
 static int get_BulkDataProfileHTTP_UseDateHeader(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "http_use_date_header", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "http_use_date_header", "1");
 	return 0;
 }
 
@@ -1025,7 +1025,7 @@ static int set_BulkDataProfileHTTP_UseDateHeader(char *refparam, struct dmctx *c
 /*#Device.BulkData.Profile.{i}.HTTP.RetryEnable!UCI:bulkdata/profile,@i-1/http_retry_enable*/
 static int get_BulkDataProfileHTTP_RetryEnable(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "http_retry_enable", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "http_retry_enable", "1");
 	return 0;
 }
 
@@ -1049,7 +1049,7 @@ static int set_BulkDataProfileHTTP_RetryEnable(char *refparam, struct dmctx *ctx
 /*#Device.BulkData.Profile.{i}.HTTP.RetryMinimumWaitInterval!UCI:bulkdata/profile,@i-1/http_retry_minimum_wait_interval*/
 static int get_BulkDataProfileHTTP_RetryMinimumWaitInterval(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "http_retry_minimum_wait_interval", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "http_retry_minimum_wait_interval", "5");
 	return 0;
 }
 
@@ -1070,7 +1070,7 @@ static int set_BulkDataProfileHTTP_RetryMinimumWaitInterval(char *refparam, stru
 /*#Device.BulkData.Profile.{i}.HTTP.RetryIntervalMultiplier!UCI:bulkdata/profile,@i-1/http_retry_interval_multiplier*/
 static int get_BulkDataProfileHTTP_RetryIntervalMultiplier(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "http_retry_interval_multiplier", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "http_retry_interval_multiplier", "2000");
 	return 0;
 }
 
@@ -1109,7 +1109,7 @@ static int get_BulkDataProfileHTTP_RequestURIParameterNumberOfEntries(char *refp
 /*#Device.BulkData.Profile.{i}.HTTP.PersistAcrossReboot!UCI:bulkdata/profile,@i-1/http_persist_across_reboot*/
 static int get_BulkDataProfileHTTP_PersistAcrossReboot(char *refparam, struct dmctx *ctx, void *data, char *instance, char **value)
 {
-	dmuci_get_value_by_section_string((struct uci_section *)data, "http_persist_across_reboot", value);
+	*value = dmuci_get_value_by_section_fallback_def((struct uci_section *)data, "http_persist_across_reboot", "1");
 	return 0;
 }
 
@@ -1174,14 +1174,14 @@ static int set_BulkDataProfileHTTPRequestURIParameter_Reference(char *refparam, 
 
 /* *** Device.BulkData. *** */
 DMOBJ tDeviceBulkDataObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
 {"BulkData", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataObj, tBulkDataParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMOBJ tBulkDataObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
-{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, NULL, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, (const char *[]){"Alias", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, NULL, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", NULL}},
 {0}
 };
 
@@ -1201,7 +1201,7 @@ DMLEAF tBulkDataParams[] = {
 
 /* *** Device.BulkData.Profile.{i}. *** */
 DMOBJ tBulkDataProfileObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
 {"Parameter", &DMWRITE, addObjBulkDataProfileParameter, delObjBulkDataProfileParameter, NULL, browseBulkDataProfileParameterInst, NULL, NULL, NULL, NULL, tBulkDataProfileParameterParams, NULL, BBFDM_BOTH},
 {"CSVEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileCSVEncodingParams, NULL, BBFDM_BOTH},
 {"JSONEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileJSONEncodingParams, NULL, BBFDM_BOTH},
@@ -1260,7 +1260,7 @@ DMLEAF tBulkDataProfileJSONEncodingParams[] = {
 
 /* *** Device.BulkData.Profile.{i}.HTTP. *** */
 DMOBJ tBulkDataProfileHTTPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type*/
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
 {"RequestURIParameter", &DMWRITE, addObjBulkDataProfileHTTPRequestURIParameter, delObjBulkDataProfileHTTPRequestURIParameter, NULL, browseBulkDataProfileHTTPRequestURIParameterInst, NULL, NULL, NULL, NULL, tBulkDataProfileHTTPRequestURIParameterParams, NULL, BBFDM_BOTH},
 {0}
 };
