@@ -48,7 +48,7 @@ static size_t http_get_response(void *buffer, size_t size, size_t rxed, char **m
 {
 	char *c;
 
-	if (asprintf(&c, "%s%.*s", *msg_in, size * rxed, (char *)buffer) == -1) {
+	if (asprintf(&c, "%s%.*s", *msg_in, (int) (size * rxed), (char *)buffer) == -1) {
 		FREE(*msg_in);
 		return -1;
 	}
