@@ -14,6 +14,7 @@ function genconfig {
 	export DEVELOPER=0
 	target="bogus"
 	target_config_path=""
+	bcm27xx="target/linux/iopsys-bcm27xx"
 	brcm63xx_arm="target/linux/iopsys-brcm63xx-arm"
 	ramips="target/linux/iopsys-ramips"
 	intel_mips="target/linux/intel_mips"
@@ -118,9 +119,11 @@ function genconfig {
 			iopsys_x86=$(cd $x86; ./genconfig)
 		[ -e $armvirt/genconfig ] &&
 			iopsys_armvirt=$(cd $armvirt; ./genconfig)
+		[ -e $bcm27xx/genconfig ] &&
+			iopsys_bcm27xx=$(cd $bcm27xx; ./genconfig)
 
 	    if [ "$profile" == "LIST" ]; then
-			for list in iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86 iopsys_armvirt; do
+			for list in iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86 iopsys_armvirt iopsys_bcm27xx; do
 				echo "$list based boards:"
 				for b in ${!list}; do
 					echo -e "\t$b"
@@ -165,6 +168,14 @@ function genconfig {
 		if [ $p == $profile ]; then
 		    target="iopsys_armvirt"
 			target_config_path="$armvirt/config"
+		    return
+		fi
+	    done
+
+	    for p in $iopsys_bcm27xx; do
+		if [ $p == $profile ]; then
+		    target="iopsys_bcm27xx"
+			target_config_path="$bcm27xx/config"
 		    return
 		fi
 	    done
@@ -351,6 +362,13 @@ function genconfig {
 			echo "CONFIG_TARGET_${target}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${subtarget}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
+		elif [ "$target" = "iopsys_bcm27xx" ]; then
+			subtarget="iopsys_bcm2711"
+			echo "CONFIG_TARGET_${target}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}=y" >> .config
+			echo "CONFIG_TARGET_MULTI_PROFILE=y" >> .config
+			echo "CONFIG_TARGET_PER_DEVICE_ROOTFS=y" >> .config
+			echo "CONFIG_TARGET_DEVICE_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
 		else
 			echo "CONFIG_TARGET_${target}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${BOARDTYPE}=y" >> .config
