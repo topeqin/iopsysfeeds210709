@@ -35,7 +35,7 @@ _iop()
     iopcmds="bootstrap cfe_upgrade cfe_upgrade_latest extract_core \
              feeds_update genconfig generate_tarballs install_key \
              scp_changes setup_host ssh_install_key status \
-             update_package update_feed_branches ssh_upgrade"
+             update_package update_feed_branches ssh_upgrade smoketest"
 
     if [ $COMP_CWORD -eq 1 ] ; then
 
