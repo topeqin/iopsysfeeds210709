@@ -230,7 +230,7 @@ function ssh_upgrade {
     upd_fw_base=""
     upd_fw=""
     upd_host="192.168.1.1"
-    upd_sysupgrade=0
+    upd_sysupgrade=1
     do_dialog=0
 
     while getopts "f:hnxt:iscb" opt; do
