@@ -329,8 +329,12 @@ function ssh_upgrade {
 	    cat $upd_fw | pv -s ${file_size_kb}k | ssh root@$upd_host "iopu $extra_args"
 	fi
     else
+	extra_args=""
+	[ $upd_noreboot   -eq 1 ] && extra_args="$extra_args -d"
+	[ $upd_keepconf   -eq 0 ] && extra_args="$extra_args -n"
+
 	scp $upd_fw root@$upd_host:/tmp/ &&
-	    ssh -o ConnectTimeout=60 root@$upd_host "sysupgrade -v $3 /tmp/$upd_fw_base" &&
+	    ssh -o ConnectTimeout=60 root@$upd_host "sysupgrade -v $extra_args /tmp/$upd_fw_base" &&
 	    echo "sysupgrade done!"
     fi
 }
