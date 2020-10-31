@@ -5,7 +5,7 @@ function genconfig {
 	export IMPORT=1
 	export SRCTREEOVERR=0
 	export FILEDIR="files/"
-	export THEMEDIR="themes"
+	export THEMEDIR="tmp/juci-themes"
 	CURRENT_CONFIG_FILE=".current_config_file"
 	export CONFIGPATH="package/feeds/iopsys/iop"
 	CUSTPATH="customerconfigs"
