@@ -19,7 +19,7 @@ define Package/easy-qos
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Easy QoS
-  DEPENDS:=@(TARGET_intel_mips||TARGET_iopsys_brcm63xx_arm||TARGET_iopsys_brcm63xx_mips)
+  DEPENDS:=@(TARGET_intel_mips||TARGET_iopsys_brcm63xx_arm)
 endef
 
 define Package/easy-qos/description

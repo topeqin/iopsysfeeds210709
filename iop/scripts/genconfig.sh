@@ -14,7 +14,6 @@ function genconfig {
 	export DEVELOPER=0
 	target="bogus"
 	target_config_path=""
-	brcm63xx_mips="target/linux/iopsys-brcm63xx-mips"
 	brcm63xx_arm="target/linux/iopsys-brcm63xx-arm"
 	ramips="target/linux/iopsys-ramips"
 	intel_mips="target/linux/intel_mips"
@@ -109,8 +108,6 @@ function genconfig {
 			return
 		fi
 
-		[ -e $brcm63xx_mips/genconfig ] &&
-			iopsys_brcm63xx_mips=$(cd $brcm63xx_mips; ./genconfig)
 		[ -e $brcm63xx_arm/genconfig ] &&
 			iopsys_brcm63xx_arm=$(cd $brcm63xx_arm; ./genconfig)
 		[ -e $ramips/genconfig ] &&
@@ -123,7 +120,7 @@ function genconfig {
 			iopsys_armvirt=$(cd $armvirt; ./genconfig)
 
 	    if [ "$profile" == "LIST" ]; then
-			for list in iopsys_brcm63xx_mips iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86 iopsys_armvirt; do
+			for list in iopsys_brcm63xx_arm iopsys_ramips iopsys_intel_mips iopsys_x86 iopsys_armvirt; do
 				echo "$list based boards:"
 				for b in ${!list}; do
 					echo -e "\t$b"
@@ -131,14 +128,6 @@ function genconfig {
 			done
 			return
 	    fi
-
-	    for p in $iopsys_brcm63xx_mips; do
-		if [ $p == $profile ]; then
-		    target="iopsys_brcm63xx_mips"
-			target_config_path="$brcm63xx_mips/config"
-		    return
-		fi
-	    done
 
 	    for p in $iopsys_brcm63xx_arm; do
 		if [ $p == $profile ]; then

@@ -51,7 +51,7 @@ TARGET_CFLAGS := \
 
 PERIPHERAL_OPTONS:=-DSELECT_BRCM_BOARD=0
 
-ifneq ($(CONFIG_TARGET_iopsys_brcm63xx_arm)$(CONFIG_TARGET_iopsys_brcm63xx_mips),)
+ifneq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),)
 	PERIPHERAL_OPTONS:= -DSELECT_BRCM_BOARD=1
 endif
 

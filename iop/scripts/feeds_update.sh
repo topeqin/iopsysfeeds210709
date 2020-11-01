@@ -32,7 +32,7 @@ function feeds_update {
     fi
 
     # targets need to be installed explicitly
-    targets="iopsys-brcm63xx-mips iopsys-brcm63xx-arm iopsys-ramips intel_mips iopsys-x86 iopsys-armvirt"
+    targets="iopsys-brcm63xx-arm iopsys-ramips intel_mips iopsys-x86 iopsys-armvirt"
     for target in $targets
     do
 	rm -f target/linux/$target

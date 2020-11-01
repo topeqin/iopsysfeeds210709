@@ -25,9 +25,7 @@ PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
-ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_mips),y)
-  TARGET_PLATFORM=BROADCOM
-else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
+ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
   TARGET_PLATFORM=BROADCOM
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
   TARGET_PLATFORM=MEDIATEK
