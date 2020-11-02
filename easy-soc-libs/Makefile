@@ -110,6 +110,8 @@ define Build/Compile/rebuild
 endef
 endif
 
+STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell echo $(TARGET_CFLAGS) | mkhash md5)
+
 define Build/Compile
 	$(Build/Compile/rebuild)
 	touch $(PKG_BUILD_DIR)/.config_$(CONFIG_TARGET_PROFILE)
