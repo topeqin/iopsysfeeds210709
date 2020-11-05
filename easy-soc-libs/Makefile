@@ -59,17 +59,9 @@ endef
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
   TARGET_PLATFORM=BROADCOM
-  TARGET_CFLAGS +=-DIOPSYS_BROADCOM \
+  CHIP_ID=$(patsubst "%",%,$(CONFIG_BCM_CHIP_ID))
+  TARGET_CFLAGS +=-DIOPSYS_BROADCOM -DCHIP_$(CHIP_ID) -DCONFIG_BCM$(CHIP_ID) \
 	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx
-  ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm_panther),y)
-    TARGET_CFLAGS +=-DCONFIG_BCM96846
-  else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm_tiger),y)
-    TARGET_CFLAGS +=-DCONFIG_BCM96858
-  else ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm_eagle),y)
-    TARGET_CFLAGS +=-DCONFIG_BCM963178
-  else
-    TARGET_CFLAGS +=-DCONFIG_BCM963138
-  endif
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
   TARGET_PLATFORM=MEDIATEK
   TARGET_CFLAGS +=-DIOPSYS_MEDIATEK
