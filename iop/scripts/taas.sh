@@ -5,9 +5,8 @@
 # https://dev.iopsys.eu/iopsys/iopsys-taas
 
 
-function smoketest {
-	local image app
-
+#--------------------------------------------------------------
+function taas-init() {
 	# Path to TaaS binarys. Try some likely ones.
 	if ! which taas-smoketest >/dev/null; then
 		PATH="${PATH}:${PWD}/../iopsys-taas/bin"
@@ -34,6 +33,15 @@ function smoketest {
 			exit 1
 		fi
 	done
+}
+
+
+
+#--------------------------------------------------------------
+function taas-smoketest {
+	local image app
+
+	taas-init || return
 
 	# Find the default latest image (.y3 or FIT).
 	for image in bin/targets/iopsys-*/generic/last.y3 \
@@ -56,7 +64,7 @@ function smoketest {
 		esac
 
 		if [ -n "$product" ]; then
-			taas-smoketest "$image" "$product" || exit
+			command taas-smoketest "$image" "$product" || exit
 			echo "Smoketest OK"
 		else
 			echo "Unsupported target; skipping smoketest."
@@ -69,5 +77,5 @@ function smoketest {
 	exit 1
 }
 
-register_command "smoketest" "Write image to a device in the lab and check if it boots up."
+register_command "taas-smoketest" "Write image to a device in the lab and check if it boots up."
 
