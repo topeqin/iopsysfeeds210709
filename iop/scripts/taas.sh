@@ -26,7 +26,7 @@ function taas-init() {
 
 	# Prerequisites?
 	for app in expect socat timeout stdbuf bash env head strings \
-			tee cut tr grep curl ssh; do
+			tee cut tr grep curl ssh trickle; do
 		if ! which $app >/dev/null; then
 			echo "Error; missing command \"$app\""
 			echo "Install it from your Linux distro!"
