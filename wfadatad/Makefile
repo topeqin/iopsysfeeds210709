@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfadatad
-PKG_VERSION:=2.3.0
+PKG_VERSION:=3.0.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=26701fdc83440a748aeff183bad2f67287764fb4
+PKG_SOURCE_VERSION:=5f9b3d34e900e790c09e2db2aeec1ef1282ba9cd
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfadatad.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -21,7 +21,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/wfadatad
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=WiFi Data Elements-1.0 Agent
+  TITLE:=WiFi Data Elements-1.0 Agent and Collector
   DEPENDS:=+libwifi +libuci +libubox +ubus +libpthread +libnl-genl \
 	  +!WFA_DELM_STANDALONE:map-agent +WFA_DELM_MULTIAP_MODE:libmaputils
 endef
