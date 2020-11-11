@@ -11,7 +11,7 @@ PKG_RELEASE:=1
 PKG_VERSION:=0.3
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/libpicoevent.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=f4ab03b22fca57cec6c959fb5c54bcdd64c32467
+PKG_SOURCE_VERSION:=f446f186102539cceedaa15a95a33547ac3c1fd7
 PKG_NAME:=libpicoevent
 
 PKG_LICENSE:=LGPL-2.1-only
