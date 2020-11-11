@@ -34,17 +34,13 @@ PKG_BUILD_PARALLEL:=1
 # All config variable that are passed to the make invocation, directly or
 # indirectly. This ensures that the package is rebuilt on config-changes.
 PKG_CONFIG_DEPENDS := \
-	CONFIG_TARGET_BOARD \
-	CONFIG_TARGET_NO_DECT \
-	CONFIG_TARGET_NO_VOICE
+	CONFIG_TARGET_BOARD
 
 export CONFIG_BRCM_SDK_VER_504001
 export CONFIG_BRCM_SDK_VER_504002
 export CONFIG_BRCM_SDK_VER_504003
 export CONFIG_BRCM_SDK_VER_504004
 export CONFIG_BRCM_SDK_VER_504005
-export CONFIG_TARGET_NO_DECT
-export CONFIG_TARGET_NO_VOICE
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -57,7 +53,7 @@ define Package/endptmngr
   CATEGORY:=Utilities
   TITLE:=Brcmslic
   URL:=
-  DEPENDS:= +libubox +ubus +libpicoevent +bcmkernel @TARGET_HAS_VOICE @!TARGET_NO_VOICE
+  DEPENDS:= +libubox +ubus +libpicoevent +bcmkernel @TARGET_HAS_VOICE @BCM_VOICE
 endef
 
 define Package/endptmngr/description
