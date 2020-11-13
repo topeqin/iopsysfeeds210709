@@ -32,14 +32,6 @@ CWMP_REVISION=$(shell svnversion ./src/ -n|cut -f2 -d:)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/icwmp-tr098
-  SECTION:=utils
-  CATEGORY:=Utilities
-  SUBMENU:=TRx69
-  TITLE:=CWMP client for TR-098 Data Model
-  DEPENDS:=+PACKAGE_icwmp-tr098:libuci +PACKAGE_icwmp-tr098:libmicroxml +PACKAGE_icwmp-tr098:libubox +PACKAGE_icwmp-tr098:jshn +PACKAGE_icwmp-tr098:libubus +PACKAGE_icwmp-tr098:libblobmsg-json +PACKAGE_icwmp-tr098:libpthread +PACKAGE_icwmp-tr098:ubusd +PACKAGE_icwmp-tr098:shflags +PACKAGE_icwmp-tr098:getopt +PACKAGE_icwmp-tr098:zlib +PACKAGE_icwmp-tr098:libjson-c +PACKAGE_icwmp-tr098:libopenssl +PACKAGE_icwmp-tr098:curl +PACKAGE_icwmp-tr098:libcurl +PACKAGE_icwmp-tr098:libtr098
-endef
-
 define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
@@ -65,11 +57,6 @@ endif
 
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
-
-ifeq ($(CONFIG_PACKAGE_icwmp-tr098),y)
-CONFIGURE_ARGS += \
-	--enable-icwmp_tr098
-endif
 
 ifneq ($(CWMP_REVISION)_,_)
 ifneq ($(CWMP_REVISION),exported)
@@ -122,11 +109,6 @@ endif
 	$(CP) ./files/* $(1)/
 endef
 
-define Package/icwmp-tr098/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_BUILD_DIR)/bin/icwmp_tr098d $(1)/usr/sbin
-endef
-
 define Package/$(PKG_NAME)/postinst
 	#!/bin/sh
 	if [ -z "$${IPKG_INSTROOT}" ]; then
@@ -146,4 +128,3 @@ define Package/$(PKG_NAME)/prerm
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,icwmp-tr098))

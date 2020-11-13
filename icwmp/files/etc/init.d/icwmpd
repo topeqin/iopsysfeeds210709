@@ -220,10 +220,5 @@ notify() {
 
 service_triggers() {
 	procd_add_config_trigger "config.change" "cwmp"  /etc/init.d/icwmpd reload
-        if [ "$(uci -q get cwmp.cpe.notification)" == "1" ]; then
-		for conf in $(ls /etc/config/); do
-			procd_add_config_trigger "config.change" "$conf" /etc/init.d/icwmpd notify
-		done
-	fi
 }
 
