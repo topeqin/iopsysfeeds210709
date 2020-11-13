@@ -3,8 +3,8 @@
 
 IP_RULE=""
 BR_RULE=""
-is_bcm968=0
 
+POLICER_SKIP=0
 POLICER_COUNT=0
 
 #function to handle a queue section
@@ -589,7 +589,7 @@ handle_policer_rules() {
 	fi
 
 	# The policer object is not available on non BCM968* chips
-	if [ $is_bcm968 -eq 1 ]; then
+	if [ $POLICER_SKIP -eq 1 ]; then
 		assign_policer_to_port $ifname $pindex
 	else
 		config_ingress_rate_limit $ifname $ingress_rate $in_burst_size
@@ -702,7 +702,7 @@ configure_queue() {
 configure_policer() {
 	# The policer object is not available on non BCM968* chips, just clean up
 	# the old config if any and return
-	if [ $is_bcm968 -eq 0 ]; then
+	if [ $POLICER_SKIP -eq 0 ]; then
 		for intf in $(db get hw.board.ethernetPortOrder); do
 			# setting rate and burst size to 0 disables rate limiting
 			ethswctl -c rxratectrl -n 1 -p $intf -x 0 -y 0
@@ -746,7 +746,7 @@ reload_qos() {
 	local cpu_model="$(grep Hardware /proc/cpuinfo  | awk '{print$NF}')"
 
 	case $cpu_model in
-		BCM968*) is_bcm968=1 ;;
+		BCM968*) POLICER_SKIP=1 ;;
 	esac
 
 	if [ -z "$service_name" ]; then
@@ -805,7 +805,7 @@ get_queue_stats() {
 				local f_name="/tmp/qos/queue_stats/${ifname}/q_${q_index}/${pname}"
 				# In non BCM968* chips, read operation on queues is actually a read and reset,
 				# so values need to be maintained to present cumulative value
-				if [ $is_bcm968 -eq 0 ]; then
+				if [ $POLICER_SKIP -eq 0 ]; then
 					tmp_val=$(cat $f_name)
 					val=$((val + tmp_val))
 				fi
@@ -866,7 +866,7 @@ get_queue_stats() {
 					local f_name="/tmp/qos/queue_stats/${ifname}/q_${q_index}/${pname}"
 					# In non BCM968* chips, read operation on queues is actually a read and reset,
 					# so values need to be maintained to present cumulative value
-					if [ $is_bcm968 -eq 0 ]; then
+					if [ $POLICER_SKIP -eq 0 ]; then
 						tmp_val=$(cat $f_name)
 						val=$((val + tmp_val))
 					fi
@@ -942,7 +942,7 @@ get_eth_q_stats() {
 		local f_name="/tmp/qos/queue_stats/${ifname}/q_${qid}/${pname}"
 		# In non BCM968* chips, read operation on queues is actually a read and reset,
 		# so values need to be maintained to present cumulative value
-		if [ $is_bcm968 -eq 0 ]; then
+		if [ $POLICER_SKIP -eq 0 ]; then
 			tmp_val=$(cat $f_name)
 			val=$((val + tmp_val))
 		fi
@@ -974,10 +974,10 @@ get_eth_q_stats() {
 read_queue_stats() {
 	itf="$1"
 	q_idx="$2"
-	local cpu_model="$(grep Hardware /proc/cpuinfo  | awk '{print$NF}')"
+	local cpu_model="$(brcm_fw_tool -k info)"
 
 	case $cpu_model in
-		BCM968*) is_bcm968=1 ;;
+		68*|6755) POLICER_SKIP=1 ;;
 	esac
 
 	if [ -n "$itf" -a -n "$q_idx" ]; then
