@@ -743,10 +743,10 @@ configure_qos() {
 
 reload_qos() {
 	local service_name="$1"
-	local cpu_model="$(grep Hardware /proc/cpuinfo  | awk '{print$NF}')"
+	local cpu_model="$(brcm_fw_tool -k info)"
 
 	case $cpu_model in
-		BCM968*) POLICER_SKIP=1 ;;
+		68*|6755) POLICER_SKIP=1 ;;
 	esac
 
 	if [ -z "$service_name" ]; then
