@@ -32,7 +32,7 @@ generate_queue(){
 		uci set qos.@queue[-1].precedence="$i"
 		uci set qos.@queue[-1].scheduling="SP"
 		uci set qos.@queue[-1].rate="0"
-		uci set qos.@queue[-1].burst_size="-1"
+		uci set qos.@queue[-1].burst_size="0"
 		uci set qos.@queue[-1].weight="1"
 	done
 
