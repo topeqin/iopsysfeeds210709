@@ -24,7 +24,7 @@ What we need is the public key for the clients.
 For dropbear "dropbearkey -y -f files/etc/dropbear/logid" will generate the public key.
 
 ----------
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwn9RaDAzxW1dTmIhXgFBnpi1lhj8xhYpCVQiPxxdk9IEmH8zjo4y9j3sPkqKOlRnkwjpZIpLEKBnpQTwVIMCU/AG7nDJX3OH9RfS9mLJQLfFL8HyGCyqDezFWldbyovhJZvdUeK4tAXJWv2W3OVHiz2L8IlncBgP/E9DJElsyhhQHsM96UE6tBkXsvXkoDbMSYXFcLbgiUwBKfmM2BF/aPDL45iznGur7/2j9v95PwJ0gtMu9jjNRq+pXCXhTh3bsnczm0MpZC1aiRc9nJAeGIMmhrf15E4jBKgTnrstzJxGVAdajKeR954KcNsS33cS2Wmui2YjmPbBXjqf1frzJ log@inteno
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwn9RaDAzxW1dTmIhXgFBnpi1lhj8xhYpCVQiPxxdk9IEmH8zjo4y9j3sPkqKOlRnkwjpZIpLEKBnpQTwVIMCU/AG7nDJX3OH9RfS9mLJQLfFL8HyGCyqDezFWldbyovhJZvdUeK4tAXJWv2W3OVHiz2L8IlncBgP/E9DJElsyhhQHsM96UE6tBkXsvXkoDbMSYXFcLbgiUwBKfmM2BF/aPDL45iznGur7/2j9v95PwJ0gtMu9jjNRq+pXCXhTh3bsnczm0MpZC1aiRc9nJAeGIMmhrf15E4jBKgTnrstzJxGVAdajKeR954KcNsS33cS2Wmui2YjmPbBXjqf1frzJ log@iopsys
 ----------
 
 The public key should be just one line. Add that line to the 

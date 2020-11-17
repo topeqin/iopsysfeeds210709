@@ -397,7 +397,7 @@ function genconfig_min {
 		touch package/kernel/linux/Makefile
 
 		# we need to signal to bradcom SDK that we have changed the board id
-		# currently boardparms.c and boardparms_voice.c is the only place that is depending on inteno boardid name
+		# currently boardparms.c and boardparms_voice.c is the only place that is depending on boardid name
 		# so just touch that file.
 		[ -d ./build_dir ] && find build_dir/ -name "boardparms*c" -print0 2>/dev/null | xargs -0 touch 2>/dev/null
 
