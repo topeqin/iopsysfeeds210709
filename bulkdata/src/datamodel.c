@@ -1174,120 +1174,120 @@ static int set_BulkDataProfileHTTPRequestURIParameter_Reference(char *refparam, 
 
 /* *** Device.BulkData. *** */
 DMOBJ tDeviceBulkDataObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"BulkData", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataObj, tBulkDataParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"BulkData", &DMREAD, NULL, NULL, NULL, NULL, NULL, tBulkDataObj, tBulkDataParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMOBJ tBulkDataObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, NULL, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", NULL}},
 {0}
 };
 
 DMLEAF tBulkDataParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Enable", &DMWRITE, DMT_BOOL, get_BulkData_Enable, set_BulkData_Enable, NULL, NULL, BBFDM_BOTH},
-{"Status", &DMREAD, DMT_STRING, get_BulkData_Status, NULL, NULL, NULL, BBFDM_BOTH},
-{"MinReportingInterval", &DMREAD, DMT_UNINT, get_BulkData_MinReportingInterval, NULL, NULL, NULL, BBFDM_BOTH},
-{"Protocols", &DMREAD, DMT_STRING, get_BulkData_Protocols, NULL, NULL, NULL, BBFDM_BOTH},
-{"EncodingTypes", &DMREAD, DMT_STRING, get_BulkData_EncodingTypes, NULL, NULL, NULL, BBFDM_BOTH},
-{"ParameterWildCardSupported", &DMREAD, DMT_BOOL, get_BulkData_ParameterWildCardSupported, NULL, NULL, NULL, BBFDM_BOTH},
-{"MaxNumberOfProfiles", &DMREAD, DMT_INT, get_BulkData_MaxNumberOfProfiles, NULL, NULL, NULL, BBFDM_BOTH},
-{"MaxNumberOfParameterReferences", &DMREAD, DMT_INT, get_BulkData_MaxNumberOfParameterReferences, NULL, NULL, NULL, BBFDM_BOTH},
-{"ProfileNumberOfEntries", &DMREAD, DMT_UNINT, get_BulkData_ProfileNumberOfEntries, NULL, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Enable", &DMWRITE, DMT_BOOL, get_BulkData_Enable, set_BulkData_Enable, BBFDM_BOTH},
+{"Status", &DMREAD, DMT_STRING, get_BulkData_Status, NULL, BBFDM_BOTH},
+{"MinReportingInterval", &DMREAD, DMT_UNINT, get_BulkData_MinReportingInterval, NULL, BBFDM_BOTH},
+{"Protocols", &DMREAD, DMT_STRING, get_BulkData_Protocols, NULL, BBFDM_BOTH},
+{"EncodingTypes", &DMREAD, DMT_STRING, get_BulkData_EncodingTypes, NULL, BBFDM_BOTH},
+{"ParameterWildCardSupported", &DMREAD, DMT_BOOL, get_BulkData_ParameterWildCardSupported, NULL, BBFDM_BOTH},
+{"MaxNumberOfProfiles", &DMREAD, DMT_INT, get_BulkData_MaxNumberOfProfiles, NULL, BBFDM_BOTH},
+{"MaxNumberOfParameterReferences", &DMREAD, DMT_INT, get_BulkData_MaxNumberOfParameterReferences, NULL, BBFDM_BOTH},
+{"ProfileNumberOfEntries", &DMREAD, DMT_UNINT, get_BulkData_ProfileNumberOfEntries, NULL, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.BulkData.Profile.{i}. *** */
 DMOBJ tBulkDataProfileObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Parameter", &DMWRITE, addObjBulkDataProfileParameter, delObjBulkDataProfileParameter, NULL, browseBulkDataProfileParameterInst, NULL, NULL, NULL, NULL, tBulkDataProfileParameterParams, NULL, BBFDM_BOTH},
-{"CSVEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileCSVEncodingParams, NULL, BBFDM_BOTH},
-{"JSONEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileJSONEncodingParams, NULL, BBFDM_BOTH},
-{"HTTP", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileHTTPObj, tBulkDataProfileHTTPParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Parameter", &DMWRITE, addObjBulkDataProfileParameter, delObjBulkDataProfileParameter, NULL, browseBulkDataProfileParameterInst, NULL, NULL, tBulkDataProfileParameterParams, NULL, BBFDM_BOTH},
+{"CSVEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileCSVEncodingParams, NULL, BBFDM_BOTH},
+{"JSONEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileJSONEncodingParams, NULL, BBFDM_BOTH},
+{"HTTP", &DMREAD, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileHTTPObj, tBulkDataProfileHTTPParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMLEAF tBulkDataProfileParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Enable", &DMWRITE, DMT_BOOL, get_BulkDataProfile_Enable, set_BulkDataProfile_Enable, NULL, NULL, BBFDM_BOTH},
-{"Alias", &DMWRITE, DMT_STRING, get_BulkDataProfile_Alias, set_BulkDataProfile_Alias, NULL, NULL, BBFDM_BOTH},
-{"Name", &DMWRITE, DMT_STRING, get_BulkDataProfile_Name, set_BulkDataProfile_Name, NULL, NULL, BBFDM_BOTH},
-{"NumberOfRetainedFailedReports", &DMWRITE, DMT_INT, get_BulkDataProfile_NumberOfRetainedFailedReports, set_BulkDataProfile_NumberOfRetainedFailedReports, NULL, NULL, BBFDM_BOTH},
-{"Protocol", &DMWRITE, DMT_STRING, get_BulkDataProfile_Protocol, set_BulkDataProfile_Protocol, NULL, NULL, BBFDM_BOTH},
-{"EncodingType", &DMWRITE, DMT_STRING, get_BulkDataProfile_EncodingType, set_BulkDataProfile_EncodingType, NULL, NULL, BBFDM_BOTH},
-{"ReportingInterval", &DMWRITE, DMT_UNINT, get_BulkDataProfile_ReportingInterval, set_BulkDataProfile_ReportingInterval, NULL, NULL, BBFDM_BOTH},
-{"TimeReference", &DMWRITE, DMT_TIME, get_BulkDataProfile_TimeReference, set_BulkDataProfile_TimeReference, NULL, NULL, BBFDM_BOTH},
-{"ParameterNumberOfEntries", &DMREAD, DMT_UNINT, get_BulkDataProfile_ParameterNumberOfEntries, NULL, NULL, NULL, BBFDM_BOTH},
-//{"StreamingHost", &DMWRITE, DMT_STRING, get_BulkDataProfile_StreamingHost, set_BulkDataProfile_StreamingHost, NULL, NULL, BBFDM_BOTH},
-//{"StreamingPort", &DMWRITE, DMT_UNINT, get_BulkDataProfile_StreamingPort, set_BulkDataProfile_StreamingPort, NULL, NULL, BBFDM_BOTH},
-//{"StreamingSessionID", &DMWRITE, DMT_UNINT, get_BulkDataProfile_StreamingSessionID, set_BulkDataProfile_StreamingSessionID, NULL, NULL, BBFDM_BOTH},
-//{"FileTransferURL", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferURL, set_BulkDataProfile_FileTransferURL, NULL, NULL, BBFDM_BOTH},
-//{"FileTransferUsername", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferUsername, set_BulkDataProfile_FileTransferUsername, NULL, NULL, BBFDM_BOTH},
-//{"FileTransferPassword", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferPassword, set_BulkDataProfile_FileTransferPassword, NULL, NULL, BBFDM_BOTH},
-//{"ControlFileFormat", &DMWRITE, DMT_STRING, get_BulkDataProfile_ControlFileFormat, set_BulkDataProfile_ControlFileFormat, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Enable", &DMWRITE, DMT_BOOL, get_BulkDataProfile_Enable, set_BulkDataProfile_Enable, BBFDM_BOTH},
+{"Alias", &DMWRITE, DMT_STRING, get_BulkDataProfile_Alias, set_BulkDataProfile_Alias, BBFDM_BOTH},
+{"Name", &DMWRITE, DMT_STRING, get_BulkDataProfile_Name, set_BulkDataProfile_Name, BBFDM_BOTH},
+{"NumberOfRetainedFailedReports", &DMWRITE, DMT_INT, get_BulkDataProfile_NumberOfRetainedFailedReports, set_BulkDataProfile_NumberOfRetainedFailedReports, BBFDM_BOTH},
+{"Protocol", &DMWRITE, DMT_STRING, get_BulkDataProfile_Protocol, set_BulkDataProfile_Protocol, BBFDM_BOTH},
+{"EncodingType", &DMWRITE, DMT_STRING, get_BulkDataProfile_EncodingType, set_BulkDataProfile_EncodingType, BBFDM_BOTH},
+{"ReportingInterval", &DMWRITE, DMT_UNINT, get_BulkDataProfile_ReportingInterval, set_BulkDataProfile_ReportingInterval, BBFDM_BOTH},
+{"TimeReference", &DMWRITE, DMT_TIME, get_BulkDataProfile_TimeReference, set_BulkDataProfile_TimeReference, BBFDM_BOTH},
+{"ParameterNumberOfEntries", &DMREAD, DMT_UNINT, get_BulkDataProfile_ParameterNumberOfEntries, NULL, BBFDM_BOTH},
+//{"StreamingHost", &DMWRITE, DMT_STRING, get_BulkDataProfile_StreamingHost, set_BulkDataProfile_StreamingHost, BBFDM_BOTH},
+//{"StreamingPort", &DMWRITE, DMT_UNINT, get_BulkDataProfile_StreamingPort, set_BulkDataProfile_StreamingPort, BBFDM_BOTH},
+//{"StreamingSessionID", &DMWRITE, DMT_UNINT, get_BulkDataProfile_StreamingSessionID, set_BulkDataProfile_StreamingSessionID, BBFDM_BOTH},
+//{"FileTransferURL", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferURL, set_BulkDataProfile_FileTransferURL, BBFDM_BOTH},
+//{"FileTransferUsername", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferUsername, set_BulkDataProfile_FileTransferUsername, BBFDM_BOTH},
+//{"FileTransferPassword", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferPassword, set_BulkDataProfile_FileTransferPassword, BBFDM_BOTH},
+//{"ControlFileFormat", &DMWRITE, DMT_STRING, get_BulkDataProfile_ControlFileFormat, set_BulkDataProfile_ControlFileFormat, BBFDM_BOTH},
 //{"Controller", &DMREAD, DMT_STRING, get_BulkDataProfile_Controller, NULL, NULL, NULL, BBFDM_USP},
 {0}
 };
 
 /* *** Device.BulkData.Profile.{i}.Parameter.{i}. *** */
 DMLEAF tBulkDataProfileParameterParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Name", &DMWRITE, DMT_STRING, get_BulkDataProfileParameter_Name, set_BulkDataProfileParameter_Name, NULL, NULL, BBFDM_BOTH},
-{"Reference", &DMWRITE, DMT_STRING, get_BulkDataProfileParameter_Reference, set_BulkDataProfileParameter_Reference, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Name", &DMWRITE, DMT_STRING, get_BulkDataProfileParameter_Name, set_BulkDataProfileParameter_Name, BBFDM_BOTH},
+{"Reference", &DMWRITE, DMT_STRING, get_BulkDataProfileParameter_Reference, set_BulkDataProfileParameter_Reference, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.BulkData.Profile.{i}.CSVEncoding. *** */
 DMLEAF tBulkDataProfileCSVEncodingParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"FieldSeparator", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_FieldSeparator, set_BulkDataProfileCSVEncoding_FieldSeparator, NULL, NULL, BBFDM_BOTH},
-{"RowSeparator", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_RowSeparator, set_BulkDataProfileCSVEncoding_RowSeparator, NULL, NULL, BBFDM_BOTH},
-{"EscapeCharacter", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_EscapeCharacter, set_BulkDataProfileCSVEncoding_EscapeCharacter, NULL, NULL, BBFDM_BOTH},
-{"ReportFormat", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_ReportFormat, set_BulkDataProfileCSVEncoding_ReportFormat, NULL, NULL, BBFDM_BOTH},
-{"RowTimestamp", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_RowTimestamp, set_BulkDataProfileCSVEncoding_RowTimestamp, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"FieldSeparator", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_FieldSeparator, set_BulkDataProfileCSVEncoding_FieldSeparator, BBFDM_BOTH},
+{"RowSeparator", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_RowSeparator, set_BulkDataProfileCSVEncoding_RowSeparator, BBFDM_BOTH},
+{"EscapeCharacter", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_EscapeCharacter, set_BulkDataProfileCSVEncoding_EscapeCharacter, BBFDM_BOTH},
+{"ReportFormat", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_ReportFormat, set_BulkDataProfileCSVEncoding_ReportFormat, BBFDM_BOTH},
+{"RowTimestamp", &DMWRITE, DMT_STRING, get_BulkDataProfileCSVEncoding_RowTimestamp, set_BulkDataProfileCSVEncoding_RowTimestamp, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.BulkData.Profile.{i}.JSONEncoding. *** */
 DMLEAF tBulkDataProfileJSONEncodingParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"ReportFormat", &DMWRITE, DMT_STRING, get_BulkDataProfileJSONEncoding_ReportFormat, set_BulkDataProfileJSONEncoding_ReportFormat, NULL, NULL, BBFDM_BOTH},
-{"ReportTimestamp", &DMWRITE, DMT_STRING, get_BulkDataProfileJSONEncoding_ReportTimestamp, set_BulkDataProfileJSONEncoding_ReportTimestamp, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"ReportFormat", &DMWRITE, DMT_STRING, get_BulkDataProfileJSONEncoding_ReportFormat, set_BulkDataProfileJSONEncoding_ReportFormat, BBFDM_BOTH},
+{"ReportTimestamp", &DMWRITE, DMT_STRING, get_BulkDataProfileJSONEncoding_ReportTimestamp, set_BulkDataProfileJSONEncoding_ReportTimestamp, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.BulkData.Profile.{i}.HTTP. *** */
 DMOBJ tBulkDataProfileHTTPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"RequestURIParameter", &DMWRITE, addObjBulkDataProfileHTTPRequestURIParameter, delObjBulkDataProfileHTTPRequestURIParameter, NULL, browseBulkDataProfileHTTPRequestURIParameterInst, NULL, NULL, NULL, NULL, tBulkDataProfileHTTPRequestURIParameterParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"RequestURIParameter", &DMWRITE, addObjBulkDataProfileHTTPRequestURIParameter, delObjBulkDataProfileHTTPRequestURIParameter, NULL, browseBulkDataProfileHTTPRequestURIParameterInst, NULL, NULL, tBulkDataProfileHTTPRequestURIParameterParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMLEAF tBulkDataProfileHTTPParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"URL", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_URL, set_BulkDataProfileHTTP_URL, NULL, NULL, BBFDM_BOTH},
-{"Username", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Username, set_BulkDataProfileHTTP_Username, NULL, NULL, BBFDM_BOTH},
-{"Password", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Password, set_BulkDataProfileHTTP_Password, NULL, NULL, BBFDM_BOTH},
-{"CompressionsSupported", &DMREAD, DMT_STRING, get_BulkDataProfileHTTP_CompressionsSupported, NULL, NULL, NULL, BBFDM_BOTH},
-{"Compression", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Compression, set_BulkDataProfileHTTP_Compression, NULL, NULL, BBFDM_BOTH},
-{"MethodsSupported", &DMREAD, DMT_STRING, get_BulkDataProfileHTTP_MethodsSupported, NULL, NULL, NULL, BBFDM_BOTH},
-{"Method", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Method, set_BulkDataProfileHTTP_Method, NULL, NULL, BBFDM_BOTH},
-{"UseDateHeader", &DMWRITE, DMT_BOOL, get_BulkDataProfileHTTP_UseDateHeader, set_BulkDataProfileHTTP_UseDateHeader, NULL, NULL, BBFDM_BOTH},
-{"RetryEnable", &DMWRITE, DMT_BOOL, get_BulkDataProfileHTTP_RetryEnable, set_BulkDataProfileHTTP_RetryEnable, NULL, NULL, BBFDM_BOTH},
-{"RetryMinimumWaitInterval", &DMWRITE, DMT_UNINT, get_BulkDataProfileHTTP_RetryMinimumWaitInterval, set_BulkDataProfileHTTP_RetryMinimumWaitInterval, NULL, NULL, BBFDM_BOTH},
-{"RetryIntervalMultiplier", &DMWRITE, DMT_UNINT, get_BulkDataProfileHTTP_RetryIntervalMultiplier, set_BulkDataProfileHTTP_RetryIntervalMultiplier, NULL, NULL, BBFDM_BOTH},
-{"RequestURIParameterNumberOfEntries", &DMREAD, DMT_UNINT, get_BulkDataProfileHTTP_RequestURIParameterNumberOfEntries, NULL, NULL, NULL, BBFDM_BOTH},
-{"PersistAcrossReboot", &DMWRITE, DMT_BOOL, get_BulkDataProfileHTTP_PersistAcrossReboot, set_BulkDataProfileHTTP_PersistAcrossReboot, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"URL", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_URL, set_BulkDataProfileHTTP_URL, BBFDM_BOTH},
+{"Username", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Username, set_BulkDataProfileHTTP_Username, BBFDM_BOTH},
+{"Password", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Password, set_BulkDataProfileHTTP_Password, BBFDM_BOTH},
+{"CompressionsSupported", &DMREAD, DMT_STRING, get_BulkDataProfileHTTP_CompressionsSupported, NULL, BBFDM_BOTH},
+{"Compression", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Compression, set_BulkDataProfileHTTP_Compression, BBFDM_BOTH},
+{"MethodsSupported", &DMREAD, DMT_STRING, get_BulkDataProfileHTTP_MethodsSupported, NULL, BBFDM_BOTH},
+{"Method", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTP_Method, set_BulkDataProfileHTTP_Method, BBFDM_BOTH},
+{"UseDateHeader", &DMWRITE, DMT_BOOL, get_BulkDataProfileHTTP_UseDateHeader, set_BulkDataProfileHTTP_UseDateHeader, BBFDM_BOTH},
+{"RetryEnable", &DMWRITE, DMT_BOOL, get_BulkDataProfileHTTP_RetryEnable, set_BulkDataProfileHTTP_RetryEnable, BBFDM_BOTH},
+{"RetryMinimumWaitInterval", &DMWRITE, DMT_UNINT, get_BulkDataProfileHTTP_RetryMinimumWaitInterval, set_BulkDataProfileHTTP_RetryMinimumWaitInterval, BBFDM_BOTH},
+{"RetryIntervalMultiplier", &DMWRITE, DMT_UNINT, get_BulkDataProfileHTTP_RetryIntervalMultiplier, set_BulkDataProfileHTTP_RetryIntervalMultiplier, BBFDM_BOTH},
+{"RequestURIParameterNumberOfEntries", &DMREAD, DMT_UNINT, get_BulkDataProfileHTTP_RequestURIParameterNumberOfEntries, NULL, BBFDM_BOTH},
+{"PersistAcrossReboot", &DMWRITE, DMT_BOOL, get_BulkDataProfileHTTP_PersistAcrossReboot, set_BulkDataProfileHTTP_PersistAcrossReboot, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.BulkData.Profile.{i}.HTTP.RequestURIParameter.{i}. *** */
 DMLEAF tBulkDataProfileHTTPRequestURIParameterParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Name", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTPRequestURIParameter_Name, set_BulkDataProfileHTTPRequestURIParameter_Name, NULL, NULL, BBFDM_BOTH},
-{"Reference", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTPRequestURIParameter_Reference, set_BulkDataProfileHTTPRequestURIParameter_Reference, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Name", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTPRequestURIParameter_Name, set_BulkDataProfileHTTPRequestURIParameter_Name, BBFDM_BOTH},
+{"Reference", &DMWRITE, DMT_STRING, get_BulkDataProfileHTTPRequestURIParameter_Reference, set_BulkDataProfileHTTPRequestURIParameter_Reference, BBFDM_BOTH},
 {0}
 };
 

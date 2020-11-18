@@ -290,20 +290,20 @@ static int browseIPInterfaceTWAMPReflectorInst(struct dmctx *dmctx, DMNODE *pare
 
 /* *** Device.IP.Interface. *** */
 DMOBJ tDeviceTWAMPReflectorObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"TWAMPReflector", &DMWRITE, addObjIPInterfaceTWAMPReflector, delObjIPInterfaceTWAMPReflector, NULL, browseIPInterfaceTWAMPReflectorInst, NULL, NULL, NULL, NULL, tIPInterfaceTWAMPReflectorParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Port", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"TWAMPReflector", &DMWRITE, addObjIPInterfaceTWAMPReflector, delObjIPInterfaceTWAMPReflector, NULL, browseIPInterfaceTWAMPReflectorInst, NULL, NULL, tIPInterfaceTWAMPReflectorParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Port", NULL}},
 {0}
 };
 
 /* *** Device.IP.Interface.{i}.TWAMPReflector.{i}. *** */
 DMLEAF tIPInterfaceTWAMPReflectorParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Enable", &DMWRITE, DMT_BOOL, get_IPInterfaceTWAMPReflector_Enable, set_IPInterfaceTWAMPReflector_Enable, NULL, NULL, BBFDM_BOTH},
-{"Status", &DMREAD, DMT_STRING, get_IPInterfaceTWAMPReflector_Status, NULL, NULL, NULL, BBFDM_BOTH},
-{"Alias", &DMWRITE, DMT_STRING, get_IPInterfaceTWAMPReflector_Alias, set_IPInterfaceTWAMPReflector_Alias, NULL, NULL, BBFDM_BOTH},
-{"Port", &DMWRITE, DMT_UNINT, get_IPInterfaceTWAMPReflector_Port, set_IPInterfaceTWAMPReflector_Port, NULL, NULL, BBFDM_BOTH},
-{"MaximumTTL", &DMWRITE, DMT_UNINT, get_IPInterfaceTWAMPReflector_MaximumTTL, set_IPInterfaceTWAMPReflector_MaximumTTL, NULL, NULL, BBFDM_BOTH},
-{"IPAllowedList", &DMWRITE, DMT_STRING, get_IPInterfaceTWAMPReflector_IPAllowedList, set_IPInterfaceTWAMPReflector_IPAllowedList, NULL, NULL, BBFDM_BOTH},
-{"PortAllowedList", &DMWRITE, DMT_STRING, get_IPInterfaceTWAMPReflector_PortAllowedList, set_IPInterfaceTWAMPReflector_PortAllowedList, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Enable", &DMWRITE, DMT_BOOL, get_IPInterfaceTWAMPReflector_Enable, set_IPInterfaceTWAMPReflector_Enable, BBFDM_BOTH},
+{"Status", &DMREAD, DMT_STRING, get_IPInterfaceTWAMPReflector_Status, NULL, BBFDM_BOTH},
+{"Alias", &DMWRITE, DMT_STRING, get_IPInterfaceTWAMPReflector_Alias, set_IPInterfaceTWAMPReflector_Alias, BBFDM_BOTH},
+{"Port", &DMWRITE, DMT_UNINT, get_IPInterfaceTWAMPReflector_Port, set_IPInterfaceTWAMPReflector_Port, BBFDM_BOTH},
+{"MaximumTTL", &DMWRITE, DMT_UNINT, get_IPInterfaceTWAMPReflector_MaximumTTL, set_IPInterfaceTWAMPReflector_MaximumTTL, BBFDM_BOTH},
+{"IPAllowedList", &DMWRITE, DMT_STRING, get_IPInterfaceTWAMPReflector_IPAllowedList, set_IPInterfaceTWAMPReflector_IPAllowedList, BBFDM_BOTH},
+{"PortAllowedList", &DMWRITE, DMT_STRING, get_IPInterfaceTWAMPReflector_PortAllowedList, set_IPInterfaceTWAMPReflector_PortAllowedList, BBFDM_BOTH},
 {0}
 };

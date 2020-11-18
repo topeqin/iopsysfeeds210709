@@ -590,58 +590,58 @@ static int browsexmpp_connection_serverInst(struct dmctx *dmctx, DMNODE *parent_
 
 /* *** Device.XMPP. *** */
 DMOBJ tDeviceXMPPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"XMPP", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tXMPPObj, tXMPPParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"XMPP", &DMREAD, NULL, NULL, NULL, NULL, NULL, tXMPPObj, tXMPPParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMOBJ tXMPPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, NULL, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Username", "Domain", "Resource", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Username", "Domain", "Resource", NULL}},
 {0}
 };
 
 DMLEAF tXMPPParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"ConnectionNumberOfEntries", &DMREAD, DMT_UNINT, get_xmpp_connection_nbr_entry, NULL, NULL, NULL, BBFDM_BOTH},
-{"SupportedServerConnectAlgorithms", &DMREAD, DMT_STRING, get_xmpp_connection_supported_server_connect_algorithms, NULL, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"ConnectionNumberOfEntries", &DMREAD, DMT_UNINT, get_xmpp_connection_nbr_entry, NULL, BBFDM_BOTH},
+{"SupportedServerConnectAlgorithms", &DMREAD, DMT_STRING, get_xmpp_connection_supported_server_connect_algorithms, NULL, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.XMPP.Connection.{i}. *** */
 DMOBJ tXMPPConnectionObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, forced_inform, notification, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "ServerAddress", "Port", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "ServerAddress", "Port", NULL}},
 {0}
 };
 
 DMLEAF tXMPPConnectionParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Enable", &DMWRITE, DMT_BOOL, get_connection_enable, set_connection_enable, NULL, NULL, BBFDM_BOTH},
-{"Alias", &DMWRITE, DMT_STRING, get_xmpp_connection_alias, set_xmpp_connection_alias, NULL, NULL, BBFDM_BOTH},
-{"Username", &DMWRITE, DMT_STRING, get_xmpp_connection_username, set_xmpp_connection_username, NULL, NULL, BBFDM_BOTH},
-{"Password", &DMWRITE, DMT_STRING, get_xmpp_connection_password, set_xmpp_connection_password, NULL, NULL, BBFDM_BOTH},
-{"Domain", &DMWRITE, DMT_STRING, get_xmpp_connection_domain, set_xmpp_connection_domain, NULL, NULL, BBFDM_BOTH},
-{"Resource", &DMWRITE, DMT_STRING, get_xmpp_connection_resource, set_xmpp_connection_resource, NULL, NULL, BBFDM_BOTH},
-{"ServerConnectAlgorithm", &DMWRITE, DMT_STRING, get_xmpp_connection_server_connect_algorithm, set_xmpp_connection_server_connect_algorithm, NULL, NULL, BBFDM_BOTH},
-{"KeepAliveInterval", &DMWRITE, DMT_LONG, get_xmpp_connection_keepalive_interval, set_xmpp_connection_keepalive_interval, NULL, NULL, BBFDM_BOTH},
-{"ServerConnectAttempts", &DMWRITE, DMT_UNINT, get_xmpp_connection_server_attempts, set_xmpp_connection_server_attempts, NULL, NULL, BBFDM_BOTH},
-{"ServerRetryInitialInterval", &DMWRITE, DMT_UNINT, get_xmpp_connection_retry_initial_interval, set_xmpp_connection_retry_initial_interval, NULL, NULL, BBFDM_BOTH},
-{"ServerRetryIntervalMultiplier", &DMWRITE, DMT_UNINT, get_xmpp_connection_retry_interval_multiplier, set_xmpp_connection_retry_interval_multiplier, NULL, NULL, BBFDM_BOTH},
-{"ServerRetryMaxInterval", &DMWRITE, DMT_UNINT, get_xmpp_connection_retry_max_interval, set_xmpp_connection_retry_max_interval, NULL, NULL, BBFDM_BOTH},
-{"UseTLS", &DMWRITE, DMT_BOOL, get_xmpp_connection_server_usetls, set_xmpp_connection_server_usetls, NULL, NULL, BBFDM_BOTH},
-{"JabberID", &DMREAD, DMT_STRING, get_xmpp_connection_jabber_id, NULL, NULL, NULL, BBFDM_BOTH},
-{"Status", &DMREAD, DMT_STRING, get_xmpp_connection_status, NULL, NULL, NULL, BBFDM_BOTH},
-{"ServerNumberOfEntries", &DMREAD, DMT_UNINT, get_xmpp_connection_server_number_of_entries, NULL, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Enable", &DMWRITE, DMT_BOOL, get_connection_enable, set_connection_enable, BBFDM_BOTH},
+{"Alias", &DMWRITE, DMT_STRING, get_xmpp_connection_alias, set_xmpp_connection_alias, BBFDM_BOTH},
+{"Username", &DMWRITE, DMT_STRING, get_xmpp_connection_username, set_xmpp_connection_username, BBFDM_BOTH},
+{"Password", &DMWRITE, DMT_STRING, get_xmpp_connection_password, set_xmpp_connection_password, BBFDM_BOTH},
+{"Domain", &DMWRITE, DMT_STRING, get_xmpp_connection_domain, set_xmpp_connection_domain, BBFDM_BOTH},
+{"Resource", &DMWRITE, DMT_STRING, get_xmpp_connection_resource, set_xmpp_connection_resource, BBFDM_BOTH},
+{"ServerConnectAlgorithm", &DMWRITE, DMT_STRING, get_xmpp_connection_server_connect_algorithm, set_xmpp_connection_server_connect_algorithm, BBFDM_BOTH},
+{"KeepAliveInterval", &DMWRITE, DMT_LONG, get_xmpp_connection_keepalive_interval, set_xmpp_connection_keepalive_interval, BBFDM_BOTH},
+{"ServerConnectAttempts", &DMWRITE, DMT_UNINT, get_xmpp_connection_server_attempts, set_xmpp_connection_server_attempts, BBFDM_BOTH},
+{"ServerRetryInitialInterval", &DMWRITE, DMT_UNINT, get_xmpp_connection_retry_initial_interval, set_xmpp_connection_retry_initial_interval, BBFDM_BOTH},
+{"ServerRetryIntervalMultiplier", &DMWRITE, DMT_UNINT, get_xmpp_connection_retry_interval_multiplier, set_xmpp_connection_retry_interval_multiplier, BBFDM_BOTH},
+{"ServerRetryMaxInterval", &DMWRITE, DMT_UNINT, get_xmpp_connection_retry_max_interval, set_xmpp_connection_retry_max_interval, BBFDM_BOTH},
+{"UseTLS", &DMWRITE, DMT_BOOL, get_xmpp_connection_server_usetls, set_xmpp_connection_server_usetls, BBFDM_BOTH},
+{"JabberID", &DMREAD, DMT_STRING, get_xmpp_connection_jabber_id, NULL, BBFDM_BOTH},
+{"Status", &DMREAD, DMT_STRING, get_xmpp_connection_status, NULL, BBFDM_BOTH},
+{"ServerNumberOfEntries", &DMREAD, DMT_UNINT, get_xmpp_connection_server_number_of_entries, NULL, BBFDM_BOTH},
 {0}
 };
 
 /* *** Device.XMPP.Connection.{i}.Server.{i}. *** */
 DMLEAF tXMPPConnectionServerParams[] = {
-/* PARAM, permission, type, getvalue, setvalue, forced_inform, notification, bbfdm_type*/
-{"Enable", &DMWRITE, DMT_BOOL, get_xmpp_connection_server_enable, set_xmpp_connection_server_enable, NULL, NULL, BBFDM_BOTH},
-{"Alias", &DMWRITE, DMT_STRING, get_xmpp_connection_server_alias, set_xmpp_connection_server_alias, NULL, NULL, BBFDM_BOTH},
-{"ServerAddress", &DMWRITE, DMT_STRING, get_xmpp_connection_server_server_address, set_xmpp_connection_server_server_address, NULL, NULL, BBFDM_BOTH},
-{"Port", &DMWRITE, DMT_UNINT, get_xmpp_connection_server_port, set_xmpp_connection_server_port, NULL, NULL, BBFDM_BOTH},
+/* PARAM, permission, type, getvalue, setvalue, bbfdm_type*/
+{"Enable", &DMWRITE, DMT_BOOL, get_xmpp_connection_server_enable, set_xmpp_connection_server_enable, BBFDM_BOTH},
+{"Alias", &DMWRITE, DMT_STRING, get_xmpp_connection_server_alias, set_xmpp_connection_server_alias, BBFDM_BOTH},
+{"ServerAddress", &DMWRITE, DMT_STRING, get_xmpp_connection_server_server_address, set_xmpp_connection_server_server_address, BBFDM_BOTH},
+{"Port", &DMWRITE, DMT_UNINT, get_xmpp_connection_server_port, set_xmpp_connection_server_port, BBFDM_BOTH},
 {0}
 };
