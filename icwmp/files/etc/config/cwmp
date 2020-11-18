@@ -45,3 +45,20 @@ config lwn 'lwn'
 	option enable '1'
 	option hostname ''
 	option port '0'
+
+config inform_forced
+	list parameter 'Device.DeviceInfo.ProvisioningCode'
+	list parameter 'Device.DeviceInfo.HardwareVersion'
+	list parameter 'Device.DeviceInfo.SoftwareVersion'
+	list parameter 'Device.ManagementServer.ConnectionRequestURL'
+	list parameter 'Device.ManagementServer.ParameterKey'
+	list parameter 'Device.ManagementServer.AliasBasedAddressing'
+	list parameter 'Device.RootDataModelVersion'
+    
+config forced_notifications
+	list active 'Device.DeviceInfo.SoftwareVersion'
+	list active 'Device.DeviceInfo.ProvisioningCode'
+	list active 'Device.ManagementServer.ConnectionRequestURL'
+	list active 'Device.ManagementServer.ConnReqJabberID'
+	list active 'Device.SoftwareModules.ExecutionUnit.*.Status'
+	
