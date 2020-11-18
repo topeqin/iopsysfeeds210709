@@ -19,20 +19,10 @@ function taas-init() {
 	fi
 
 	if ! which taas-smoketest >/dev/null; then
-		echo "Error; missing command \"taas-smoketest\". Install it with:"
+		echo "Error; TaaS is missing! Install it with:"
 		echo "git clone git@dev.iopsys.eu:iopsys/iopsys-taas.git ../iopsys-taas"
 		exit 1
 	fi
-
-	# Prerequisites?
-	for app in expect socat timeout stdbuf bash env head strings \
-			tee cut tr grep curl ssh trickle; do
-		if ! which $app >/dev/null; then
-			echo "Error; missing command \"$app\""
-			echo "Install it from your Linux distro!"
-			exit 1
-		fi
-	done
 }
 
 
