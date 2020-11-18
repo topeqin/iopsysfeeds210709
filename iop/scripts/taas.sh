@@ -45,7 +45,7 @@ function taas-smoketest {
 			smarthub3)
 				product="SmartHub3a"
 				;;
-			dg400prime|eg400)
+			dg400prime|eg400|ex600)
 				product=$(echo -n "$product" | tr [[:lower:]] [[:upper:]])
 				;;
 			*)
