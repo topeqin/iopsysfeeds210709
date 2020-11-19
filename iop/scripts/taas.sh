@@ -7,6 +7,8 @@
 
 #--------------------------------------------------------------
 function taas-init() {
+	local f
+
 	# Path to TaaS binarys. Try some likely ones.
 	if ! which taas-smoketest >/dev/null; then
 		PATH="${PATH}:${PWD}/../iopsys-taas/bin"
@@ -23,49 +25,71 @@ function taas-init() {
 		echo "git clone git@dev.iopsys.eu:iopsys/iopsys-taas.git ../iopsys-taas"
 		exit 1
 	fi
+
+	# NAND erase block size.
+	nandBlkSz=$(grep CONFIG_TARGET_NAND_BLOCKSZ .config | \
+		tr -s "=\"" " " | cut -d " " -f 2)
+	nandBlkSz=$((nandBlkSz / 1024))
+
+	# Create a list of all images which might be of use.
+	for f in ${PWD}/bin/targets/iopsys-*/generic/last.* \
+			${PWD}/build_dir/target-arm*/bcmkernel/bcm963xx/targets/9*/bcm*_linux_raw_image_${nandBlkSz}.bin; do
+		[[ -s "$f" ]] && images+=("$f")
+	done
+
+	# Convert Iopsys target name to the TaaS product name format
+	# according to what is available in the remote lab for HIL.
+	# Also find a suitable image.
+	product=$(grep CONFIG_TARGET_PROFILE .config | \
+		tr -s "=\"" " " | cut -d " " -f 2) || exit
+	case "$product" in
+		smarthub3)
+			export product="SmartHub3a"
+			;;
+		dg400prime|eg400|ex600)
+			export product=$(echo -n "$product" | tr [[:lower:]] [[:upper:]])
+			;;
+		*)
+			echo "Unsupported target; skipping!"
+			exit 0
+			;;
+	esac
+
+	if [[ ${#images[@]} -eq 0 ]]; then
+		echo "No image found"
+		exit 1
+	fi
 }
 
 
 
 #--------------------------------------------------------------
 function taas-smoketest {
-	local image app
+	declare -a images
 
 	taas-init || return
-
-	# Find the default latest image (.y3 or FIT).
-	for image in bin/targets/iopsys-*/generic/last.y3 \
-			bin/targets/iopsys-*/generic/last.pkgtb; do
-		[ -s "$image" ] || continue
-
-		# Convert Iopsys target name to the TaaS product name format.
-		product=$(grep CONFIG_TARGET_PROFILE .config | \
-			tr -s "=\"" " " | cut -d " " -f 2)
-		case "$product" in
-			smarthub3)
-				product="SmartHub3a"
-				;;
-			dg400prime|eg400|ex600)
-				product=$(echo -n "$product" | tr [[:lower:]] [[:upper:]])
-				;;
-			*)
-				product=""
-				;;
-		esac
-
-		if [ -n "$product" ]; then
-			command taas-smoketest "$image" "$product" || exit
-			echo "Smoketest OK"
-		else
-			echo "Unsupported target; skipping smoketest."
-		fi
-
-		exit 0
-	done
-
-	echo "No image found"
-	exit 1
+	echo "Testing a $product with ${images[@]}..."
+	command taas-smoketest "${images[@]}" "$product" "$@"
 }
 
-register_command "taas-smoketest" "Write image to a device in the lab and check if it boots up."
+
+
+#--------------------------------------------------------------
+function taas-bootstrap {
+	declare -a images
+
+	if [[ -n "$1" ]]; then
+		taas-init || return
+		echo "Flashing $1..."
+		command taas-bootstrap "${images[@]}" "$@"
+	else
+		echo "Usage: ./iop taas-bootstrap dutX"
+		exit 1
+	fi
+}
+
+
+
+register_command "taas-bootstrap" "Write image to a remote lab device."
+register_command "taas-smoketest" "Write image to a remote lab device and test it."
 
