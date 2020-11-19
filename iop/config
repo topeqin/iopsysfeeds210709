@@ -194,7 +194,7 @@ CONFIG_OPENVPN_openssl_ENABLE_IPROUTE2=y
 CONFIG_KERNEL_DEVTMPFS=y
 CONFIG_KERNEL_DEVTMPFS_MOUNT=y
 # CONFIG_BUSYBOX_CONFIG_IP is not set
-CONFIG_LOCALMIRROR="http://download.iopsys.eu/iopsys/mirror/"
+CONFIG_LOCALMIRROR="https://download.iopsys.eu/iopsys/mirror/"
 
 # Generation of /etc/banner.
 CONFIG_IMAGEOPT=y
