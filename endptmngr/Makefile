@@ -15,7 +15,7 @@ PKG_LICENSE_FILES:=LICENSE
 ifeq ($(CONFIG_ENDPT_OPEN),y)
 BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
 PKG_SOURCE:=endptmngr-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=http://download.iopsys.eu/iopsys/opensdk/
+PKG_SOURCE_URL:=https://download.iopsys.eu/iopsys/opensdk/
 PKG_NAME:=endptmngr-open
 PATCH_DIR:=
 PKG_HASH:=skip
