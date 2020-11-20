@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dslmngr
-PKG_VERSION:=1.0.2
+PKG_VERSION:=1.1.0
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
