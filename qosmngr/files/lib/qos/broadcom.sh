@@ -6,27 +6,141 @@ BR_RULE=""
 
 POLICER_SKIP=0
 POLICER_COUNT=0
+INTF_NAME=""
+Q_COUNT=0
+ITER=0
+PREV_ORDER=""
+CURR_ORDER=""
+MAX_ORDER=""
 
-#function to handle a queue section
-handle_queue() {
+# Function to handle a queue order and
+# update total number of queues
+handle_q_order() {
 	qid="$1" #queue section ID
 
 	config_get is_enable "$qid" "enable"
 
-	#no need to configure disabled queues
+	# No need to configure disabled queues
 	if [ $is_enable == '0' ]; then
 		return
 	fi
 
 	config_get ifname "$qid" "ifname"
-	#if ifname is empty that is good enough to break
+	# If ifname is empty that is good enough to break
 	if [ -z "$ifname" ];then
 		return
 	fi
 
+	# Create precedence file containing queue order per
+	# interface.
+	local precedence_file="/tmp/qos/$ifname/q_order"
 	local q_no=$(cat /tmp/qos/queue_stats/$ifname/q_idx)
-	#lower the value, lower the priority of queue on this chip
-	config_get order "$qid" "precedence"
+
+	config_get precedence "$qid" "precedence"
+	value=${precedence}_q${q_no}
+	echo $value >> $precedence_file
+
+	# Update the number of queues per interface.
+	q_no=$((q_no + 1))
+	echo $q_no > /tmp/qos/queue_stats/$ifname/q_idx
+}
+
+# Function to check if values are greater than (total number
+# of queue -1) and map them to corresponding value.
+configure_precedence_to_file() {
+	order="$1"
+	line="$2"
+	order_file="$3"
+
+	if [ $order == $PREV_ORDER ]; then
+		queue_id=${line#*_}
+		val=${CURR_ORDER}_${queue_id}
+		echo $val >> $order_file
+	else
+		PREV_ORDER=$order
+		queue_id=${line#*_}
+		val=${MAX_ORDER}_${queue_id}
+		echo $val >> $order_file
+		CURR_ORDER=$MAX_ORDER
+		MAX_ORDER=$((MAX_ORDER - 1))
+	fi
+}
+
+# Fucntion to map queue precedence per interface
+# ranging from 1-X to 0-(no of queues -1)
+map_queue_precedence() {
+	ifname="$1"
+	total_q=$(cat /tmp/qos/queue_stats/$ifname/q_idx)
+	q_no=`expr $total_q - 1`
+
+	MAX_ORDER=$q_no
+
+	local precedence_file="/tmp/qos/$ifname/q_precedence"
+	local order_file="/tmp/qos/$ifname/q_order"
+
+	sort -n -r -k1 $order_file >> $precedence_file
+	rm $order_file
+
+	while read line
+	do
+		order=${line%_*}
+		if [ $order  -gt $q_no ]; then
+			ITER=$((ITER + 1))
+			configure_precedence_to_file $order $line $order_file
+		else
+			if [ $ITER == '0' ]; then
+				echo $line >> $order_file
+			else
+				configure_precedence_to_file $order $line $order_file
+			fi
+		fi
+
+	done < $precedence_file
+}
+
+map_precedence() {
+	for interf in $(db -q get hw.board.ethernetPortOrder); do
+		map_queue_precedence $interf
+	done
+}
+
+# function to handle a queue section
+handle_queue() {
+	qid="$1" #queue section ID
+
+	config_get is_enable "$qid" "enable"
+
+	# no need to configure disabled queues
+	if [ $is_enable == '0' ]; then
+		return
+	fi
+
+	config_get ifname "$qid" "ifname"
+	# if ifname is empty that is good enough to break
+	if [ -z "$ifname" ];then
+		return
+	fi
+
+	# This is to get the qid per interface.
+	if [ $INTF_NAME == $ifname ]; then
+		Q_COUNT=$((Q_COUNT + 1))
+	else
+		Q_COUNT='0'
+	fi
+
+	INTF_NAME=$ifname
+
+	local total_q=$(cat /tmp/qos/queue_stats/$ifname/q_idx)
+	q_no=`expr $total_q - 1` local
+	precedence_file="/tmp/qos/$ifname/q_order"
+
+	# TR181 suggests lower the precedence value higher the priority
+	# but in the chip its the opposite ie lower the value, lower
+	# the priority of queue on this chip. So we need to reverse the
+	# precedence value.
+	precedence="$(grep -i q${Q_COUNT} $precedence_file)"
+	precedence=${precedence%_*}
+	order=`expr $q_no - $precedence`
 
 	config_get sc_alg "$qid" "scheduling"
 	config_get wgt "$qid" "weight"
@@ -48,7 +162,7 @@ handle_queue() {
 	esac
 
 	# Call tmctl which is a broadcomm command to configure queues on a port.
-	tmctl setqcfg --devtype 0 --if $ifname --qid $q_no --priority $order --qsize $qsize --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
+	tmctl setqcfg --devtype 0 --if $ifname --qid $Q_COUNT --priority $order --qsize $qsize --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
 
 	# In BCM968 chips, the counters for queues are read, on other model, its read and reset. So, to maintain counter
 	# value and uniform behaviour, we are storing counter value for each queue in files
@@ -67,8 +181,6 @@ handle_queue() {
 	touch $f_name
 	echo 0 > $f_name
 
-	q_no=$((q_no + 1))
-	echo $q_no > /tmp/qos/queue_stats/$ifname/q_idx
 }
 
 #function to handle a policer section
@@ -696,6 +808,8 @@ configure_queue() {
 
 	# Load UCI file
 	config_load qos
+	config_foreach handle_q_order queue
+	map_precedence
 	config_foreach handle_queue queue
 }
 

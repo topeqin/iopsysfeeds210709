@@ -24,12 +24,14 @@ generate_queue(){
 	fi
 
 	i=0
+	local total_q=${no_of_q##* }
         for i in $no_of_q; do
+		order=$((total_q - i))
 		uci add qos queue
 		uci rename qos.@queue[-1]="q_${i}_${ifname}"
 		uci set qos.@queue[-1].enable="1"
 		uci set qos.@queue[-1].ifname="$ifname"
-		uci set qos.@queue[-1].precedence="$i"
+		uci set qos.@queue[-1].precedence="$order"
 		uci set qos.@queue[-1].scheduling="SP"
 		uci set qos.@queue[-1].rate="0"
 		uci set qos.@queue[-1].burst_size="0"
