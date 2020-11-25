@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=2.1.30
+PKG_VERSION:=2.1.31
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=ffe3e24e3d8423f0ec0064eb1975c9d01035f0b9
+PKG_SOURCE_VERSION:=205356476e0664261ec6756ddcb35d0cfffb6db9
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -40,11 +40,21 @@ define Package/libieee1905
   TITLE:=IEEE1905 cmdu tlv utility library
 endef
 
+define Package/libwsc
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=Wifi Simple Configuration building and processing library
+  DEPENDS= +libopenssl +libuci +libubus
+endef
+
 define Package/lib1905hle
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 hle stack library
 endef
+
+LIBS := \
+	$(if $(CONFIG_PACKAGE_libwsc),libwsc.so)
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
@@ -52,6 +62,9 @@ TARGET_CFLAGS += \
 	-fstrict-aliasing \
 	-Wall \
 	-Wextra
+
+MAKE_FLAGS += \
+	LIBS="$(LIBS)"
 
 ifeq ($(CONFIG_IEEE1905_SPEED_UP_DISCOVERY),y)
 TARGET_CFLAGS += -DSPEED_UP_DISCOVERY
@@ -97,6 +110,18 @@ define Package/libieee1905/install
 	$(CP) $(PKG_BUILD_DIR)/lib/libieee1905.so $(1)/usr/lib/libieee1905.so
 endef
 
+define Package/libwsc/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/lib/libwsc.so $(1)/usr/lib/libwsc.so
+endef
+
+define Build/InstallDev/libwsc.so
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libwsc/include/wsc.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/lib/libwsc.so $(1)/usr/lib/
+endef
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/include/ieee1905
@@ -107,8 +132,10 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/lib1905hle/include/*.h $(1)/usr/include/lib1905hle/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/libieee1905.so $(1)/usr/lib
+	$(foreach lib,$(LIBS),$(call Build/InstallDev/$(lib),$(1),$(2));)
 endef
 
 $(eval $(call BuildPackage,libieee1905))
 $(eval $(call BuildPackage,lib1905hle))
+$(eval $(call BuildPackage,libwsc))
 $(eval $(call BuildPackage,ieee1905))
