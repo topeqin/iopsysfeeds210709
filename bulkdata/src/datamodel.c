@@ -112,13 +112,13 @@ static int browseBulkDataProfileHTTPRequestURIParameterInst(struct dmctx *dmctx,
 static int addObjBulkDataProfile(char *refparam, struct dmctx *ctx, void *data, char **instance)
 {
 	struct uci_section *profile, *dmmap_bulkdata;
-	char prof_id[16], *last_inst = NULL, *value, *v;
+	char prof_id[16], *last_inst = NULL;
 
 	check_create_dmmap_package("dmmap_bulkdata");
 	last_inst = get_last_instance_bbfdm("dmmap_bulkdata", "profile", "profile_instance");
 	snprintf(prof_id, sizeof(prof_id), "%d", last_inst ? atoi(last_inst)+1 : 1);
 
-	dmuci_add_section("bulkdata", "profile", &profile, &value);
+	dmuci_add_section("bulkdata", "profile", &profile);
 	dmuci_set_value_by_section(profile, "profile_id", prof_id);
 	dmuci_set_value_by_section(profile, "enable", "0");
 	dmuci_set_value_by_section(profile, "nbre_of_retained_failed_reports", "0");
@@ -139,7 +139,7 @@ static int addObjBulkDataProfile(char *refparam, struct dmctx *ctx, void *data, 
 	dmuci_set_value_by_section(profile, "http_retry_minimum_wait_interval", "5");
 	dmuci_set_value_by_section(profile, "http_persist_across_reboot", "0");
 
-	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile", &dmmap_bulkdata, &v);
+	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile", &dmmap_bulkdata);
 	dmuci_set_value_by_section(dmmap_bulkdata, "section_name", section_name(profile));
 	*instance = update_instance(last_inst, 4, dmmap_bulkdata, "profile_instance", "dmmap_bulkdata", "profile");
 
@@ -221,20 +221,20 @@ static int delObjBulkDataProfile(char *refparam, struct dmctx *ctx, void *data, 
 static int addObjBulkDataProfileParameter(char *refparam, struct dmctx *ctx, void *data, char **instance)
 {
 	struct uci_section *profile_parameter, *dmmap_bulkdata;
-	char *value, *last_inst, *prev_profile_id, *v;
+	char *last_inst, *prev_profile_id;
 	struct browse_args browse_args = {0};
 
 	dmuci_get_value_by_section_string((struct uci_section *)data, "profile_id", &prev_profile_id);
 
 	last_inst = get_last_instance_lev2_bbfdm_dmmap_opt("dmmap_bulkdata", "profile_parameter", "parameter_instance", "profile_id", prev_profile_id);
 
-	dmuci_add_section("bulkdata", "profile_parameter", &profile_parameter, &value);
+	dmuci_add_section("bulkdata", "profile_parameter", &profile_parameter);
 	dmuci_set_value_by_section(profile_parameter, "profile_id", prev_profile_id);
 
 	browse_args.option = "profile_id";
 	browse_args.value = prev_profile_id;
 
-	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile_parameter", &dmmap_bulkdata, &v);
+	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile_parameter", &dmmap_bulkdata);
 	dmuci_set_value_by_section(dmmap_bulkdata, "section_name", section_name(profile_parameter));
 	dmuci_set_value_by_section(dmmap_bulkdata, "profile_id", prev_profile_id);
 
@@ -275,20 +275,20 @@ static int delObjBulkDataProfileParameter(char *refparam, struct dmctx *ctx, voi
 static int addObjBulkDataProfileHTTPRequestURIParameter(char *refparam, struct dmctx *ctx, void *data, char **instance)
 {
 	struct uci_section *profile_http_request_uri_parameter, *dmmap_bulkdata;
-	char *value, *last_inst, *prev_profile_id, *v;
+	char *last_inst, *prev_profile_id;
 	struct browse_args browse_args = {0};
 
 	dmuci_get_value_by_section_string((struct uci_section *)data, "profile_id", &prev_profile_id);
 
 	last_inst = get_last_instance_lev2_bbfdm_dmmap_opt("dmmap_bulkdata", "profile_http_request_uri_parameter", "requesturiparameter_instance", "profile_id", prev_profile_id);
 
-	dmuci_add_section("bulkdata", "profile_http_request_uri_parameter", &profile_http_request_uri_parameter, &value);
+	dmuci_add_section("bulkdata", "profile_http_request_uri_parameter", &profile_http_request_uri_parameter);
 	dmuci_set_value_by_section(profile_http_request_uri_parameter, "profile_id", prev_profile_id);
 
 	browse_args.option = "profile_id";
 	browse_args.value = prev_profile_id;
 
-	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile_http_request_uri_parameter", &dmmap_bulkdata, &v);
+	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile_http_request_uri_parameter", &dmmap_bulkdata);
 	dmuci_set_value_by_section(dmmap_bulkdata, "section_name", section_name(profile_http_request_uri_parameter));
 	dmuci_set_value_by_section(dmmap_bulkdata, "profile_id", prev_profile_id);
 
