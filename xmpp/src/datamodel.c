@@ -25,30 +25,29 @@ LIB_MAP_OBJ tRootDynamicObj[] = {
 
 static int add_xmpp_connection(char *refparam, struct dmctx *ctx, void *data, char **instance)
 {
-	struct uci_section *xmpp_con, *xmpp_con_srv, *dmmap_xmpp;
-	char *con_name, *con_srv_name, *last_inst, *v, *id;
+	struct uci_section *xmpp_con = NULL, *xmpp_con_srv = NULL, *dmmap_xmpp = NULL;
+	char id[16];
 
-	check_create_dmmap_package("dmmap_xmpp");
-	last_inst = get_last_instance_bbfdm("dmmap_xmpp", "connection", "con_inst");
-	dmasprintf(&id, "%d", (last_inst) ? atoi(last_inst) + 1 : 1);
+	char *last_inst = get_last_instance_bbfdm("dmmap_xmpp", "connection", "con_inst");
+	snprintf(id, sizeof(id), "%d", (last_inst) ? atoi(last_inst) + 1 : 1);
 
-	dmuci_add_section("xmpp", "connection", &xmpp_con, &con_name);
+	dmuci_add_section("xmpp", "connection", &xmpp_con);
 	dmuci_set_value_by_section(xmpp_con, "xmpp_id", id);
 	dmuci_set_value_by_section(xmpp_con, "enable", "0");
 	dmuci_set_value_by_section(xmpp_con, "interval", "30");
 	dmuci_set_value_by_section(xmpp_con, "attempt", "16");
 	dmuci_set_value_by_section(xmpp_con, "serveralgorithm", "DNS-SRV");
 
-	dmuci_add_section("xmpp", "connection_server", &xmpp_con_srv, &con_srv_name);
+	dmuci_add_section("xmpp", "connection_server", &xmpp_con_srv);
 	dmuci_set_value_by_section(xmpp_con_srv, "con_id", id);
 	dmuci_set_value_by_section(xmpp_con_srv, "enable", "0");
 	dmuci_set_value_by_section(xmpp_con_srv, "port", "5222");
 
-	dmuci_add_section_bbfdm("dmmap_xmpp", "connection_server", &dmmap_xmpp, &v);
+	dmuci_add_section_bbfdm("dmmap_xmpp", "connection_server", &dmmap_xmpp);
 	dmuci_set_value_by_section(dmmap_xmpp, "section_name", section_name(xmpp_con_srv));
 	dmuci_set_value_by_section(dmmap_xmpp, "con_srv_inst", "1");
 
-	dmuci_add_section_bbfdm("dmmap_xmpp", "connection", &dmmap_xmpp, &v);
+	dmuci_add_section_bbfdm("dmmap_xmpp", "connection", &dmmap_xmpp);
 	dmuci_set_value_by_section(dmmap_xmpp, "section_name", section_name(xmpp_con));
 	*instance = update_instance(last_inst, 4, dmmap_xmpp, "con_inst", "dmmap_xmpp", "connection");
 	return 0;

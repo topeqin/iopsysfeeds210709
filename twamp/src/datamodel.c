@@ -55,13 +55,13 @@ struct ip_args
 
 static int addObjIPInterfaceTWAMPReflector(char *refparam, struct dmctx *ctx, void *data, char **instance)
 {
-	struct uci_section *connection;
-	char *value1, *last_inst, *id;
+	struct uci_section *connection = NULL;
 
-	last_inst = get_last_instance_with_option("twamp", "twamp_reflector", "interface", section_name(((struct ip_args *)data)->ip_sec), "twamp_inst");
-	id = get_last_id("twamp", "twamp_reflector");
-	dmuci_add_section("twamp", "twamp_reflector", &connection, &value1);
-	dmasprintf(instance, "%d", last_inst?atoi(last_inst)+1:1);
+	char *last_inst = get_last_instance_with_option("twamp", "twamp_reflector", "interface", section_name(((struct ip_args *)data)->ip_sec), "twamp_inst");
+	char *id = get_last_id("twamp", "twamp_reflector");
+
+	dmuci_add_section("twamp", "twamp_reflector", &connection);
+	dmasprintf(instance, "%d", last_inst ? atoi(last_inst)+1 : 1);
 	dmuci_set_value_by_section(connection, "twamp_inst", *instance);
 	dmuci_set_value_by_section(connection, "id", id);
 	dmuci_set_value_by_section(connection, "enable", "0");

@@ -114,7 +114,6 @@ static int addObjBulkDataProfile(char *refparam, struct dmctx *ctx, void *data, 
 	struct uci_section *profile, *dmmap_bulkdata;
 	char prof_id[16], *last_inst = NULL;
 
-	check_create_dmmap_package("dmmap_bulkdata");
 	last_inst = get_last_instance_bbfdm("dmmap_bulkdata", "profile", "profile_instance");
 	snprintf(prof_id, sizeof(prof_id), "%d", last_inst ? atoi(last_inst)+1 : 1);
 
