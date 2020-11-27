@@ -93,6 +93,7 @@ CONFIG_PACKAGE_tc=y
 CONFIG_PACKAGE_tcpdump=y
 CONFIG_PACKAGE_terminfo=y
 CONFIG_PACKAGE_traceroute6=y
+CONFIG_PACKAGE_uledd=y
 CONFIG_PACKAGE_umbim=y
 CONFIG_PACKAGE_uqmi=y
 CONFIG_PACKAGE_usb-modeswitch=y
