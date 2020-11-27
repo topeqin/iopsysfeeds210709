@@ -4,12 +4,14 @@ START=99
 USE_PROCD=1
 
 PROG=/usr/sbin/obuspa
-l3device=""
-certificate=""
 PARAM_FILE="/tmp/obuspa_param_reset.txt"
-conn_num=1
-mtp_num=1
-stomp_num=1
+CONFIGURATION=obuspa
+KEEP_FILES="/lib/upgrade/keep.d/obuspa"
+controller_num=0
+mtp_num=0
+stomp_num=0
+mqtt_num=0
+subs_num=0
 
 log() {
 	echo "${@}"|logger -t obuspa -p debug
@@ -25,50 +27,76 @@ db_set() {
 
 validate_obuspa_section()
 {
-	uci_validate_section obuspa obuspa "${1}" \
-		'enable:bool:true' \
+	uci_validate_section ${CONFIGURATION} obuspa "${1}" \
+		'enabled:bool:true' \
 		'cert:string:"/etc/obuspa/rootCA.pem"' \
-		'interface:string:wan' \
+		'ifname:string:"br-lan"' \
 		'debug:bool:false' \
 		'log_level:uinteger:2' \
-		'log_dest:string:stdout'
+		'log_dest:string:stdout' \
+		'db_file:string:"/tmp/usp.db"'
+}
+
+validate_localagent_section()
+{
+	uci_validate_section ${CONFIGURATION} localagent "${1}" \
+		'boot_enable:bool:true' \
+		'boot_param_name:string:"Device.DeviceInfo.SoftwareVersion"' \
+		'endpoint:string'
 }
 
 validate_controller_section()
 {
-	uci_validate_section obuspa controller "${1}" \
+	uci_validate_section ${CONFIGURATION} controller "${1}" \
 		'endpointid:string:"self:usp-controller.com"' \
-		'enable:bool:true' \
-		'AssignedRole:uinteger:1' \
+		'enabled:bool:true' \
+		'AssignedRole:string:"Device.LocalAgent.ControllerTrust.Role.1"' \
 		'PeriodicNotifInterval:uinteger:86400' \
 		'PeriodicNotifTime:string:"0001-01-01T00:00:00Z"' \
-		'USPRetryMinimumWaitInterval:uinteger:5' \
-		'USPRetryIntervalMultiplier:uinteger:2000' \
+		'USPNotifRetryMinimumWaitInterval:uinteger:5' \
+		'USPNotifRetryIntervalMultiplier:uinteger:2000' \
 		'ControllerCode:string' \
-		'protocol:or("STOMP","CoAP")' \
+		'protocol:or("STOMP","CoAP","MQTT")' \
+		'reference:string' \
+		'destination:string' \
+		'topic:string' \
 		'CoAPHost:string' \
 		'CoAPPath:string' \
 		'CoAPPort:uinteger'
 }
 
+validate_subscription_section()
+{
+	uci_validate_section ${CONFIGURATION} subscription "${1}" \
+		'enabled:bool:true' \
+		'id:string' \
+		'NotifType:string' \
+		'ReferenceList:string' \
+		'Persistent:bool:true' \
+		'Recipient:string'
+}
+
 validate_mtp_section()
 {
-	uci_validate_section obuspa mtp "${1}" \
-		'enable:bool:true' \
-		'protocol:or("STOMP","CoAP")' \
+	uci_validate_section ${CONFIGURATION} mtp "${1}" \
+		'enabled:bool:true' \
+		'protocol:or("STOMP","CoAP","MQTT")' \
+		'reference:string' \
+		'responsetopicconfigured:string' \
+		'publishqos:uinteger' \
 		'destination:string' \
 		'CoAPPath:string' \
 		'CoAPPort:uinteger'
 }
 
-validate_connection_section()
+validate_stomp_connection_section()
 {
-	uci_validate_section obuspa connection "${1}" \
+	uci_validate_section ${CONFIGURATION} stompconnection "${1}" \
 		'host:string:"usp-controller.com"' \
 		'username:string:""' \
 		'password:string:""' \
 		'encryption:bool:true' \
-		'enable:bool:true' \
+		'enabled:bool:true' \
 		'port:uinteger:61613' \
 		'virtualhost:string:"/"' \
 		'EnableHeartbeats:bool:true' \
@@ -79,79 +107,179 @@ validate_connection_section()
 		'ServerRetryMaxInterval:uinteger:30720'
 }
 
+validate_mqtt_client_section()
+{
+	uci_validate_section ${CONFIGURATION} mqttclient "${1}" \
+		'brokeraddress:string:127.0.0.1' \
+		'brokerport:uinteger:1883' \
+		'enabled:bool:true' \
+		'username:string' \
+		'password:string' \
+		'protocolversion:string:5.0' \
+		'keepalivetime:uinteger:60' \
+		'SessionExpiryInterval:uinteger:600' \
+		'ReceiveMaximum:uinteger:10' \
+		'MaximumPacketSize:uinteger:10000' \
+		'TopicAliasMaximum:uinteger:10' \
+		'WillEnable:bool:false' \
+		'WillQoS:uinteger:0' \
+		'WillDelayInterval:uinteger:10' \
+		'WillMessageExpiryInterval:uinteger:10' \
+		'WillContentType:uinteger:10' \
+		'WillResponseTopic:uinteger:10' \
+		'WillTopic:uinteger:10' \
+		'WillValue:uinteger:10' \
+		'clientid:string'
+}
+
+configure_localagent() {
+	local boot_enable boot_param_name endpoint
+	local _num
+
+	validate_localagent_section 'localagent' || {
+		log "Validation of section failed"
+		return 1;
+	}
+
+	_num=1
+	while [ ${_num} -le ${controller_num} ]
+	do
+		db_set Device.LocalAgent.Controller.${_num}.BootParameter.1.Alias "cpe-1"
+		db_set Device.LocalAgent.Controller.${_num}.BootParameter.1.Enable "${boot_enable}"
+		db_set Device.LocalAgent.Controller.${_num}.BootParameter.1.ParameterName "${boot_param_name}"
+		_num=$(( ${_num} + 1 ))
+	done
+
+	if [ -n "${endpoint}" ]; then
+		db_set Device.LocalAgent.EndpointID "${endpoint}"
+	fi
+	db_set
+}
+
 configure_controller() {
-	local endpointid enable AssignedRole PeriodicNotifInterval PeriodicNotifTime USPRetryMinimumWaitInterval
-	local USPRetryIntervalMultiplier ControllerCode protocol CoAPHost CoAPPath CoAPPort
+	local endpointid enabled AssignedRole PeriodicNotifInterval PeriodicNotifTime USPNotifRetryMinimumWaitInterval
+	local USPNotifRetryIntervalMultiplier ControllerCode protocol destination CoAPHost CoAPPath CoAPPort
+	local reference topic
 
 	validate_controller_section "${1}" || {
 		log "Validation of section failed"
 		return 1;
 	}
-	db_set Device.LocalAgent.Controller.${conn_num}.EndpointID "${endpointid}"
-	db_set Device.LocalAgent.Controller.${conn_num}.Alias "cpe-${conn_num}"
-	db_set Device.LocalAgent.Controller.${conn_num}.Enable "true"
-	db_set Device.LocalAgent.Controller.${conn_num}.AssignedRole "Device.LocalAgent.ControllerTrust.Role.${AssignedRole}"
-	db_set Device.LocalAgent.Controller.${conn_num}.PeriodicNotifInterval "${PeriodicNotifInterval}"
-	db_set Device.LocalAgent.Controller.${conn_num}.PeriodicNotifTime "${PeriodicNotifTime}"
-	db_set Device.LocalAgent.Controller.${conn_num}.USPRetryMinimumWaitInterval "${USPRetryMinimumWaitInterval}"
-	db_set Device.LocalAgent.Controller.${conn_num}.USPRetryIntervalMultiplier "${USPRetryIntervalMultiplier}"
-	db_set Device.LocalAgent.Controller.${conn_num}.ControllerCode "${ControllerCode}"
-	db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.Alias "cpe-${conn_num}" 
-	db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.Enable "${enable}"
-	db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.Protocol "${protocol}"
-	if [ "${protocol}"=="STOMP" ]; then
-		db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.STOMP.Reference "Device.STOMP.Connection.${conn_num}"
-		db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.STOMP.Destination "controller-notify-dest"
-	elif [ "${protocol}"=="CoAP" ]; then
-		db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.CoAP.Host "${CoAPHost}"
-		db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.CoAP.Path "${CoAPPath}"
-		db_set Device.LocalAgent.Controller.${conn_num}.MTP.${conn_num}.CoAP.Port "${CoAPPort}"
+
+	[ ${enabled} -eq 0 ] && \
+		echo "Controller ${1} not enabled" >>/dev/console && \
+		return 0;
+
+	controller_num=$(( controller_num + 1 ))
+
+	db_set Device.LocalAgent.Controller.${controller_num}.EndpointID "${endpointid}"
+	db_set Device.LocalAgent.Controller.${controller_num}.Alias "cpe-${controller_num}"
+	db_set Device.LocalAgent.Controller.${controller_num}.Enable "${enabled}"
+	#db_set Device.LocalAgent.Controller.${controller_num}.AssignedRole "${AssignedRole}"
+	db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifInterval "${PeriodicNotifInterval}"
+	db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifTime "${PeriodicNotifTime}"
+	db_set Device.LocalAgent.Controller.${controller_num}.USPNotifRetryMinimumWaitInterval "${USPNotifRetryMinimumWaitInterval}"
+	db_set Device.LocalAgent.Controller.${controller_num}.USPNotifRetryIntervalMultiplier "${USPNotifRetryIntervalMultiplier}"
+	db_set Device.LocalAgent.Controller.${controller_num}.ControllerCode "${ControllerCode}"
+	db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.Alias "cpe-${controller_num}"
+	db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.Enable "${enabled}"
+	db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.Protocol "${protocol}"
+	# only support configuration of one mtp path per controller using uci
+	if [ "${protocol}" = "MQTT" ]; then
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.MQTT.Reference "${reference}"
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.MQTT.Topic "${topic}"
+	elif [ "${protocol}" = "STOMP" ]; then
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.STOMP.Reference "${reference}"
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.STOMP.Destination "controller-notify-dest"
+	elif [ "${protocol}" = "CoAP" ]; then
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.CoAP.Host "${CoAPHost}"
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.CoAP.Path "${CoAPPath}"
+		db_set Device.LocalAgent.Controller.${controller_num}.MTP.1.CoAP.Port "${CoAPPort}"
 	else
 		log "Unsupported protocol ${protocol}"
 	fi
+
 	db_set
-	conn_num=$((conn_num+1))
+}
+
+configure_subscription(){
+	local id enabled NotifType ReferenceList Persistent Recipient
+
+	validate_subscription_section "${1}" || {
+		log "Validation of section failed"
+		return 1;
+	}
+
+	[ ${enabled} -eq 0 ] && \
+		echo "subscription ${1} not enabled" >>/dev/console && \
+		return 0;
+
+	subs_num=$(( subs_num + 1))
+
+	db_set Device.LocalAgent.Subscription.${subs_num}.Alias "cpe-${subs_num}"
+	db_set Device.LocalAgent.Subscription.${subs_num}.Enable "${enabled}"
+	db_set Device.LocalAgent.Subscription.${subs_num}.ID "${id}"
+	db_set Device.LocalAgent.Subscription.${subs_num}.NotifType "${NotifType}"
+	db_set Device.LocalAgent.Subscription.${subs_num}.ReferenceList "${ReferenceList}"
+	db_set Device.LocalAgent.Subscription.${subs_num}.Persistent "${Persistent}"
+	db_set Device.LocalAgent.Subscription.${subs_num}.Recipient "${Recipient}"
 }
 
 configure_mtp() {
-	local protocol enable destination CoAPPath CoAPPort
+	local enabled protocol reference responsetopicconfigured publishqos
 
 	validate_mtp_section "${1}" || {
 		log "Validation of section failed"
 		return 1;
 	}
+
+	[ ${enabled} -eq 0 ] && \
+		echo "mtp ${1} not enabled" >>/dev/console && \
+		return 0;
+
+	mtp_num=$(( mtp_num + 1 ))
+
 	db_set Device.LocalAgent.MTP.${mtp_num}.Alias "cpe-${mtp_num}"
-	db_set Device.LocalAgent.MTP.${mtp_num}.Enable "${enable}"
+	db_set Device.LocalAgent.MTP.${mtp_num}.Enable "${enabled}"
 	db_set Device.LocalAgent.MTP.${mtp_num}.Protocol "${protocol}"
-	if [ "${protocol}"=="STOMP" ]; then
-		db_set Device.LocalAgent.MTP.${mtp_num}.STOMP.Reference "Device.STOMP.Connection.${mtp_num}"
+	if [ "${protocol}" = "MQTT" ]; then
+		db_set Device.LocalAgent.MTP.${mtp_num}.MQTT.Reference "${reference}"
+		db_set Device.LocalAgent.MTP.${mtp_num}.MQTT.ResponseTopicConfigured "${responsetopicconfigured}"
+		db_set Device.LocalAgent.MTP.${mtp_num}.MQTT.PublishQoS "${publishqos}"
+	elif [ "${protocol}" = "STOMP" ]; then
+		db_set Device.LocalAgent.MTP.${mtp_num}.STOMP.Reference "${reference}"
 		db_set Device.LocalAgent.MTP.${mtp_num}.STOMP.Destination "${destination}"
-	elif [ "${protocol}"=="CoAP" ]; then
+	elif [ "${protocol}" = "CoAP" ]; then
 		db_set Device.LocalAgent.MTP.${mtp_num}.CoAP.Path "${CoAPPath}"
 		db_set Device.LocalAgent.MTP.${mtp_num}.CoAP.Port "${CoAPPort}"
 	else
 		log "Unsupported protocol ${protocol}"
 	fi
 	db_set
-	mtp_num=$((mtp_num+1))
 }
 
-configure_connection() {
-	local host username password encryption enable port virtualhost EnableHeartbeats
+configure_stomp_connection() {
+	local host username password encryption enabled port virtualhost EnableHeartbeats
 	local OutgoingHeartbeat IncomingHeartbeat ServerRetryInitialInterval
 	local ServerRetryIntervalMultiplier ServerRetryMaxInterval
 
-	validate_connection_section "${1}" || {
+	validate_stomp_connection_section "${1}" || {
 		log "Validation of section failed"
 		return 1;
 	}
+
+	[ ${enabled} -eq 0 ] && \
+		echo "stomp ${1} not enabled" >>/dev/console && \
+		return 0;
+
+	stomp_num=$(( stomp_num + 1 ))
 
 	db_set Device.STOMP.Connection.${stomp_num}.Host "${host}"
 	db_set Device.STOMP.Connection.${stomp_num}.Username "${username}"
 	db_set Device.STOMP.Connection.${stomp_num}.Password "${password}"
 
 	db_set Device.STOMP.Connection.${stomp_num}.Alias "cpe-${stomp_num}"
-	db_set Device.STOMP.Connection.${stomp_num}.Enable "${enable}"
+	db_set Device.STOMP.Connection.${stomp_num}.Enable "${enabled}"
 	db_set Device.STOMP.Connection.${stomp_num}.Port "${port}"
 	db_set Device.STOMP.Connection.${stomp_num}.X_ARRIS-COM_EnableEncryption "${encryption}"
 	db_set Device.STOMP.Connection.${stomp_num}.VirtualHost "${virtualhost}"
@@ -162,18 +290,60 @@ configure_connection() {
 	db_set Device.STOMP.Connection.${stomp_num}.ServerRetryIntervalMultiplier "${ServerRetryIntervalMultiplier}"
 	db_set Device.STOMP.Connection.${stomp_num}.ServerRetryMaxInterval "${ServerRetryMaxInterval}"
 	db_set
-	stomp_num=$((stomp_num+1))
 }
 
-configure_obuspa() {
-	local enable cert interface debug log_level log_dest
+configure_mqtt_client(){
+	local brokeraddress brokerport enabled username password protocolversion keepalivetime
+	local SessionExpiryInterval ReceiveMaximum MaximumPacketSize TopicAliasMaximum WillEnable
+	local WillQoS WillDelayInterval WillMessageExpiryInterval WillContentType
+	local WillResponseTopic WillTopic WillValue clientid
 
-	validate_obuspa_section "${1}" || {
+	validate_mqtt_client_section "${1}" || {
 		log "Validation of section failed"
 		return 1;
 	}
 
-	[ ${enable} -eq 0 ] && \
+	[ ${enabled} -eq 0 ] && \
+		echo "mqtt ${1} not enabled" >>/dev/console && \
+		return 0;
+
+	mqtt_num=$(( mqtt_num + 1 ))
+
+	db_set Device.MQTT.Client.${mqtt_num}.BrokerAddress "${brokeraddress}"
+	db_set Device.MQTT.Client.${mqtt_num}.BrokerPort "${brokerport}"
+	db_set Device.MQTT.Client.${mqtt_num}.Enable "${enabled}"
+	db_set Device.MQTT.Client.${mqtt_num}.Alias "cpe-${mqtt_num}"
+	db_set Device.MQTT.Client.${mqtt_num}.Username "${username}"
+	db_set Device.MQTT.Client.${mqtt_num}.Password "${password}"
+	db_set Device.MQTT.Client.${mqtt_num}.ProtocolVersion "${protocolversion}"
+	db_set Device.MQTT.Client.${mqtt_num}.KeepAliveTime "${keepalivetime}"
+	db_set Device.MQTT.Client.${mqtt_num}.ClientID "${clientid}"
+	# Below params not supported in current version
+	#db_set Device.MQTT.Client.${mqtt_num}.SessionExpiryInterval "${SessionExpiryInterval}"
+	#db_set Device.MQTT.Client.${mqtt_num}.ReceiveMaximum "${ReceiveMaximum}"
+	#db_set Device.MQTT.Client.${mqtt_num}.MaximumPacketSize "${MaximumPacketSize}"
+	#db_set Device.MQTT.Client.${mqtt_num}.TopicAliasMaximum "${TopicAliasMaximum}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillEnable "${WillEnable}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillQoS "${WillQoS}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillDelayInterval "${WillDelayInterval}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillMessageExpiryInterval "${WillMessageExpiryInterval}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillContentType "${WillContentType}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillResponseTopic "${WillResponseTopic}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillTopic "${WillTopic}"
+	#db_set Device.MQTT.Client.${mqtt_num}.WillValue "${WillValue}"
+	db_set
+}
+
+
+configure_obuspa() {
+	local enabled cert ifname debug log_level db_file log_dest
+
+	validate_obuspa_section "global" || {
+		log "Validation of section failed"
+		return 1;
+	}
+
+	[ ${enabled} -eq 0 ] && \
 		echo "obuspa not enabled" >>/dev/console && \
 		exit
 
@@ -184,42 +354,57 @@ configure_obuspa() {
 		procd_set_param stderr 1
 		procd_append_param command -p
 	fi
-	procd_append_param command -v ${log_level} -l ${log_dest}
+	procd_append_param command -v ${log_level}
 
-	# Get wan L3 interface
-	json_load "$(ubus -t 2 call network.interface.${interface} status)"
-	json_get_var l3device l3_device
-	export USP_BOARD_IFNAME=${l3device}
+	if [ -n "${log_dest}" ]; then
+		procd_append_param command -l ${log_dest}
+	fi
 
-	# Set this variable for root user
-	grep -q USP_BOARD_IFNAME /root/.profile || \
-		echo "export USP_BOARD_IFNAME=${l3device}" >> /root/.profile
+	# Set this variable for root user and obuspa -c tool
+	grep -q "export USP_BOARD_IFNAME=${ifname}" /root/.profile || \
+		echo "export USP_BOARD_IFNAME=${ifname}" >> /root/.profile
 
-	[ -f $cert ] && certificate=$cert
+	echo "${db_file}" >>${KEEP_FILES}
+	if [ -n "${db_file}" ]; then
+		procd_append_param command -f ${db_file}
+	fi
 
+	if [ -e "${cert}" ]; then
+		procd_append_param command -t ${cert}
+		echo "${cert}" >>${KEEP_FILES}
+	fi
+
+	procd_set_param env USP_BOARD_IFNAME=${ifname}
 }
+
+# Create factory reset file
+# TODO: logic to use db if present
 db_init() {
 	[ -f ${PARAM_FILE} ] && rm -f ${PARAM_FILE}
 	[ -f /tmp/usp.db ] && rm -f /tmp/usp.db
+	[ -f ${KEEP_FILES} ] && rm -f ${KEEP_FILES}
 
-	config_load obuspa
+	# Load configuration
+	config_load $CONFIGURATION
 	config_foreach configure_obuspa obuspa
 	config_foreach configure_controller controller
-	config_foreach configure_connection connection
+	config_foreach configure_localagent localagent
 	config_foreach configure_mtp mtp
+	config_foreach configure_stomp_connection stomp
+	config_foreach configure_mqtt_client mqtt
+	config_foreach configure_subscription subscription
+
 	db_set Internal.Reboot.Cause "LocalFactoryReset"
 }
 
 start_service() {
-	procd_open_instance obuspa
-	procd_set_param env USP_BOARD_IFNAME=${l3device}
+	procd_open_instance ${CONFIGURATION}
 	procd_set_param command ${PROG}
 	db_init
 	procd_append_param command -r ${PARAM_FILE}
-	if [ -f "${certificate}" ]; then
-		procd_append_param command -t ${certificate}
-	fi
-	procd_set_param respawn
+	procd_set_param respawn \
+			${respawn_threshold:-5} \
+			${respawn_timeout:-10} ${respawn_retry:-3}
 	procd_close_instance
 }
 
@@ -233,5 +418,5 @@ reload_service() {
 }
 
 service_triggers() {
-	procd_add_config_trigger "config.change" "obuspa"  /etc/init.d/obuspa restart
+	procd_add_reload_trigger "${CONFIGURATION}"
 }

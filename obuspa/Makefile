@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=obuspa
-PKG_VERSION:=2.0.23
+PKG_VERSION:=3.0.0.0
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=14e9673f67bd6887551b7cdaa7e92628fcf48dfb
+PKG_SOURCE_VERSION:=8e8cfcbd3b651bd39cb93398042af0df3155486c
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/obuspa.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 endif
@@ -22,14 +22,13 @@ PKG_FIXUP:=autoreconf
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
 
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/obuspa
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=USP agent
-  DEPENDS:=+libcoap +libopenssl +libcurl +libsqlite3 +libcares +libubox +libubus +libblobmsg-json +uspd
+  DEPENDS:=+libopenssl +libcurl +libsqlite3 +libubox +libubus +uspd +libmosquitto
 endef
 
 define Package/obuspa/description
@@ -38,18 +37,7 @@ endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
-	-D_GNU_SOURCE \
-	-Wall \
-	-Wextra \
-	-fstrict-aliasing \
-	-Werror=format-overflow \
-	-Wno-error=unused-parameter \
-	-Wno-error=sign-compare
-
-
-ifneq ($(CONFIG_USE_MUSL),)
-TARGET_CFLAGS += -DUSE_MUSL
-endif
+	-D_GNU_SOURCE
 
 ifeq ($(LOCAL_DEV),1)
 define Build/Prepare
