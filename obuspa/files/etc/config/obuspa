@@ -6,7 +6,7 @@ config obuspa 'global'
 	option ifname 'br-lan'
 	option debug 'false'
 	option log_level '1'
-	option db_file '/tmp/usp.db'
+	#option db_file '/tmp/usp.db'
 	#option log_dest '/var/log/obuspa'
 
 # Configures Device.LocalAgent and Controller boot prameters

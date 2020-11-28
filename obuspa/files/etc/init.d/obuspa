@@ -29,12 +29,12 @@ validate_obuspa_section()
 {
 	uci_validate_section ${CONFIGURATION} obuspa "${1}" \
 		'enabled:bool:true' \
-		'cert:string:"/etc/obuspa/rootCA.pem"' \
+		'cert:string:/etc/obuspa/rootCA.pem' \
 		'ifname:string:"br-lan"' \
 		'debug:bool:false' \
 		'log_level:uinteger:2' \
-		'log_dest:string:stdout' \
-		'db_file:string:"/tmp/usp.db"'
+		'log_dest:string' \
+		'db_file:string'
 }
 
 validate_localagent_section()
@@ -364,14 +364,18 @@ configure_obuspa() {
 	grep -q "export USP_BOARD_IFNAME=${ifname}" /root/.profile || \
 		echo "export USP_BOARD_IFNAME=${ifname}" >> /root/.profile
 
-	echo "${db_file}" >>${KEEP_FILES}
 	if [ -n "${db_file}" ]; then
-		procd_append_param command -f ${db_file}
+		echo "${db_file}" >>${KEEP_FILES}
+		if [ -f "${db_file}" ]; then
+			procd_append_param command -f ${db_file}
+		fi
 	fi
 
-	if [ -e "${cert}" ]; then
-		procd_append_param command -t ${cert}
+	if [ -n "${cert}" ]; then
 		echo "${cert}" >>${KEEP_FILES}
+		if [ -f "${cert}" ]; then
+			procd_append_param command -t ${cert}
+		fi
 	fi
 
 	procd_set_param env USP_BOARD_IFNAME=${ifname}
