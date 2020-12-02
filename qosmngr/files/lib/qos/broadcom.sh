@@ -797,6 +797,8 @@ configure_queue() {
 	rm -rf /tmp/qos/queue_stats
 
 	for intf in $(db get hw.board.ethernetPortOrder); do
+		rm -rf /tmp/qos/$intf
+
 		mkdir -p /tmp/qos/queue_stats/$intf
 		touch /tmp/qos/queue_stats/$intf/q_idx
 		echo 0 > /tmp/qos/queue_stats/$intf/q_idx
@@ -804,6 +806,10 @@ configure_queue() {
 		for i in 0 1 2 3 4 5 6 7; do
 			tmctl delqcfg --devtype 0 --if $intf --qid $i &>/dev/null
 		done
+
+		mkdir -p /tmp/qos/$intf
+		touch /tmp/qos/$intf/q_order
+		touch /tmp/qos/$intf/q_precedence
 	done
 
 	# Load UCI file
