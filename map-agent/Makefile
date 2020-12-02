@@ -5,9 +5,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-agent
-PKG_VERSION:=2.0.3
+PKG_VERSION:=3.0.0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=6bb0bba83e4c5189c93ed339ed061b86d7766f4d
+PKG_SOURCE_VERSION:=20a869df544125ffb6b9ac08da8b02f9100d7f20
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
 PKG_LICENSE:=PROPRIETARY IOPSYS
@@ -23,7 +23,7 @@ define Package/map-agent
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi multi-AP Agent (EasyMesh R2)
-  DEPENDS:=+libwifi +libuci +libubox +ubus +libmaputils
+  DEPENDS:=+libwifi +libuci +libubox +ubus +libmaputils +libwsc
 endef
 
 define Package/map-agent/description
@@ -51,6 +51,7 @@ endef
 
 define Package/map-agent/install
 	$(INSTALL_DIR) $(1)/etc
+	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_BUILD_DIR)/src/utils/*.so* $(1)/usr/lib/

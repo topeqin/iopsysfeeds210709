@@ -1,0 +1,62 @@
+config wifiagent
+	option enabled '1'
+	option debug '6'
+	option profile '2'
+
+config fh-iface
+	option ifname 'wl0'
+	option steer 'rssi bssload'
+	list exclude '00:11:22:33:44:55'
+	list exclude_btm '00:aa:bb:cc:dd:ee'
+	list assoc_ctrl '00:10:20:30:40:50'
+	option btm_retry '3'
+	option btm_retry_secs '180'
+	option fallback_legacy '1'
+	option steer_legacy_reassoc_secs '30'
+	option steer_legacy_retry_secs '3600'
+	option assoc_ctrl_secs '30'
+	option band '2'
+
+config fh-iface
+	option ifname 'wl1'
+	option steer 'rssi bssload'
+	list exclude '00:11:22:33:44:55'
+	list exclude_btm '00:aa:bb:cc:dd:ee'
+	option band '5'
+
+#config bk-iface
+#	option ifname 'apclii0'
+#	option enabled '1'
+#	option onboarded '0'
+#	option disallow_bsta '1		# bitmap, 1 for disallow p1, 2 to disallow p2, 3 to disallow both (probably never applicable)
+
+config steer-param 'rssi'
+	option priority '0'
+	option rssi_threshold '-68'
+	option hysteresis '5'
+	option margin '3'
+	option diffsnr '8'
+
+config steer-param 'bssload'
+	option priority '0'
+	option bssload_threshold '80'
+
+### custom rules follows ###
+config rule-custom
+	option action steer
+	option sta 'd8:32:e3:4d:35:d2'
+	option bss '00:22:07:11:22:33'
+
+config rule-custom
+	option action restrict
+	option sta 'd8:32:e3:4d:35:d2'
+	option bss '00:22:07:11:22:33'
+
+#config bk-iface
+#	option ifname 'wlan1_1'
+#
+#config fh-iface
+#	option ifname 'wlan0'
+#
+#config fh-iface
+#	option ifname 'wlan1'
