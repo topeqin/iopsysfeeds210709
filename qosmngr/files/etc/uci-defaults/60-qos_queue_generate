@@ -24,7 +24,7 @@ generate_queue(){
 	fi
 
 	i=0
-	local total_q=${no_of_q##* }
+	local total_q=$((${no_of_q##* } + 1))
         for i in $no_of_q; do
 		order=$((total_q - i))
 		uci add qos queue
