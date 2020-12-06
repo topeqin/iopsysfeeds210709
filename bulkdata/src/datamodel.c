@@ -36,8 +36,8 @@ static int browseBulkDataProfileInst(struct dmctx *dmctx, DMNODE *parent_node, v
 	synchronize_specific_config_sections_with_dmmap("bulkdata", "profile", "dmmap_bulkdata", &dup_list);
 	list_for_each_entry(p, &dup_list, list) {
 
-		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 5,
-			   p->dmmap_section, "profile_instance", "profile_alias", "dmmap_bulkdata", "profile");
+		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 3,
+			   p->dmmap_section, "profile_instance", "profile_alias");
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)p->config_section, inst) == DM_STOP)
 			break;
@@ -65,8 +65,8 @@ static int browseBulkDataProfileParameterInst(struct dmctx *dmctx, DMNODE *paren
 		browse_args.option = "profile_id";
 		browse_args.value = prev_profile_id;
 
-		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 7,
-			   p->dmmap_section, "parameter_instance", "parameter_alias", "dmmap_bulkdata", "profile_parameter",
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 5,
+			   p->dmmap_section, "parameter_instance", "parameter_alias",
 			   check_browse_section, (void *)&browse_args);
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)p->config_section, inst) == DM_STOP)
@@ -95,8 +95,8 @@ static int browseBulkDataProfileHTTPRequestURIParameterInst(struct dmctx *dmctx,
 		browse_args.option = "profile_id";
 		browse_args.value = prev_profile_id;
 
-		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 7,
-			   p->dmmap_section, "requesturiparameter_instance", "requesturiparameter_alias", "dmmap_bulkdata", "profile_http_request_uri_parameter",
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 5,
+			   p->dmmap_section, "requesturiparameter_instance", "requesturiparameter_alias",
 			   check_browse_section, (void *)&browse_args);
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)p->config_section, inst) == DM_STOP)

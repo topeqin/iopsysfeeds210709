@@ -279,8 +279,8 @@ static int browseIPInterfaceTWAMPReflectorInst(struct dmctx *dmctx, DMNODE *pare
 
 	uci_foreach_option_eq("twamp", "twamp_reflector", "interface", section_name(((struct ip_args *)prev_data)->ip_sec), s) {
 
-		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 5,
-			   s, "twamp_inst", "twamp_alias", "twamp", "twamp_reflector");
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 3,
+			   s, "twamp_inst", "twamp_alias");
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)s, inst) == DM_STOP)
 			break;

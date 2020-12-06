@@ -554,8 +554,8 @@ static int browsexmpp_connectionInst(struct dmctx *dmctx, DMNODE *parent_node, v
 	synchronize_specific_config_sections_with_dmmap("xmpp", "connection", "dmmap_xmpp", &dup_list);
 	list_for_each_entry(p, &dup_list, list) {
 
-		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 5,
-			   p->dmmap_section, "con_inst", "con_alias", "dmmap_xmpp", "connection");
+		inst = handle_update_instance(1, dmctx, &max_inst, update_instance_alias, 3,
+			   p->dmmap_section, "con_inst", "con_alias");
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)p->config_section, inst) == DM_STOP)
 			break;
@@ -577,8 +577,8 @@ static int browsexmpp_connection_serverInst(struct dmctx *dmctx, DMNODE *parent_
 
 	list_for_each_entry(p, &dup_list, list) {
 
-		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 5,
-				p->dmmap_section, "con_srv_inst", "con_srv_alias", "xmpp", "connection_server");
+		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 3,
+			   p->dmmap_section, "con_srv_inst", "con_srv_alias");
 
 		if (DM_LINK_INST_OBJ(dmctx, parent_node, (void *)p->config_section, inst) == DM_STOP)
 			break;
