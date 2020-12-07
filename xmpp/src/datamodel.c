@@ -49,7 +49,7 @@ static int add_xmpp_connection(char *refparam, struct dmctx *ctx, void *data, ch
 
 	dmuci_add_section_bbfdm("dmmap_xmpp", "connection", &dmmap_xmpp);
 	dmuci_set_value_by_section(dmmap_xmpp, "section_name", section_name(xmpp_con));
-	*instance = update_instance(last_inst, 4, dmmap_xmpp, "con_inst", "dmmap_xmpp", "connection");
+	*instance = update_instance(last_inst, 2, dmmap_xmpp, "con_inst");
 	return 0;
 }
 

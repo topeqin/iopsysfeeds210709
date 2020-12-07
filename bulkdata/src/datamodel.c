@@ -140,7 +140,7 @@ static int addObjBulkDataProfile(char *refparam, struct dmctx *ctx, void *data, 
 
 	dmuci_add_section_bbfdm("dmmap_bulkdata", "profile", &dmmap_bulkdata);
 	dmuci_set_value_by_section(dmmap_bulkdata, "section_name", section_name(profile));
-	*instance = update_instance(last_inst, 4, dmmap_bulkdata, "profile_instance", "dmmap_bulkdata", "profile");
+	*instance = update_instance(last_inst, 2, dmmap_bulkdata, "profile_instance");
 
 	return 0;
 }
@@ -237,7 +237,7 @@ static int addObjBulkDataProfileParameter(char *refparam, struct dmctx *ctx, voi
 	dmuci_set_value_by_section(dmmap_bulkdata, "section_name", section_name(profile_parameter));
 	dmuci_set_value_by_section(dmmap_bulkdata, "profile_id", prev_profile_id);
 
-	*instance = update_instance(last_inst, 6, dmmap_bulkdata, "parameter_instance", "dmmap_bulkdata", "profile_parameter", check_browse_section, (void *)&browse_args);
+	*instance = update_instance(last_inst, 5, dmmap_bulkdata, "parameter_instance", NULL, check_browse_section, (void *)&browse_args);
 
 	return 0;
 }
@@ -291,7 +291,7 @@ static int addObjBulkDataProfileHTTPRequestURIParameter(char *refparam, struct d
 	dmuci_set_value_by_section(dmmap_bulkdata, "section_name", section_name(profile_http_request_uri_parameter));
 	dmuci_set_value_by_section(dmmap_bulkdata, "profile_id", prev_profile_id);
 
-	*instance = update_instance(last_inst, 6, dmmap_bulkdata, "requesturiparameter_instance", "dmmap_bulkdata", "profile_http_request_uri_parameter", check_browse_section, (void *)&browse_args);
+	*instance = update_instance(last_inst, 5, dmmap_bulkdata, "requesturiparameter_instance", NULL, check_browse_section, (void *)&browse_args);
 
 	return 0;
 }

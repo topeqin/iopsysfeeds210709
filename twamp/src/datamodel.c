@@ -29,7 +29,7 @@ static char *get_last_instance_with_option(char *package, char *section, char *o
 	char *inst = NULL;
 
 	uci_foreach_option_eq(package, section, option, val, s) {
-		inst = update_instance(inst, 4, s, opt_inst, package, section);
+		inst = update_instance(inst, 2, s, opt_inst);
 	}
 	return inst;
 }
