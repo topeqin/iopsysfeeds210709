@@ -1,111 +1,37 @@
-# Global configuration for obsupa startup
 config obuspa 'global'
 	option enabled 'true'
-	#option cert '/etc/obuspa/rootCA.pem'
-	# uplink interface name to reach controller
 	option ifname 'br-lan'
 	option debug 'false'
 	option log_level '1'
-	#option db_file '/tmp/usp.db'
-	#option log_dest '/var/log/obuspa'
 
-# Configures Device.LocalAgent and Controller boot prameters
 config localagent 'localagent'
-	# Override Device.LocalAgent.EndPointID
-	# option endpoint 'os::012345-'
-	option boot_enable 'true'
-	option boot_param_name 'Device.DeviceInfo.SoftwareVersion'
+	option Enable 'true'
 
-# Add 1st Device.LocalAgent.Controller.
-config controller
-	option enabled 'true'
-	option endpointid 'self::usp-controller.com'
-	option PeriodicNotifInterval "86400"
-	option PeriodicNotifTime "0001-01-01T00:00:00Z"
-	option USPNotifRetryMinimumWaitInterval "5"
-	option USPNotifRetryIntervalMultiplier "2000"
-	option ControllerCode ""
-	option protocol 'STOMP'
-	option reference 'Device.STOMP.Connection.1'
+# Adds Device.LocalAgent.Controller.
+config controller 'localcontroller'
+	option EndpointID 'proto::interop-usp-controller'
+	option Protocol 'MQTT'
+	option Topic '/usp/controller'
+	option PeriodicNotifTime '0001-01-01T00:00:00Z'
+	option mqtt 'localmqtt'
 
-# Add 1st Device.LocalAgent.MTP.
+# Adds Device.LocalAgent.MTP.
 config mtp
-	option enabled 'true'
-	option protocol 'STOMP'
-	option reference 'Device.STOMP.Connection.1'
-	option destination ''
+	option Protocol 'MQTT'
+	option ResponseTopicConfigured '/usp/endpoint'
+	option mqtt 'localmqtt'
 
-# Add 1st Device.STOMP.Connection.
-config stomp
-	option enabled 'true'
-	option host 'usp-controller.com'
-	option username 'username'
-	option password 'password'
-	option encryption 'true'
-	option port 61613
-	option virtualhost '/'
-	option EnableHeartbeats "true"
-	option OutgoingHeartbeat "30000"
-	option IncomingHeartbeat "300000"
-	option ServerRetryInitialInterval "60"
-	option ServerRetryIntervalMultiplier "2000"
-	option ServerRetryMaxInterval "30720"
-
-# Add 2nd Device.LocalAgent.Controller. if enabled
-config controller
-	option enabled 'false'
-	option endpointid 'proto::interop-usp-controller'
-	option PeriodicNotifInterval "86400"
-	option PeriodicNotifTime "0001-01-01T00:00:00Z"
-	option USPNotifRetryMinimumWaitInterval "5"
-	option USPNotifRetryIntervalMultiplier "2000"
-	option protocol 'MQTT'
-	option reference 'Device.MQTT.Client.1'
-	option topic ''
-
-# Add 2nd Device.LocalAgent.MTP. if enabled
-config mtp
-	option enabled 'false'
-	option protocol 'MQTT'
-	option reference 'Device.MQTT.Client.1'
-	option publishqos '0'
-	option responsetopicconfigured ''
-
-# Add 1st Device.MQTT.Client. if enabled
-config mqtt
-	option enabled 'false'
+# Adds Device.MQTT.Client.
+config mqtt 'localmqtt'
 	option BrokerAddress '127.0.0.1'
 	option BrokerPort '1883'
-	option ProtocolVersion '5.0'
-	option KeepAliveTime '60'
-	option SessionExpiryInterval '600'
-	option ReceiveMaximum '10'
-	option MaximumPacketSize '10000'
-	option TopicAliasMaximum '10'
-	option WillEnable 'false'
-	option WillQoS '0'
-	option WillDelayInterval '5'
-	option WillMessageExpiryInterval '10'
-	option WillContentType '10'
-	option WillResponseTopic '10'
-	option WillTopic '10'
-	option WillValue '10'
-	option clientid ''
+	option TransportProtocol 'TCP/IP'
 
-# Add 1st Device.LocalAgent.Subscription.
+# Add Device.LocalAgent.Subscription.
 config subscription
-	option enabled 'true'
-	option id 'default-boot-event-ACS'
+	option ID 'default-boot-event-ACS'
 	option NotifType 'Event'
 	option ReferenceList 'Device.Boot!'
 	option Persistent 'true'
-	option Recipient 'Device.LocalAgent.Controller.1'
-
-# Add 2nd Device.LocalAgent.Subscription. if enabled
-config subscription
-	option enabled 'false'
-	option NotifType 'OperationComplete'
-	option ReferenceList 'Device.DeviceInfo.FirmwareImage.1.Download()'
-	option Persistent 'true'
-	option Recipient 'Device.LocalAgent.Controller.1'
+	option controller 'localcontroller'
 
