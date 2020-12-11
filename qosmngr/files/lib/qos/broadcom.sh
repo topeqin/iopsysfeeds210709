@@ -161,12 +161,17 @@ handle_queue() {
 		;;
 	esac
 
+	# ignore precedence value in case of WRR
+	if [ $salg -eq 2 ]; then
+	       order=0
+	fi
+
 	# Call tmctl which is a broadcomm command to configure queues on a port.
 	tmctl setqcfg --devtype 0 --if $ifname --qid $Q_COUNT --priority $order --qsize $qsize --weight $wgt --schedmode $salg --shapingrate $rate --burstsize $bs
 
 	# In BCM968 chips, the counters for queues are read, on other model, its read and reset. So, to maintain counter
 	# value and uniform behaviour, we are storing counter value for each queue in files
-	local d_name="/tmp/qos/queue_stats/${ifname}/q_${q_no}"
+	local d_name="/tmp/qos/queue_stats/${ifname}/q_${Q_COUNT}"
 	mkdir $d_name
 	local f_name="$d_name/txPackets"
 	touch $f_name
