@@ -57,8 +57,8 @@ validate_obuspa_section()
 {
 	uci_validate_section ${CONFIGURATION} obuspa "${1}" \
 		'enabled:bool:true' \
-		'trust_cert:string:/etc/obuspa/rootCA.pem' \
-		'client_cert:string:/etc/obuspa/client.pem' \
+		'trust_cert:string' \
+		'client_cert:string' \
 		'ifname:string:"br-lan"' \
 		'debug:bool:false' \
 		'log_level:uinteger' \
@@ -419,7 +419,7 @@ configure_obuspa() {
 		procd_append_param command -p
 	fi
 
-	if [ -n ${log_level}]; then
+	if [ -n ${log_level} ]; then
 		procd_append_param command -v ${log_level}
 	fi
 
