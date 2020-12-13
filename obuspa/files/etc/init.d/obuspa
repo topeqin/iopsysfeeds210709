@@ -496,4 +496,9 @@ reload_service() {
 
 service_triggers() {
 	procd_add_reload_trigger "${CONFIGURATION}" "uspd"
+
+	local interface
+	config_load obuspa
+	config_get interface global interface
+	[ -n "$interface" ] && procd_add_interface_trigger "interface.*" "$interface" /etc/init.d/obuspa reload
 }
