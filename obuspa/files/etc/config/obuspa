@@ -5,6 +5,8 @@ config obuspa 'global'
 	option debug 'false'
 	option log_level '1'
 	#option db_file '/tmp/usp.db'
+	#option trust_cert '/etc/obuspa/rootCA.pem'
+	#option client_cert '/etc/obuspa/client.pem'
 
 config localagent 'localagent'
 	option Enable 'true'
@@ -14,7 +16,6 @@ config controller 'localcontroller'
 	option EndpointID 'proto::interop-usp-controller'
 	option Protocol 'MQTT'
 	option Topic '/usp/controller'
-	option PeriodicNotifTime '0001-01-01T00:00:00Z'
 	option mqtt 'localmqtt'
 
 # Adds Device.LocalAgent.MTP.
@@ -28,6 +29,8 @@ config mqtt 'localmqtt'
 	option BrokerAddress '127.0.0.1'
 	option BrokerPort '1883'
 	option TransportProtocol 'TCP/IP'
+	option Username 'username'
+	option Password 'password'
 
 # Add Device.LocalAgent.Subscription.
 config subscription

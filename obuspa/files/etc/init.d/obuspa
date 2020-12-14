@@ -2,8 +2,11 @@
 
 START=99
 USE_PROCD=1
-
 PROG=/usr/sbin/obuspa
+
+EXTRA_COMMANDS="remove_db"
+EXTRA_HELP="	remove_db Removes obuspa persistent db before restarting"
+
 PARAM_FILE="/tmp/obuspa_param_reset.txt"
 CONFIGURATION=obuspa
 KEEP_FILES="/lib/upgrade/keep.d/obuspa"
@@ -14,6 +17,8 @@ stomp_num=0
 mqtt_num=0
 subs_num=0
 index=0
+
+. /lib/functions/network.sh
 
 log() {
 	echo "${@}"|logger -t obuspa -p debug
@@ -59,6 +64,7 @@ validate_obuspa_section()
 		'enabled:bool:true' \
 		'trust_cert:string' \
 		'client_cert:string' \
+		'interface:string' \
 		'ifname:string:"br-lan"' \
 		'debug:bool:false' \
 		'log_level:uinteger' \
@@ -228,7 +234,11 @@ configure_controller() {
 	db_set Device.LocalAgent.Controller.${controller_num}.EndpointID "${EndpointID}"
 	#db_set Device.LocalAgent.Controller.${controller_num}.AssignedRole "${AssignedRole}"
 	db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifInterval "${PeriodicNotifInterval}"
-	db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifTime "${PeriodicNotifTime}"
+	if [ -n "${PeriodicNotifTime}" ]; then
+		db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifTime "${PeriodicNotifTime}"
+	else
+		db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifTime "0001-01-01T00:00:00Z"
+	fi
 	db_set Device.LocalAgent.Controller.${controller_num}.USPNotifRetryMinimumWaitInterval "${USPNotifRetryMinimumWaitInterval}"
 	db_set Device.LocalAgent.Controller.${controller_num}.USPNotifRetryIntervalMultiplier "${USPNotifRetryIntervalMultiplier}"
 	db_set Device.LocalAgent.Controller.${controller_num}.ControllerCode "${ControllerCode}"
@@ -402,7 +412,7 @@ configure_mqtt_client(){
 
 
 configure_obuspa() {
-	local enabled trust_cert ifname debug log_level db_file log_dest
+	local enabled trust_cert ifname interface debug log_level db_file log_dest
 
 	validate_obuspa_section "global" || {
 		log "Validation of global section failed"
@@ -427,15 +437,18 @@ configure_obuspa() {
 		procd_append_param command -l ${log_dest}
 	fi
 
+	if [ -n "${interface}" ]; then
+		network_get_device ifname ${interface}
+		log "ifname from ${interface} is ${ifname}"
+	fi
+
 	# Set this variable for root user and obuspa -c tool
 	grep -q "export USP_BOARD_IFNAME=${ifname}" /root/.profile || \
 		echo "export USP_BOARD_IFNAME=${ifname}" >> /root/.profile
 
 	if [ -n "${db_file}" ]; then
 		echo "${db_file}" >>${KEEP_FILES}
-		if [ -f "${db_file}" ]; then
-			procd_append_param command -f ${db_file}
-		fi
+		procd_append_param command -f ${db_file}
 	fi
 
 	if [ -n "${trust_cert}" ]; then
@@ -474,6 +487,23 @@ db_init() {
 	db_set Internal.Reboot.Cause "LocalFactoryReset"
 }
 
+# if uci changes for obuspa remove persistent db and then reload
+remove_db() {
+	local db_file
+
+	config_load obuspa
+	config_get db_file global db_file
+
+	log "Removing db file (${db_file})"
+	[ -f ${db_file} ] && rm -f ${db_file}
+
+	sed -i "g/export USP_BOARD_IFNAME/d" /root/.profile
+
+	log "Restarting service"
+	stop
+	start
+}
+
 start_service() {
 	procd_open_instance ${CONFIGURATION}
 	procd_set_param command ${PROG}
@@ -482,6 +512,8 @@ start_service() {
 	procd_set_param respawn \
 			${respawn_threshold:-5} \
 			${respawn_timeout:-10} ${respawn_retry:-3}
+
+	procd_set_param watch usp.raw
 	procd_close_instance
 }
 
@@ -495,7 +527,8 @@ reload_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "${CONFIGURATION}" "uspd"
+	procd_add_reload_trigger "uspd"
+	procd_add_config_trigger "config.change" "${CONFIGURATION}" /etc/init.d/obuspa remove_db
 
 	local interface
 	config_load obuspa
