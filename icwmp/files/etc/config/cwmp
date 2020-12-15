@@ -15,6 +15,7 @@ config acs 'acs'
 	option retry_interval_multiplier '2000'
 	option https_ssl_capath ''
 	option ipv6_enable '0'
+	option ip_version '4'
 
 config cpe 'cpe'
 	option interface 'eth0.1'
