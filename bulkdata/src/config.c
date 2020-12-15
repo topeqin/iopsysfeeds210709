@@ -14,7 +14,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <libbbfdm/deviceinfo.h>
 
 #include "log.h"
 #include "config.h"
@@ -77,9 +76,9 @@ int get_device_id_config(struct bulkdata *bulkdata)
 	struct dmctx dmctx = {0};
 
 	bulkdata_dm_ctx_init(&dmctx);
-	bulkdata->device_id.manufacturer_oui = strdup(get_deviceid_manufactureroui());
-	bulkdata->device_id.product_class = strdup(get_deviceid_productclass());
-	bulkdata->device_id.serial_number = strdup(get_deviceid_serialnumber());
+	bulkdata->device_id.manufacturer_oui = bulkdata_get_value_param("Device.DeviceInfo.ManufacturerOUI");
+	bulkdata->device_id.product_class = bulkdata_get_value_param("Device.DeviceInfo.ProductClass");
+	bulkdata->device_id.serial_number = bulkdata_get_value_param("Device.DeviceInfo.SerialNumber");
 	bulkdata_dm_ctx_clean(&dmctx);
 
 	return 0;

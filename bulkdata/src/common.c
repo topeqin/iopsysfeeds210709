@@ -17,7 +17,7 @@ static pathnode *temphead = NULL;
 int bulkdata_dm_ctx_init(struct dmctx *ctx)
 {
 	struct bulkdata *bulkdata = &bulkdata_main;
-	dm_ctx_init(ctx, DM_CWMP, bulkdata->amd_version, bulkdata->instance_mode);
+	dm_ctx_init(ctx, bulkdata->instance_mode);
 	return 0;
 }
 
