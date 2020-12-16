@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=3.1.2
+PKG_VERSION:=3.2.0
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=3d4ac802c2805b81aac0ac71a304f951777246ab
+PKG_SOURCE_VERSION:=b9a12b057b06a68f6f01523ac0f4d995ab2734b9
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -44,7 +44,7 @@ define Package/libbbf_api/description
 endef
 
 define Package/libbbfdm/description
- Library contains the data model tree. It includes TR181, TR104, TR143, TR157 and TR064 data models
+ Library contains the data model tree. It includes TR181, TR104, TR143 and TR157 data models
 endef
 
 USE_LOCAL=$(shell ls ./src/ 2>/dev/null >/dev/null && echo 1)
@@ -77,11 +77,6 @@ endif
 ifeq ($(CONFIG_BBF_TR157),y)
 CONFIGURE_ARGS += \
 	--enable-tr157
-endif
-
-ifeq ($(CONFIG_BBF_TR064),y)
-CONFIGURE_ARGS += \
-	--enable-tr064
 endif
 
 ifeq ($(CONFIG_PACKAGE_libopenssl),y)
@@ -119,8 +114,6 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/libbbfdm
 	$(INSTALL_DIR) $(1)/usr/include/libbbf_api
 	$(CP) $(PKG_BUILD_DIR)/*.h $(1)/usr/include/libbbfdm/
-	$(CP) $(PKG_BUILD_DIR)/dmtree/tr181/*.h $(1)/usr/include/libbbfdm/
-	$(CP) $(PKG_BUILD_DIR)/dmtree/tr157/*.h $(1)/usr/include/libbbfdm/
 	$(CP) $(PKG_BUILD_DIR)/libbbf_api/*.h $(1)/usr/include/libbbf_api/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.{a,so*} $(1)/usr/lib/
