@@ -7,6 +7,7 @@ config obuspa 'global'
 	#option db_file '/tmp/usp.db'
 	#option trust_cert '/etc/obuspa/rootCA.pem'
 	#option client_cert '/etc/obuspa/client.pem'
+	#option log_dest '/var/log/obuspa'
 
 config localagent 'localagent'
 	option Enable 'true'
@@ -29,8 +30,8 @@ config mqtt 'localmqtt'
 	option BrokerAddress '127.0.0.1'
 	option BrokerPort '1883'
 	option TransportProtocol 'TCP/IP'
-	option Username 'username'
-	option Password 'password'
+	option Username 'admin'
+	option Password 'admin'
 
 # Add Device.LocalAgent.Subscription.
 config subscription
