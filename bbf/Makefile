@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=3.2.6
+PKG_VERSION:=3.2.7
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=85e1965ab9a075270d0a60df6ebad37e3ef2560c
+PKG_SOURCE_VERSION:=ae196c54590dc343db14a70879f21ef88203c426
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -44,7 +44,7 @@ define Package/libbbf_api/description
 endef
 
 define Package/libbbfdm/description
- Library contains the data model tree. It includes TR181, TR104, TR143 and TR157 data models
+ Library contains the data model tree. It includes TR181, TR104 and TR143 data models
 endef
 
 USE_LOCAL=$(shell ls ./src/ 2>/dev/null >/dev/null && echo 1)
@@ -72,11 +72,6 @@ endif
 ifeq ($(CONFIG_BBF_TR143),y)
 CONFIGURE_ARGS += \
 	--enable-tr143
-endif
-
-ifeq ($(CONFIG_BBF_TR157),y)
-CONFIGURE_ARGS += \
-	--enable-tr157
 endif
 
 ifeq ($(CONFIG_PACKAGE_libopenssl),y)
