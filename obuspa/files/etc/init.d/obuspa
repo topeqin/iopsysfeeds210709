@@ -530,8 +530,8 @@ service_triggers() {
 	procd_add_reload_trigger "uspd"
 	procd_add_config_trigger "config.change" "${CONFIGURATION}" /etc/init.d/obuspa remove_db
 
-	local interface
-	config_load obuspa
-	config_get interface global interface
-	[ -n "$interface" ] && procd_add_interface_trigger "interface.*" "$interface" /etc/init.d/obuspa reload
+#	local interface
+#	config_load obuspa
+#	config_get interface global interface
+#	[ -n "$interface" ] && procd_add_interface_trigger "interface.*" "$interface" /etc/init.d/obuspa reload
 }
