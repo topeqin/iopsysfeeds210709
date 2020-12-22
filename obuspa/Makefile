@@ -50,9 +50,11 @@ define Package/obuspa/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/obuspa
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/obuspa $(1)/usr/sbin/
 	$(INSTALL_BIN) ./files/etc/init.d/obuspa $(1)/etc/init.d/
 	$(INSTALL_DATA) ./files/etc/config/obuspa $(1)/etc/config/
+	$(INSTALL_BIN) ./files/etc/hotplug.d/iface/85-obuspa $(1)/etc/hotplug.d/iface/
 endef
 
 $(eval $(call BuildPackage,obuspa))
