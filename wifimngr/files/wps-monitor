@@ -1,0 +1,47 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+if [ -f /tmp/wps-monitor.pid ]; then
+	kill -9 $(cat /tmp/wps-monitor.pid) 2>/dev/null
+	rm -f /tmp/wps-monitor.pid
+fi
+
+[ "$1" == "stop" ] && exit
+
+WPSENABLED=0
+for vif in $(uci show wireless | grep wifi-iface | awk -F[.,=] '{print$2}'); do
+	[ "$(uci -q get wireless.$vif.wps_pushbutton)" == "1" ] && WPSENABLED=1
+done
+
+if [ $WPSENABLED -eq 0 ]; then
+	ubus call led.wps set '{"state":"off"}'
+	exit
+fi
+
+ubus listen wifi.ap wifi.bsta | \
+while read wpsevent ; do
+	#echo "wps-monitor got event: $event" >/dev/console
+	json_load "$wpsevent"
+	if json_select wifi.ap >/dev/null; then
+		json_get_var event event
+		if [ "$event" == "wps-pbc-active" ]; then
+			ubus call led.wps set '{"state":"notice"}'
+		elif [ "$event" == "wps-reg-success" ]; then
+			ubus call led.wps set '{"state":"ok","timeout":30}'
+		elif [ "$event" == "wps-timeout" ]; then
+			ubus call led.wps set '{"state":"off"}'		
+		fi
+	elif json_select wifi.bsta >/dev/null; then
+		json_get_var event event
+		if [ "$event" == "wps-pbc-active" ]; then
+			ubus call led.wps set '{"state":"notice"}'
+		elif [ "$event" == "wps-success" ]; then
+			ubus call led.wps set '{"state":"ok","timeout":30}'
+		elif [ "$event" == "wps-timeout" ]; then
+			ubus call led.wps set '{"state":"off"}'		
+		fi			    
+	fi
+done &
+
+echo $(($!-1)) $! >/tmp/wps-monitor.pid

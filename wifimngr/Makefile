@@ -48,14 +48,9 @@ endef
 endif
 
 define Package/wifimngr/install
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/wifimngr.init $(1)/etc/init.d/wifimngr
-#	$(INSTALL_DIR) $(1)/lib/upgrade/post-rootfs-fixup.d
-#	$(INSTALL_BIN) ./files/*-uci-wireless $(1)/lib/upgrade/post-rootfs-fixup.d
+	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifimngr $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
-	$(INSTALL_BIN) ./files/wifi.button.hotplug $(1)/etc/hotplug.d/button/05-wifi
 endef
 
 $(eval $(call BuildPackage,wifimngr))

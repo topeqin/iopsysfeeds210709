@@ -30,7 +30,15 @@ case "$ACTION" in
 		[ "wpsbutton" == "$INTERFACE" ] && {
 			[ -e "/tmp/wps_active" ] && return
 			echo "WPS button is pressed" > /dev/console
-			ubus call wifi.wps start
+			# TODO: Proper implementation
+			#ubus call wifi.wps start
+			devsta="$(uci show wireless | grep 'apsta=.1' | head -1 | cut -d '.' -f2)"
+			if [ -n "$devsta" ]; then
+				ubus -t 1 call hostapd.$devsta wps_start
+			else
+				dev5g="$(uci show wireless | grep 'hwmode=.11a' | head -1 | cut -d '.' -f2)"
+				ubus -t 1 call hostapd.$dev5g wps_start
+			fi
 		}
         ;;
 esac
