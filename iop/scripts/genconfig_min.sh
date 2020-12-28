@@ -186,12 +186,8 @@ function genconfig_min {
 
 		bcmAllowed=0
 		endptAllowed=0
-		natalieAllowed=0
-		mediatekAllowed=0
 
 		git ls-remote git@dev.iopsys.eu:broadcom/bcmcreator.git -q 2>/dev/null && bcmAllowed=1
-		git ls-remote git@dev.iopsys.eu:mediatek/linux.git -q 2>/dev/null && mediatekAllowed=1
-		git ls-remote git@dev.iopsys.eu:dialog/natalie-dect-12.26.git -q 2>/dev/null && natalieAllowed=1
 		git ls-remote git@dev.iopsys.eu:iopsys/endptmngr.git -q 2>/dev/null && endptAllowed=1
 	}
 

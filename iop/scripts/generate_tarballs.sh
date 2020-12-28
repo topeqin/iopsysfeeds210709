@@ -30,25 +30,6 @@ build_bcmkernel_consumer() {
 	cd "$curdir"
 }
 
-build_natalie_consumer() {
-	# create natalie-dect open version tar file
-	local natalieversion nataliecommith
-	grep -q "CONFIG_TARGET_NO_DECT=y" .config && return
-	natalieversion=$(grep -w "PKG_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
-	nataliecommith=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/iopsys/natalie-dect/Makefile | cut -d'=' -f2)
-	[ -n "$profile" ] && [ -n "$natalieversion" ] && [ -n "$nataliecommith" ] || return
-	ssh $SERVER "test -f $FPATH/natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz" && return
-	cd ./build_dir/target-*/natalie-dect-$natalieversion/
-	mkdir natalie-dect-open-$natalieversion
-	cp -f ipkg-*/natalie-dect/lib/modules/*/extra/dect.ko natalie-dect-open-$natalieversion/dect.ko
-	tar -czv  natalie-dect-open-$natalieversion/ -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
-	scp -pv natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $SERVER:$FPATH/
-	cp natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz $curdir/
-	rm -rf natalie-dect-open-$natalieversion
-	rm -f natalie-dect-$profile-$natalieversion-$nataliecommith.tar.gz
-	cd "$curdir"
-}
-
 build_endptmngr_consumer() {
 	# create endptmngr open version tar file
 	local endptversion endptcommith
@@ -67,46 +48,6 @@ build_endptmngr_consumer() {
 	cp endptmngr-$profile-$endptversion-$endptcommith.tar.gz $curdir/
 	rm -rf endptmngr-open-$endptversion
 	rm -f endptmngr-$profile-$endptversion-$endptcommith.tar.gz
-	cd "$curdir"
-}
-
-build_mediatek_kernel() {
-	local mediatek_commit kernel
-
-	mediatek_commit=$(grep CONFIG_KERNEL_GIT_COMMIT .config | cut -d '=' -f2 | tr -d '"')
-	kernel=linux-git*
-	[ -n "$mediatek_commit" ] || return
-	ssh $SERVER "test -f $FPATH/mediatek-kernel-open-$mediatek_commit.tar.gz" && return
-	echo "Building mediatek kernel tarball from kernel commit:"	
-	echo $mediatek_commit
-	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/linux-git*
-
-	# remove git repo
-	rm -rf .git
-	cd ..
-
-	tar -czv $kernel -f mediatek-kernel-open-$mediatek_commit.tar.gz
-	scp -pv mediatek-kernel-open-$mediatek_commit.tar.gz $SERVER:$FPATH/
-	cd "$curdir"
-}
-
-build_mediatek_wifi_consumer() {
-	local ver commit
-	local chip=$1
-
-	ver=$(grep -w "PKG_VERSION:" ./feeds/mediatek/mt${chip}/Makefile | cut -d'=' -f2)
-	commit=$(grep -w "PKG_SOURCE_VERSION:" ./feeds/mediatek/mt${chip}/Makefile | cut -d'=' -f2)
-	[ -n "$ver" ] && [ -n "$commit" ] || return
-	ssh $SERVER "test -f $FPATH/mtk${chip}e-${ver}_${commit}.tar.xz" && return
-	cd build_dir/target-mipsel_1004kc*/linux-iopsys-ramips*/mtk${chip}e-$ver/ipkg-*
-	mkdir -p mtk${chip}e-$ver/src
-	cp -rf kmod-mtk${chip}e/etc mtk${chip}e-$ver/src/
-	cp -rf kmod-mtk${chip}e/lib mtk${chip}e-$ver/src/
-	tar Jcf mtk${chip}e-${ver}_${commit}.tar.xz mtk${chip}e-$ver
-	scp -pv mtk${chip}e-${ver}_${commit}.tar.xz $SERVER:$FPATH/
-	cp mtk${chip}e-${ver}_${commit}.tar.xz $curdir/
-	rm -rf mtk${chip}e-$ver
-	rm -f mtk${chip}e-${ver}_${commit}.tar.xz
 	cd "$curdir"
 }
 
@@ -154,12 +95,7 @@ function generate_tarballs {
 
 	if [ "$stk_target" == "broadcom" ]; then
 		build_bcmkernel_consumer
-		build_natalie_consumer
 		build_endptmngr_consumer
-	elif [ "$stk_target" == "mediatek" ]; then
-		build_mediatek_kernel
-		build_mediatek_wifi_consumer 7603
-		build_mediatek_wifi_consumer 7615
 	else
 		echo "Invalid target: $stk_target"
 		print_usage

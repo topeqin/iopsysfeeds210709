@@ -187,12 +187,8 @@ function genconfig {
 
 		bcmAllowed=0
 		endptAllowed=0
-		natalieAllowed=0
-		#mediatekAllowed=0
 
 		git ls-remote git@dev.iopsys.eu:broadcom/bcmcreator.git -q 2>/dev/null && bcmAllowed=1
-		#git ls-remote git@dev.iopsys.eu:mediatek/linux.git -q 2>/dev/null && mediatekAllowed=1
-		git ls-remote git@dev.iopsys.eu:dialog/natalie-dect-12.26.git -q 2>/dev/null && natalieAllowed=1
 		git ls-remote git@dev.iopsys.eu:iopsys/endptmngr.git -q 2>/dev/null && endptAllowed=1
 	}
 
@@ -421,14 +417,10 @@ function genconfig {
 			echo "CONFIG_GITMIRROR_REWRITE=y" >>.config
 			[ $bcmAllowed -eq 0 ] && echo "CONFIG_BCM_OPEN=y" >> .config
 			[ $endptAllowed -eq 0 ] && echo "CONFIG_ENDPT_OPEN=y" >> .config
-			[ $natalieAllowed -eq 0 ] && echo "CONFIG_NATALIE_OPEN=y" >> .config
-			#[ $mediatekAllowed -eq 0 ] && echo "CONFIG_MEDIATEK_OPEN=y" >> .config
 		else
 			echo "# CONFIG_GITMIRROR_REWRITE is not set" >>.config
 			echo "CONFIG_BCM_OPEN=y" >> .config
 			echo "CONFIG_ENDPT_OPEN=y" >> .config
-			echo "CONFIG_NATALIE_OPEN=y" >> .config
-			#echo "CONFIG_MEDIATEK_OPEN=y" >> .config
 		fi
 
 		if [ -n "$BRCM_MAX_JOBS" ]
