@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=6.3.2-2020-12-24
+PKG_VERSION:=6.3.3-2020-12-31
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=969d611db34d15edc79104ba0a828760ac95bff3
+PKG_SOURCE_VERSION:=6cf5c90a443ed38e02df07c80d9c8ddcbfc2401c
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -37,7 +37,7 @@ define Package/$(PKG_NAME)
   CATEGORY:=Utilities
   SUBMENU:=TRx69
   TITLE:=CWMP client
-  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libcurl +libbbfdm  +libbbf_api
+  DEPENDS:=+libuci +libmicroxml +libubox +jshn +libubus +libblobmsg-json +libpthread +ubusd +shflags +getopt +zlib +libjson-c +libopenssl +curl +libcurl
 endef
 
 define Package/$(PKG_NAME)/description
