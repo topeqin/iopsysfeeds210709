@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=3.3.4
+PKG_VERSION:=3.3.5
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=8b589c63c3297578d84cac82bf4cfef35cd6c34b
+PKG_SOURCE_VERSION:=3f9767796f556b9774d8ec372846062c98087a0e
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -32,7 +32,7 @@ define Package/libbbfdm
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Library for broadband-forum data model
-  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api +libopenssl +libmbedtls
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api +libopenssl +libmbedtls +libcurl
 endef
 
 define Package/libbbfdm/config
