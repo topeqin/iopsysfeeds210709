@@ -51,15 +51,11 @@ MAKE_FLAGS += \
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/etc/dect/
-	$(INSTALL_DIR) $(1)/etc/config/
-	$(INSTALL_DIR) $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/etc
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app/dectmngr $(1)/usr/sbin/
 	$(STRIP) $(1)/usr/sbin/dectmngr
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app/libdect.so $(1)/usr/lib/
-	$(STRIP) $(1)/usr/lib/libdect.so
+	$(CP) ./files/etc/* $(1)/etc/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
