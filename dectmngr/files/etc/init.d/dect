@@ -1,0 +1,60 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright (C) 2021 OpenWrt.org
+#
+
+source /lib/functions/uci-defaults.sh
+
+START=70
+STOP=12
+
+USE_PROCD=1
+NAME=dectmngr
+PROG=/usr/sbin/dectmngr
+
+# Ask dectmngr to exit nicely and wait for it to clean up, which is a slow process.
+stop_and_wait_dectmngr() {
+	pidof $NAME || return
+
+	killall -q $NAME || return
+	while pidof $NAME >/dev/null; do
+		sleep 1;
+	done
+}
+
+start_service() {
+	test $(db get hw.board.hasDect) = "0" && return
+
+	echo 1 > /sys/class/gpio/gpio14/value
+
+	procd_open_instance
+	procd_set_param command $PROG -comname ttyH0
+	procd_set_param respawn 6 2 3
+	procd_set_param term_timeout 20
+	procd_set_param triggers asterisk
+	procd_close_instance
+}
+
+stop_service() {
+	test $(db get hw.board.hasDect) = "0" && return
+
+	echo 0 > /sys/class/gpio/gpio14/value
+	stop_and_wait_dectmngr
+}
+
+reload_service() {
+	stop_and_wait_dectmngr
+	start
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger asterisk
+}
+
+boot() {
+	echo 14 > /sys/class/gpio/export
+	echo out > /sys/class/gpio/gpio14/direction
+	start
+}
+
