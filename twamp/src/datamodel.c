@@ -47,17 +47,11 @@ static char *get_last_id(char *package, char *section)
 	return id;
 }
 
-struct ip_args
-{
-	struct uci_section *ip_sec;
-	char *ip_4address;
-};
-
 static int addObjIPInterfaceTWAMPReflector(char *refparam, struct dmctx *ctx, void *data, char **instance)
 {
 	struct uci_section *connection = NULL;
 
-	char *last_inst = get_last_instance_with_option("twamp", "twamp_reflector", "interface", section_name(((struct ip_args *)data)->ip_sec), "twamp_inst");
+	char *last_inst = get_last_instance_with_option("twamp", "twamp_reflector", "interface", section_name((struct uci_section *)data), "twamp_inst");
 	char *id = get_last_id("twamp", "twamp_reflector");
 
 	dmuci_add_section("twamp", "twamp_reflector", &connection);
@@ -65,7 +59,7 @@ static int addObjIPInterfaceTWAMPReflector(char *refparam, struct dmctx *ctx, vo
 	dmuci_set_value_by_section(connection, "twamp_inst", *instance);
 	dmuci_set_value_by_section(connection, "id", id);
 	dmuci_set_value_by_section(connection, "enable", "0");
-	dmuci_set_value_by_section(connection, "interface", section_name(((struct ip_args *)data)->ip_sec));
+	dmuci_set_value_by_section(connection, "interface", section_name((struct uci_section *)data));
 	dmuci_set_value_by_section(connection, "port", "862");
 	dmuci_set_value_by_section(connection, "max_ttl", "1");
 	return 0;
@@ -76,16 +70,15 @@ static int delObjIPInterfaceTWAMPReflector(char *refparam, struct dmctx *ctx, vo
 	int found = 0;
 	struct uci_section *s, *ss = NULL;
 	char *interface;
-	struct uci_section *section = (struct uci_section *)data;
 
 	switch (del_action) {
 		case DEL_INST:
-			dmuci_delete_by_section(section, NULL, NULL);
+			dmuci_delete_by_section((struct uci_section *)data, NULL, NULL);
 			return 0;
 		case DEL_ALL:
 			uci_foreach_sections("twamp", "twamp_reflector", s) {
 				dmuci_get_value_by_section_string(s, "interface", &interface);
-				if(strcmp(interface, section_name(((struct ip_args *)data)->ip_sec)) != 0)
+				if (strcmp(interface, section_name((struct uci_section *)data)) != 0)
 					continue;
 				if (found != 0) {
 					dmuci_delete_by_section(ss, NULL, NULL);
@@ -277,7 +270,7 @@ static int browseIPInterfaceTWAMPReflectorInst(struct dmctx *dmctx, DMNODE *pare
 	struct uci_section *s = NULL;
 	char *inst = NULL, *max_inst = NULL;
 
-	uci_foreach_option_eq("twamp", "twamp_reflector", "interface", section_name(((struct ip_args *)prev_data)->ip_sec), s) {
+	uci_foreach_option_eq("twamp", "twamp_reflector", "interface", section_name((struct uci_section *)prev_data), s) {
 
 		inst = handle_update_instance(2, dmctx, &max_inst, update_instance_alias, 3,
 			   s, "twamp_inst", "twamp_alias");
