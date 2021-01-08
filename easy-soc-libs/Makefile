@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easy-soc-libs
-PKG_VERSION:=6.0.2
+PKG_VERSION:=6.0.4
 PKG_RELEASE:=1
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=fee575f414324c68d0916fab06d10eccb78541fd
+PKG_SOURCE_VERSION:=534fc9b8a2eb4821f3c639e3bf29ff687bdc6dc6
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -123,6 +123,7 @@ define Build/InstallDev/libeasy
 	$(CP) $(PKG_BUILD_DIR)/libeasy/easy.h $(1)/usr/include/easy/
 	$(CP) $(PKG_BUILD_DIR)/libeasy/event.h $(1)/usr/include/easy/
 	$(CP) $(PKG_BUILD_DIR)/libeasy/utils.h $(1)/usr/include/easy/
+	$(CP) $(PKG_BUILD_DIR)/libeasy/if_utils.h $(1)/usr/include/easy/
 	$(CP) $(PKG_BUILD_DIR)/libeasy/debug.h $(1)/usr/include/easy/
 	$(CP) $(PKG_BUILD_DIR)/libeasy/libeasy*.so* $(1)/usr/lib/
 endef
