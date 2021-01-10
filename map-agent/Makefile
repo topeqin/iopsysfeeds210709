@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-agent
-PKG_VERSION:=3.1.7
+PKG_VERSION:=3.1.8
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=6d5ef87f2d7135c00558209b59d5cb047bc86939
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
