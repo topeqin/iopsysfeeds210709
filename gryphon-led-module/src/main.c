@@ -46,9 +46,10 @@ static ssize_t get_led_color(struct device *dev,
 	/* [ln] todo: dummy implementation */
 	int len;
 
-	len = sprintf(buf, "%d\n", 123);
+	len = scnprintf(buf, PAGE_SIZE, "%d\n", 123);
 	if (len <= 0) {
 		dev_err(dev, "sk9822: Invalid sprintf len: %d\n", len);
+		return -EIO;
 	}
 
 	return len;
@@ -99,8 +100,69 @@ static ssize_t set_led_color(struct device *dev,
 }
 static DEVICE_ATTR(led_color, S_IRUGO | S_IWUSR, get_led_color, set_led_color);
 
+static ssize_t get_led_brightness(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	int len;
+	struct sk9822_leds *sk9822 = dev_get_drvdata(dev);
+
+	if (IS_ERR(sk9822)) {
+		printk(KERN_ERR "Platform get drvdata returned NULL\n");
+		return -EIO;
+	}
+
+	len = scnprintf(buf, PAGE_SIZE, "%x\n", sk9822->led_brightness);
+	if (len <= 0) {
+		dev_err(dev, "sk9822: Invalid sprintf len: %d\n", len);
+		return -EIO;
+	}
+
+	return len;
+}
+
+/**
+ * @brief Set LED brightness
+ * @retval count number of bytes written
+ * @retval -EINVAL if the message is not a valid hexadecimal number
+ * @retval -EIO for all other errors (e.g. leds cannot be configured)
+ */
+static ssize_t set_led_brightness(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	int ret = 0;
+	struct sk9822_leds *sk9822 = dev_get_drvdata(dev);
+	unsigned long val = SK9822_DEFAULT_BRIGHTNESS;
+
+	if (IS_ERR(sk9822)) {
+		printk(KERN_ERR "Platform get drvdata returned NULL\n");
+		return -EIO;
+	}
+
+	if (kstrtoul(buf, 16, &val)) {
+		return -EINVAL;
+	}
+
+	if(val > SK9822_DEFAULT_BRIGHTNESS) {
+		val = SK9822_DEFAULT_BRIGHTNESS;
+	}
+
+	sk9822->led_brightness = (uint8_t)val;
+
+	// Now push to the HW
+	ret = sk9822_update(sk9822);
+	if (ret != 0) {
+		printk(KERN_ERR "Failed to update led\n");
+		return -EIO;
+	}
+
+	return count;
+}
+static DEVICE_ATTR(led_brightness, S_IRUGO | S_IWUSR, get_led_brightness, set_led_brightness);
+
+
 static struct attribute *sk9822_dev_attrs[] = {
 	 &dev_attr_led_color.attr,
+	 &dev_attr_led_brightness.attr,
 	 NULL
 };
 
