@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=534fc9b8a2eb4821f3c639e3bf29ff687bdc6dc6
+PKG_SOURCE_VERSION:=c841a18d0081770b7d943eab3e169c9494c1b4d8
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -57,6 +57,12 @@ define Package/libethernet
   DEPENDS+=+libnl +libnl-route +libeasy +TARGET_iopsys_ramips:swconfig
 endef
 
+define Package/libqos
+  $(call Package/easy-soc-libs)
+  TITLE:= QoS library (libqos)
+  DEPENDS+=+libnl +libnl-route +libeasy
+endef
+
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
   TARGET_PLATFORM=BROADCOM
   CHIP_ID=$(patsubst "%",%,$(CONFIG_BCM_CHIP_ID))
@@ -98,6 +104,8 @@ subdirs := \
 	$(if $(CONFIG_PACKAGE_libwifi),libwifi) \
 	$(if $(CONFIG_PACKAGE_libdsl),libdsl) \
 	$(if $(CONFIG_PACKAGE_libethernet),libethernet)
+
+subdirs := $(subdirs) libqos
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
@@ -151,6 +159,14 @@ define Build/InstallDev/libethernet
 	$(CP) $(PKG_BUILD_DIR)/libethernet/libethernet.so $(1)/usr/lib/
 endef
 
+define Build/InstallDev/libqos
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libeasy/easy.h $(1)/usr/include/easy/
+	$(CP) $(PKG_BUILD_DIR)/libqos/qos.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libqos/libqos.so $(1)/usr/lib/
+endef
+
 define Build/Compile
 	$(call Build/Compile/Default)
 ifeq ($(CONFIG_LIBDSL_TEST),y)
@@ -177,6 +193,11 @@ define Package/libethernet/install
 	$(CP) $(PKG_BUILD_DIR)/libethernet/libethernet.so* $(1)/usr/lib/
 endef
 
+define Package/libqos/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libqos/libqos*.so* $(1)/usr/lib/
+endef
+
 define Package/libdsl/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/bin
@@ -194,3 +215,4 @@ $(eval $(call BuildPackage,libeasy))
 $(eval $(call BuildPackage,libwifi))
 $(eval $(call BuildPackage,libdsl))
 $(eval $(call BuildPackage,libethernet))
+$(eval $(call BuildPackage,libqos))
