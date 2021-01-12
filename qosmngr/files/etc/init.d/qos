@@ -4,18 +4,23 @@
 # include /lib/qos
 
 START=21
+STOP=10
 
 USE_PROCD=1
 NAME=qosmngr
+PROG=/usr/sbin/qosmngr
 
 . /lib/functions.sh
 include /lib/qos
 
 start_service() {
 	if [ -f "/etc/config/qos" ]; then
-		ubus -S call qos reload
+		reload_qos
+		procd_open_instance qosmngr
+		procd_set_param command ${PROG}
+		procd_set_param respawn
+		procd_close_instance
 	fi
-
 }
 
 stop() {
