@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_RELEASE:=1
 PKG_VERSION:=0.4
-PKG_SOURCE_VERSION:=0a2b7dd6f58eb0dc5255fee4ee3d776524b64fe9
+PKG_SOURCE_VERSION:=510b885c049b8ba06772dae59e64b370d0fded3e
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 
@@ -53,7 +53,7 @@ define Package/endptmngr
   CATEGORY:=Utilities
   TITLE:=Brcmslic
   URL:=
-  DEPENDS:= +libubox +ubus +libpicoevent +bcmkernel @TARGET_HAS_VOICE @BCM_VOICE
+  DEPENDS:= +libubox +ubus +libpicoevent +uci +bcmkernel @TARGET_HAS_VOICE @BCM_VOICE
 endef
 
 define Package/endptmngr/description
