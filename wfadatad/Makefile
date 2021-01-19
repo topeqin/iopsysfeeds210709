@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfadatad
-PKG_VERSION:=3.0.5
+PKG_VERSION:=3.1.0
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=477351a03190b09a050297c0456e2e74ddde4bd6
+PKG_SOURCE_VERSION:=6ee86bf2138edd680cc13f9d364f3e272a9e1e7c
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfadatad.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -59,7 +59,7 @@ define Package/wfadatad/install
 ifeq ($(CONFIG_WFA_DELM_STANDALONE),y)
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/wfa_delm.init $(1)/etc/init.d/wfadatad
+	$(INSTALL_BIN) ./files/wfadatad.init $(1)/etc/init.d/wfadatad
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wfadatad $(1)/usr/sbin/
 else
 	$(INSTALL_DIR) $(1)/usr/lib/map-plugins
