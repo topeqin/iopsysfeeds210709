@@ -20,7 +20,7 @@ start_service() {
 		local en
 
 		config_load mapcontroller
-		config_get en "mapcontroller" "enabled" "0"
+		config_get en controller enabled "0"
 
 		[ $en -gt 0 ] && {
 			procd_open_instance
