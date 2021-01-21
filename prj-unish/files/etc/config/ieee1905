@@ -1,0 +1,23 @@
+
+config ieee1905 'ieee1905'
+        option enabled '1'
+        option extension 0
+	#option macaddress 'ba:c9:a6:90:6c:b0'
+	option registrar '2 5'
+
+config ap
+	option band '2'
+	option ssid 'TestSSID'
+	option encryption 'psk2'
+	option key '1234567890'
+
+config ap
+	option band '5'
+	option ssid 'TestSSID'
+	option encryption 'psk2'
+	option key '1234567890'
+
+config al-iface
+        option enabled 1
+        option ifname 'br-lan'
+	option type 'bridge'
