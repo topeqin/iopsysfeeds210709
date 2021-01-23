@@ -29,38 +29,10 @@ include $(INCLUDE_DIR)/package.mk
 define Package/easy-soc-libs
   SECTION:=libs
   CATEGORY:=Libraries
-  TITLE:=IOPSYS easy SoC libraries
-  SUBMENU:=IOPSYS easy SoC libraries
+  TITLE:=IOPSYS Easy SoC libraries
+  SUBMENU:=IOPSYS Easy SoC libraries
   DEPENDS:=+libopenssl
   MENU:=1
-endef
-
-define Package/libwifi/config
-  source "$(SOURCE)/Config.in"
-endef
-
-define Package/libeasy
-  $(call Package/easy-soc-libs)
-  TITLE:= Common helper functions library (libeasy)
-  DEPENDS+=+libnl +libnl-route
-endef
-
-define Package/libwifi
-  $(call Package/easy-soc-libs)
-  TITLE:= WiFi library (libwifi)
-  DEPENDS+=+libnl +libnl-route +libeasy
-endef
-
-define Package/libethernet
-  $(call Package/easy-soc-libs)
-  TITLE:= Ethernet library (libethernet)
-  DEPENDS+=+libnl +libnl-route +libeasy +TARGET_iopsys_ramips:swconfig
-endef
-
-define Package/libqos
-  $(call Package/easy-soc-libs)
-  TITLE:= QoS library (libqos)
-  DEPENDS+=+libnl +libnl-route +libeasy
 endef
 
 ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
@@ -89,23 +61,20 @@ endif
 
 export TARGET_PLATFORM
 
-ifdef CONFIG_IOP_LLA_LIBS_DEBUG
-  TARGET_CFLAGS += -DIOP_LLA_LIBS_DEBUG
-endif
-
-define Package/libdsl
-  $(call Package/easy-soc-libs)
-  TITLE:= XDSL library (libdsl)
-  DEPENDS+=+TARGET_intel_mips:dsl-cpe-api-vrx +TARGET_intel_mips:dsl-cpe-fapi +TARGET_intel_mips:kmod-ppa-drv
-endef
-
 subdirs := \
 	$(if $(CONFIG_PACKAGE_libeasy),libeasy) \
 	$(if $(CONFIG_PACKAGE_libwifi),libwifi) \
 	$(if $(CONFIG_PACKAGE_libdsl),libdsl) \
-	$(if $(CONFIG_PACKAGE_libethernet),libethernet)
+	$(if $(CONFIG_PACKAGE_libethernet),libethernet) \
+	$(if $(CONFIG_PACKAGE_libqos),libqos)
 
-subdirs := $(subdirs) libqos
+EASY_SOC_LIBS := \
+	libeasy \
+	libwifi \
+	libdsl \
+	libethernet \
+	libqos
+
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
@@ -125,94 +94,34 @@ define Build/Prepare
 endef
 endif
 
-define Build/InstallDev/libeasy
-	$(INSTALL_DIR) $(1)/usr/include/easy
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libeasy/easy.h $(1)/usr/include/easy/
-	$(CP) $(PKG_BUILD_DIR)/libeasy/event.h $(1)/usr/include/easy/
-	$(CP) $(PKG_BUILD_DIR)/libeasy/utils.h $(1)/usr/include/easy/
-	$(CP) $(PKG_BUILD_DIR)/libeasy/if_utils.h $(1)/usr/include/easy/
-	$(CP) $(PKG_BUILD_DIR)/libeasy/debug.h $(1)/usr/include/easy/
-	$(CP) $(PKG_BUILD_DIR)/libeasy/libeasy*.so* $(1)/usr/lib/
-endef
+include easy.mk
+include wifi.mk
+include dsl.mk
+include ethernet.mk
+include qos.mk
 
-define Build/InstallDev/libwifi
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libwifi/wifi.h $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi*.so* $(1)/usr/lib/
+ifneq ($(wildcard $(PKG_BUILD_DIR)/.config_*),\
+	$(PKG_BUILD_DIR)/.config_$(patsubst "%",%,$(CONFIG_TARGET_PROFILE)))
+define Build/Compile/rebuild
+	$(FIND) $(PKG_BUILD_DIR) -name \*.o -or -name \*.so\* | $(XARGS) rm -f;
+	$(if $(wildcard $(PKG_BUILD_DIR)/config_*), \
+		rm -f $(PKG_BUILD_DIR)/.config_*)
 endef
-
-define Build/InstallDev/libdsl
-	$(INSTALL_DIR) $(1)/usr/include/xdsl
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libdsl/xdsl.h $(1)/usr/include/xdsl
-	$(CP) $(PKG_BUILD_DIR)/libdsl/xtm.h $(1)/usr/include/xdsl
-	$(CP) $(PKG_BUILD_DIR)/libdsl/common.h $(1)/usr/include/xdsl
-	$(CP) $(PKG_BUILD_DIR)/libdsl/libdsl.so* $(1)/usr/lib/
-endef
-
-define Build/InstallDev/libethernet
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libethernet/ethernet.h $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/libethernet/libethernet.so $(1)/usr/lib/
-endef
-
-define Build/InstallDev/libqos
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libeasy/easy.h $(1)/usr/include/easy/
-	$(CP) $(PKG_BUILD_DIR)/libqos/qos.h $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/libqos/libqos.so $(1)/usr/lib/
-endef
+endif
 
 define Build/Compile
+	$(Build/Compile/rebuild)
+	touch $(PKG_BUILD_DIR)/.config_$(CONFIG_TARGET_PROFILE)
 	$(call Build/Compile/Default)
-ifeq ($(CONFIG_LIBDSL_TEST),y)
-	$(MAKE) -C "$(PKG_BUILD_DIR)/libdsl/test" $(MAKE_FLAGS)
-endif
+	$(foreach dir,$(subdirs),$(call Build/Compile/$(dir)))
 endef
 
 define Build/InstallDev
 	$(foreach dir,$(subdirs),$(call Build/InstallDev/$(dir),$(1),$(2));)
 endef
 
-define Package/libeasy/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libeasy/libeasy*.so* $(1)/usr/lib/
-endef
-
-define Package/libwifi/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libwifi/libwifi*.so* $(1)/usr/lib/
-endef
-
-define Package/libethernet/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libethernet/libethernet.so* $(1)/usr/lib/
-endef
-
-define Package/libqos/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libqos/libqos*.so* $(1)/usr/lib/
-endef
-
-define Package/libdsl/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_BUILD_DIR)/libdsl/libdsl.so* $(1)/usr/lib/
-ifeq ($(CONFIG_LIBDSL_TEST),y)
-	$(CP) $(PKG_BUILD_DIR)/libdsl/test/libdsl_test $(1)/usr/bin/
-endif
-endef
-
 define Package/easy-soc-libs/install
 	:
 endef
 
-$(eval $(call BuildPackage,libeasy))
-$(eval $(call BuildPackage,libwifi))
-$(eval $(call BuildPackage,libdsl))
-$(eval $(call BuildPackage,libethernet))
-$(eval $(call BuildPackage,libqos))
+$(eval $(foreach e,$(EASY_SOC_LIBS),$(call BuildPackage,$(e))))
