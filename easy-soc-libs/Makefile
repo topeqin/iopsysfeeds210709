@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=0d14073999a6cbc24423b506091d124c559dd1f7
+PKG_SOURCE_VERSION:=e0a2541964678f51a7e297c4f2c57b055695eaf6
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -39,7 +39,8 @@ ifeq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),y)
   TARGET_PLATFORM=BROADCOM
   CHIP_ID=$(patsubst "%",%,$(CONFIG_BCM_CHIP_ID))
   TARGET_CFLAGS +=-DIOPSYS_BROADCOM -DCHIP_$(CHIP_ID) -DCONFIG_BCM9$(CHIP_ID) \
-	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx
+	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx \
+	-I$(STAGING_DIR)/usr/include/bcm963xx/userspace/public/include
 else ifeq ($(CONFIG_TARGET_iopsys_ramips),y)
   TARGET_PLATFORM=MEDIATEK
   TARGET_CFLAGS +=-DIOPSYS_MEDIATEK

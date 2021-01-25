@@ -2,7 +2,7 @@
 define Package/libwifi
   $(call Package/easy-soc-libs)
   TITLE:= WiFi library (libwifi)
-  DEPENDS+=+libnl +libnl-route +libeasy
+  DEPENDS+=+libnl +libnl-route +libeasy +TARGET_iopsys_brcm63xx_arm:bcmkernel
 endef
 
 define Package/libwifi/config
