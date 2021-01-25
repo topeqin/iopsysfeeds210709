@@ -16,7 +16,7 @@ endef
 define Build/InstallDev/libqos
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
-	#$(CP) $(PKG_BUILD_DIR)/libqos/qos.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libqos/qos.h $(1)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/libqos/libqos.so $(1)/usr/lib/
 endef
 
