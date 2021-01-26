@@ -14,11 +14,12 @@ PROG=/usr/sbin/dectmngr
 
 # Ask dectmngr to exit nicely and wait for it to clean up, which is a slow process.
 stop_and_wait_dectmngr() {
-	pidof $NAME || return
+	pidof $NAME && killall -q $NAME
 
-	killall -q $NAME || return
-	while pidof $NAME >/dev/null; do
-		sleep 1;
+	pidof $NAME && sleep 2 # wait for the process to stop gracefully
+	while pidof $NAME; do
+		killall -q -9 $NAME 
+		sleep 1
 	done
 }
 
