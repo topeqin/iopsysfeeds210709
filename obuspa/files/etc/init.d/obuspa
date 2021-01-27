@@ -530,6 +530,28 @@ service_triggers() {
 	procd_add_reload_trigger "uspd"
 	procd_add_config_trigger "config.change" "${CONFIGURATION}" /etc/init.d/obuspa remove_db
 
+	# Create a reload trigger if schema update avaialble
+	procd_open_trigger
+		json_add_array
+			json_add_string "" "usp.raw"
+			json_add_array
+				json_add_string "" "if"
+				json_add_array
+					json_add_string "" "eq"
+					json_add_string "" "action"
+					json_add_string "" "schema_update_available"
+				json_close_array
+				json_add_array
+					json_add_string "" "run_script"
+					json_add_string "" "/etc/init.d/obuspa"
+					json_add_string "" "reload"
+				json_close_array
+			json_close_array
+			json_add_int "" "1000"
+		json_close_array
+	procd_close_trigger
+
+
 #	local interface
 #	config_load obuspa
 #	config_get interface global interface
