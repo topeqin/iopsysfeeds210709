@@ -11,7 +11,6 @@ STOP=10
 USE_PROCD=1
 PROG="/usr/sbin/icwmpd"
 
-EXTRA_COMMANDS="notify"
 EXTRA_HELP="	start	[GetRPCMethods] Start icwmpd service and send GetRPCMethods"
 
 validate_url() {
@@ -176,19 +175,12 @@ start_service() {
 		fi
 		procd_set_param respawn "3" "7" "0"
 		procd_close_instance
-		#procd_open_instance
-		#[ "$(uci -q get cwmp.cpe.notification)" == "1" ] && procd_append_param command "/usr/sbin/icwmp_notifd"
-		#procd_close_instance
 	fi
 }
 
 reload_service() {
 	stop
 	start
-}
-
-notify() {
-       ubus -t 1 call tr069 notify >/dev/null 2>&1 & 
 }
 
 service_triggers() {
