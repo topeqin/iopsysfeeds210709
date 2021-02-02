@@ -33,8 +33,6 @@ populate_config(){
 	done
 
 	uci commit ports
-
-	[ $DEBUG ] && cat /etc/config/ports
 }
 
 [ -f /sbin/db -a -f /etc/board-db/config/hw ] && populate_config
