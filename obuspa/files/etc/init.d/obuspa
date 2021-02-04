@@ -504,6 +504,26 @@ remove_db() {
 	start
 }
 
+service_running() {
+	local AgentEndpointID serial oui
+
+	ubus -t 10 wait_for usp.raw
+	config_load obuspa
+	config_get AgentEndpointID localagent EndpointID ""
+	if [ -z "${AgentEndpointID}" ]; then
+		serial=$(ubus -t 1 call usp.raw get '{"path":"Device.DeviceInfo.SerialNumber"}'|jsonfilter -e '@["parameters"][0].value')
+		oui=$(ubus -t 1 call usp.raw get '{"path":"Device.DeviceInfo.ManufacturerOUI"}'|jsonfilter -e '@["parameters"][0].value')
+		AgentEndpointID="os::${oui}-${serial}"
+	fi
+
+	# publish Agent's EndpointID in mosquito broker for discovery
+	# This is a work around till obuspa does not support advertising
+	log "Publishing EndpointID ${AgentEndpointID} to local mqtt broker"
+	mosquitto_pub -r -t "obuspa/EndpointID" -m "${AgentEndpointID}"
+
+	procd_running ${CONFIGURATION}
+}
+
 start_service() {
 	procd_open_instance ${CONFIGURATION}
 	procd_set_param command ${PROG}
@@ -527,7 +547,7 @@ reload_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "uspd"
+	procd_add_reload_trigger "uspd" "mosquitto"
 	procd_add_config_trigger "config.change" "${CONFIGURATION}" /etc/init.d/obuspa remove_db
 
 	# Create a reload trigger if schema update avaialble
