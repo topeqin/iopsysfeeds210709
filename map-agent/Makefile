@@ -23,7 +23,7 @@ define Package/map-agent
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi multi-AP Agent (EasyMesh R2)
-  DEPENDS:=+libwifi +libuci +libubox +ubus +libmaputils +libwsc
+  DEPENDS:=+libwifi +libuci +libubox +ubus +libmaputils +libwsc +libeasy
 endef
 
 define Package/map-agent/description
