@@ -22,7 +22,7 @@ define Package/map-controller
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi Multi-AP Controller (EasyMesh R2)
-  DEPENDS:=+libuci +libubox +ubus +libmaputils +libwsc
+  DEPENDS:=+libuci +libubox +ubus +libmaputils +libwsc +libeasy
 endef
 
 define Package/map-controller/description
