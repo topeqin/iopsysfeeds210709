@@ -17,7 +17,7 @@ start_service() {
 service_running() {
 	ubus -t 2 wait_for led.status
 	ubus call led.status set '{"state":"notice"}'
-	ubus -t 2 wait_for button
+	ubus -t 2 wait_for buttons
 }
 
 stop_service() {
