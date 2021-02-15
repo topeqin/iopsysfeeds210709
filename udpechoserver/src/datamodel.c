@@ -62,7 +62,7 @@ static int set_IPDiagnosticsUDPEchoConfig_Interface(char *refparam, struct dmctx
 {
 	switch (action) {
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 256, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 256, NULL, NULL))
 				return FAULT_9007;
 			return 0;
 		case VALUESET:
@@ -82,7 +82,7 @@ static int set_IPDiagnosticsUDPEchoConfig_SourceIPAddress(char *refparam, struct
 {
 	switch (action) {
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 45, NULL, 0, IPAddress, 2))
+			if (dm_validate_string(value, -1, 45, NULL, IPAddress))
 				return FAULT_9007;
 			return 0;
 		case VALUESET:
