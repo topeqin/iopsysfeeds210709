@@ -454,7 +454,7 @@ static int set_BulkDataProfile_Alias(char *refparam, struct dmctx *ctx, void *da
 
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 64, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 64, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -476,7 +476,7 @@ static int set_BulkDataProfile_Name(char *refparam, struct dmctx *ctx, void *dat
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 255, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 255, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -520,7 +520,7 @@ static int set_BulkDataProfile_Protocol(char *refparam, struct dmctx *ctx, void 
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, BulkDataProtocols, 3, NULL, 0))
+			if (dm_validate_string(value, -1, -1, BulkDataProtocols, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -546,7 +546,7 @@ static int set_BulkDataProfile_EncodingType(char *refparam, struct dmctx *ctx, v
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, EncodingTypes, 4, NULL, 0))
+			if (dm_validate_string(value, -1, -1, EncodingTypes, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -646,7 +646,7 @@ static int set_BulkDataProfileParameter_Name(char *refparam, struct dmctx *ctx, 
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 64, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 64, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -667,7 +667,7 @@ static int set_BulkDataProfileParameter_Reference(char *refparam, struct dmctx *
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 256, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 256, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -688,7 +688,7 @@ static int set_BulkDataProfileCSVEncoding_FieldSeparator(char *refparam, struct 
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, -1, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -709,7 +709,7 @@ static int set_BulkDataProfileCSVEncoding_RowSeparator(char *refparam, struct dm
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, -1, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -731,7 +731,7 @@ static int set_BulkDataProfileCSVEncoding_EscapeCharacter(char *refparam, struct
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, -1, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -757,7 +757,7 @@ static int set_BulkDataProfileCSVEncoding_ReportFormat(char *refparam, struct dm
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, CSVReportFormat, 2, NULL, 0))
+			if (dm_validate_string(value, -1, -1, CSVReportFormat, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -787,7 +787,7 @@ static int set_BulkDataProfileCSVEncoding_RowTimestamp(char *refparam, struct dm
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, RowTimestamp, 3, NULL, 0))
+			if (dm_validate_string(value, -1, -1, RowTimestamp, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -817,7 +817,7 @@ static int set_BulkDataProfileJSONEncoding_ReportFormat(char *refparam, struct d
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, JSONReportFormat, 2, NULL, 0))
+			if (dm_validate_string(value, -1, -1, JSONReportFormat, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -847,7 +847,7 @@ static int set_BulkDataProfileJSONEncoding_ReportTimestamp(char *refparam, struc
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, RowTimestamp, 3, NULL, 0))
+			if (dm_validate_string(value, -1, -1, RowTimestamp, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -873,7 +873,7 @@ static int set_BulkDataProfileHTTP_URL(char *refparam, struct dmctx *ctx, void *
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 1024, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 1024, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -894,7 +894,7 @@ static int set_BulkDataProfileHTTP_Username(char *refparam, struct dmctx *ctx, v
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 256, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 256, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -915,7 +915,7 @@ static int set_BulkDataProfileHTTP_Password(char *refparam, struct dmctx *ctx, v
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 256, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 256, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -948,7 +948,7 @@ static int set_BulkDataProfileHTTP_Compression(char *refparam, struct dmctx *ctx
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, -1, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -984,7 +984,7 @@ static int set_BulkDataProfileHTTP_Method(char *refparam, struct dmctx *ctx, voi
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, -1, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, -1, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -1140,7 +1140,7 @@ static int set_BulkDataProfileHTTPRequestURIParameter_Name(char *refparam, struc
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 64, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 64, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
@@ -1161,7 +1161,7 @@ static int set_BulkDataProfileHTTPRequestURIParameter_Reference(char *refparam, 
 {
 	switch (action)	{
 		case VALUECHECK:
-			if (dm_validate_string(value, -1, 256, NULL, 0, NULL, 0))
+			if (dm_validate_string(value, -1, 256, NULL, NULL))
 				return FAULT_9007;
 			break;
 		case VALUESET:
