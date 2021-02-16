@@ -28,6 +28,8 @@ start_service() {
 
 	echo 1 > /sys/class/gpio/gpio14/value
 
+	return
+
 	procd_open_instance
 	procd_set_param command $PROG -comname ttyH0
 	procd_set_param respawn 6 2 3
