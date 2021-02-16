@@ -1,7 +1,8 @@
-config wificntlr
+config controller 'controller'
 	option enabled '1'
 	option registrar '5 2'	    #bands on which wps registrar supported
 	option debug '6'
+	option al_bridge 'br-lan'
 
 config fh-credentials
 	option band '5'
@@ -38,74 +39,3 @@ config bk-credentials
 #	option multi_ap_backhaul_key 'multiap_key123'           # possible future TODO
 #	option multi_ap_backhaul_ssid 'MultiAP-0022077E9CD6'    # possible future TODO
 	option disallow_bsta '0'                # 0 or 1 profile-1 bSTA
-
-config agent-policy
-	option agent_id '00:22:07:7E:9C:D6'        # 1905al macaddress of agent
-	list steer_exclude '00:11:22:33:44:55'
-	list steer_exclude_btm '00:aa:bb:cc:dd:ee'
-	option steer_policy '2'                    # 0, 1, 2 - see MultiAP spec
-	option util_threshold '200'                # channel-util as in BSS load
-	option rcpi_threshold '30'                 # 0 - 220 valid range
-	option report_scan '0'                     # 0 or 1 for independent sc include_sta_metric '0'              # sta metric in AP metric resp
-	option pvid '100'                          # primary vlan id
-	option pcp_default '5'                     # default vlan pcp
-	option disallow_bsta_p1 '0'                # 0 or 1 profile20 valid range
-	option report_scan '0'                     # 0 or 1 for independent scans
-	option report_sta_assocfails '1'           # 0 or 1 - stas assoc failure
-	option report_metric_periodic '0'          # 0, or 1 - 255 in secs
-	option report_rcpi_threshold '30'                 # 0 - 220 valid range
-	option report_scan '0'                     # 0 or 1 for independent scans
-	option report_sta_assocfails '1'           # 0 or 1 - stas assoc failure
-	option report_metric_periodic '0'          # 0, or 1 - 255 in secs
-	option report_rcpi_threshold '0'           # 0, or 1 - 220
-	option report_util_threshold '0'           # 0, or  channel-util value
-	option include_sta_stats '0'               # sta stats in AP metric resp
-	option include_sta_metric '0'              # sta metric in AP metric resp
-	option pvid '100'                          # primary vlan id
-	option pcp_default '5'                     # default vlan pcp
-	option disallow_bsta_p1 '0'                # 0 or 1 profile-1 bSTA
-	option disallow_bsta_p2 '0'                # 0 or 1 profile-2 bSTA
-
-config agent-policy
-	option agent_id '00:00:00:00:00:00'
-	list steer_exclude '00:11:22:33:44:55'
-	list steer_exclude_btm '00:aa:bb:cc:dd:ee'
-	option steer_policy '2'                    # 0, 1, 2 - see MultiAP spec
-	option util_threshold '200'                # channel-util as in BSS load
-	option rcpi_threshold '30'                 # 0 - 220 valid range
-	option report_scan '0'                     # 0 or 1 for independent sc include_sta_metric '0'              # sta metric in AP metric resp
-	option pvid '100'                          # primary vlan id
-	option pcp_default '5'                     # default vlan pcp
-	option disallow_bsta_p1 '0'                # 0 or 1 profile20 valid range
-	option report_scan '0'                     # 0 or 1 for independent scans
-	option report_sta_assocfails '1'           # 0 or 1 - stas assoc failure
-	option report_metric_periodic '0'          # 0, or 1 - 255 in secs
-	option report_rcpi_threshold '30'                 # 0 - 220 valid range
-	option report_scan '0'                     # 0 or 1 for independent scans
-	option report_sta_assocfails '1'           # 0 or 1 - stas assoc failure
-	option report_metric_periodic '0'          # 0, or 1 - 255 in secs
-	option report_rcpi_threshold '0'           # 0, or 1 - 220
-	option report_util_threshold '0'           # 0, or  channel-util value
-	option include_sta_stats '0'               # sta stats in AP metric resp
-	option include_sta_metric '0'              # sta metric in AP metric resp
-	option pvid '100'                          # primary vlan id
-	option pcp_default '5'                     # default vlan pcp
-	option disallow_bsta_p1 '0'                # 0 or 1 profile-1 bSTA
-	option disallow_bsta_p2 '0'                # 0 or 1 profile-2 bSTA
-
-config agent-policy
-	option agent_id '00:22:07:A3:6C:DA'    # 1905al macaddress of agent
-	list steer_exclude '00:11:22:33:44:55'
-	list steer_exclude_btm '00:aa:bb:cc:dd:ee'
-	option steer_policy '2'                    # 0, 1, 2 - see MultiAP spec
-	option util_threshold '200'                # channel-util as in BSS load
-	option report_metric_periodic '0'          # 0, or 1 - 255 in secs
-	option report_rcpi_threshold '0'           # 0, or 1 - 220
-	option report_util_threshold '0'           # 0, or  channel-util value
-	option include_sta_stats '0'               # sta stats in 3:4d:35:d2'
-	option bss '00:22:07:11:22:33'
-
-config rule-custom
-	option action restrict
-	option sta 'd8:32:e3:4d:35:d2'
-	option bss '00:22:07:11:22:33'
