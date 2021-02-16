@@ -646,17 +646,29 @@ assign_policer_to_port() {
 	local portorder="$(db -q get hw.board.ethernetPortOrder)"
 	local wanport="$(db -q get hw.board.ethernetWanPort)"
 
+	local board="$(db -q get hw.board.model_name | cut -c 1-2)"
+
 	local i=0
+	if [ "$board" == "FT" ]; then
+		i=3
+	fi
+
 	for port in $portorder; do
 		if [ "$ifname" == "$port" ]; then
 			if [ "$wanport" == "$port" ]; then
-				bs /b/configure port/index=wan0 ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
+				bdmf_shell -c `cat /var/bdmf_sh_id` -cmd /b/configure port/index=wan0 ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
 			else
-				bs /b/configure port/index=lan$i ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
+				bdmf_shell -c `cat /var/bdmf_sh_id` -cmd /b/configure port/index=lan$i ingress_rate_limit={traffic_types=8,policer={policer/dir=us,index=$pindex}}
 			fi
 			break
 		fi
-		i=$((i + 1))
+
+		if [ "$board" == "FT" ]; then
+			i=$((i - 1))
+		else
+			i=$((i + 1))
+		fi
+
 	done
 }
 
