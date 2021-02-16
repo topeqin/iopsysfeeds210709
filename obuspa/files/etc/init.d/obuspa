@@ -505,8 +505,7 @@ remove_db() {
 }
 
 service_running() {
-	local AgentEndpointID serial oui user pass
-	local opt=""
+	local AgentEndpointID serial oui
 
 	ubus -t 10 wait_for usp.raw
 	config_load obuspa
@@ -517,18 +516,10 @@ service_running() {
 		AgentEndpointID="os::${oui}-${serial}"
 	fi
 
-	config_get user localmqtt Username
-	if [ -n "${user}" ]; then
-		opt="-u ${user}"
-	fi
-	config_get pass localmqtt Password
-	if [ -n "${pass}" ]; then
-		opt="${opt} -P ${pass}"
-	fi
 	# publish Agent's EndpointID in mosquito broker for discovery
 	# This is a work around till obuspa does not support advertising
 	log "Publishing EndpointID ${AgentEndpointID} to local mqtt broker"
-	mosquitto_pub -r -t "obuspa/EndpointID" -m "${AgentEndpointID}" ${opt}
+	mosquitto_pub -r -t "obuspa/EndpointID" -m "${AgentEndpointID}"
 
 	procd_running ${CONFIGURATION}
 }
