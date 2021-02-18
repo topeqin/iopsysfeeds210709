@@ -4,19 +4,25 @@ config controller 'controller'
 	option debug '6'
 	option al_bridge 'br-lan'
 
+config vlan 'lan'
+	option network 'lan'
+	option id '1'
+
 config fh-credentials
 	option band '5'
 	option encryption 'psk2'
 	option key '1234567890'
 	option ssid 'map-net5'
-	option vlan '101'
+	option vlan '1'
 
 config fh-credentials
 	option band '2'
 	option encryption 'psk2'
 	option key '1234567890'
 	option ssid 'map-net2'
-	option vlan '0'               # 0 - 2 rsvd, 3 - 4094 => vlan id
+#	option bk_ssid 'multiap_ssid123'
+#	option bk_key 'multiap_key123'
+	option vlan '1'
 
 config bk-credentials
 	option band '5'
@@ -24,10 +30,9 @@ config bk-credentials
 	option key '5555555555'
 	option ssid 'map-bkhaul-5'
 	option multi_ap '2'
-#	option multi_ap_backhaul_sta '1'                        # possible future TODO
-#	option multi_ap_backhaul_key 'multiap_key123'           # possible future TODO
-#	option multi_ap_backhaul_ssid 'MultiAP-0022077E9CD6'    # possible future TODO
 	option disallow_bsta '1'		# bitmap, 1 for disallow p1, 2 to disallow p2, 3 to disallow both (probably never applicable)
+	option vlan '1'
+
 
 config bk-credentials
 	option band '2'
@@ -35,7 +40,5 @@ config bk-credentials
 	option key '2222222222'
 	option ssid 'map-bkhaul-2'
 	option multi_ap '2'
-#	option multi_ap_backhaul_sta '1'                        # possible future TODO
-#	option multi_ap_backhaul_key 'multiap_key123'           # possible future TODO
-#	option multi_ap_backhaul_ssid 'MultiAP-0022077E9CD6'    # possible future TODO
 	option disallow_bsta '0'                # 0 or 1 profile-1 bSTA
+	option vlan '1'
