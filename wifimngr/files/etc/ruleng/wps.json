@@ -1,0 +1,84 @@
+{
+	"wps_active": {
+		"if_operator" : "OR",
+		"if" : [
+			{
+				"event": "wifi.ap",
+				"match": {
+					"event":"wps-pbc-active"
+				}
+			},
+			{
+				"event": "wifi.bsta",
+				"match": {
+					"event":"wps-pbc-active"
+				}
+			}
+		],
+		"then" : [
+			{
+				"object": "led.wps",
+				"method":"set",
+				"args" : {
+					"state": "notice"
+				},
+				"timeout": 1
+			}
+		]
+	},
+	"wps_success": {
+		"if_operator" : "OR",
+		"if" : [
+			{
+				"event": "wifi.ap",
+				"match": {
+					"event":"wps-reg-success"
+				}
+			},
+			{
+				"event": "wifi.bsta",
+				"match": {
+					"event":"wps-success"
+				}
+			}
+		],
+		"then" : [
+			{
+				"object": "led.wps",
+				"method":"set",
+				"args" : {
+					"state": "ok",
+					"timeout": 30
+				},
+				"timeout": 1
+			}
+		]
+	},
+	"wps_timeout": {
+		"if_operator" : "OR",
+		"if" : [
+			{
+				"event": "wifi.ap",
+				"match": {
+					"event":"wps-timeout"
+				}
+			},
+			{
+				"event": "wifi.bsta",
+				"match": {
+					"event":"wps-timeout"
+				}
+			}
+		],
+		"then" : [
+			{
+				"object": "led.wps",
+				"method":"set",
+				"args" : {
+					"state": "off"
+				},
+				"timeout": 1
+			}
+		]
+	}
+}

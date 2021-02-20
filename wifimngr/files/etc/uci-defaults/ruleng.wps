@@ -1,0 +1,2 @@
+uci -q set ruleng.wps=rule
+uci -q set ruleng.wps.recipe='/etc/ruleng/wps.json'
