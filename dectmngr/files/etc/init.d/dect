@@ -28,10 +28,10 @@ start_service() {
 
 	echo 1 > /sys/class/gpio/gpio14/value
 
-	return
+	rm -f /tmp/dect-cmbs.log /tmp/dect-cmbs_Host_log.txt /tmp/dectmngr.log
 
 	procd_open_instance
-	procd_set_param command $PROG -comname ttyH0
+	procd_set_param command $PROG -comname ttyH0 -log /tmp/dect-cmbs.log
 	procd_set_param respawn 6 2 3
 	procd_set_param term_timeout 20
 	procd_set_param triggers asterisk
