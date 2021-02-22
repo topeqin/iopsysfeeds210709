@@ -1,0 +1,42 @@
+{
+	"internet_success": {
+		"if" : [
+			{
+				"event": "internet",
+				"match": {
+					"status":"online"
+				}
+			}
+		],
+		"then" : [
+			{
+				"object": "led.internet",
+				"method":"set",
+				"args" : {
+					"state": "ok"
+				},
+				"timeout": 1
+			}
+		]
+	},
+	"internet_fail": {
+		"if" : [
+			{
+				"event": "internet",
+				"match": {
+					"status":"offline"
+				}
+			}
+		],
+		"then" : [
+			{
+				"object": "led.internet",
+				"method":"set",
+				"args" : {
+					"state": "error"
+				},
+				"timeout": 1
+			}
+		]
+	}
+}

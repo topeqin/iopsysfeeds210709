@@ -4,7 +4,6 @@
 . /lib/network/utils.sh
 
 NETCON=0
-WANIP=0
 LASTSTATUS=""
 CURSTATUS=""
 
@@ -29,15 +28,6 @@ test_connection() {
 	return 1
 }
 
-uplink_test() {
-	uplink_phy_connected
-	if [ $? -eq 0 ]; then
-		ubus call led.wan set '{"state" : "ok"}' || ubus call led.broadband set '{"state" : "ok"}'
-	else
-		ubus call led.wan set '{"state" : "off"}' || ubus call led.broadband set '{"state" : "off"}'
-	fi
-}
-
 internet_test() {
 	local link dest
 
@@ -47,18 +37,14 @@ internet_test() {
 
 	if [ "$?" -eq 0 ]; then
 		NETCON=1
-		ubus call led.internet  set '{"state" : "ok"}'
 		echo "{ \"online\" : true }" > /tmp/internet_connection_status
 	else
 		NETCON=0
-		ubus call led.internet  set '{"state" : "error"}'
 		echo "{ \"online\" : false }" > /tmp/internet_connection_status
 	fi
 }
 
 connectivity_test() {
-	uplink_test
-
 	internet_test
 
 	if [ $NETCON -eq 1 ]; then

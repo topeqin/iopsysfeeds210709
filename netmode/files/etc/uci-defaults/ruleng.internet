@@ -1,0 +1,2 @@
+uci -q set ruleng.internet=rule
+uci -q set ruleng.internet.recipe='/etc/ruleng/internet.json'
