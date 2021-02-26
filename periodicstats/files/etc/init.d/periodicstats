@@ -1,0 +1,43 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+
+USE_PROCD=1
+NAME=periodicstatsd
+PROG=/usr/sbin/periodicstatsd
+
+. /lib/functions.sh
+
+start_service() {
+	if [ -f "/etc/config/periodicstats" ]; then
+		if [ "$(uci -q get periodicstats.globals.enable)" == "1" ]; then
+			procd_open_instance periodicstatsd
+			procd_set_param command ${PROG}
+			procd_set_param respawn
+			procd_close_instance
+		fi
+	fi
+}
+
+stop() {
+	#stop_service() is called after procd killed the service
+	echo ;
+}
+
+boot() {
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger periodicstats
+}
+
+reload_service() {
+	stop
+	start
+}
+
+restart() {
+	start
+}
