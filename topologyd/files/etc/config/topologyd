@@ -1,2 +1,0 @@
-config topologyd topologyd
-	option debug 1
