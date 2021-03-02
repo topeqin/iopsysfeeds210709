@@ -534,6 +534,12 @@ service_running() {
 }
 
 start_service() {
+	ubus wait_for usp.raw
+	if [ "$?" -ne 0 ]; then
+		log "OBUSPA failed to start usp.raw not available"
+		exit 0
+	fi
+
 	procd_open_instance ${CONFIGURATION}
 	procd_set_param command ${PROG}
 	db_init
