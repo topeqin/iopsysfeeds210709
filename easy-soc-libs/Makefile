@@ -76,6 +76,10 @@ EASY_SOC_LIBS := \
 	libethernet \
 	libqos
 
+ifeq ($(CONFIG_PACKAGE_libwpa_client),y)
+  TARGET_CFLAGS +=-DLIBWPA_CLIENT \
+	-I$(STAGING_DIR)/usr/include/libwpa
+endif
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
