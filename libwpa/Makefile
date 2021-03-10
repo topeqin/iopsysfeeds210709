@@ -63,10 +63,6 @@ TARGET_CFLAGS += \
 
 MAKE_PATH:=wpa_supplicant
 
-define Build/Compile
-	$(call Build/Compile/Default, libwpa_client.so)
-endef
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/libwpa
 	$(CP) $(PKG_BUILD_DIR)/src/common/wpa_ctrl.h $(1)/usr/include/libwpa/
