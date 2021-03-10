@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=539bc55d0ee82b2d7112250fe3643e592d42776a
+PKG_SOURCE_VERSION:=a002283289194a94b8a44d2434b3c33369a76b64
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/easy-soc-libs.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -76,6 +76,9 @@ EASY_SOC_LIBS := \
 	libethernet \
 	libqos
 
+ifeq ($(CONFIG_LIBWIFI_USE_CTRL_IFACE),y)
+  TARGET_CFLAGS +=-DLIBWIFI_USE_CTRL_IFACE
+endif
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \

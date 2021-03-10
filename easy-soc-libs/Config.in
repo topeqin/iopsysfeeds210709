@@ -1,0 +1,5 @@
+# libeasy configuration
+
+config LIBWIFI_USE_CTRL_IFACE
+	bool "Use UNIX sockets"
+	default n

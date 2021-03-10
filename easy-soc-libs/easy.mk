@@ -6,6 +6,10 @@ define Package/libeasy
   DEPENDS+=+libnl +libnl-route
 endef
 
+define Package/libeasy/config
+    source "$(SOURCE)/Config.in"
+endef
+
 define Build/InstallDev/libeasy
 	$(INSTALL_DIR) $(1)/usr/include/easy
 	$(INSTALL_DIR) $(1)/usr/lib
