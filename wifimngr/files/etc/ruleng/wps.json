@@ -48,7 +48,7 @@
 				"method":"set",
 				"args" : {
 					"state": "ok",
-					"timeout": 30
+					"timeout": 120
 				},
 				"timeout": 1
 			}
@@ -76,6 +76,34 @@
 				"method":"set",
 				"args" : {
 					"state": "off"
+				},
+				"timeout": 1
+			}
+		]
+	},
+	"wps_overlap": {
+		"if_operator" : "OR",
+		"if" : [
+			{
+				"event": "wifi.ap",
+				"match": {
+					"event":"wps-overlap"
+				}
+			},
+			{
+				"event": "wifi.bsta",
+				"match": {
+					"event":"wps-overlap"
+				}
+			}
+		],
+		"then" : [
+			{
+				"object": "led.wps",
+				"method":"set",
+				"args" : {
+					"state": "error",
+					"timeout": 120
 				},
 				"timeout": 1
 			}
