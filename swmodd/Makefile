@@ -12,6 +12,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=c8cc4a3b332ea931dbf2fe7e6b94bebf5c4bcc33
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/swmodd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_MIRROR_HASH:=skip
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 

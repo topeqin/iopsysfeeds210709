@@ -11,6 +11,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/easy-soc-events.git
 PKG_SOURCE_VERSION:=5c582b0165b574dc94e4865f82e0bb91fa561754
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_MIRROR_HASH:=skip
 PKG_BUILD_DIR:=$(BUILD_DIR)/easy-soc-events-$(PKG_VERSION)
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 

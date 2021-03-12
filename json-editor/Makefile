@@ -10,6 +10,7 @@ PKG_RELEASE:=1.0.0
 PKG_SOURCE_VERSION:=44b32937a062ec4ffc9f7355841dc94ab6efa50f
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/json-editor.git
+PKG_MIRROR_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk

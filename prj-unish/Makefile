@@ -14,6 +14,7 @@ PKG_SOURCE_VERSION:=3180908081492a6cfc11adbcf80845dbba12633a
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/prj-unish.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
+PKG_MIRROR_HASH:=skip
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
