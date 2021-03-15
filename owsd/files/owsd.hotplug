@@ -2,6 +2,19 @@
 
 [ "$ACTION" = ifup ] || exit 0
 
+handle_interface() {
+	ifname=$(uci get network.$1.ifname)
+
+	case "$ifname" in
+		@*)
+			alias_interface="$1 $alias_interface"
+			;;
+	esac
+}
+
+config_load network
+config_foreach handle_interface "interface"
+
 compare_owsd_iface() {
 	local interface
 
@@ -11,6 +24,13 @@ compare_owsd_iface() {
 		/etc/init.d/owsd reload
 		exit
 	fi
+
+	for i in $alias_interface; do
+	if [ "$INTERFACE" == "$i" ]; then
+			/etc/init.d/owsd reload
+			exit
+		fi
+	done
 }
 
 config_load owsd
