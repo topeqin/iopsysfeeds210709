@@ -1,14 +1,14 @@
 #
-# Copyright (C) 2020 IOPSYS Software Solutions AB
+# Copyright (C) 2021 IOPSYS Software Solutions AB
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfadatad
-PKG_VERSION:=3.2.1
+PKG_VERSION:=3.2.3
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=5dbc57331e88f817e671f9d8c5ef969a1a39824d
+PKG_SOURCE_VERSION:=2bb6f13c4d78115ab4b9485b55f55d72ca5d1040
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfadatad.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
