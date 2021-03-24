@@ -20,6 +20,63 @@ wifi_onoff() {
 	/sbin/wifi reload &
 }
 
+start_ap_wps() {
+	for ap in $(ubus list |grep hostapd.)
+	do
+		logger -t button "start WPS PBC on $ap"
+		ubus call $ap wps_start
+	done
+}
+
+supp_status() {
+	wpasupp=$1
+
+	ifname="$(echo $wpasupp | cut -d . -f 2)"
+
+        # First check if bsta already configured
+	for idx in $(seq 0 10)
+	do
+		sec_ifname=$(uci get wireless.@wifi-iface[$idx].ifname 2>/dev/null)
+		if [ "$sec_ifname" = "$ifname" ]; then
+			logger -t button "found wifi-iface idx $idx"
+			sec_ssid=$(uci get wireless.@wifi-iface[$idx].ssid 2>/dev/null)
+			sec_key=$(uci get wireless.@wifi-iface[$idx].key 2>/dev/null)
+			if [ -n "$sec_key" ]; then
+				echo "CONFIGURED"
+				return
+			fi
+		fi
+	done
+
+	# not configured, but could be still connected
+	status=$(wpa_cli -i $ifname status |grep wpa_state |cut -d = -f2 2>/dev/null)
+	logger -t button "$ifname status $status"
+
+	if [ "$status" = "COMPLETED" ]; then
+		echo "CONFIGURED"
+		return
+	fi
+
+	echo "UNCONFIGURED"
+}
+
+wps_button() {
+	logger -t button "WPS button is pressed"
+	wpasupp="$(ubus list wpa_supplicant.* 2>/dev/null | head -1)"
+	if [ -n "$wpasupp" ]; then
+		status=$(supp_status $wpasupp)
+		logger -t button "status $status"
+		if [ "$status" = "CONFIGURED" ]; then
+			start_ap_wps
+		else
+			logger -t button "WPS start $wpasupp"
+			ubus -t 1 call $wpasupp wps_start
+		fi
+	else
+		start_ap_wps
+	fi
+}
+
 case "$ACTION" in
         add|register)
 		[ "wifibutton" == "$INTERFACE" ] && {
@@ -29,16 +86,7 @@ case "$ACTION" in
 		}
 		[ "wpsbutton" == "$INTERFACE" ] && {
 			[ -e "/tmp/wps_active" ] && return
-			echo "WPS button is pressed" > /dev/console
-			# TODO: Proper implementation
-			#ubus call wifi.wps start
-			wpasupp="$(ubus list wpa_supplicant.* | head -1)"
-			if [ -n "$wpasupp" ]; then
-				ubus -t 1 call $wpasupp wps_start
-			else
-				dev5g="$(uci show wireless | grep 'hwmode=.11a' | head -1 | cut -d '.' -f2)"
-				[ -n "$dev5g" ] && ubus -t 1 call hostapd.$dev5g wps_start
-			fi
+			wps_button
 		}
         ;;
 esac
