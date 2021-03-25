@@ -1,19 +1,27 @@
 if PACKAGE_libbbfdm
 
-config LIBBBFDM_VENDOR_PREFIX
-    string "Vendor Prefix"
-    default "X_IOPSYS_EU_"
+config BBF_VENDOR_EXTENSION
+	bool "Enable Vendor Extension"
+	default y
+
+config BBF_VENDOR_LIST
+	string "Vendor List"
+	default "iopsys"
+
+config BBF_VENDOR_PREFIX
+	string "Vendor Prefix"
+	default "X_IOPSYS_EU_"
 
 config BBF_TR181
-	bool "Compile with tr181 device features"
+	bool "Enable TR-181 Data Model Support"
 	default y
 
 config BBF_TR104
-	bool "Compile with tr104 voice features"
+	bool "Enable TR-104 Data Model Support"
 	default y
 
 config BBF_TR143
-	bool "Compile with tr143 diagnostics features"
+	bool "Enable TR-143 Data Model Support"
 	default y
 
 endif

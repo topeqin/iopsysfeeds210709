@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libbbfdm
-PKG_VERSION:=3.7.9
+PKG_VERSION:=4.0.0
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bbf.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=3b44e4430ad4ca5735647dd69bc30d0e56218850
+PKG_SOURCE_VERSION:=5717e55ac791a9fcdded3f00a3efe67fdb80636c
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
@@ -25,6 +25,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/libbbf_api
   SECTION:=libs
   CATEGORY:=Libraries
+  SUBMENU:=BBF
   TITLE:=Library for libbbfdm API
   DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c
 endef
@@ -32,6 +33,7 @@ endef
 define Package/libbbfdm
   SECTION:=libs
   CATEGORY:=Libraries
+  SUBMENU:=BBF
   TITLE:=Library for broadband-forum data model
   DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libtrace +libbbf_api +libopenssl +libmbedtls +libcurl
 endef
@@ -55,7 +57,8 @@ define Build/Prepare
 endef
 endif
 
-TARGET_CFLAGS += -DCUSTOM_PREFIX=\\\"$(CONFIG_LIBBBFDM_VENDOR_PREFIX)\\\"
+TARGET_CFLAGS += -DBBF_VENDOR_LIST=\\\"$(CONFIG_BBF_VENDOR_LIST)\\\"
+TARGET_CFLAGS += -DBBF_VENDOR_PREFIX=\\\"$(CONFIG_BBF_VENDOR_PREFIX)\\\"
 
 TARGET_CFLAGS += \
 	-D_GNU_SOURCE -D_AADJ
@@ -85,6 +88,15 @@ CONFIGURE_ARGS += \
 	--enable-libmbedtls
 endif
 
+ifeq ($(CONFIG_BBF_VENDOR_EXTENSION),y)
+CONFIGURE_ARGS += \
+	--enable-vendor-extension
+
+CONFIGURE_ARGS += \
+	BBF_VENDOR_LIST="$(CONFIG_BBF_VENDOR_LIST)"
+
+endif ##CONFIG_BBF_VENDOR_EXTENSION
+
 define Package/libbbf_api/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbf_api.so* $(1)/lib/
@@ -94,8 +106,9 @@ define Package/libbbfdm/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/bin/.libs/libbbfdm.so* $(1)/lib/
 	$(INSTALL_DIR) $(1)/usr/share/bbfdm
-	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/bbfdm
+	$(CP) $(PKG_BUILD_DIR)/scripts/* $(1)/usr/share/bbfdm
 	$(INSTALL_DIR) $(1)/etc/bbfdm
+	$(INSTALL_DIR) $(1)/etc/bbfdm/dmmap
 	$(INSTALL_DIR) $(1)/etc/bbfdm/json
 	$(INSTALL_DIR) $(1)/usr/lib/bbfdm
 endef

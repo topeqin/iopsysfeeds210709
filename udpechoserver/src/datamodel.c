@@ -16,10 +16,10 @@
 
 #include "datamodel.h"
 
-/* ********** RootDynamicObj ********** */
-LIB_MAP_OBJ tRootDynamicObj[] = {
-/* parentobj, nextobject */
-{"Device.IP.Diagnostics.", tDeviceUDPEchoConfigObj},
+/* ********** DynamicObj ********** */
+DM_MAP_OBJ tDynamicObj[] = {
+/* parentobj, nextobject, parameter */
+{"Device.IP.Diagnostics.", tDeviceUDPEchoConfigObj, NULL},
 {0}
 };
 
@@ -189,8 +189,8 @@ static int get_IPDiagnosticsUDPEchoConfig_TimeLastPacketReceived(char *refparam,
 
 /* *** Device.IP.Diagnostics. *** */
 DMOBJ tDeviceUDPEchoConfigObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"UDPEchoConfig", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tIPDiagnosticsUDPEchoConfigParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"UDPEchoConfig", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tIPDiagnosticsUDPEchoConfigParams, NULL, BBFDM_BOTH},
 {0}
 };
 

@@ -16,10 +16,10 @@
 
 #include "datamodel.h"
 
-/* ********** RootDynamicObj ********** */
-LIB_MAP_OBJ tRootDynamicObj[] = {
-/* parentobj, nextobject */
-{"Device.", tDeviceBulkDataObj},
+/* ********** DynamicObj ********** */
+DM_MAP_OBJ tDynamicObj[] = {
+/* parentobj, nextobject, parameter */
+{"Device.", tDeviceBulkDataObj, NULL},
 {0}
 };
 
@@ -1173,14 +1173,14 @@ static int set_BulkDataProfileHTTPRequestURIParameter_Reference(char *refparam, 
 
 /* *** Device.BulkData. *** */
 DMOBJ tDeviceBulkDataObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"BulkData", &DMREAD, NULL, NULL, NULL, NULL, NULL, tBulkDataObj, tBulkDataParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"BulkData", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataObj, tBulkDataParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMOBJ tBulkDataObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Profile", &DMWRITE, addObjBulkDataProfile, delObjBulkDataProfile, NULL, browseBulkDataProfileInst, NULL, NULL, tBulkDataProfileObj, tBulkDataProfileParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", NULL}},
 {0}
 };
 
@@ -1200,11 +1200,11 @@ DMLEAF tBulkDataParams[] = {
 
 /* *** Device.BulkData.Profile.{i}. *** */
 DMOBJ tBulkDataProfileObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Parameter", &DMWRITE, addObjBulkDataProfileParameter, delObjBulkDataProfileParameter, NULL, browseBulkDataProfileParameterInst, NULL, NULL, tBulkDataProfileParameterParams, NULL, BBFDM_BOTH},
-{"CSVEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileCSVEncodingParams, NULL, BBFDM_BOTH},
-{"JSONEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileJSONEncodingParams, NULL, BBFDM_BOTH},
-{"HTTP", &DMREAD, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileHTTPObj, tBulkDataProfileHTTPParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Parameter", &DMWRITE, addObjBulkDataProfileParameter, delObjBulkDataProfileParameter, NULL, browseBulkDataProfileParameterInst, NULL, NULL, NULL, tBulkDataProfileParameterParams, NULL, BBFDM_BOTH},
+{"CSVEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileCSVEncodingParams, NULL, BBFDM_BOTH},
+{"JSONEncoding", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileJSONEncodingParams, NULL, BBFDM_BOTH},
+{"HTTP", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tBulkDataProfileHTTPObj, tBulkDataProfileHTTPParams, NULL, BBFDM_BOTH},
 {0}
 };
 
@@ -1226,7 +1226,7 @@ DMLEAF tBulkDataProfileParams[] = {
 //{"FileTransferUsername", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferUsername, set_BulkDataProfile_FileTransferUsername, BBFDM_BOTH},
 //{"FileTransferPassword", &DMWRITE, DMT_STRING, get_BulkDataProfile_FileTransferPassword, set_BulkDataProfile_FileTransferPassword, BBFDM_BOTH},
 //{"ControlFileFormat", &DMWRITE, DMT_STRING, get_BulkDataProfile_ControlFileFormat, set_BulkDataProfile_ControlFileFormat, BBFDM_BOTH},
-//{"Controller", &DMREAD, DMT_STRING, get_BulkDataProfile_Controller, NULL, NULL, NULL, BBFDM_USP},
+//{"Controller", &DMREAD, DMT_STRING, get_BulkDataProfile_Controller, NULL, BBFDM_USP},
 {0}
 };
 
@@ -1259,8 +1259,8 @@ DMLEAF tBulkDataProfileJSONEncodingParams[] = {
 
 /* *** Device.BulkData.Profile.{i}.HTTP. *** */
 DMOBJ tBulkDataProfileHTTPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"RequestURIParameter", &DMWRITE, addObjBulkDataProfileHTTPRequestURIParameter, delObjBulkDataProfileHTTPRequestURIParameter, NULL, browseBulkDataProfileHTTPRequestURIParameterInst, NULL, NULL, tBulkDataProfileHTTPRequestURIParameterParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"RequestURIParameter", &DMWRITE, addObjBulkDataProfileHTTPRequestURIParameter, delObjBulkDataProfileHTTPRequestURIParameter, NULL, browseBulkDataProfileHTTPRequestURIParameterInst, NULL, NULL, NULL, tBulkDataProfileHTTPRequestURIParameterParams, NULL, BBFDM_BOTH},
 {0}
 };
 

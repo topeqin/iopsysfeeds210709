@@ -16,10 +16,10 @@
 
 #include "datamodel.h"
 
-/* ********** RootDynamicObj ********** */
-LIB_MAP_OBJ tRootDynamicObj[] = {
-/* parentobj, nextobject */
-{"Device.IP.Interface.", tDeviceTWAMPReflectorObj},
+/* ********** DynamicObj ********** */
+DM_MAP_OBJ tDynamicObj[] = {
+/* parentobj, nextobject, parameter */
+{"Device.IP.Interface.", tDeviceTWAMPReflectorObj, NULL},
 {0}
 };
 
@@ -283,8 +283,8 @@ static int browseIPInterfaceTWAMPReflectorInst(struct dmctx *dmctx, DMNODE *pare
 
 /* *** Device.IP.Interface. *** */
 DMOBJ tDeviceTWAMPReflectorObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"TWAMPReflector", &DMWRITE, addObjIPInterfaceTWAMPReflector, delObjIPInterfaceTWAMPReflector, NULL, browseIPInterfaceTWAMPReflectorInst, NULL, NULL, tIPInterfaceTWAMPReflectorParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Port", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"TWAMPReflector", &DMWRITE, addObjIPInterfaceTWAMPReflector, delObjIPInterfaceTWAMPReflector, NULL, browseIPInterfaceTWAMPReflectorInst, NULL, NULL, NULL, tIPInterfaceTWAMPReflectorParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Port", NULL}},
 {0}
 };
 

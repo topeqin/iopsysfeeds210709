@@ -16,10 +16,10 @@
 
 #include "datamodel.h"
 
-/* ********** RootDynamicObj ********** */
-LIB_MAP_OBJ tRootDynamicObj[] = {
-/* parentobj, nextobject */
-{"Device.", tDeviceXMPPObj},
+/* ********** DynamicObj ********** */
+DM_MAP_OBJ tDynamicObj[] = {
+/* parentobj, nextobject, parameter */
+{"Device.", tDeviceXMPPObj, NULL},
 {0}
 };
 
@@ -589,14 +589,14 @@ static int browsexmpp_connection_serverInst(struct dmctx *dmctx, DMNODE *parent_
 
 /* *** Device.XMPP. *** */
 DMOBJ tDeviceXMPPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"XMPP", &DMREAD, NULL, NULL, NULL, NULL, NULL, tXMPPObj, tXMPPParams, NULL, BBFDM_BOTH},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"XMPP", &DMREAD, NULL, NULL, NULL, NULL, NULL, NULL, tXMPPObj, tXMPPParams, NULL, BBFDM_BOTH},
 {0}
 };
 
 DMOBJ tXMPPObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Username", "Domain", "Resource", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Connection", &DMWRITE, add_xmpp_connection, delete_xmpp_connection, NULL, browsexmpp_connectionInst, NULL, NULL, tXMPPConnectionObj, tXMPPConnectionParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "Username", "Domain", "Resource", NULL}},
 {0}
 };
 
@@ -609,8 +609,8 @@ DMLEAF tXMPPParams[] = {
 
 /* *** Device.XMPP.Connection.{i}. *** */
 DMOBJ tXMPPConnectionObj[] = {
-/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
-{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "ServerAddress", "Port", NULL}},
+/* OBJ, permission, addobj, delobj, checkdep, browseinstobj, nextdynamicobj, dynamicleaf, nextobj, leaf, linker, bbfdm_type, uniqueKeys*/
+{"Server", &DMREAD, NULL, NULL, NULL, browsexmpp_connection_serverInst, NULL, NULL, NULL, tXMPPConnectionServerParams, NULL, BBFDM_BOTH, LIST_KEY{"Alias", "ServerAddress", "Port", NULL}},
 {0}
 };
 
