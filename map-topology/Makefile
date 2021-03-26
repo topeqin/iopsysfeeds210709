@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=map-topology
-PKG_VERSION:=1.5.7
+PKG_VERSION:=1.5.8
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
-PKG_SOURCE_VERSION:=f3a33e7b36e28b0c1c420c6f477790c74a7de5bf
+PKG_SOURCE_VERSION:=96938b05a768ced46153d1311e015eee52ee6f45
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/map-topology.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
