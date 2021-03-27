@@ -1,0 +1,54 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+. /lib/functions/network.sh
+. /lib/functions.sh
+
+case "$1" in
+	list)
+		echo '{ "dump" : {}, "hosts" : {} }'
+	;;
+	call)
+		case "$2" in
+			dump)
+				dump_network() {
+					local cfg="$1"
+					local is_lan type bool proto ipaddr netmask ifname
+
+					[ "$cfg" == "loopback" ] && return
+
+					config_get_bool is_lan $cfg is_lan 0
+					config_get type $cfg type
+					config_get_bool defaultroute $cfg defaultroute 1
+					config_get proto $cfg proto none
+					config_get ipaddr $cfg ipaddr
+					[ -z "$ipaddr" ] && network_get_ipaddr ipaddr $cfg
+					config_get netmask $cfg netmask "255.255.255.255"
+					config_get ifname $cfg ifname
+					
+					json_add_object "$cfg"
+				        json_add_boolean is_lan $is_lan
+				        json_add_string type "$type"
+				        json_add_boolean defaultroute $defaultroute
+				        json_add_string proto "$proto"
+				        json_add_string ipaddr "$ipaddr"
+				        json_add_string netmask "$netmask"
+				        json_add_string ifname "$ifname"
+					json_select ..			
+				}
+
+				config_load network
+				json_init
+				config_foreach dump_network interface
+				json_dump
+			;;		
+			hosts)
+				ubus call topology hosts | \
+					sed 's/interface_type/type/g' | \
+					sed 's/Ethernet/ethernet/g' | \
+					sed 's/Wi-Fi/wifi/g'
+			;;
+		esac
+	;;
+esac
+
