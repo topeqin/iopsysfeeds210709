@@ -11,6 +11,7 @@ STOP=12
 USE_PROCD=1
 NAME=dectmngr
 PROG=/usr/sbin/dectmngr
+LOG_PATH=/var/log/dectmngr
 
 # Ask dectmngr to exit nicely and wait for it to clean up, which is a slow process.
 stop_and_wait_dectmngr() {
@@ -28,10 +29,8 @@ start_service() {
 
 	echo 1 > /sys/class/gpio/gpio14/value
 
-	rm -f /tmp/dect-cmbs.log /tmp/dect-cmbs_Host_log.txt /tmp/dectmngr.log
-
 	procd_open_instance
-	procd_set_param command $PROG -comname ttyH0 -log /tmp/dect-cmbs.log
+	procd_set_param command $PROG -comname ttyH0 -log $LOG_PATH/dect-cmbs.log
 	procd_set_param respawn 6 2 3
 	procd_set_param term_timeout 20
 	procd_set_param triggers asterisk
@@ -58,6 +57,8 @@ service_triggers()
 boot() {
 	echo 14 > /sys/class/gpio/export
 	echo out > /sys/class/gpio/gpio14/direction
+
+	[ ! -d $LOG_PATH ] && mkdir -p $LOG_PATH
 	start
 }
 
