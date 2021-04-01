@@ -45,7 +45,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dumimage $(1)/usr/sbin/
-	$(STRIP) $(1)/usr/sbin/dectmngr
+	$(STRIP) $(1)/usr/sbin/dumpimage
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
