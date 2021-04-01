@@ -44,7 +44,7 @@ MAKE_FLAGS += \
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dumimage $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dumpimage $(1)/usr/sbin/
 	$(STRIP) $(1)/usr/sbin/dumpimage
 endef
 
