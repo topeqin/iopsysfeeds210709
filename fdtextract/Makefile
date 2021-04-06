@@ -6,13 +6,13 @@
 #
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=dumpimage
+PKG_NAME:=fdtextract
 PKG_RELEASE:=1
 PKG_VERSION:=1.0
 
-PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dumpimage.git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/fdtextract.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=9ca11d5171989c728ed80a641c0d405b5db8e96b
+PKG_SOURCE_VERSION:=ccb6044a9a00d4ef0cb3175064705b6b863f02b1
 PKG_MIRROR_HASH:=skip
 
 PKG_LICENSE:=GPLv2
@@ -30,7 +30,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
 	CATEGORY:=Utilities
-	TITLE:=dumpimage
+	TITLE:=fdtextract
 	DEPENDS:= +libfdt
 endef
 
@@ -44,8 +44,8 @@ MAKE_FLAGS += \
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dumpimage $(1)/usr/sbin/
-	$(STRIP) $(1)/usr/sbin/dumpimage
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fdtextract $(1)/usr/sbin/
+	$(STRIP) $(1)/usr/sbin/fdtextract
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
