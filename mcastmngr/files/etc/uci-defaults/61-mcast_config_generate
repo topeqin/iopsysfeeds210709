@@ -51,6 +51,9 @@ if [ -s "/etc/config/mcast" ]; then
 	if uci -q get mcast.@proxy[0] >/dev/null; then
 		# return if there is any valid content
 		exit
+	elif uci -q get mcast.@snooping[0] >/dev/null; then
+		# return if there is any valid content
+		exit
 	else
 		rm -f /etc/config/mcast
 	fi
