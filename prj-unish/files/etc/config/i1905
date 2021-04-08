@@ -1,7 +1,8 @@
 
 config ieee1905 'ieee1905'
         option enabled '1'
-        option extension 0
+	option extension '1'
+	list extmodule 'map'
 	option macaddress 'aa:aa:aa:10:20:30'
 	option registrar '2 5'
 
