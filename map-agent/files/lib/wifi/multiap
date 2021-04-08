@@ -1,0 +1,183 @@
+#!/bin/sh
+
+# functions
+# wireless_teardown - tear down ifaces based on mapagent config
+# setup_network     - prepare /etc/config/network if necessary
+# setup_wireless    - prepare /etc/config/wireless based on mapagent config
+# write_credentials - write bBSS credentials to fBSS
+
+. /lib/functions.sh
+
+diff=0
+
+usage() {
+	cat <<EOF
+Usage: $0 [wireless_teardown|setup_network|setup_wireless|write_credentials]
+Platform specific Multi-AP script to prepare network and wifi subsystem based on
+mapagent configuration.
+wireless_teardown - tear down ifaces in /etc/config/wireless
+setup_network     - prepare /etc/config/network
+setup_wireless    - prepare /etc/config/wireless
+write_credentials - write bBSS credentials to fBSS
+EOF
+	exit 1
+}
+
+brcm_write_credentials() {
+	config_load mapagent
+
+	mapagent_apply_wireless() {
+		write_wireless() {
+			local section=$1
+			local map_ifname=$2
+			local bk_ssid=$3
+			local bk_key=$4
+
+			config_get ifname $section ifname
+
+			#echo found device=$device map=$multi_ap ifname=$ifname mapifname=$map_ifname
+
+			[ "$ifname" != "$map_ifname" ] && return
+
+			#echo applying bk_ssid = $bk_ssid bk_key = $bk_key
+
+			uci -q set wireless.${section}.multi_ap_backhaul_ssid="$bk_ssid"
+			uci -q set wireless.${section}.multi_ap_backhaul_key="$bk_key"
+		}
+		config_load wireless
+
+		config_foreach write_wireless wifi-iface $1 $2 $3
+	}
+
+	mapagent_find_fbss() {
+		local section=$1
+		local dev=$2
+		local bk_ssid=$3
+		local bk_key=$4
+
+		config_get device $section device
+		config_get multi_ap $section multi_ap "0"
+
+		#echo found dev=$dev device=$device map=$multi_ap
+
+		[ "$device" != "$dev" ] && return
+		[ "$multi_ap" != "2" ] && return
+
+		config_get ifname $section ifname
+
+		#echo applying bk_ssid = $bk_ssid bk_key = $bk_key
+
+		# subshell in hopes to maintain mapagent config loaded
+		$(mapagent_apply_wireless $ifname $bk_ssid $bk_key)
+	}
+
+	mapagent_find_bbss() {
+		local section=$1
+		local dev=$2
+
+		config_get device $section device
+		config_get multi_ap $section multi_ap "0"
+
+		#echo found dev=$dev device=$device map=$multi_ap
+
+		[ "$device" != "$dev" ] && return
+		[ "$multi_ap" != "1" ] && return
+
+		config_get ssid $1 ssid
+		config_get key $1 key
+
+		#echo found ssid=$ssid key=$key
+
+		config_foreach mapagent_find_fbss fh-iface $dev $ssid $key
+	}
+
+	mapagent_process_radio() {
+		local section=$1
+
+		config_get device $section device
+
+		#echo found dev=$dev
+
+		config_foreach mapagent_find_bbss fh-iface $device
+	}
+
+
+	config_foreach mapagent_process_radio wifi-radio
+
+	uci commit wireless
+}
+
+bsta_steer() {
+	local ifname=$1
+	local bssid=$2
+
+	wpa_cli -i $ifname set_n 0 bssid $bssid
+	wpa_cli -i $ifname roam $bssid
+}
+
+write_bsta_config() {
+	local ifname=$1
+
+	#echo diff = $diff > /dev/console
+
+	config_load mapagent
+
+	mapagent_apply_wl_bsta() {
+		apply_config() {
+			local section=$1
+			local bsta=$2
+			local bssid=$3
+
+			config_get ifname $section ifname
+
+			[ "$bsta" == "$ifname" ] || return
+			#echo setting diff = $diff > /dev/console
+			uci set wireless.${section}.bssid=$bssid
+			echo 1
+		}
+		config_load wireless
+
+		config_foreach apply_config wifi-iface $1 $2
+		uci commit wireless
+	}
+
+	mapagent_process_bk() {
+		local section=$1
+		local bsta=$2
+
+		config_get ifname $section ifname
+		#echo bsta = $bsta > /dev/console
+
+		[ "$bsta" == "$ifname" ] || return
+		#echo found ifname=$ifname > /dev/console
+
+		config_get bssid $section bssid
+		ret=$(mapagent_apply_wl_bsta $ifname $bssid)
+		[ "$ret" == "1" ] && diff=1
+	}
+
+
+	config_foreach mapagent_process_bk bk-iface $ifname
+
+	#echo result diff = $diff > /dev/console
+	[ "$diff" == "1" ] && {
+		ubus call uci commit '{"config":"wireless"}'
+		#echo reloading wireless > /dev/console
+	}
+
+}
+
+func=$1
+shift
+
+case "$func" in
+	wireless_teardown) brcm_wireless_teardown;;
+	setup_network) brcm_setup_network;;
+	setup_wireless) brcm_setup_wireless;;
+	write_credentials) brcm_write_credentials;;
+	bsta_steer) bsta_steer $@;;
+	write_bsta_config) write_bsta_config $@;;
+	--help|help) usage;;
+	*) usage; exit 1;;
+esac
+
