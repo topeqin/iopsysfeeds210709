@@ -25,12 +25,17 @@ stop_and_wait_dectmngr() {
 }
 
 start_service() {
+	local rfpi=
+	local opt_rfpi=
 	test $(db get hw.board.hasDect) = "0" && return
 
 	echo 1 > /sys/class/gpio/gpio14/value
 
+	rfpi=$(db -q get hw.board.dect_rfpi)
+	[ -n "$rfpi" -a ${#rfpi} -eq 14 ] && opt_rfpi="-rfpi $rfpi"
+
 	procd_open_instance
-	procd_set_param command $PROG -comname ttyH0 -log $LOG_PATH/dect-cmbs.log
+	procd_set_param command $PROG -comname ttyH0 -log $LOG_PATH/dect-cmbs.log $opt_rfpi
 	procd_set_param respawn 6 2 3
 	procd_set_param term_timeout 20
 	procd_set_param triggers asterisk
