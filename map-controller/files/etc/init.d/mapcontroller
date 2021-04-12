@@ -48,5 +48,11 @@ reload_service() {
 		return
 	fi
 
+	pidof "mapcontroller" > /dev/null
+	if [[ $? -ne 0 ]] ; then
+		start
+		return
+	fi
+
 	procd_send_signal "mapcontroller"
 }
