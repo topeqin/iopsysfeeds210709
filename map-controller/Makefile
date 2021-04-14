@@ -5,9 +5,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-controller
-PKG_VERSION:=2.4.13
+PKG_VERSION:=2.4.16
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=7365d757548dcfde56df27f698fc1d90151e28dd
+PKG_SOURCE_VERSION:=b923778fb9745129dfd806e871906439f69d81d2
 
 PKG_LICENSE:=PROPRIETARY IOPSYS
 PKG_LICENSE_FILES:=LICENSE
@@ -23,7 +23,7 @@ define Package/map-controller
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi Multi-AP Controller (EasyMesh R2)
-  DEPENDS:=+libuci +libubox +ubus +libmaputils +libwsc +libeasy
+  DEPENDS:=+libuci +libubox +ubus +libeasy +libi1905
 endef
 
 define Package/map-controller/description
