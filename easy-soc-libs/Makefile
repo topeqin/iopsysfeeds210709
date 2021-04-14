@@ -58,7 +58,9 @@ else ifeq ($(CONFIG_TARGET_iopsys_armvirt),y)
   TARGET_PLATFORM=TEST
   TARGET_CFLAGS +=-DIOPSYS_TEST
 else
-  $(info Unexpected CONFIG_TARGET)
+  $(info Unexpected CONFIG_TARGET, use default MAC80211)
+  TARGET_PLATFORM=MAC80211
+  TARGET_CFLAGS +=-DIOPSYS_MAC80211
 endif
 
 export TARGET_PLATFORM
