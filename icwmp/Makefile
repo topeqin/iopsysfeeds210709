@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icwmp
-PKG_VERSION:=6.5.5-2021-03-25
+PKG_VERSION:=7.0.0-2021-04-15
 PKG_FIXUP:=autoreconf
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/icwmp.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=09a669ffa8bc94ca91bec684b5313cf309fc720e
+PKG_SOURCE_VERSION:=5b24edae8f252034cc842dce2aace67ac99bff65
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
@@ -101,11 +101,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_BUILD_DIR)/bin/icwmpd $(1)/usr/sbin
 ifeq ($(CONFIG_CWMP_SCRIPTS_FULL),y)
-	$(INSTALL_DIR) $(1)/usr/share/icwmp
-	$(CP) $(PKG_BUILD_DIR)/scripts/defaults $(1)/usr/share/icwmp
-	$(CP) $(PKG_BUILD_DIR)/scripts/functions $(1)/usr/share/icwmp
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/icwmp.sh $(1)/usr/sbin/icwmp
 endif
 	$(CP) ./files/* $(1)/
 endef
