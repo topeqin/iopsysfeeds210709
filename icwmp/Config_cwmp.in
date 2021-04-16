@@ -1,9 +1,5 @@
 if PACKAGE_icwmp
 
-config CWMP_SCRIPTS_FULL
-	bool "Install all icwmp scripts"
-	default y
-
 choice
 	prompt "Select ACS sever"
 	default CWMP_ACS_MULTI

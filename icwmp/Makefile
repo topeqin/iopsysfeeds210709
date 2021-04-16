@@ -99,10 +99,7 @@ endif
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/icwmpd
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_BUILD_DIR)/bin/icwmpd $(1)/usr/sbin
-ifeq ($(CONFIG_CWMP_SCRIPTS_FULL),y)
-	$(INSTALL_DIR) $(1)/usr/sbin
-endif
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/icwmpd $(1)/usr/sbin/
 	$(CP) ./files/* $(1)/
 endef
 
