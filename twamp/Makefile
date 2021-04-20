@@ -10,7 +10,17 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=twamp
 PKG_VERSION:=1.0.0
 
+PKG_SOURCE_VERSION:=f6e914508aa1f7458f87bd68026f56262595d9a5
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/twamp.git
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_MIRROR_HASH:=skip
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_LICENSE:=GPL-2.0-only
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -24,10 +34,6 @@ endef
 
 define Package/$(PKG_NAME)/description
 	BBF twamp feature
-endef
-
-define Build/Prepare
-	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
 
 TARGET_CFLAGS += \
