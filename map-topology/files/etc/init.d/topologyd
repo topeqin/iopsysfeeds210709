@@ -16,10 +16,9 @@ start_service() {
 
 service_triggers()
 {
-	procd_add_reload_trigger "ieee1905"
+	procd_add_reload_trigger "network"
 }
 
 reload_service() {
-	stop
-	start
+	procd_send_signal "topologyd"
 }
