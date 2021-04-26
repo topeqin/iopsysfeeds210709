@@ -5,14 +5,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rulengd
-PKG_VERSION:=1.2.1
+PKG_VERSION:=1.2.2
 PKG_RELEASE:=1
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 PKG_SOURCE_PROTO=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/rulengd.git
-PKG_SOURCE_VERSION:=360b64ff1a2fe1ad578e298f63a7d6a350f99d93
+PKG_SOURCE_VERSION:=e5afe7734674d416138a54526cc589c57ba28279
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
 PKG_SOURCE_SUBDIR:=${PKG_NAME}-${PKG_VERSION}
@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/rulengd
 	CATEGORY:=Utilities
 	TITLE:=RuleEngine daemon
-	DEPENDS:=+ubox +uci +ubus +libjson-c +libeasy
+	DEPENDS:=+ubox +uci +ubus +libjson-c
 	MENU:=1
 endef
 
