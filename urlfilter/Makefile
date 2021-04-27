@@ -44,9 +44,7 @@ endef
 endif
 
 define Package/urlfilter/install
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/etc/init.d/urlfilter $(1)/etc/init.d/urlfilter
-	$(INSTALL_DIR) $(1)/usr
+	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/urlfilter $(1)/usr/sbin
 endef
