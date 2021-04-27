@@ -20,7 +20,7 @@ configure_firewall()
 }
 
 start_service() {
-	if [ -f "/etc/config/urlfilter" ]; then
+	if [ "$(uci -q get urlfilter.globals.enable)" == "1" ]; then
 		procd_open_instance urlfilter
 		procd_set_param command ${PROG}
 		configure_firewall
