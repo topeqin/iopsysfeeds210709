@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=peripheral_manager
-PKG_VERSION:=1.0.5
+PKG_VERSION:=1.0.6
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=785166a9861a119623556163179915727896156b
@@ -38,27 +38,15 @@ define Package/peripheral_manager
 	CATEGORY:=Utilities
 	TITLE:=Application deamon for handling of peripheral
 	URL:=
-	DEPENDS:=+libuci +libubus +libblobmsg-json @+PACKAGE_bcmkernel:bcmkernel PACKAGE_bcmkernel:bcmkernel
+	DEPENDS:=+libuci +libubus +libblobmsg-json
 endef
 
 define Package/peripheral_manager/description
 	Application handling peripheral
 endef
 
-TARGET_CFLAGS := \
-	-I$(STAGING_DIR)/usr/include/bcm963xx/shared/opensource/include/bcm963xx \
-	-I$(STAGING_DIR)/usr/include/bcm963xx/bcmdrivers/opensource/include/bcm963xx \
-	$(TARGET_CFLAGS)
-
-PERIPHERAL_OPTONS:=-DSELECT_BRCM_BOARD=0
-
-ifneq ($(CONFIG_TARGET_iopsys_brcm63xx_arm),)
-	PERIPHERAL_OPTONS:= -DSELECT_BRCM_BOARD=1
-endif
-
 CMAKE_OPTIONS +=  \
 		-DCMAKE_BUILD_TYPE:String="Release" \
-		$(PERIPHERAL_OPTONS) \
 
 define Package/peripheral_manager/install
 	$(CP) ./files/* $(1)/
