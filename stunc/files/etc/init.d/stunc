@@ -1,0 +1,67 @@
+#!/bin/sh /etc/rc.common
+# STUN client software
+# Copyright (C) 2020 iopsys Software Solutions AB
+# Author: Omar Kallel <omar.kallel@pivasoftware.com>
+
+START=90
+
+USE_PROCD=1
+PROG="/usr/sbin/stunc"
+
+
+log() {
+	#echo "${@}" >/dev/console
+	echo "${@}"|logger -t stun -p info
+}
+
+validate_stun_section()
+{
+	uci_validate_section stun stun stun \
+		'enable:bool' \
+		'Username:string' \
+		'Password:string' \
+		'server_address:host' \
+		'server_port:port' \
+		'client_port:port' \
+		'log_level:uinteger:0'
+}
+
+service_running() {
+	ubus wait_for tr069
+	return $?;
+}
+
+start_service() {
+	local enable server_address
+
+	config_load stun
+	validate_stun_section || {
+		log "Validation failed for stun section";
+		exit 1;
+	}
+
+	if [ "$enable" -eq 0 ]; then
+		exit 0;
+	fi
+
+	if [ -z "${server_address}" ]; then
+		log "Stun server address not defined or invalid"
+		exit 0;
+	fi
+
+	procd_open_instance stun
+	procd_set_param command "$PROG"
+	procd_set_param respawn "3" "7" "0"
+	procd_close_instance
+
+}
+
+reload_service() {
+	stop
+	start 
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger stun
+}

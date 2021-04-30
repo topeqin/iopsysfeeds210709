@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=stunc
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
-PKG_SOURCE_VERSION:=74c8205a45a69572d0c6a2615e87c019c15f8972
+PKG_SOURCE_VERSION:=cd7c5d70bc97a2f1a26d5587ccf6f4c1e9ca82c8
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/stunc.git
 
@@ -41,8 +41,11 @@ TARGET_CFLAGS += \
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/stund $(1)/usr/sbin/
-	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/stunc $(1)/usr/sbin/
+	$(INSTALL_BIN) ./files/etc/init.d/stunc $(1)/etc/init.d/stunc
+	$(INSTALL_DATA) ./files/etc/config/stun $(1)/etc/config/stun
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
