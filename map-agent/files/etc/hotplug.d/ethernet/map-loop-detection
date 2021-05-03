@@ -1,0 +1,84 @@
+#!/bin/sh
+
+diff=0
+wan=$(uci -q get ports.WAN.ifname)
+
+[ "$wan" == "" ] && exit 1 # no configuration
+[ "$PORT" != "$wan" ] && exit 0
+
+get_bridge() {
+	local id
+	local ifname="$1"
+	local bridge=""
+	id=$(cat /sys/class/net/${ifname}/brport/bridge/bridge/bridge_id)
+
+	#echo "bridge id = $id" > /dev/console
+
+	[ "$id" = "" ] && return
+
+	bridge=$(brctl show | grep $id | cut -f1)
+
+	case "$bridge" in
+		br-*)
+			bridge=$(echo $bridge | cut -c4-)
+		;;
+	esac
+
+	echo $bridge
+}
+
+disable_bstas() {
+	section="$1"
+
+	config_get mode "$section" mode "ap"
+	config_get ifname "$section" ifname
+	config_get device "$section" device
+	#echo mode=$mode ifname=$ifname > /dev/console
+
+	[ "$mode" == "sta" ] || return
+
+	uci set wireless.$section.disabled=1
+	bridge=$(get_bridge $ifname)
+	if [ "$bridge" != "" ]; then
+		#echo got bridge = $bridge > /dev/console
+		ubus call network.interface.$bridge remove_device '{"name":"$ifname"}'
+	fi
+	ifconfig "$ifname" down
+
+	diff=1
+	#echo disabled $ifname > /dev/console
+}
+
+enable_bstas() {
+	section="$1"
+	config_load "wireless"
+
+	config_get mode "$section" mode "ap"
+	config_get ifname "$section" ifname
+	config_get device "$section" device
+	#echo mode=$mode ifname=$ifname > /dev/console
+
+	[ "$mode" == "sta" ] || return
+
+	uci set wireless.$section.disabled=0
+	ifconfig "$ifname" up
+
+	diff=1
+	#echo enabled $ifname > /dev/console
+}
+
+config_load "wireless"
+
+if [ "$LINK" == "up" ]; then
+	config_foreach disable_bstas wifi-iface
+else
+	config_foreach enable_bstas wifi-iface
+fi
+
+#echo diff = $diff > /dev/console
+
+uci -q commit wireless
+[ "$diff" == "1" ] && {
+	#echo reloading via uci > /dev/console
+	ubus call uci commit '{"config":"wireless"}'
+}
