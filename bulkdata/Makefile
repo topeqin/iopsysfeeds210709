@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bulkdata
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
-PKG_SOURCE_VERSION:=4ac9d7a7e90f5de5f43d6bf3d1a844114a46b134
+PKG_SOURCE_VERSION:=e4f39d1bf4678fc05b9d02e81b194c70719909e4
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/bulkdata.git
 
