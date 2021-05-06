@@ -1,0 +1,49 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+USER_SECTION=""
+USER_EXISTS=0
+
+find_user(){
+	local section="$1"
+	local user="$2"
+	config_get username $section username
+	if [ "$username" == "$user" ]; then
+		USER_SECTION="$section"
+		USER_EXISTS=1
+	fi
+}
+
+config_load rpcd
+
+USER_EXISTS=0
+config_foreach find_user login root
+if [ $USER_EXISTS -eq 1 ]; then
+	uci delete rpcd.$USER_SECTION
+fi
+
+USER_EXISTS=0
+config_foreach find_user login admin
+if [ $USER_EXISTS -eq 0 ]; then
+	uci -q add rpcd login >/dev/null
+	uci -q set rpcd.@login[-1].username="admin"
+	uci -q set rpcd.@login[-1].password="\$p\$admin"
+	uci -q add_list rpcd.@login[-1].read="enduser"
+	uci -q add_list rpcd.@login[-1].read="administrator"
+	uci -q add_list rpcd.@login[-1].write="enduser"
+	uci -q add_list rpcd.@login[-1].write="administrator"
+fi
+
+USER_EXISTS=0
+config_foreach find_user login user
+if [ $USER_EXISTS -eq 0 ]; then
+	uci -q add rpcd login >/dev/null
+	uci -q set rpcd.@login[-1].username="user"
+	uci -q set rpcd.@login[-1].password="\$p\$user"
+	uci -q add_list rpcd.@login[-1].read="enduser"
+	uci -q add_list rpcd.@login[-1].write="enduser"
+fi
+
+uci commit rpcd
+

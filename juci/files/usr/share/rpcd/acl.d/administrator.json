@@ -1,0 +1,21 @@
+{
+	"administrator": {
+		"description": "Administrator Access Rights",
+		"read": {
+			"ubus": {
+				"file": [
+					"write"
+				],
+				"rpc-sys": [
+					"upgrade_start",
+					"upgrade_test"
+				]
+			}
+		},
+		"write": {
+			"file": {
+				"/tmp/firmware.bin": ["write"]
+			}
+		}
+	}
+}

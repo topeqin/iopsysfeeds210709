@@ -1,0 +1,66 @@
+config juci 'juci'
+	option homepage 'overview'
+	option theme 'juci-theme-iopsys'
+	option favicon 'favicon.ico'
+
+config login 'login'
+	option showusername '1'
+	option defaultuser 'user'
+
+config localization 'localization'
+	option default_language 'en'
+	list languages 'en'
+
+config wiki 'wiki'
+	option visible '0'
+	option version 'v4.2.x'
+
+config widget
+	list name 'overviewWidget11WAN'
+	list require 'ubus:network.interface'
+
+config widget
+	list name 'overviewWidget10Network'
+	list require 'ubus:network.interface'
+	list require 'ubus:router.network->hosts'
+
+config widget
+	list name 'overviewWidget00WiFi'
+	list require 'ubus:wifi'
+	list require 'ubus:wifi.wps'
+
+config menu
+	option path 'overview'
+	option page 'overview'
+
+config menu
+	option path 'system'
+	option page 'system'
+	option redirect 'first'
+
+config menu
+	option path 'status'
+	option page 'status'
+	option redirect 'first'
+
+config menu
+	option path 'status/system'
+	option page 'status-system'
+	list require 'ubus:router.system->info'
+
+config menu
+	option path 'status/network'
+	option page 'status-network'
+	list require 'ubus:network.interface'
+
+config menu
+	option path 'status/dsl'
+	option page 'network-dsl-status'
+	list require 'ubus:dsl->stats'
+	list require 'ubus:dsl->status'
+
+config menu
+	option path 'system/upgrade'
+	option page 'settings-upgrade'
+	list expose 'admin'
+

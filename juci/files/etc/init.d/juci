@@ -1,0 +1,41 @@
+#!/bin/sh /etc/rc.common
+. /lib/functions.sh
+
+START=94
+STOP=06
+
+USE_PROCD=1
+NAME=juci
+
+start_service() {
+	mkdir -p /tmp/juci
+	touch /www/index.html.gz
+	chmod 755 /www/cgi-bin/luci
+	# this will simply update index.html to include any files that are for some reason not included
+	# a good way to make sure all plugins are properly included at each boot
+	config_load juci
+	local theme
+	config_get theme juci theme
+	if [ "$theme" ]
+	then
+		if [ -f /www/themes/theme.js.gz ] 
+			then
+			rm -f /www/themes/theme.js.gz
+		fi
+		if [ -f /www/themes/*$theme.js.gz ]
+			then
+			ln -s /www/themes/*$theme.js.gz /www/themes/theme.js.gz
+		fi
+	fi
+	juci-update
+}
+
+stop() {
+	service_stop /sbin/juci
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger juci
+}
+

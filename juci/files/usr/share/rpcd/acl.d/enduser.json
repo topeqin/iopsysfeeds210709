@@ -1,0 +1,217 @@
+{
+	"enduser": {
+		"description": "End User Access Rights",
+		"read": {
+			"ubus": {
+				"dect": [
+					"state",
+					"handset",
+					"status",
+					"call"
+				],
+				"dsl": [
+					"status",
+					"stats"
+				],
+				"network.device": [
+					"status"
+				],
+				"network.interface*": [
+					"status",
+					"dump",
+					"up",
+					"down"
+				],
+				"router.network": [
+					"clients",
+					"hosts",
+					"dump"
+				],
+				"router.system": [
+					"info",
+					"memory",
+					"filesystem",
+					"process",
+					"processes"
+				],
+				"session": [
+					"access",
+					"list",
+					"destroy",
+					"login"
+				],
+				"system": [
+					"info",
+					"board",
+					"reboot"
+				],
+				"testnet": [
+					"status"
+				],
+				"uci": [
+					"*"
+				],
+				"voice.asterisk": [
+					"status",
+					"call_log",
+					"platform",
+					"supported_countries"
+				],
+				"wifi": [
+					"status"
+				],
+				"wifi.ap.*": [
+					"status",
+					"stats",
+					"assoclist",
+					"stations"
+				],
+				"wifi.radio.*": [
+					"status",
+					"stats",
+					"scan",
+					"scanresults",
+					"autochannel"
+				],
+				"wifi.wps": [
+					"start",
+					"stop",
+					"status",
+					"showpin"
+				]
+			},
+			"uci": [
+				"dhcp",
+				"firewall",
+				"juci",
+				"network",
+				"voice_client",
+				"wireless"
+			],
+			"owsd": [
+				"client",
+				"wifi.radio",
+				"wifi.sta",
+				"wifi.wps"
+			]
+		},
+		"write": {
+			"uci": [
+				"dhcp",
+				"firewall",
+				"network",
+				"wireless"
+			],
+			"uci_granular": {
+				"dhcp": [
+					{
+						"match": {
+							".type": "dhcp"
+						},
+						"option": [
+							"*"
+						]
+					},
+					{
+						"match": {
+							".type": "host"
+						},
+						"option": [
+							"*"
+						]
+					}
+				],
+				"firewall": [
+					{
+						"match": {
+							".type": "settings",
+							".name": "settings"
+						},
+						"option": [
+							"disabled"
+						]
+					},
+					{
+						"match": {
+							".type": "zone"
+						},
+						"option": [
+							"masq",
+							"name",
+							"network"
+						]
+					},
+					{
+						"match": {
+							".type": "redirect"
+						},
+						"option": [
+							"*"
+						]
+					},
+					{
+						"match": {
+							".type": "rule"
+						},
+						"option": [
+							"*"
+						]
+					},
+					{
+						"match": {
+							".type": "dmz"
+						},
+						"option": [
+							"enabled",
+							"host",
+							"ip6addr"
+						]
+					}
+				],
+				"network": [
+					{
+						"match": {
+							".type": "interface"
+						},
+						"option": [
+							"*"
+						]
+					}
+				],
+				"wireless": [
+					{
+						"match": {
+							".type": "wifi-status"
+						},
+						"option": [
+							"wps"
+						]
+					},
+					{
+						"match": {
+							".type": "wifi-iface",
+							"mode": "ap"
+						},
+						"option": [
+							"*"
+						]
+					},
+					{
+						"match": {
+							".type": "wifi-device"
+						},
+						"option": [
+							"channel"
+						]
+					}
+				]
+			},
+			"owsd": [
+				"client",
+				"wifi.radio",
+				"wifi.sta",
+				"wifi.wps"
+			]
+		}
+	}
+}
