@@ -1,10 +1,7 @@
 
 define Package/libdsl
   $(call Package/easy-soc-libs)
-  TITLE:= XDSL library (libdsl)
-  DEPENDS+=+TARGET_intel_mips:dsl-cpe-api-vrx \
-	   +TARGET_intel_mips:dsl-cpe-fapi \
-	   +TARGET_intel_mips:kmod-ppa-drv
+  TITLE:= xDSL library (libdsl)
 endef
 
 define Package/libdsl/config
