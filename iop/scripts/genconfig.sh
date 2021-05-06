@@ -429,7 +429,7 @@ function genconfig {
 		fi
 
 		# Force regeneration of themes
-		touch package/feeds/juci/juci/Makefile
+		touch package/feeds/iopsys/juci/Makefile
 
 		# Force regeneration of kernel Makefile
 		# Needed to disable kmods for iopsys-brcm targets
