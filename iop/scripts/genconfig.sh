@@ -17,8 +17,9 @@ function genconfig {
 	bcm27xx="target/linux/iopsys-bcm27xx"
 	brcm63xx_arm="target/linux/iopsys-brcm63xx-arm"
 	ramips="target/linux/iopsys-ramips"
-	intel_mips="target/linux/intel_mips"
 	mediatek="target/linux/iopsys-mediatek"
+	econet="target/linux/iopsys-econet"
+	intel_mips="target/linux/intel_mips"
 	x86="target/linux/iopsys-x86"
 	armvirt="target/linux/iopsys-armvirt"
 
@@ -116,6 +117,8 @@ function genconfig {
 			iopsys_ramips=$(cd $ramips; ./genconfig)
 		[ -e $mediatek/genconfig ] &&
 			iopsys_mediatek=$(cd $mediatek; ./genconfig)
+		[ -e $econet/genconfig ] &&
+			iopsys_econet=$(cd $econet; ./genconfig)
 		[ -e $intel_mips/genconfig ] &&
 			iopsys_intel_mips=$(cd $intel_mips; ./genconfig)
 		[ -e $x86/genconfig ] &&
@@ -126,7 +129,7 @@ function genconfig {
 			iopsys_bcm27xx=$(cd $bcm27xx; ./genconfig)
 
 	    if [ "$profile" == "LIST" ]; then
-			for list in iopsys_brcm63xx_arm iopsys_ramips iopsys_mediatek iopsys_intel_mips iopsys_x86 iopsys_armvirt iopsys_bcm27xx; do
+			for list in iopsys_brcm63xx_arm iopsys_ramips iopsys_mediatek iopsys_econet iopsys_intel_mips iopsys_x86 iopsys_armvirt iopsys_bcm27xx; do
 				echo "$list based boards:"
 				for b in ${!list}; do
 					echo -e "\t$b"
@@ -155,6 +158,14 @@ function genconfig {
 		if [ $p == $profile ]; then
 		    target="iopsys_mediatek"
 			target_config_path="$mediatek/config"
+		    return
+		fi
+	    done
+
+	    for p in $iopsys_econet; do
+		if [ $p == $profile ]; then
+		    target="iopsys_econet"
+			target_config_path="$econet/config"
 		    return
 		fi
 	    done
@@ -371,6 +382,11 @@ function genconfig {
 			echo "CONFIG_TARGET_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
 		elif [ "$target" = "iopsys_mediatek" ]; then
 			subtarget="mt7622"
+			echo "CONFIG_TARGET_${target}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}=y" >> .config
+			echo "CONFIG_TARGET_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
+		elif [ "$target" = "iopsys_econet" ]; then
+			subtarget="en7562"
 			echo "CONFIG_TARGET_${target}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${subtarget}=y" >> .config
 			echo "CONFIG_TARGET_${target}_${subtarget}_DEVICE_${BOARDTYPE}=y" >> .config
