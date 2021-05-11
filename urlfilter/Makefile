@@ -26,7 +26,7 @@ define Package/urlfilter
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=URL filter
-  DEPENDS:=+libuci +libnetfilter-queue +libnfnetlink +libpthread +libubox +ubus
+  DEPENDS:=+libuci +libnetfilter-queue +libnfnetlink +iptables-mod-nfqueue +libpthread +libubox +ubus
 endef
 
 define Package/urlfilter/description
