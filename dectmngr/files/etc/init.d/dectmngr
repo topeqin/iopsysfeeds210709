@@ -1,7 +1,4 @@
 #!/bin/sh /etc/rc.common
-#
-# Copyright (C) 2021 OpenWrt.org
-#
 
 source /lib/functions/uci-defaults.sh
 
