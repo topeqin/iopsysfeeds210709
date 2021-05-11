@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright (C) 2009 OpenWrt.org
+#
+
+START=68
+STOP=12
+
+USE_PROCD=1
+NAME=endptmngr
+
+start_service() {
+	procd_open_instance
+	procd_set_param env hw_board_hasDect=$(db get hw.board.hasDect)
+	procd_set_param command $NAME
+	procd_set_param respawn "5" "0" "3"
+	procd_set_param nice -12
+	procd_close_instance
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger asterisk 
+}

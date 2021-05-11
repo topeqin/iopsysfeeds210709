@@ -6,26 +6,17 @@
 #
 include $(TOPDIR)/rules.mk
 
-PKG_RELEASE:=1
-PKG_VERSION:=0.4
-PKG_SOURCE_VERSION:=510b885c049b8ba06772dae59e64b370d0fded3e
-PKG_LICENSE:=MIT
-PKG_LICENSE_FILES:=LICENSE
-
-ifeq ($(CONFIG_ENDPT_OPEN),y)
-BRCM_KERNEL_PROFILE=$(shell echo $(CONFIG_BCM_KERNEL_PROFILE) | sed s/\"//g)
-PKG_SOURCE:=endptmngr-$(BRCM_KERNEL_PROFILE)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://download.iopsys.eu/iopsys/opensdk/
-PKG_NAME:=endptmngr-open
-PATCH_DIR:=
-PKG_HASH:=skip
-else
-PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/endptmngr.git
-PKG_SOURCE_PROTO:=git
 PKG_NAME:=endptmngr
+PKG_VERSION:=0.4
+
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/endptmngr.git
+PKG_SOURCE_VERSION:=b94de01a4ff24bb4d31bb16b3be9e1b1859359dd
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
-endif
+
+PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=LICENSE
 
 export BUILD_DIR
 
@@ -34,14 +25,9 @@ PKG_BUILD_PARALLEL:=1
 
 # All config variable that are passed to the make invocation, directly or
 # indirectly. This ensures that the package is rebuilt on config-changes.
-PKG_CONFIG_DEPENDS := \
-	CONFIG_TARGET_BOARD
+PKG_CONFIG_DEPENDS:=CONFIG_TARGET_BOARD
 
-export CONFIG_BRCM_SDK_VER_504001
 export CONFIG_BRCM_SDK_VER_504002
-export CONFIG_BRCM_SDK_VER_504003
-export CONFIG_BRCM_SDK_VER_504004
-export CONFIG_BRCM_SDK_VER_504005
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -52,7 +38,7 @@ endef
 
 define Package/endptmngr
   CATEGORY:=Utilities
-  TITLE:=Brcmslic
+  TITLE:=Broadcom Voice Endpoint Manager
   URL:=
   DEPENDS:= +libubox +ubus +libpicoevent +uci +bcmkernel @TARGET_HAS_VOICE @BCM_VOICE
 endef
@@ -61,18 +47,9 @@ define Package/endptmngr/description
 	endptmngr
 endef
 
-ifeq ($(CONFIG_ENDPT_OPEN),y)
-
-define Build/Compile
-endef
-
-endif
-
-
 define Package/endptmngr/install
+	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/etc/init.d/
-	cp $(PKG_BUILD_DIR)/files/etc/init.d/* $(1)/etc/init.d/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/endptmngr $(1)/usr/sbin/
 endef
 
