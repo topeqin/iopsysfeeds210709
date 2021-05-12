@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uspd
-PKG_VERSION:=2.1.16
+PKG_VERSION:=2.1.17
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
