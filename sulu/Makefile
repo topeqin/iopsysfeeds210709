@@ -29,6 +29,7 @@ define Package/sulu
   CATEGORY:=Utilities
   MENU=1
   TITLE:=SULU-CE ReactJS based Web UI Package
+  DEPENDS:=+nginx
 endef
 
 define Package/sulu/description
