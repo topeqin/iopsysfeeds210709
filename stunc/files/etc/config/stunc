@@ -1,6 +1,6 @@
 
-config stun 'stun'
-	option enable '0'
+config stunc 'stunc'
+	option enabled '0'
 	option username 'stun'
 	option password 'stun'
 	option server_address 'stun.l.google.com'

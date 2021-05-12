@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=stunc
-PKG_VERSION:=1.0.1
+PKG_VERSION:=1.0.2
 
-PKG_SOURCE_VERSION:=cd7c5d70bc97a2f1a26d5587ccf6f4c1e9ca82c8
+PKG_SOURCE_VERSION:=d578df0c8e4e7d1b642a5cf037ce468379270534
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/stunc.git
 
@@ -29,7 +29,7 @@ define Package/$(PKG_NAME)
   CATEGORY:=Utilities
   SUBMENU:=TRx69
   TITLE:=BBF STUN Client
-  DEPENDS:=+libubus +libuci +libubox +libjson-c +libopenssl +libblobmsg-json
+  DEPENDS:=+libubus +libuci +libubox +libjson-c +libopenssl +libblobmsg-json +libbbf_api
 endef
 
 define Package/$(PKG_NAME)/description
@@ -43,9 +43,11 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/lib/bbfdm
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libstunc.so $(1)/usr/lib/bbfdm/libstunc.so
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/stunc $(1)/usr/sbin/
 	$(INSTALL_BIN) ./files/etc/init.d/stunc $(1)/etc/init.d/stunc
-	$(INSTALL_DATA) ./files/etc/config/stun $(1)/etc/config/stun
+	$(INSTALL_DATA) ./files/etc/config/stunc $(1)/etc/config/stunc
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

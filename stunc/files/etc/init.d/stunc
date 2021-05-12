@@ -1,23 +1,20 @@
 #!/bin/sh /etc/rc.common
-# STUN client software
-# Copyright (C) 2020 iopsys Software Solutions AB
-# Author: Omar Kallel <omar.kallel@pivasoftware.com>
 
-START=90
+START=99
+STOP=15
 
 USE_PROCD=1
 PROG="/usr/sbin/stunc"
 
-
 log() {
 	#echo "${@}" >/dev/console
-	echo "${@}"|logger -t stun -p info
+	echo "${@}"|logger -t stunc -p info
 }
 
 validate_stun_section()
 {
-	uci_validate_section stun stun stun \
-		'enable:bool' \
+	uci_validate_section stunc stunc stunc \
+		'enabled:bool' \
 		'Username:string' \
 		'Password:string' \
 		'server_address:host' \
@@ -26,31 +23,26 @@ validate_stun_section()
 		'log_level:uinteger:0'
 }
 
-service_running() {
-	ubus wait_for tr069
-	return $?;
-}
-
 start_service() {
-	local enable server_address
+	local enabled server_address
 
-	config_load stun
+	config_load stunc
 	validate_stun_section || {
-		log "Validation failed for stun section";
-		exit 1;
+		log "Validation failed for stunc section";
+		return 1;
 	}
 
-	if [ "$enable" -eq 0 ]; then
-		exit 0;
+	if [ "$enabled" -eq 0 ]; then
+		return 0;
 	fi
 
 	if [ -z "${server_address}" ]; then
 		log "Stun server address not defined or invalid"
-		exit 0;
+		return 0;
 	fi
 
-	procd_open_instance stun
-	procd_set_param command "$PROG"
+	procd_open_instance stunc
+	procd_set_param command ${PROG}
 	procd_set_param respawn "3" "7" "0"
 	procd_close_instance
 
@@ -63,5 +55,5 @@ reload_service() {
 
 service_triggers()
 {
-	procd_add_reload_trigger stun
+	procd_add_reload_trigger stunc
 }
