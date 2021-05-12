@@ -35,7 +35,7 @@ configure_uspd()
 		procd_set_param stderr 1
 	fi
 
-	if [ -n "${sock}" ]; then
+	if [ -f "${sock}" ]; then
 		procd_append_param command -s ${sock}
 	fi
 
