@@ -37,8 +37,8 @@ define Package/sulu/description
 endef
 
 define Package/sulu/install
-	$(INSTALL_DIR) $(1)/www
-	$(CP) $(PKG_BUILD_DIR)/dist/* $(1)/www
+	$(INSTALL_DIR) $(1)/sulu
+	$(CP) $(PKG_BUILD_DIR)/dist/* $(1)/sulu
 #	$(CP) ./files/* $(1)/
 endef
 
