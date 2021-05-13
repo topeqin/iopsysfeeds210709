@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xmppc
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
-PKG_SOURCE_VERSION:=231b010d5578bedee5f37de3ad7bd65e57f13a31
+PKG_SOURCE_VERSION:=a98cdda759418dab1c12a18c345112d94ed4c02e
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/xmppc.git
 
@@ -29,7 +29,7 @@ define Package/$(PKG_NAME)
   CATEGORY:=Utilities
   SUBMENU:=TRx69
   TITLE:=BBF xmpp Client
-  DEPENDS:=+libuci +libubox +libstrophe +libbbf_api
+  DEPENDS:=+libuci +libubox +libstrophe +libbbf_api +libubus
 endef
 
 define Package/$(PKG_NAME)/description
@@ -41,7 +41,7 @@ TARGET_CFLAGS += \
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/xmppd $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/xmppc $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/bbfdm
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/*.so $(1)/usr/lib/bbfdm
 	$(CP) ./files/* $(1)/

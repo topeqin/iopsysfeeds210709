@@ -1,13 +1,10 @@
 #!/bin/sh /etc/rc.common
-# XMPP client software
-# Copyright (C) 2020 iopsys Software Solutions AB
-# Author: Amin Ben Ramdhane <amin.benramdhane@pivasoftware.com>
 
 START=99
 STOP=10
 
 USE_PROCD=1
-PROG="/usr/sbin/xmppd"
+PROG="/usr/sbin/xmppc"
 
 start_service() {
 	local xmpp_enable=`uci -q get xmpp.xmpp.enable`
@@ -19,7 +16,7 @@ start_service() {
 		local con_enable=`uci -q get xmpp.$con.enable`
 		local srv_enable=`uci -q get xmpp.$con_srv.enable`
 		if ([ "$serveralgorithm" = "DNS-SRV" ] && [ "$con_enable" = "1" ]) || ([ "$serveralgorithm" = "ServerTable" ] && [ "$con_enable" = "1" ] && [ "$srv_enable" = "1" ]); then
-			procd_open_instance
+			procd_open_instance xmppc
 			procd_set_param command "$PROG"
 			procd_set_param respawn "3" "7" "0"
 			procd_close_instance

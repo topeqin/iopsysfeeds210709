@@ -17,5 +17,5 @@ local proto="$(uci -q get network.$INTERFACE.proto)"
 local ifname="$(uci -q get network.$INTERFACE.ifname)"
 [ "${ifname:0:1}" == "@" ] && exit 0
 
-/etc/init.d/xmppd reload &
+/etc/init.d/xmppc reload &
 
