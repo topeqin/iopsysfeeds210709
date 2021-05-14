@@ -1,9 +1,8 @@
 #
-# Copyright (C) 2020 IOPSYS
+# Copyright (C) 2021 IOPSYS
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=periodicstats
 PKG_VERSION:=1.0.0
