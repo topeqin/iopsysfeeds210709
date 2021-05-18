@@ -444,9 +444,6 @@ function genconfig {
 		    echo "CONFIG_BRCM_MAX_JOBS=\"1\"" >>.config
 		fi
 
-		# Force regeneration of themes
-		touch package/feeds/iopsys/juci/Makefile
-
 		# Force regeneration of kernel Makefile
 		# Needed to disable kmods for iopsys-brcm targets
 		touch package/kernel/linux/Makefile
