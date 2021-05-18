@@ -39,7 +39,7 @@ endef
 define Package/sulu/install
 	$(INSTALL_DIR) $(1)/sulu
 	$(CP) $(PKG_BUILD_DIR)/dist/* $(1)/sulu
-#	$(CP) ./files/* $(1)/
+  $(CP) ./files/* $(1)/
 endef
 
 $(eval $(call BuildPackage,sulu))
