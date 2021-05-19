@@ -24,22 +24,21 @@ PKG_LICENSE_FILES:=LICENSE
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sulu
-#  $(Package/sulu/default)
-  SECTION:=sulu
-  CATEGORY:=Utilities
-  MENU=1
-  TITLE:=SULU-CE ReactJS based Web UI Package
-  DEPENDS:=+nginx
+	SECTION:=sulu
+	CATEGORY:=Utilities
+	MENU=1
+	TITLE:=SULU-CE ReactJS based Web UI Package
+	DEPENDS:=+nginx
 endef
 
 define Package/sulu/description
- SULU-CE ReactJS based Web UI.
+	SULU-CE ReactJS based Web UI.
 endef
 
 define Package/sulu/install
 	$(INSTALL_DIR) $(1)/sulu
 	$(CP) $(PKG_BUILD_DIR)/dist/* $(1)/sulu
-  $(CP) ./files/* $(1)/
+	$(CP) ./files/* $(1)/
 endef
 
 $(eval $(call BuildPackage,sulu))
