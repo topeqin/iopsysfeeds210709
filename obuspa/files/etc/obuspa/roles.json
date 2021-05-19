@@ -1,0 +1,97 @@
+{
+  "roles": [
+    {
+      "name": "admin",
+      "permission": [
+        {
+          "object": "Device.",
+          "perm": [
+            "PERMIT_NONE"
+          ]
+        },
+        {
+          "object": "Device.DeviceInfo.",
+          "perm": [
+            "PERMIT_GET",
+            "PERMIT_GET_INST"
+          ]
+        },
+        {
+          "object": "Device.WiFi.",
+          "perm": [
+            "PERMIT_GET",
+            "PERMIT_SET",
+            "PERMIT_ADD",
+            "PERMIT_DEL",
+            "PERMIT_OPER",
+            "PERMIT_SUBS_VAL_CHANGE",
+            "PERMIT_SUBS_OBJ_ADD",
+            "PERMIT_SUBS_OBJ_DEL",
+            "PERMIT_SUBS_EVT_OPER_COMP",
+            "PERMIT_GET_INST",
+            "PERMIT_OBJ_INFO",
+            "PERMIT_CMD_INFO"
+          ]
+        },
+        {
+          "object": "Device.IP.",
+          "perm": [
+            "PERMIT_GET",
+            "PERMIT_GET_INST"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "permission": [
+        {
+          "object": "Device.",
+          "perm": [
+            "PERMIT_NONE"
+          ]
+        },
+        {
+          "object": "Device.DeviceInfo.",
+          "perm": [
+            "PERMIT_GET",
+            "PERMIT_GET_INST"
+          ]
+        },
+        {
+          "object": "Device.WiFi.",
+          "perm": [
+            "PERMIT_GET",
+            "PERMIT_OPER",
+            "PERMIT_SUBS_VAL_CHANGE",
+            "PERMIT_SUBS_OBJ_ADD",
+            "PERMIT_SUBS_OBJ_DEL",
+            "PERMIT_SUBS_EVT_OPER_COMP",
+            "PERMIT_GET_INST",
+            "PERMIT_OBJ_INFO",
+            "PERMIT_CMD_INFO"
+          ]
+        },
+        {
+          "object": "Device.IP.",
+          "perm": [
+            "PERMIT_GET",
+            "PERMIT_GET_INST"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "undefined-1"
+    },
+    {
+      "name": "undefined-2"
+    },
+    {
+      "name": "undefined-3"
+    },
+    {
+      "name": "undefined-4"
+    }
+  ]
+}

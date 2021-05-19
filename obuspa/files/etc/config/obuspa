@@ -1,16 +1,17 @@
 config obuspa 'global'
-	option enabled 'true'
+	option enabled '1'
 	option interface 'wan'
 	#option ifname 'eth0.1'
 	option debug '0'
 	option log_level '1'
-	#option db_file '/tmp/usp.db'
+	#option db_file '/etc/obuspa/usp.db'
+	#option role_file '/etc/obuspa/roles.json'
 	#option trust_cert '/etc/obuspa/rootCA.pem'
 	#option client_cert '/etc/obuspa/client.pem'
 	#option log_dest '/var/log/obuspa'
 
 config localagent 'localagent'
-	option Enable 'true'
+	option Enable '1'
 
 # Adds Device.LocalAgent.Controller.
 config controller 'localcontroller'
@@ -18,6 +19,7 @@ config controller 'localcontroller'
 	option Protocol 'MQTT'
 	option Topic '/usp/controller'
 	option mqtt 'localmqtt'
+	option assigned_role_name 'Full Access'
 
 # Adds Device.LocalAgent.MTP.
 config mtp
@@ -41,3 +43,18 @@ config subscription
 	option Persistent 'true'
 	option controller 'localcontroller'
 
+#config challenge 'admin'
+#	option Description 'Request to get Administrative access'
+#	option role_name 'Full Access'
+#	option Enable '1'
+#	option Value 'admin'
+#	option Retries 2
+#	option LockoutPeriod 60
+
+#config challenge 'user'
+#	option Description 'Request to get User access'
+#	option role_name 'user'
+#	option Enable '1'
+#	option Value 'user'
+#	option Retries 3
+#	option LockoutPeriod 30

@@ -1,0 +1,15 @@
+if PACKAGE_obuspa
+
+config OBUSPA_MTP_ENABLE_STOMP
+	bool "Enable STOMP as mtp protocol"
+	default y
+
+config OBUSPA_MTP_ENABLE_MQTT
+	bool "Enable MQTT as mtp protocol"
+	default y
+
+config OBUSPA_MTP_ENABLE_COAP
+	bool "Enable CoAP as mtp protocol"
+	default y
+
+endif

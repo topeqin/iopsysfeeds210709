@@ -5,7 +5,7 @@ USE_PROCD=1
 PROG=/usr/sbin/obuspa
 
 EXTRA_COMMANDS="remove_db"
-EXTRA_HELP="	remove_db Removes obuspa persistent db before restarting"
+EXTRA_HELP="	remove_db Removes obuspa persistent db before restarting, self trigger with uci change"
 
 PARAM_FILE="/tmp/obuspa_param_reset.txt"
 CONFIGURATION=obuspa
@@ -16,9 +16,20 @@ mtp_num=0
 stomp_num=0
 mqtt_num=0
 subs_num=0
+challenge_num=0
 index=0
+role_def_file=""
 
 . /lib/functions/network.sh
+. /usr/share/libubox/jshn.sh
+
+cleanup() {
+	if [ -f "${USP_TEMP_FILE}" ]; then
+		rm -f "${USP_TEMP_FILE}"
+	fi
+}
+
+trap cleanup EXIT
 
 log() {
 	echo "${@}"|logger -t obuspa -p debug
@@ -37,6 +48,37 @@ get_index() {
 	if [ "$1" = "$2" ]; then
 		echo "${index}" > ${USP_TEMP_FILE}
 	fi
+}
+
+get_role_index_from_json() {
+	local role="${@}"
+
+	# In case of role is empty or file not present
+	if [ -z "${role}" -o ! -f ${role_def_file} ]; then
+		echo 0
+		return 0
+	fi
+
+	json_init
+	json_load_file ${role_def_file}
+	if [ $? -ne 0 ]; then # In case of invalid json file
+		echo 0
+		return 0
+	fi
+
+	json_select roles
+	json_get_keys roles_obj
+
+	for k in ${roles_obj}; do
+		json_select $k
+		json_get_var name name
+		json_select ..
+		if [ "${role}" = "${name}" ]; then
+			echo "${k}"
+			return 0
+		fi
+	done
+	echo 0
 }
 
 get_uci_ref_index() {
@@ -62,14 +104,15 @@ validate_obuspa_section()
 {
 	uci_validate_section ${CONFIGURATION} obuspa "${1}" \
 		'enabled:bool:true' \
-		'trust_cert:string' \
-		'client_cert:string' \
+		'trust_cert:file' \
+		'client_cert:file' \
 		'interface:string' \
 		'ifname:string:"br-lan"' \
 		'debug:bool:false' \
 		'log_level:uinteger' \
-		'log_dest:string' \
-		'db_file:string'
+		'log_dest:file' \
+		'db_file:file' \
+		'role_file:file'
 }
 
 validate_localagent_section()
@@ -85,7 +128,8 @@ validate_controller_section()
 	uci_validate_section ${CONFIGURATION} controller "${1}" \
 		'EndpointID:string' \
 		'Enable:bool:true' \
-		'AssignedRole:string:Device.LocalAgent.ControllerTrust.Role.1' \
+		'AssignedRole:string' \
+		'assigned_role_name:string' \
 		'PeriodicNotifInterval:uinteger:86400' \
 		'PeriodicNotifTime:string' \
 		'USPNotifRetryMinimumWaitInterval:uinteger:5' \
@@ -95,9 +139,9 @@ validate_controller_section()
 		'Reference:string' \
 		'Destination:string:controller-notify-dest' \
 		'Topic:string' \
-		'coap_host:string' \
+		'coap_host:host' \
 		'coap_path:string' \
-		'coap_port:uinteger' \
+		'coap_port:port' \
 		'mqtt:string' \
 		'stomp:string'
 }
@@ -124,7 +168,7 @@ validate_mtp_section()
 		'PublishQoS:uinteger' \
 		'Destination:string' \
 		'coap_path:string' \
-		'coap_port:uinteger' \
+		'coap_port:port' \
 		'mqtt:string' \
 		'stomp:string'
 }
@@ -132,12 +176,12 @@ validate_mtp_section()
 validate_stomp_connection_section()
 {
 	uci_validate_section ${CONFIGURATION} stomp "${1}" \
-		'Host:string:usp-controller.com' \
+		'Host:host' \
 		'Username:string' \
 		'Password:string' \
 		'encryption:bool:true' \
 		'Enable:bool:true' \
-		'Port:uinteger:61613' \
+		'Port:port:61613' \
 		'VirtualHost:string:/' \
 		'EnableHeartbeats:bool:true' \
 		'OutgoingHeartbeat:uinteger:30000' \
@@ -150,13 +194,13 @@ validate_stomp_connection_section()
 validate_mqtt_client_section()
 {
 	uci_validate_section ${CONFIGURATION} mqtt "${1}" \
-		'BrokerAddress:string' \
-		'BrokerPort:uinteger:1883' \
+		'BrokerAddress:host' \
+		'BrokerPort:port:1883' \
 		'Enable:bool:true' \
 		'Username:string' \
 		'Password:string' \
-		'ProtocolVersion:string:5.0' \
-		'TransportProtocol:string:TCP/IP' \
+		'ProtocolVersion:or("3.1", "3.1.1","5.0"):5.0' \
+		'TransportProtocol:or("TCP/IP","TLS"):TCP/IP' \
 		'KeepAliveTime:uinteger:60' \
 		'ClientID:string' \
 		'ConnectRetryTime:uinteger:5' \
@@ -180,7 +224,6 @@ configure_localagent() {
 	_num=1
 	while [ ${_num} -le ${controller_num} ]
 	do
-		db_set Device.LocalAgent.Controller.${_num}.BootParameter.1.Alias "cpe-1"
 		db_set Device.LocalAgent.Controller.${_num}.BootParameter.1.Enable "${Enable}"
 		db_set Device.LocalAgent.Controller.${_num}.BootParameter.1.ParameterName "${ParameterName}"
 		_num=$(( ${_num} + 1 ))
@@ -192,14 +235,14 @@ configure_localagent() {
 configure_controller() {
 	local EndpointID Enable AssignedRole PeriodicNotifInterval PeriodicNotifTime USPNotifRetryMinimumWaitInterval
 	local USPNotifRetryIntervalMultiplier ControllerCode Protocol Destination coap_host coap_path coap_port
-	local Reference Topic mqtt stomp
+	local Reference Topic mqtt stomp assigned_role_name
 
 	validate_controller_section "${1}" || {
 		log "Validation of controller section failed"
 		return 1;
 	}
 
-	if [ -z ${EndpointID} -o -z ${Protocol} ]; then
+	if [ -z "${EndpointID}" -o -z "${Protocol}" ]; then
 		log "controller:: EndpointID id and Protocol cannot be empty"
 		return 1;
 	fi
@@ -232,7 +275,15 @@ configure_controller() {
 	db_set Device.LocalAgent.Controller.${controller_num}.Alias "cpe-${controller_num}"
 	db_set Device.LocalAgent.Controller.${controller_num}.Enable "${Enable}"
 	db_set Device.LocalAgent.Controller.${controller_num}.EndpointID "${EndpointID}"
-	#db_set Device.LocalAgent.Controller.${controller_num}.AssignedRole "${AssignedRole}"
+	if [ -n "${AssignedRole}" ]; then
+		db_set Device.LocalAgent.Controller.${controller_num}.AssignedRole "${AssignedRole}"
+	else
+		if [ -n "${assigned_role_name}" ]; then
+			AssignedRole=$(get_role_index ${assigned_role_name})
+			db_set Device.LocalAgent.Controller.${controller_num}.AssignedRole "${AssignedRole}"
+		fi
+	fi
+
 	db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifInterval "${PeriodicNotifInterval}"
 	if [ -n "${PeriodicNotifTime}" ]; then
 		db_set Device.LocalAgent.Controller.${controller_num}.PeriodicNotifTime "${PeriodicNotifTime}"
@@ -295,6 +346,74 @@ configure_subscription(){
 	db_set Device.LocalAgent.Subscription.${subs_num}.ReferenceList "${ReferenceList}"
 	db_set Device.LocalAgent.Subscription.${subs_num}.Persistent "${Persistent}"
 	db_set Device.LocalAgent.Subscription.${subs_num}.Recipient "${Recipient}"
+}
+
+validate_challenge_section()
+{
+	uci_validate_section ${CONFIGURATION} challenge "${1}" \
+		'Enable:bool:true' \
+		'Alias:string' \
+		'Description:string' \
+		'role_name:string' \
+		'Role:string' \
+		'Value:string' \
+		'Retries:uinteger:3' \
+		'LockoutPeriod:uinteger:0'
+}
+
+get_role_index() {
+	local role="Device.LocalAgent.ControllerTrust.Role"
+	local index=0
+	local role_name="${@}"
+
+	case "${role_name}" in
+	'Full Access')
+	     index=1;
+	     ;;
+	'Untrusted')
+	     index=2;
+	     ;;
+	 *)
+	     local ji=$(get_role_index_from_json ${role_name})
+	     index=$(( ji + 2 )) # Add predefined roles
+	 esac
+
+	 echo "${role}.${index}"
+}
+
+configure_challenges() {
+	local Enable Description role_name Role Value Retries LockoutPeriod Alias
+
+	validate_challenge_section "${1}" || {
+		log "Validation of challenge section failed"
+		exit 1;
+	}
+
+	if [ -z "${role_name}" -a -z ${Role} ]; then
+		log "Either role_name or Role must defined for a challenge";
+		return 1;
+	fi
+
+	challenge_num=$(( challenge_num + 1))
+
+	db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.Enable "${Enable}"
+	if [ -n "${Description}" ]; then
+	  db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.Description "${Description}"
+	fi
+
+	if [ -z "${Role}" ]; then
+		Role=$(get_role_index ${role_name})
+	fi
+
+	if [ -z "${Alias}" -a -n "${role_name}" ]; then
+		Alias=${role_name}
+	fi
+
+	db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.Alias "${Alias}"
+	db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.Role "${Role}"
+	db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.Value "${Value}"
+	db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.Retries "${Retries}"
+	db_set Device.LocalAgent.ControllerTrust.Challenge.${challenge_num}.LockoutPeriod "${LockoutPeriod}"
 }
 
 configure_mtp() {
@@ -366,7 +485,7 @@ configure_stomp_connection() {
 	db_set Device.STOMP.Connection.${stomp_num}.Alias "cpe-${stomp_num}"
 	db_set Device.STOMP.Connection.${stomp_num}.Enable "${Enable}"
 	db_set Device.STOMP.Connection.${stomp_num}.Port "${Port}"
-	db_set Device.STOMP.Connection.${stomp_num}.X_ARRIS-COM_EnableEncryption "${encryption}"
+	db_set Device.STOMP.Connection.${stomp_num}.EnableEncryption "${encryption}"
 	db_set Device.STOMP.Connection.${stomp_num}.VirtualHost "${VirtualHost}"
 	db_set Device.STOMP.Connection.${stomp_num}.EnableHeartbeats "${EnableHeartbeats}"
 	db_set Device.STOMP.Connection.${stomp_num}.OutgoingHeartbeat "${OutgoingHeartbeat}"
@@ -412,13 +531,14 @@ configure_mqtt_client(){
 
 
 configure_obuspa() {
-	local enabled trust_cert ifname interface debug log_level db_file log_dest
+	local enabled trust_cert ifname interface debug log_level db_file log_dest role_file
 
 	validate_obuspa_section "global" || {
 		log "Validation of global section failed"
 		return 1;
 	}
 
+	role_def_file="${role_file}"
 	[ ${enabled} -eq 0 ] && return 0
 
 	if [ ${debug} -eq 1 ]; then
@@ -483,6 +603,7 @@ db_init() {
 	config_foreach configure_stomp_connection stomp
 	config_foreach configure_mqtt_client mqtt
 	config_foreach configure_subscription subscription
+	config_foreach configure_challenges challenge
 
 	db_set Internal.Reboot.Cause "LocalFactoryReset"
 }
