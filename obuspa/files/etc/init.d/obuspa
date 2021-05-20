@@ -107,11 +107,11 @@ validate_obuspa_section()
 		'trust_cert:file' \
 		'client_cert:file' \
 		'interface:string' \
-		'ifname:string:"br-lan"' \
+		'ifname:string:br-lan' \
 		'debug:bool:false' \
 		'log_level:uinteger' \
-		'log_dest:file' \
-		'db_file:file' \
+		'log_dest:string' \
+		'db_file:string' \
 		'role_file:file'
 }
 
@@ -367,7 +367,7 @@ get_role_index() {
 	local role_name="${@}"
 
 	case "${role_name}" in
-	'Full Access')
+	'full_access')
 	     index=1;
 	     ;;
 	'Untrusted')

@@ -19,7 +19,7 @@ config controller 'localcontroller'
 	option Protocol 'MQTT'
 	option Topic '/usp/controller'
 	option mqtt 'localmqtt'
-	option assigned_role_name 'Full Access'
+	option assigned_role_name 'full_access'
 
 # Adds Device.LocalAgent.MTP.
 config mtp
@@ -45,7 +45,7 @@ config subscription
 
 #config challenge 'admin'
 #	option Description 'Request to get Administrative access'
-#	option role_name 'Full Access'
+#	option role_name 'full_access'
 #	option Enable '1'
 #	option Value 'admin'
 #	option Retries 2
