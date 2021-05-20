@@ -63,6 +63,7 @@ CONFIG_OPENSSL_WITH_COMPRESSION=y
 CONFIG_PACKAGE_openvpn-easy-rsa=y
 CONFIG_PACKAGE_openvpn-openssl=y
 CONFIG_PACKAGE_owsd=y
+CONFIG_PACKAGE_periodicstats=y
 CONFIG_PACKAGE_peripheral_manager=y
 CONFIG_PACKAGE_port-management=y
 CONFIG_PACKAGE_ppp-mod-pppoa=y
