@@ -82,6 +82,7 @@ CONFIG_PACKAGE_rpcd=y
 CONFIG_PACKAGE_rpcd-mod-rpcsys=y
 CONFIG_PACKAGE_rulengd=y
 CONFIG_PACKAGE_strace=y
+CONFIG_PACKAGE_sulu=y
 CONFIG_PACKAGE_swmodd=m
 CONFIG_PACKAGE_tcpdump=y
 CONFIG_PACKAGE_terminfo=y
