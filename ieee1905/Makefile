@@ -4,7 +4,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=prj-unish
+PKG_NAME:=ieee1905
 PKG_VERSION:=0.3.1
 
 LOCAL_DEV=0
@@ -22,10 +22,10 @@ PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/prj-unish
+define Package/ieee1905
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=Project unish
+  TITLE:=Project i1905
   DEPENDS:=+libwifi +libuci +libubox +ubus +libpthread +libnl-genl +libmidgen
 endef
 
@@ -43,8 +43,8 @@ define Package/libmidgen
   DEPENDS= +libpthread +libubox +libuci +libubus +libeasy +libnl-genl +libwifi +libjson-c +libblobmsg-json
 endef
 
-define Package/prj-unish/description
- This package provides unish-paanch.
+define Package/ieee1905/description
+ This package provides i1905
 endef
 
 TARGET_CFLAGS += \
@@ -78,7 +78,7 @@ endif
 #endef
 
 
-define Package/prj-unish/install
+define Package/ieee1905/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/i1905
@@ -126,6 +126,6 @@ define Build/InstallDev
 endef
 
 
-$(eval $(call BuildPackage,prj-unish))
+$(eval $(call BuildPackage,ieee1905))
 $(eval $(call BuildPackage,libi1905))
 $(eval $(call BuildPackage,libmidgen))
