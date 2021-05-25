@@ -4,7 +4,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=ieee1905
+PKG_NAME:=ieee1905-meshcomm
 PKG_VERSION:=2.1.44
 
 LOCAL_DEV:=0
@@ -20,42 +20,42 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/ieee1905
+define Package/ieee1905-meshcomm
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 daemon
-  DEPENDS:= +libuci +libjson-c +libieee1905 +ubox +libpcap +libopenssl +libwifi +libeasy
+  DEPENDS:= +libuci +libjson-c +libieee1905-meshcomm +ubox +libpcap +libopenssl +libwifi +libeasy
 endef
 
-define Package/ieee1905/config
+define Package/ieee1905-meshcomm/config
 	source "$(SOURCE)/Config.in"
 endef
 
-define Package/ieee1905/description
+define Package/ieee1905-meshcomm/description
  IEEE1905 stack with extended functionalities.
 endef
 
-define Package/libieee1905
+define Package/libieee1905-meshcomm
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 cmdu tlv utility library
 endef
 
-define Package/libwsc
+define Package/libwsc-meshcomm
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Wifi Simple Configuration building and processing library
   DEPENDS= +libopenssl +libuci +libubus
 endef
 
-define Package/lib1905hle
+define Package/lib1905hle-meshcomm
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=IEEE1905 hle stack library
 endef
 
 LIBS := \
-	$(if $(CONFIG_PACKAGE_libwsc),libwsc.so)
+	$(if $(CONFIG_PACKAGE_libwsc-meshcomm),libwsc.so)
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include \
@@ -89,7 +89,7 @@ define Build/Prepare
 endef
 endif
 
-define Package/ieee1905/install
+define Package/ieee1905-meshcomm/install
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
@@ -101,17 +101,17 @@ define Package/ieee1905/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ieee1905d $(1)/usr/sbin/
 endef
 
-define Package/lib1905hle/install
+define Package/lib1905hle-meshcomm/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/lib1905hle.so $(1)/usr/lib/lib1905hle.so
 endef
 
-define Package/libieee1905/install
+define Package/libieee1905-meshcomm/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/libieee1905.so $(1)/usr/lib/libieee1905.so
 endef
 
-define Package/libwsc/install
+define Package/libwsc-meshcomm/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/libwsc.so $(1)/usr/lib/libwsc.so
 endef
@@ -136,7 +136,7 @@ define Build/InstallDev
 	$(foreach lib,$(LIBS),$(call Build/InstallDev/$(lib),$(1),$(2));)
 endef
 
-$(eval $(call BuildPackage,libieee1905))
-$(eval $(call BuildPackage,lib1905hle))
-$(eval $(call BuildPackage,libwsc))
-$(eval $(call BuildPackage,ieee1905))
+$(eval $(call BuildPackage,libieee1905-meshcomm))
+$(eval $(call BuildPackage,lib1905hle-meshcomm))
+$(eval $(call BuildPackage,libwsc-meshcomm))
+$(eval $(call BuildPackage,ieee1905-meshcomm))

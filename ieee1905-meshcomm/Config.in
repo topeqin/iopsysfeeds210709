@@ -1,4 +1,4 @@
-if PACKAGE_ieee1905 || PACKAGE_lib1905al
+if PACKAGE_ieee1905-meshcomm || PACKAGE_lib1905al
 
 menu "developer/debug options"
 

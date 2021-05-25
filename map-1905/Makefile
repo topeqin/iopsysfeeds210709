@@ -24,7 +24,7 @@ define Package/map-1905
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:= MultiAP Stack
-  DEPENDS:= +ubox +ieee1905
+  DEPENDS:= +ubox +ieee1905-meshcomm
 endef
 
 define Package/map-1905/description

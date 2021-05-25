@@ -25,7 +25,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/map-topology
 	CATEGORY:=Utilities
 	DEPENDS:=+libubox +ubus +libpthread +libuci +libeasy \
-		+libieee1905 +libavahi-nodbus-support
+		+libieee1905-meshcomm +libavahi-nodbus-support
 	TITLE:=Utility to build topology of a multi-AP network
 endef
 
