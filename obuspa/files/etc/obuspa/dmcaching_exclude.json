@@ -1,0 +1,6 @@
+{
+  "dmcaching_exclude": [
+    "Device.DeviceInfo.ProcessStatus.Process.",
+    "Device.Hosts.Host."
+  ]
+}
