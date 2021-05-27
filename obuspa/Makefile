@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=obuspa
-PKG_VERSION:=4.0.0.3
+PKG_VERSION:=4.0.0.4
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=5bfb321658d1b0e8b4e6193fdda0d772876a2465
+PKG_SOURCE_VERSION:=117e5919af4ef892972edabb103ab7933a80be42
 PKG_SOURCE_URL:=https://dev.iopsys.eu/fork/obuspa.git
 PKG_MAINTAINER:=Vivek Dutta <vivek.dutta@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -85,6 +85,7 @@ define Package/obuspa/install
 	$(INSTALL_BIN) ./files/etc/init.d/obuspa $(1)/etc/init.d/
 	$(INSTALL_DATA) ./files/etc/config/obuspa $(1)/etc/config/
 	$(INSTALL_DATA) ./files/etc/obuspa/roles.json $(1)/etc/obuspa/roles.json
+	$(INSTALL_DATA) ./files/etc/obuspa/dmcaching_exclude.json $(1)/etc/obuspa/dmcaching_exclude.json
 	$(INSTALL_BIN) ./files/etc/hotplug.d/iface/85-obuspa $(1)/etc/hotplug.d/iface/
 endef
 
