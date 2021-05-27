@@ -14,6 +14,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=891e8d36446c0b1e7999c5798375985b1804fcf1
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/urlfilter.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_MIRROR_HASH:=skip
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -26,7 +27,7 @@ define Package/urlfilter
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=URL filter
-  DEPENDS:=+libuci +libnetfilter-queue +libnfnetlink +iptables-mod-nfqueue +libpthread +libubox +ubus
+  DEPENDS:=+libuci +libnetfilter-queue +libnfnetlink +iptables-mod-nfqueue +libpthread +libubox +ubus +conntrack
 endef
 
 define Package/urlfilter/description

@@ -9,13 +9,17 @@ PROG=/usr/sbin/urlfilter
 
 configure_firewall()
 {
-	iptables -L FORWARD|grep -iqE "NFQUEUE"
+	iptables -w -L FORWARD|grep -iqE "NFQUEUE"
 	if [ "$?" -ne 0 ]; then
-		echo "Applying firewall rule to setup NFQUEUE on forward traffic for urlfiltering"
-		iptables -I FORWARD 1 -p tcp --dport 80 -j NFQUEUE --queue-num 0
-		iptables -I FORWARD 2 -p tcp --dport 443 -j NFQUEUE --queue-num 0
-		iptables -I INPUT 1 -p udp --dport 53 -j NFQUEUE --queue-num 0
-		iptables -I INPUT 2 -p udp --sport 53 -j NFQUEUE --queue-num 0
+		# setup netfilter queue 0, use queue bypass so that if no application is
+		# listening to this queue then traffic is unaffected.
+		iptables -w -I FORWARD 1 -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -I FORWARD 2 -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -I INPUT 1 -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -I INPUT 2 -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+
+		# disable acceleration for https packet so that they can be read by urlfilter
+		ebtables -A FORWARD -p ip --ip-protocol 6 --ip-destination-port 443 -j SKIPLOG
 	fi
 }
 
@@ -27,32 +31,30 @@ start_service() {
 		procd_set_param respawn
 		procd_close_instance
 	fi
-}
 
-stop_service() {
-	pidof $NAME >/dev/null
-        if [ "$?" -eq 0 ]; then
-                pidof $NAME > /dev/null 2>&1 && killall -q $NAME
-                pidof $NAME > /dev/null 2>&1
-                while pidof $NAME > /dev/null 2>&1; do
-                        killall -q -9 $NAME
-                done
-        fi
-
-	iptables -L FORWARD|grep -iqE "NFQUEUE"
-	if [ "$?" -eq 0 ]; then
-		echo "Deleting firewall rule to setup NFQUEUE on forward traffic for urlfiltering"
-		iptables -D FORWARD -p tcp --dport 80 -j NFQUEUE --queue-num 0
-		iptables -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 0
-		iptables -D INPUT -p udp --dport 53 -j NFQUEUE --queue-num 0
-		iptables -D INPUT -p udp --sport 53 -j NFQUEUE --queue-num 0
+	# Now flush the existing connections, otherwise, urlfiltering cannot be performed
+	# on already open sites.
+	if [ -n "$(which conntrack)" ]; then
+		sleep 5
+		conntrack -F
 	fi
 }
 
+stop_service() {
+	iptables -w -L FORWARD|grep -iqE "NFQUEUE"
+	if [ "$?" -eq 0 ]; then
+		iptables -w -D FORWARD -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -D INPUT -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -D INPUT -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		ebtables -D FORWARD -p ip --ip-protocol 6 --ip-destination-port 443 -j SKIPLOG
+	fi
+}
 reload_service() {
 	stop
 	start
 }
+
 
 service_triggers() {
 	procd_add_reload_trigger "urlfilter"
