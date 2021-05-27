@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=0.3.2
+PKG_VERSION:=0.3.3
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=3c96dccfa5cffb32c4c119203e2f57b75bed3ed9
+PKG_SOURCE_VERSION:=272c8f8fb5dc64e6115b46c8002a21ac5f0c0eba
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/prj-unish.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
