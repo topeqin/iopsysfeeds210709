@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=map-topology
-PKG_VERSION:=2.0.1
+PKG_VERSION:=2.0.2
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
-PKG_SOURCE_VERSION:=eec19fb7f18863312760fe0db953d2f4e5ec9f5a
+PKG_SOURCE_VERSION:=a4ee90003678c1c04e88f329d2e4a3a396169f39
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/map-topology.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
@@ -25,7 +25,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/map-topology
 	CATEGORY:=Utilities
 	DEPENDS:=+libubox +ubus +libpthread +libuci +libeasy \
-		+libieee1905-meshcomm +libavahi-nodbus-support
+		+libi1905 +libavahi-nodbus-support
 	TITLE:=Utility to build topology of a multi-AP network
 endef
 
