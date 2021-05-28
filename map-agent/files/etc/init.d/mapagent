@@ -8,6 +8,10 @@ USE_PROCD=1
 start_service() {
 	config_load "mapagent"
 
+	ubus -t 5 wait_for wifi
+
+	sleep 2
+
 	local enabled
 	config_get_bool enabled agent enabled 1
 	[ "$enabled" -eq 0 ] && return 1
