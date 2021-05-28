@@ -1,84 +1,29 @@
 #!/bin/sh
 
-diff=0
-wan=$(uci -q get ports.WAN.ifname)
+wan=$(db -q get hw.board.ethernetWanPort)
 
-[ "$wan" == "" ] && exit 1 # no configuration
+[ -z "$wan" ] && exit 1 # no configuration
 [ "$PORT" != "$wan" ] && exit 0
 
-get_bridge() {
-	local id
-	local ifname="$1"
-	local bridge=""
-	id=$(cat /sys/class/net/${ifname}/brport/bridge/bridge/bridge_id)
+update_bstas() {
+	local section="$1"
+	local action="$2"
+	local ifname onboarded
 
-	#echo "bridge id = $id" > /dev/console
-
-	[ "$id" = "" ] && return
-
-	bridge=$(brctl show | grep $id | cut -f1)
-
-	case "$bridge" in
-		br-*)
-			bridge=$(echo $bridge | cut -c4-)
-		;;
-	esac
-
-	echo $bridge
-}
-
-disable_bstas() {
-	section="$1"
-
-	config_get mode "$section" mode "ap"
 	config_get ifname "$section" ifname
-	config_get device "$section" device
-	#echo mode=$mode ifname=$ifname > /dev/console
+	config_get_bool onboarded "$section" onboarded 0
 
-	[ "$mode" == "sta" ] || return
+	[ "$onboarded" -eq 0 ] && return
 
-	uci set wireless.$section.disabled=1
-	bridge=$(get_bridge $ifname)
-	if [ "$bridge" != "" ]; then
-		#echo got bridge = $bridge > /dev/console
-		ubus call network.interface.$bridge remove_device '{"name":"$ifname"}'
-	fi
-	ifconfig "$ifname" down
-
-	diff=1
-	#echo disabled $ifname > /dev/console
+	wpa_cli -i "$ifname" "$action" > /dev/null 2>&1
 }
 
-enable_bstas() {
-	section="$1"
-	config_load "wireless"
-
-	config_get mode "$section" mode "ap"
-	config_get ifname "$section" ifname
-	config_get device "$section" device
-	#echo mode=$mode ifname=$ifname > /dev/console
-
-	[ "$mode" == "sta" ] || return
-
-	uci set wireless.$section.disabled=0
-	ifconfig "$ifname" up
-
-	diff=1
-	#echo enabled $ifname > /dev/console
-}
-
-config_load "wireless"
-
-if [ "$LINK" == "up" ]; then
-	config_foreach disable_bstas wifi-iface
+if [ "$LINK" = "up" ]; then
+	touch /tmp/map.agent.bsta_global_disable
+	config_load "mapagent"
+	config_foreach update_bstas bk-iface disconnect
 else
-	config_foreach enable_bstas wifi-iface
+	rm -f /tmp/map.agent.bsta_global_disable
+	config_load "mapagent"
+	config_foreach update_bstas bk-iface reconnect
 fi
-
-#echo diff = $diff > /dev/console
-
-uci -q commit wireless
-[ "$diff" == "1" ] && {
-	#echo reloading via uci > /dev/console
-	ubus call uci commit '{"config":"wireless"}'
-}
