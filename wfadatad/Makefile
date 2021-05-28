@@ -24,7 +24,7 @@ define Package/wfadatad
   CATEGORY:=Utilities
   TITLE:=WiFi Data Elements-1.0 Agent and Collector
   DEPENDS:=+libwifi +libuci +libubox +ubus +libpthread +libnl-genl \
-	  +!WFA_DELM_STANDALONE:map-agent +libi1905 +libmaputil
+	  +!WFA_DELM_STANDALONE:map-agent +libi1905
 endef
 
 define Package/wfadatad/description
