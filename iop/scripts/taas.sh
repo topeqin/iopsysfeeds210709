@@ -26,14 +26,8 @@ function taas-init() {
 		exit 1
 	fi
 
-	# NAND erase block size.
-	nandBlkSz=$(grep CONFIG_TARGET_NAND_BLOCKSZ .config | \
-		tr -s "=\"" " " | cut -d " " -f 2)
-	nandBlkSz=$((nandBlkSz / 1024))
-
 	# Create a list of all images which might be of use.
-	for f in ${PWD}/bin/targets/iopsys-*/generic/last.* \
-			${PWD}/build_dir/target-arm*/bcmkernel/bcm963xx/targets/9*/bcm*_linux_raw_image_${nandBlkSz}.bin; do
+	for f in ${PWD}/bin/targets/iopsys-*/generic/last.*; do
 		[[ -s "$f" ]] && images+=("$f")
 	done
 
