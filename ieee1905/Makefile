@@ -81,7 +81,7 @@ endif
 define Package/ieee1905/install
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/lib/i1905
+	$(INSTALL_DIR) $(1)/usr/lib/ieee1905
 #	$(CP) $(PKG_BUILD_DIR)/src/lib*.so* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/i1905d $(1)/usr/sbin/
