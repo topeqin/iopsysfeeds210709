@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=0.3.3
+PKG_VERSION:=1.0.0
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=272c8f8fb5dc64e6115b46c8002a21ac5f0c0eba
+PKG_SOURCE_VERSION:=0240a89d71fcbbcf9641c253d97b642d93ea96aa
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/prj-unish.git
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
@@ -85,7 +85,7 @@ define Package/ieee1905/install
 #	$(CP) $(PKG_BUILD_DIR)/src/lib*.so* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/i1905d $(1)/usr/sbin/
-	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map.so $(1)/usr/lib/i1905/
+	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map.so $(1)/usr/lib/ieee1905/
 endef
 
 define Package/libi1905/install

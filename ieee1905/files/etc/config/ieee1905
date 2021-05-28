@@ -16,7 +16,7 @@ start_service() {
 
 service_triggers()
 {
-	procd_add_reload_trigger "i1905"
+	procd_add_reload_trigger "ieee1905"
 }
 
 reload_service() {
