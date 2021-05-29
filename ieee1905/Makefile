@@ -1,23 +1,24 @@
 #
-# Copyright (C) 2021 Iopsys
+# Copyright (C) 2021 IOPSYS
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ieee1905
-PKG_VERSION:=1.0.0
+PKG_VERSION:=3.0.0
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=0240a89d71fcbbcf9641c253d97b642d93ea96aa
-PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/prj-unish.git
-PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
+PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/ieee1905.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 PKG_MIRROR_HASH:=skip
 endif
-
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
+PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
