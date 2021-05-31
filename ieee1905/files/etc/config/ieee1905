@@ -20,4 +20,4 @@ config ap
 config al-iface
 	option enabled 1
 	option ifname 'br-lan'
-	option type 'bridge
+	option type 'bridge'

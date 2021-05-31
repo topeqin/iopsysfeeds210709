@@ -1,0 +1,10 @@
+if (PACKAGE_ieee1905)
+
+menu "Configurations"
+
+config IEEE1905_EXTENSION_ALLOWED
+	bool "Allow plugins to extend 1905 CMDUs and/or TLVs"
+	default y
+
+endmenu
+endif
