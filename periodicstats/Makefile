@@ -5,14 +5,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=periodicstats
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.0.1
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=91b15f9779baccc93213ce3ca164c326235d3096
+PKG_SOURCE_VERSION:=1cecf36826a5f350ec377683215c5bd17eaee82f
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/periodicstats.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_MIRROR_HASH:=skip
 endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)

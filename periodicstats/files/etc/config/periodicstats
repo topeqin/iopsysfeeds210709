@@ -1,3 +1,4 @@
 config globals 'globals'
 	option enable '0'
+	option base_interval '5'
 

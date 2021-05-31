@@ -38,6 +38,3 @@ reload_service() {
 	start
 }
 
-restart() {
-	start
-}
