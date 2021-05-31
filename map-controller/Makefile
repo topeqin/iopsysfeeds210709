@@ -5,9 +5,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-controller
-PKG_VERSION:=2.4.18
+PKG_VERSION:=2.4.19
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=01774d0bbfb862afb52869115e52614e774d0eca
+PKG_SOURCE_VERSION:=9abe41d62d31046455c52e706fff6414a9dfb8fa
 
 PKG_LICENSE:=PROPRIETARY IOPSYS
 PKG_LICENSE_FILES:=LICENSE
@@ -17,13 +17,16 @@ PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/map-controller.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 PKG_MIRROR_HASH:=skip
 
+
+PKG_BUILD_DEPENDS:=map-plugin
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/map-controller
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi Multi-AP Controller (EasyMesh R2)
-  DEPENDS:=+libuci +libubox +ubus +libeasy +libi1905 +ieee1905
+  DEPENDS:=+libuci +libubox +ubus +libeasy +libieee1905 +ieee1905 +map-plugin
 endef
 
 define Package/map-controller/description
