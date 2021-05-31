@@ -5,9 +5,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-agent
-PKG_VERSION:=3.5.25
+PKG_VERSION:=3.5.27
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=6a1cebf2a9016fa771b69a30d6bc8df778f75f00
+PKG_SOURCE_VERSION:=602a46b1c79af21577d70cafe75960a75cbc7c61
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
 PKG_LICENSE:=PROPRIETARY IOPSYS
@@ -18,13 +18,16 @@ PKG_SOURCE_URL:=git@dev.iopsys.eu:iopsys/map-agent.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)_$(PKG_SOURCE_VERSION).tar.xz
 PKG_MIRROR_HASH:=skip
 
+PKG_BUILD_DEPENDS:=map-plugin
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/map-agent
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=WiFi multi-AP Agent (EasyMesh R2)
-  DEPENDS:=+libwifi +libuci +libubox +ubus +libeasy +libi1905 +ieee1905
+  DEPENDS:=+libwifi +libuci +libubox +ubus +libeasy +libieee1905 +ieee1905 \
+	  +map-plugin
 endef
 
 define Package/map-agent/description
