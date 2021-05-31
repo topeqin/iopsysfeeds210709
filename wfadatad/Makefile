@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfadatad
-PKG_VERSION:=3.3.3
+PKG_VERSION:=3.3.4
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=ec21653b34650f9b77f222e28ce48e47863bf9d9
+PKG_SOURCE_VERSION:=eb407bc5bb51e9d39f4a7bf2a02d05f6730a52a1
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfadatad.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
@@ -17,6 +17,9 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_LICENSE:=PROPRIETARY IOPSYS
 PKG_LICENSE_FILES:=LICENSE
 
+
+PKG_BUILD_DEPENDS:=map-plugin
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/wfadatad
@@ -24,7 +27,7 @@ define Package/wfadatad
   CATEGORY:=Utilities
   TITLE:=WiFi Data Elements-1.0 Agent and Collector
   DEPENDS:=+libwifi +libuci +libubox +ubus +libpthread +libnl-genl \
-	  +!WFA_DELM_STANDALONE:map-agent +libi1905
+	  +!WFA_DELM_STANDALONE:map-agent +libieee1905 +map-plugin
 endef
 
 define Package/wfadatad/description
