@@ -14,7 +14,7 @@ LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dectmngr.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=2a02f868fcc247e49add49d3fd61cf8e58434885
+PKG_SOURCE_VERSION:=4236c8dab2247d613553fbc4c6a696e2992a9be1
 PKG_MIRROR_HASH:=skip
 endif
 

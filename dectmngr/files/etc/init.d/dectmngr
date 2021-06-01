@@ -9,6 +9,7 @@ USE_PROCD=1
 NAME=dectmngr
 PROG=/usr/sbin/dectmngr
 LOG_PATH=/var/log/dectmngr
+DB_PATH=/etc/dect
 
 # Ask dectmngr to exit nicely and wait for it to clean up, which is a slow process.
 stop_and_wait_dectmngr() {
@@ -61,6 +62,7 @@ boot() {
 	echo out > /sys/class/gpio/gpio14/direction
 
 	[ ! -d $LOG_PATH ] && mkdir -p $LOG_PATH
+	[ ! -d $DB_PATH ] && mkdir -p $DB_PATH
 	start
 }
 
