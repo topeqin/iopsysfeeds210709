@@ -23,6 +23,40 @@ EOF
 	exit 1
 }
 
+brcm_sync_credentials() {
+	mapagent_process_fh() {
+		local section=$1
+
+		config_get band $section band
+		config_get ssid $section ssid
+		config_get encryption $section encryption
+		config_get key $section key
+
+		section=$(uci add ieee1905 ap)
+		[ "$section" == "" ] && return
+
+		uci set ieee1905.${section}.band=$band
+		uci set ieee1905.${section}.ssid=$ssid
+		uci set ieee1905.${section}.encryption=$encryption
+		uci set ieee1905.${section}.key=$key
+	}
+
+	ieee1905_del_ap() {
+		local section=$1
+
+		uci -q delete ieee1905.${section}
+	}
+
+	config_load ieee1905
+	config_foreach ieee1905_del_ap ap
+
+	config_load mapagent
+	config_foreach mapagent_process_fh fh-iface
+
+	uci commit ieee1905
+}
+
+
 brcm_write_credentials() {
 	config_load mapagent
 
@@ -175,6 +209,7 @@ case "$func" in
 	setup_network) brcm_setup_network;;
 	setup_wireless) brcm_setup_wireless;;
 	write_credentials) brcm_write_credentials;;
+	sync_credentials) brcm_sync_credentials;;
 	bsta_steer) bsta_steer $@;;
 	write_bsta_config) write_bsta_config $@;;
 	--help|help) usage;;
