@@ -1,0 +1,18 @@
+# proxy required for nginx to save the file
+location /upload_proxy {
+    return 200 "File upload is successful \n";
+}
+
+location /upload {
+	limit_except POST { deny all; }
+	client_body_temp_path /tmp/sulu; # the directory to which uploads will be saved, make sure to create the directory you wish to use
+	client_body_in_file_only on;
+	client_body_buffer_size 128K;
+	client_max_body_size 50M;
+	proxy_pass_request_headers on;
+	proxy_set_header X-FILE $request_body_file;
+	proxy_set_body $request_body_file;
+	proxy_redirect off;
+	#proxy_pass is necessary. body is only stored when being passed to middleware, so we are providing a proxy that just returns 200.
+	proxy_pass http://127.0.0.1:8080/upload_proxy;
+}

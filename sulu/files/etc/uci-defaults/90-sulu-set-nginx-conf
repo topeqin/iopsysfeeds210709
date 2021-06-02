@@ -1,5 +1,7 @@
+mkdir -p /tmp/sulu
 uci -q set nginx._sulu=server
 uci -q add_list nginx._sulu.listen='8080'
 uci -q add_list nginx._sulu.listen='[::]:8080'
+uci -q add_list nginx._sulu.include='conf.d/sulu.locations'
 uci -q set nginx._sulu.root='/sulu'
 uci -q set nginx._sulu.server_name='_sulu'
