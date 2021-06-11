@@ -492,7 +492,8 @@ check_feeds()
     echo "Now checking if any changes have been done to the feeds."
     echo -e "${Green}_______________________________________________________________________________${Color_Off}"
 
-    feeds=$(grep -v "^#" feeds.conf| awk '{print $2}')
+    feeds="$1"
+    [ -n "$feeds" ] || feeds=$(grep -v "^#" feeds.conf| awk '{print $2}')
     for feed in `echo $feeds`
     do
 		feed_hash=$(feeds_hash $feed)
@@ -552,7 +553,7 @@ check_feeds()
     done
 }
 
-feeds_at_top()
+is_local_and_remote_same()
 {
     git remote update 2>/dev/null 1>/dev/null
     LOCAL=$(git rev-parse @)
@@ -581,7 +582,7 @@ feeds_at_top()
 usage(){
 	echo -e "$0 [flags]"
 	echo -e "flags:"
-	echo -e "  -v\tVerbose mode"
+	echo -e "  -f\tFeed to update"
 	echo -e "  -h\tShow this help"
 	echo -e "  -u\tUpdate package version\n"
 }
@@ -589,7 +590,7 @@ usage(){
 # Exported interface
 function update_package {
 
-	UPDATE=0
+    UPDATE=0
 
     Color_Off='\033[0m'       # Text Reset
 
@@ -603,18 +604,18 @@ function update_package {
     Cyan='\033[0;36m'         # Cyan
     White='\033[0;37m'        # White
 
-    while getopts "v:hu" opt; do
+    while getopts "f:hu" opt; do
 	case $opt in
-	    v)
-		verbose=$OPTARG
+	    f)
+		feed=$OPTARG
 		;;
 	    h)
-			usage
-			exit 1
-			;;
-		u)
-			UPDATE=1
-			;;
+		usage
+		exit 1
+		;;
+	    u)
+		UPDATE=1
+		;;
 	    \?)
 		echo "Invalid option: -$OPTARG" >&2
 		exit 1
@@ -637,9 +638,9 @@ function update_package {
     set -E
     trap '[ "$?" -ne 99 ] || exit 99' ERR
 
-    feeds_at_top
-    check_packages
-    check_feeds
+    is_local_and_remote_same
+    [ -n "$feed" ] || check_packages
+    check_feeds $feed
 }
 
 register_command "update_package" "Publish changes to packages and feeds"
