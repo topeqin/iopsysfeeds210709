@@ -13,6 +13,10 @@ PROG="/usr/sbin/icwmpd"
 
 EXTRA_HELP="	start	[GetRPCMethods] Start icwmpd service and send GetRPCMethods"
 
+log() {
+	echo "${@}"|logger -t cwmp.init -p info
+}
+
 validate_url() {
 	# SCHEMA_LIST: contain list of possible schemas that could be present in the acs url
 	# Example: SCHEMA_LIST="http https"
@@ -35,14 +39,14 @@ get_acs_url() {
 
 	if [ "$acs_dhcp_discovery" == "enable" -a -n "$dhcp_url" -o -z "$url" ]; then
 		url="$dhcp_url"
-		echo "ACS URL from DHCP server: $url"
+		log "ACS URL from DHCP server: $url"
 		[ -n "$url" ] && uci -P /var/state -q set cwmp.acs.url="$url" || url="$default_acs"
 	elif [ -n "$url" ];then
 		url="$(uci -q get cwmp.acs.url)"
-		echo "ACS URL from configuration: $url"
+		log "ACS URL from configuration: $url"
 	else
 		url="$default_acs"
-		echo "Using default ACS URL: $url"
+		log "Using default ACS URL: $url"
 		[ -n "$url" ] && uci -P /var/state -q set cwmp.acs.url="$url"
 	fi
 
@@ -108,7 +112,7 @@ wait_for_option43() {
 
 	if [ "$dhcp_discovery" == "enable" -o "$dhcp_discovery" == "1" ]
 	then
-		echo "Waiting for discovery of ACS URL from dhcp server ..."
+		log "Waiting for discovery of ACS URL from dhcp server ..."
 		while [ $tm -le $time ]
 		do
 			acs_url=`uci -P /var/state -q get cwmp.acs.dhcp_url`
@@ -155,25 +159,28 @@ start_service() {
 		touch /etc/icwmpd/.icwmpd_boot
 		touch /tmp/.icwmpd_boot
 	else
-		[ -f /sbin/netifd ] && echo "Waiting for Network to be started ..." && ubus -t 5 wait_for network.interface
-		[ -f /etc/config/wireless ] && echo "Waiting for WiFi to be started ..." && ubus -t 5 wait_for network.wireless
-		[ -f /usr/sbin/dnsmasq ] && echo "Waiting for DNS Proxy to be started ..." && ubus -t 5 wait_for dnsmasq
-		[ -f /etc/config/dhcp ] && echo "Waiting for DNS Server(s) ..." && wait_for_resolvfile 20
-		[ -f /usr/sbin/asterisk ] && echo "Waiting for Voice to be started ..." && ubus -t 5 wait_for asterisk
+		[ -f /sbin/netifd ] && log "Waiting for Network to be started ..." && ubus -t 5 wait_for network.interface
+		[ -f /etc/config/wireless ] && log "Waiting for WiFi to be started ..." && ubus -t 5 wait_for network.wireless
+		[ -f /usr/sbin/dnsmasq ] && log "Waiting for DNS Proxy to be started ..." && ubus -t 5 wait_for dnsmasq
+		[ -f /etc/config/dhcp ] && log "Waiting for DNS Server(s) ..." && wait_for_resolvfile 20
+		[ -f /usr/sbin/asterisk ] && log "Waiting for Voice to be started ..." && ubus -t 5 wait_for asterisk
 
 		config_load cwmp
 		set_wan_interface
 		wait_for_option43 20
 		get_acs_url
 
-		procd_open_instance
+		procd_open_instance icwmp
 		procd_set_param command "$PROG"
 		if [ "$1" = "GetRPCMethods" ];then
 			procd_append_param command -g
 		elif [ -f /etc/icwmpd/.icwmpd_boot ]; then
 			procd_append_param command -b
 		fi
-		procd_set_param respawn "3" "7" "0"
+		procd_set_param respawn \
+			${respawn_threshold:-5} \
+			${respawn_timeout:-10} ${respawn_retry:-3}
+			
 		procd_close_instance
 	fi
 }
