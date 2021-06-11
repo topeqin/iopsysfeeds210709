@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wfadatad
-PKG_VERSION:=4.0.1
+PKG_VERSION:=4.0.2
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=15085ae1bacb6b44fd9ad5565b0ba6f4c1ce3eba
+PKG_SOURCE_VERSION:=3fc24e2b2d3537a93254893ca54a723f207f9719
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/wfadatad.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
