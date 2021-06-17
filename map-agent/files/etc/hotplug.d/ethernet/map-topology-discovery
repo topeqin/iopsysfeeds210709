@@ -1,0 +1,22 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /usr/share/libubox/jshn.sh
+
+[ "$LINK" == "up" ] || exit 0
+[ "$PORT" == "" ] && exit 1
+
+ubus list ieee1905 > /dev/null 2>&1
+
+rc="$?"
+
+[ "$rc" != 0 ] && exit 1
+
+res=$(ubus -t5 call ieee1905 buildcmdu "{\"type\":0, \"ifname\":\"$PORT\"}")
+
+json_load "$res" > /dev/console 2>&1
+json_get_var data data
+
+[ "$data" == "" ] && exit 1
+
+ubus call ieee1905 cmdu "{\"dst\":\"01:80:c2:00:00:13\", \"type\":0, \"data\":\"${data}\"}"
