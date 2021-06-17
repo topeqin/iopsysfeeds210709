@@ -23,17 +23,25 @@ stop_and_wait_dectmngr() {
 }
 
 start_service() {
+	local opt_ext=
 	local rfpi=
-	local opt_rfpi=
+	local model_id=
+
 	test $(db get hw.board.hasDect) = "0" && return
 
 	echo 1 > /sys/class/gpio/gpio14/value
 
 	rfpi=$(db -q get hw.board.dect_rfpi)
-	[ -n "$rfpi" -a ${#rfpi} -eq 14 ] && opt_rfpi="-rfpi $rfpi"
+	[ -n "$rfpi" -a ${#rfpi} -eq 14 ] && opt_ext="$opt_ext -rfpi $rfpi"
+
+	# model_id=$(db -q get hw.board.dect_model_id)
+	# Setting model_id to 0x010203 is a workaround to reduce synchronisation time of some handset
+	# TODO: remove below line and uncomment the line above to get value from db when the problem is solved
+	model_id="01.02.03"
+	[ -n "$model_id" -a ${#model_id} -eq 8 ] && opt_ext="$opt_ext -model $model_id"
 
 	procd_open_instance
-	procd_set_param command $PROG -comname ttyH0 -log $LOG_PATH/dect-cmbs.log $opt_rfpi
+	procd_set_param command $PROG -comname ttyH0 -log $LOG_PATH/dect-cmbs.log $opt_ext
 	procd_set_param respawn 6 2 3
 	procd_set_param term_timeout 20
 	procd_set_param triggers asterisk
