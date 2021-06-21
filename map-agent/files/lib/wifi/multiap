@@ -24,8 +24,14 @@ EOF
 }
 
 brcm_sync_credentials() {
+	bands=""
 	mapagent_process_fh() {
 		local section=$1
+		local dev=$2
+
+		config_get device $section device
+
+		[ "$dev" != "$device" ] && return
 
 		config_get band $section band
 		config_get ssid $section ssid
@@ -41,6 +47,25 @@ brcm_sync_credentials() {
 		uci set ieee1905.${section}.key=$key
 	}
 
+	mapagent_process_radio() {
+		local section=$1
+
+		config_get device $section device
+		config_get band $section band
+		config_get dedicated_backhaul $section dedicated_backhaul 0
+
+		[ "$dedicated_backhaul" != "0" ] && return
+
+		for b in $bands; do
+			if [ "$b" == "$band" ]; then
+				return
+			fi
+		done
+
+		config_foreach mapagent_process_fh fh-iface $device
+		bands="$bands $band"
+	}
+
 	ieee1905_del_ap() {
 		local section=$1
 
@@ -51,7 +76,7 @@ brcm_sync_credentials() {
 	config_foreach ieee1905_del_ap ap
 
 	config_load mapagent
-	config_foreach mapagent_process_fh fh-iface
+	config_foreach mapagent_process_radio wifi-radio
 
 	uci commit ieee1905
 }
