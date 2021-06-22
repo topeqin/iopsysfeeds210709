@@ -7,7 +7,7 @@ USE_PROCD=1
 PROG=/usr/sbin/wfadatad
 
 service_running() {
-	ubus -t 2 wait_for ieee1905 map.1905
+	ubus -t 2 wait_for ieee1905 ieee1905.map
 }
 
 start_service() {
