@@ -1,0 +1,4 @@
+
+config global 'global'
+	option ageing_timer '1440'
+	option reboot_persistent '0'
