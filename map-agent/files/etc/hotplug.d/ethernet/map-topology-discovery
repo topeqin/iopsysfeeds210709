@@ -12,11 +12,35 @@ rc="$?"
 
 [ "$rc" != 0 ] && exit 1
 
-res=$(ubus -t5 call ieee1905 buildcmdu "{\"type\":0, \"ifname\":\"$PORT\"}")
+issue_discovery() {
+	local iface="$1"
 
-json_load "$res" > /dev/console 2>&1
-json_get_var data data
+	res=$(ubus -t5 call ieee1905 buildcmdu "{\"type\":0, \"ifname\":\"${iface}\"}")
+	json_load "$res" > /dev/null 2>&1
+	json_get_var data data
 
-[ "$data" == "" ] && exit 1
+	[ "$data" == "" ] && return
 
-ubus call ieee1905 cmdu "{\"dst\":\"01:80:c2:00:00:13\", \"type\":0, \"data\":\"${data}\"}"
+	ubus call ieee1905 cmdu "{\"dst\":\"01:80:c2:00:00:13\", \"type\":0, \"data\":\"${data}\"}"
+}
+
+process_vlans() {
+	section="$1"
+
+	config_get ifname "$section" ifname
+	config_get name "$section" name
+
+	[ "$2" == "$ifname" ] || return
+	[ "$name" == "" ] && return
+
+	issue_discovery $name
+
+	json_cleanup
+}
+
+# find and publish over any vlans
+config_load network
+config_foreach process_vlans interface $PORT
+config_foreach process_vlans device $PORT
+
+issue_discovery $PORT
