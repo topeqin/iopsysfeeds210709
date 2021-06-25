@@ -6,13 +6,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=swmodd
-PKG_VERSION:=1.1.0
+PKG_VERSION:=2.0.0
 
+LOCAL_DEV:=0
+ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=c8cc4a3b332ea931dbf2fe7e6b94bebf5c4bcc33
+PKG_SOURCE_VERSION:=f77dfc0f73cf8b75859795dac99153fd0f4611a7
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/swmodd.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
+endif
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -21,12 +24,12 @@ include $(INCLUDE_DIR)/package.mk
 define Package/swmodd
 	SECTION:=utils
 	CATEGORY:=Utilities
-	TITLE:=SWMOD - software modules ubus backend
-	DEPENDS:=+libuci +libubox +ubus +libuuid +PACKAGE_liblxc:liblxc
+	TITLE:= Software Modules Daemon
+	DEPENDS:=+libuci +libubox +ubus +libuuid +libbbf_api +PACKAGE_liblxc:liblxc
 endef
 
 define Package/swmodd/description
-	Ubus based backend for software modules which can be used by other applications running on top of it.
+	Software module daemon to manage software/deployment units using TR181 datamodel.
 endef
 
 TARGET_CFLAGS += \
@@ -38,13 +41,21 @@ MAKE_FLAGS += \
 	SWMOD_LXC="yes"
 endif
 
+ifeq ($(LOCAL_DEV),1)
+define Build/Prepare
+	$(CP) -rf ~/git/swmodd/* $(PKG_BUILD_DIR)/
+endef
+endif
+
 define Package/swmodd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/swmodd.init $(1)/etc/init.d/swmodd
+	$(INSTALL_DIR) $(1)/usr/lib/bbfdm
 	$(INSTALL_DIR) $(1)/etc/swmod
-	$(INSTALL_CONF) ./files/map_du $(1)/etc/swmod/map_du
 	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_CONF) ./files/map_du $(1)/etc/swmod/map_du
+	$(INSTALL_BIN) ./files/swmodd.init $(1)/etc/init.d/swmodd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/swmodd $(1)/usr/sbin/swmodd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libswmodd.so $(1)/usr/lib/bbfdm/libswmodd.so
 endef
 
 $(eval $(call BuildPackage,swmodd))
