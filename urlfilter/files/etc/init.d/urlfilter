@@ -21,6 +21,15 @@ configure_firewall()
 		# disable acceleration for https packet so that they can be read by urlfilter
 		ebtables -A FORWARD -p ip --ip-protocol 6 --ip-destination-port 443 -j SKIPLOG
 	fi
+	ip6tables -w -L FORWARD|grep -iqE "NFQUEUE"
+	if [ "$?" -ne 0 ]; then
+		#ip6table rules
+		ip6tables -w -I FORWARD 1 -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -I FORWARD 2 -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -I INPUT 1 -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -I INPUT 2 -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+	fi
+
 }
 
 start_service() {
@@ -48,6 +57,14 @@ stop_service() {
 		iptables -w -D INPUT -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -D INPUT -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		ebtables -D FORWARD -p ip --ip-protocol 6 --ip-destination-port 443 -j SKIPLOG
+	fi
+	ip6tables -w -L FORWARD|grep -iqE "NFQUEUE"
+	if [ "$?" -eq 0 ]; then
+		#ip6table rules
+		ip6tables -w -D FORWARD -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -D INPUT -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -D INPUT -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 	fi
 }
 reload_service() {
