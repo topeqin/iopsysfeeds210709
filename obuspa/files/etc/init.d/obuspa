@@ -32,7 +32,7 @@ cleanup() {
 trap cleanup EXIT
 
 log() {
-	echo "${@}"|logger -t obuspa -p debug
+	echo "${@}"|logger -t obuspa.init -p debug
 }
 
 db_set() {
@@ -539,7 +539,6 @@ configure_obuspa() {
 	}
 
 	role_def_file="${role_file}"
-	[ ${enabled} -eq 0 ] && return 0
 
 	if [ ${debug} -eq 1 ]; then
 		# Forward stdout of the command to logd
@@ -655,6 +654,16 @@ service_running() {
 }
 
 start_service() {
+	local enabled
+
+	config_load obuspa
+	config_get enabled global enabled
+
+	if [ "${enabled}" -eq 0 ]; then
+		log "OBUSPA not enabled"
+		return 0;
+	fi
+
 	ubus wait_for usp.raw
 	if [ "$?" -ne 0 ]; then
 		log "OBUSPA failed to start usp.raw not available"
