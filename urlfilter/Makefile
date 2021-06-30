@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=urlfilter
-PKG_VERSION:=1.1.0
+PKG_VERSION:=1.1.1
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=0c4ddcda12fa43737d3f0c2aa14760c423f15880
+PKG_SOURCE_VERSION:=a2fca29140673d058eb0bfb2b3b3c9e61d7f301f
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/urlfilter.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
