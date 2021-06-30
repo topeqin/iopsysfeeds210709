@@ -33,8 +33,6 @@ config mqtt 'localmqtt'
 	option BrokerAddress '127.0.0.1'
 	option BrokerPort '1883'
 	option TransportProtocol 'TCP/IP'
-	option Username 'admin'
-	option Password 'admin'
 
 # Add Device.LocalAgent.Subscription.
 config subscription
