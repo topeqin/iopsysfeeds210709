@@ -8,13 +8,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dectmngr
 PKG_RELEASE:=3
-PKG_VERSION:=3.1.8
+PKG_VERSION:=3.1.9
 
 LOCAL_DEV=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/dectmngr.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=f81f2a711b084a1b6f6ac34e876d6e76ce6375b1
+PKG_SOURCE_VERSION:=f9095eca8404a8121cb4a1c56a25577f5a58773d
 PKG_MIRROR_HASH:=skip
 endif
 
