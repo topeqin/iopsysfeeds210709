@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=periodicstats
-PKG_VERSION:=1.0.1
+PKG_VERSION:=1.0.2
 
 LOCAL_DEV:=0
 ifneq ($(LOCAL_DEV),1)
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=1cecf36826a5f350ec377683215c5bd17eaee82f
+PKG_SOURCE_VERSION:=d53b540a89165753922707ed624b315d58abd10a
 PKG_SOURCE_URL:=https://dev.iopsys.eu/iopsys/periodicstats.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
@@ -26,7 +26,7 @@ define Package/periodicstats
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Periodic Statistics Daemon
-  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libbbfdm
+  DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libbbfdm +libbbf_api +uspd
 endef
 
 define Package/periodicstats/description

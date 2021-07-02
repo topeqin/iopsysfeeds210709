@@ -10,6 +10,7 @@ PROG=/usr/sbin/periodicstatsd
 . /lib/functions.sh
 
 start_service() {
+	ubus wait_for usp
 	if [ -f "/etc/config/periodicstats" ]; then
 		if [ "$(uci -q get periodicstats.globals.enable)" == "1" ]; then
 			procd_open_instance periodicstatsd
@@ -25,12 +26,8 @@ stop() {
 	echo ;
 }
 
-boot() {
-	start
-}
-
 service_triggers() {
-	procd_add_reload_trigger periodicstats
+	procd_add_reload_trigger periodicstats uspd
 }
 
 reload_service() {
