@@ -39,13 +39,13 @@ start_service() {
 		configure_firewall
 		procd_set_param respawn
 		procd_close_instance
-	fi
 
-	# Now flush the existing connections, otherwise, urlfiltering cannot be performed
-	# on already open sites.
-	if [ -n "$(which conntrack)" ]; then
-		sleep 5
-		conntrack -F
+		# Now flush the existing connections, otherwise,
+		# URL filtering cannot be performed on already open sites.
+		if [ -n "$(which conntrack)" ]; then
+			sleep 5
+			conntrack -F
+		fi
 	fi
 }
 
