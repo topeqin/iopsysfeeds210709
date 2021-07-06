@@ -15,6 +15,8 @@ configure_firewall()
 		# listening to this queue then traffic is unaffected.
 		iptables -w -I FORWARD 1 -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -I FORWARD 2 -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -I FORWARD 3 -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -I FORWARD 4 -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -I INPUT 1 -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -I INPUT 2 -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 
@@ -26,6 +28,8 @@ configure_firewall()
 		#ip6table rules
 		ip6tables -w -I FORWARD 1 -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
 		ip6tables -w -I FORWARD 2 -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -I FORWARD 3 -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -I FORWARD 4 -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		ip6tables -w -I INPUT 1 -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		ip6tables -w -I INPUT 2 -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 	fi
@@ -54,6 +58,8 @@ stop_service() {
 	if [ "$?" -eq 0 ]; then
 		iptables -w -D FORWARD -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -D FORWARD -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		iptables -w -D FORWARD -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -D INPUT -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		iptables -w -D INPUT -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		ebtables -D FORWARD -p ip --ip-protocol 6 --ip-destination-port 443 -j SKIPLOG
@@ -63,6 +69,8 @@ stop_service() {
 		#ip6table rules
 		ip6tables -w -D FORWARD -p tcp --dport 80 -j NFQUEUE --queue-num 0 --queue-bypass
 		ip6tables -w -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -D FORWARD -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
+		ip6tables -w -D FORWARD -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		ip6tables -w -D INPUT -p udp --dport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 		ip6tables -w -D INPUT -p udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 	fi
