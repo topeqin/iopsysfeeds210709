@@ -1,13 +1,13 @@
 #
-# Copyright (C) 2020 IOPSYS Software Solutions AB
+# Copyright (C) 2020-21 IOPSYS Software Solutions AB
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=map-agent
-PKG_VERSION:=4.1.3
+PKG_VERSION:=5.0.1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=e15d11e438a89934dd9326ad7404641af048917c
+PKG_SOURCE_VERSION:=7e7706605bf4edf9223dc0b039f417143271a7cd
 PKG_MAINTAINER:=Anjan Chanda <anjan.chanda@iopsys.eu>
 
 PKG_LICENSE:=PROPRIETARY IOPSYS
@@ -45,20 +45,11 @@ TARGET_CFLAGS += \
 
 MAKE_PATH:=src
 
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/map-agent
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/src/include/*.h $(1)/usr/include/map-agent
-	$(CP) $(PKG_BUILD_DIR)/src/utils/timer_impl.h $(1)/usr/include/map-agent
-	$(CP) $(PKG_BUILD_DIR)/src/utils/*.so* $(1)/usr/lib/
-endef
-
 define Package/map-agent/install
 	$(INSTALL_DIR) $(1)/etc
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_BUILD_DIR)/src/utils/*.so* $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mapagent $(1)/usr/sbin/
 endef
 
