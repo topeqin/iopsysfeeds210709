@@ -98,8 +98,8 @@ define Build/InstallDev/map-plugin
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib/ieee1905
-	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map2.h $(1)/usr/include/map22.h
-	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map_module.h $(1)/usr/include/map_module22.h
+	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map2.h $(1)/usr/include/map2.h
+	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map_module.h $(1)/usr/include/map_module.h
 	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/map.so $(1)/usr/lib/ieee1905/map.so
 	$(CP) $(PKG_BUILD_DIR)/src/extensions/map/libmaputil.so $(1)/usr/lib/libmaputil.so
 endef
