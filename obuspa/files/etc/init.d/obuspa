@@ -52,33 +52,35 @@ get_index() {
 
 get_role_index_from_json() {
 	local role="${@}"
+	local num=0
 
 	# In case of role is empty or file not present
 	if [ -z "${role}" -o ! -f ${role_def_file} ]; then
-		echo 0
 		return 0
 	fi
 
 	json_init
 	json_load_file ${role_def_file}
-	if [ $? -ne 0 ]; then # In case of invalid json file
-		echo 0
-		return 0
-	fi
 
 	json_select roles
 	json_get_keys roles_obj
 
 	for k in ${roles_obj}; do
+		local rname
 		json_select $k
-		json_get_var name name
+		json_get_var rname name
 		json_select ..
-		if [ "${role}" = "${name}" ]; then
-			echo "${k}"
-			return 0
+
+		if [ "${rname}" != "Untrusted" -a "${rname}" != "full_access" ]; then
+			num=$(( num + 1 ))
+		fi
+
+		if [ "${role}" = "${rname}" ]; then
+			return ${num}
 		fi
 	done
-	echo 0
+
+	return 0
 }
 
 get_uci_ref_index() {
@@ -361,24 +363,45 @@ validate_challenge_section()
 		'LockoutPeriod:uinteger:0'
 }
 
+check_json_load()
+{
+	local ret=0
+	if [ -f ${role_def_file} ]; then
+		json_init
+		json_load_file ${role_def_file} 2>&1 |grep -q Failed
+		if [ $? -eq 0 ]; then # In case of invalid json file
+			log "failed to load [${role_def_file}]"
+			ret=1
+		fi
+	fi
+	json_init
+	return ${ret}
+}
+
 get_role_index() {
 	local role="Device.LocalAgent.ControllerTrust.Role"
-	local index=0
+	local idx=0
 	local role_name="${@}"
 
 	case "${role_name}" in
 	'full_access')
-	     index=1;
-	     ;;
+		idx=1;
+		;;
 	'Untrusted')
-	     index=2;
-	     ;;
+		idx=2;
+		;;
 	 *)
-	     local ji=$(get_role_index_from_json ${role_name})
-	     index=$(( ji + 2 )) # Add predefined roles
+		local ji=0
+
+		check_json_load
+		if [ $? -eq 0 ]; then
+			get_role_index_from_json ${role_name}
+			ji=$?
+		fi
+		idx=$(( ji + 2 )) # Add predefined roles
 	 esac
 
-	 echo "${role}.${index}"
+	 echo "${role}.${idx}"
 }
 
 configure_challenges() {
